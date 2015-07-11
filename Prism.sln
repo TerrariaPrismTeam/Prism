@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.22823.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prism.Injector", "Prism.Injector\Prism.Injector.csproj", "{FA53DC38-9B2B-45D3-818E-3E60F69143F6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FC60A361-206F-46B4-8E0C-322E0D943F42}"
+	ProjectSection(SolutionItems) = preProject
+		EmptyProgram.cs = EmptyProgram.cs
+		SharedAssemblyInfo.cs = SharedAssemblyInfo.cs
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prism", "Prism\Prism.csproj", "{75264225-6481-4139-95DD-11D62BBFE691}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FA53DC38-9B2B-45D3-818E-3E60F69143F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA53DC38-9B2B-45D3-818E-3E60F69143F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA53DC38-9B2B-45D3-818E-3E60F69143F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA53DC38-9B2B-45D3-818E-3E60F69143F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75264225-6481-4139-95DD-11D62BBFE691}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75264225-6481-4139-95DD-11D62BBFE691}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75264225-6481-4139-95DD-11D62BBFE691}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75264225-6481-4139-95DD-11D62BBFE691}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
