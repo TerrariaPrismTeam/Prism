@@ -57,6 +57,16 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <EmbeddedResource Include="ILAsm\asm-manif.il" />
+    <EmbeddedResource Include="ILAsm\asm-refs.il" />
+    <Compile Include="ILAsm\ILCompiler.cs" />
+    <Compile Include="ILAsm\ILProvider.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ILAsm\ILSnippetCompiler.cs" />
+    <Compile Include="ILInjector.cs" />
+    <Compile Include="InjectionData.cs" />
+    <Compile Include="InjectionExample.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
