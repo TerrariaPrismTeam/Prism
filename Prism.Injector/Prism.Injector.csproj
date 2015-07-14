@@ -60,6 +60,7 @@
     <EmbeddedResource Include="ILAsm\asm-manif.il" />
     <EmbeddedResource Include="ILAsm\asm-refs.il" />
     <Compile Include="CecilContext.cs" />
+    <Compile Include="CecilReflectionComparer.cs" />
     <Compile Include="ILAsm\ILCompiler.cs" />
     <Compile Include="ILAsm\ILProvider.cs">
       <SubType>Component</SubType>
@@ -69,6 +70,7 @@
     <Compile Include="InjectionData.cs" />
     <Compile Include="InjectionExample.cs" />
     <Compile Include="LinqExt.cs" />
+    <Compile Include="MemberResolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

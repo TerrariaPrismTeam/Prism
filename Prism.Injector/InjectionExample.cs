@@ -10,19 +10,19 @@ namespace Prism.Injector
     {
         public static void Example()
         {
-            CecilContext c = new CecilContext("Terraria.exe");
+            var c = new CecilContext("Terraria.exe");
+            var r = c.Resolver; // this contains a lot of useful methods
 
-            AssemblyDefinition
-                toInjectIn = c.PrimaryAssembly, // meh
-                mscorlib   = c.DefinitionOf(typeof(int).Assembly);
+            var toInjectIn = c.PrimaryAssembly;
 
-            var console  = c.DefinitionOf(typeof(Console));
-            var string_t = c.DefinitionOf(typeof(String ));
+            var writeStrLine = r.MethodOfA<string>(Console.WriteLine);
 
-            MethodDefinition writeStrLine = console.Methods.Where(md => md.Name == "WriteLine" && md.Parameters.Count == 1 && md.Parameters[0].ParameterType == string_t).First();
-
-            MethodInfo mainUpdate = new MethodInfo("Terraria.Main", "Update");
-            Instruction[] hw = new[] // Console.WriteLine("Hello, world") in IL
+            // the MemberResolver can get these, too, but because the injector doesn't have a compile-time reference to Terraria (which it can't because it EDITS it),
+            // this would require more boilerplate code here (see the Inject call for an example on how to use the resolver in this case)
+            //MethodRef mainUpdate = new MethodRef("Terraria.Main", "Update");
+            var mainUpdate = r.GetType("Terraria.Main", toInjectIn).Methods.First(md => md.Name == "Update");
+            // Console.WriteLine("Hello, world") in IL
+            Instruction[] hw = new[]
             {
                 // these instructions are hardcoded, but ILSnippetCompiler can be used as well (but snippets should be embedded resources or something, not directly embedded in the source)
                 // references to prism and (unpatched) terraria must be passed to the compilesnippet(s) methods
@@ -35,13 +35,17 @@ namespace Prism.Injector
 
             ILInjector.Inject(toInjectIn, new InjectionData[]
             {
-                // also see all XmlDoc in InjectionData.cs
-                InjectionData.Method.NewMethodPre(mainUpdate, hw), // inject it in the very beginning of Terraria.Main.Update
+                // this injects 'hello world' in 3 places
+                // (also see all XmlDoc in InjectionData.cs)
+
+                InjectionData.Method.NewMethodPre(mainUpdate, hw), // inject it in the very beginning of Main.Update
                 InjectionData.Instruction.NewInstructionIndex(mainUpdate, InjectionPosition.Post, hw, 5), // inject it after the 5th instruction
-                InjectionData.Call.NewCall(mainUpdate, InjectionPosition.Post, hw, new MethodInfo("System.String", "Concat")) // inject it after the first occurence of a "String.Concat" call
+
+                // this throws an exception, because there is no String.Concat call in Update, but I hope you get how it works
+                //InjectionData.Call.NewCall(mainUpdate, InjectionPosition.Post, hw, /*r.RefOfDefinition(*/r.MethodOfF<object[], string>(String.Concat)/*)*/) // inject it after the first occurence of a "String.Concat(object[])" call
             });
 
-            toInjectIn.Write("foo.dll");
+            toInjectIn.Write("Prism.Terraria.dll");
         }
     }
 }

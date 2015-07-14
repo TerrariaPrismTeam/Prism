@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
 using ILInstruction = Mono.Cecil.Cil.Instruction;
-using ReflectionMethodInfo = System.Reflection.MethodInfo;
 
 namespace Prism.Injector
 {
@@ -16,48 +16,40 @@ namespace Prism.Injector
         Post
     }
 
-    public struct MethodInfo
-    {
-        readonly static string
-            DOT = ".",
-            H_T = "#";
+    //public struct MethodRef
+    //{
+    //    readonly static string
+    //        DOT = ".",
+    //        H_T = "#";
 
-        public string Type;
-        public string Name;
-        /// <summary>
-        /// Overload index, if multiple exist.
-        /// </summary>
-        public int Overload;
+    //    public string Type;
+    //    public string Name;
+    //    /// <summary>
+    //    /// Overload index, if multiple exist.
+    //    /// </summary>
+    //    public int Overload;
 
-        public MethodInfo(string type, string name, int ovl = -1)
-        {
-            Type = type;
-            Name = name;
-            Overload = ovl;
-        }
+    //    [DebuggerStepThrough]
+    //    public MethodRef(string type, string name, int ovl = -1)
+    //    {
+    //        Type = type;
+    //        Name = name;
+    //        Overload = ovl;
+    //    }
 
-        public override string ToString()
-        {
-            return Type + DOT + Name + H_T + Overload;
-        }
-    }
-    public static class MethodInfoExt
-    {
-        public static MethodInfo ToInjectorInfo(ReflectionMethodInfo mi)
-        {
-            return
-                new MethodInfo(mi.DeclaringType.FullName, mi.Name,
-                    Array.IndexOf(mi.DeclaringType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
-                        .Where(rmi => rmi.Name == mi.Name).ToArray(), mi));
-        }
-    }
+    //    [DebuggerStepThrough]
+    //    public override string ToString()
+    //    {
+    //        return Type + DOT + Name + H_T + Overload;
+    //    }
+    //}
 
     public abstract class InjectionData
     {
         /// <summary>
         /// Method to inject the instructions in.
         /// </summary>
-        public MethodInfo Target;
+        public MethodDefinition Target;
         /// <summary>
         /// Before or after the target specification (method itself/method call/instruction).
         /// </summary>
@@ -67,7 +59,8 @@ namespace Prism.Injector
         /// </summary>
         public ILInstruction[] ToInject;
 
-        protected internal InjectionData(MethodInfo tar, InjectionPosition pos, ILInstruction[] toInject)
+        [DebuggerStepThrough]
+        protected internal InjectionData(MethodDefinition tar, InjectionPosition pos, ILInstruction[] toInject)
         {
             Target   = tar     ;
             Position = pos     ;
@@ -81,17 +74,20 @@ namespace Prism.Injector
         {
             public int RetIndex;
 
-            internal Method(MethodInfo tar, InjectionPosition pos, ILInstruction[] toInject, int retIndex)
+            [DebuggerStepThrough]
+            internal Method(MethodDefinition tar, InjectionPosition pos, ILInstruction[] toInject, int retIndex)
                 : base(tar, pos, toInject)
             {
                 RetIndex = retIndex;
             }
 
-            public static Method NewMethodPre (MethodInfo tar, ILInstruction[] toInject)
+            [DebuggerStepThrough]
+            public static Method NewMethodPre (MethodDefinition tar, ILInstruction[] toInject)
             {
                 return new Method(tar, InjectionPosition.Pre, toInject, -1);
             }
-            public static Method NewMethodPost(MethodInfo tar, ILInstruction[] toInject, int retIndex = 0)
+            [DebuggerStepThrough]
+            public static Method NewMethodPost(MethodDefinition tar, ILInstruction[] toInject, int retIndex = 0)
             {
                 return new Method(tar, InjectionPosition.Post, toInject, retIndex);
             }
@@ -101,20 +97,22 @@ namespace Prism.Injector
         /// </summary>
         public sealed class Call : InjectionData
         {
-            public MethodInfo Callee;
+            public MethodDefinition Callee;
             /// <summary>
             /// If the method is called multiple times, this specifies where exactly the instructions should be injected.
             /// </summary>
             public int CallPosition;
 
-            public Call(MethodInfo tar, InjectionPosition pos, ILInstruction[] toInject, MethodInfo callee, int cpos = 0)
+            [DebuggerStepThrough]
+            public Call(MethodDefinition tar, InjectionPosition pos, ILInstruction[] toInject, MethodDefinition callee, int cpos = 0)
                 : base(tar, pos, toInject)
             {
                 Callee       = callee;
                 CallPosition = cpos  ;
             }
 
-            public static Call NewCall(MethodInfo tar, InjectionPosition pos, ILInstruction[] toInject, MethodInfo callee, int cpos = 0)
+            [DebuggerStepThrough]
+            public static Call NewCall(MethodDefinition tar, InjectionPosition pos, ILInstruction[] toInject, MethodDefinition callee, int cpos = 0)
             {
                 return new Call(tar, pos, toInject, callee, cpos);
             }
@@ -159,36 +157,39 @@ namespace Prism.Injector
                 }
             }
 
-            internal Instruction(MethodInfo tar, InjectionPosition pos, ILInstruction[] toInject, int indexOffset)
+            [DebuggerStepThrough]
+            internal Instruction(MethodDefinition tar, InjectionPosition pos, ILInstruction[] toInject, int indexOffset)
                 : base(tar, pos, toInject)
             {
                 IndexOffset = indexOffset;
             }
 
-            public static Instruction NewInstructionIndex (MethodInfo tar, InjectionPosition pos, ILInstruction[] toInject, int index )
+            [DebuggerStepThrough]
+            public static Instruction NewInstructionIndex (MethodDefinition tar, InjectionPosition pos, ILInstruction[] toInject, int index )
             {
                 return new Instruction(tar, pos, toInject, -index );
             }
-            public static Instruction NewInstructionOffset(MethodInfo tar, InjectionPosition pos, ILInstruction[] toInject, int offset)
+            [DebuggerStepThrough]
+            public static Instruction NewInstructionOffset(MethodDefinition tar, InjectionPosition pos, ILInstruction[] toInject, int offset)
             {
                 return new Instruction(tar, pos, toInject,  offset);
             }
         }
 
-        internal Instruction ToInstruction(Func<MethodInfo, MethodDefinition> methodResolver)
+        internal Instruction ToInstruction()
         {
-            if (methodResolver == null)
-                throw new ArgumentNullException("methodResolver");
+            //if (methodResolver == null)
+            //    throw new ArgumentNullException("methodResolver");
 
             if (this is Instruction)
                 return (Instruction)this;
 
-            var t = methodResolver(Target);
+            //var t = methodResolver(Target);
 
-            if (t == null)
-                throw new Exception("Resolved target method is null. Method to resolve: " + Target);
+            //if (t == null)
+            //    throw new Exception("Resolved target method is null. Method to resolve: " + Target);
 
-            var b = t.Body;
+            var b = Target.Body;
             var ins = b.Instructions;
 
             if (this is Method)
@@ -203,8 +204,7 @@ namespace Prism.Injector
                     var f = ins.Where(i => i.OpCode.Code == Code.Ret).ToArray();
 
                     if (ri < 0 || ri >= f.Length)
-                        throw new Exception("Invalid ret OpCode index" + ri
-                            + " in method " + Target.Name + ":" + Target.Overload);
+                        throw new Exception("Invalid ret OpCode index" + ri + " in method " + Target.Name);// + ":" + Target.Overload);
 
                     off = f[ri].Offset;
                 }
@@ -221,18 +221,13 @@ namespace Prism.Injector
                     if (i.OpCode.Code != Code.Call && i.OpCode.Code != Code.Callvirt)
                         return false;
 
-                    var o = methodResolver(ce);
-
-                    if (o == null)
-                        throw new Exception("Resolved method is null. Method to resolve: " + Target);
-
-                    return o == i.Operand;
+                    return ce == i.Operand;
                 }).ToArray();
 
                 if (cp < 0 || cp >= cs.Length)
                     throw new Exception("Invalid call index " + cp
-                        + " to method " + ce    .Name + ":" + ce    .Overload
-                        + " in method " + Target.Name + ":" + Target.Overload);
+                        + " to method " + ce    .Name// + ":" + ce    .Overload
+                        + " in method " + Target.Name/* + ":" + Target.Overload*/);
 
                 return new Instruction(Target, Position, ToInject, cs[cp].Offset);
             }

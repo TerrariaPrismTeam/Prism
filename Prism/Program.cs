@@ -9,7 +9,7 @@ namespace Prism
     {
         static void Main(string[] args)
         {
-            new CecilContext("Terraria.exe");
+            InjectionExample.Example();
         }
     }
 }
