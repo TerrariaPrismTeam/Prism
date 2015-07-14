@@ -80,9 +80,7 @@ namespace Prism.Injector
     public class CecilContext
     {
         internal AsmInfo primaryAssembly;
-        internal Assembly reflectionOnlyAsm;
-
-        //internal List<AsmInfo> stdLibAsms = new List<AsmInfo>();
+        Assembly reflectionOnlyAsm;
 
         public AssemblyDefinition PrimaryAssembly
         {
@@ -100,27 +98,13 @@ namespace Prism.Injector
             get;
             private set;
         }
-        //public IEnumerable<AssemblyDefinition> StdLibReferences
-        //{
-        //    get
-        //    {
-        //        return stdLibAsms.Select(ai => ai.assembly);
-        //    }
-        //}
-        //public IEnumerable<AssemblyDefinition> AllDefinedAssemblies
-        //{
-        //    get
-        //    {
-        //        return StdLibReferences.Concat(new[] { primaryAssembly.assembly });
-        //    }
-        //}
 
         public CecilReflectionComparer Comparer
         {
             get;
             private set;
         }
-        public MetadataResolver Resolver
+        public MemberResolver Resolver
         {
             get;
             private set;
@@ -150,7 +134,7 @@ namespace Prism.Injector
             primaryAssembly = new AsmInfo(pa); // load types after stdlib/gac references are loaded
 
             Comparer = new CecilReflectionComparer(this);
-            Resolver = new MetadataResolver       (this);
+            Resolver = new MemberResolver       (this);
         }
 
         AssemblyNameReference TranslateReference(AssemblyName name)

@@ -8,7 +8,7 @@ using Mono.Cecil;
 
 namespace Prism.Injector
 {
-    public class MetadataResolver
+    public class MemberResolver
     {
         const BindingFlags ALL_FLAGS = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
@@ -32,7 +32,7 @@ namespace Prism.Injector
             }
         }
 
-        public MetadataResolver(CecilContext context)
+        public MemberResolver(CecilContext context)
         {
             c_wr = new WeakReference(context);
         }

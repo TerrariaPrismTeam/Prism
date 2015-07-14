@@ -9,7 +9,12 @@ namespace Prism
     {
         static void Main(string[] args)
         {
-            InjectionExample.Example();
+            InjectionExample.Load();
+
+            InjectionExample.Example  ();
+            InjectionExample.Publicify();
+
+            InjectionExample.Emit();
         }
     }
 }

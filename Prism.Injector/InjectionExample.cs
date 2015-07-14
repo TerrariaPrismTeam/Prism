@@ -8,11 +8,21 @@ namespace Prism.Injector
 {
     public static class InjectionExample
     {
-        public static void Example()
-        {
-            var c = new CecilContext("Terraria.exe");
-            var r = c.Resolver; // this contains a lot of useful methods
+        static CecilContext c;
+        static MemberResolver r;
 
+        public static void Load()
+        {
+            c = new CecilContext("Terraria.exe");
+            r = c.Resolver; // this contains a lot of useful methods
+        }
+        public static void Emit()
+        {
+            c.PrimaryAssembly.Write("Prism.Terraria.dll");
+        }
+
+        public static void Example  ()
+        {
             var toInjectIn = c.PrimaryAssembly;
 
             var writeStrLine = r.MethodOfA<string>(Console.WriteLine);
@@ -45,8 +55,29 @@ namespace Prism.Injector
                 // this throws an exception, because there is no String.Concat call in Update, but I hope you get how it works
                 //InjectionData.Call.NewCall(mainUpdate, InjectionPosition.Post, hw, r.MethodOfF<object[], string>(String.Concat))
             });
+        }
 
-            toInjectIn.Write("Prism.Terraria.dll");
+        static void PublicifyRec(TypeDefinition td)
+        {
+            td.IsPublic = true;
+
+            foreach (FieldDefinition  d in td.Fields ) d.IsPublic = true;
+            foreach (MethodDefinition d in td.Methods) d.IsPublic = true;
+
+            if (td.HasNestedTypes)
+                foreach (TypeDefinition d in td.NestedTypes) PublicifyRec(d);
+        }
+        public static void Publicify()
+        {
+            // make all types and members in the "Terraria" namespace public
+
+            foreach (TypeDefinition td in c.PrimaryAssembly.MainModule.Types)
+            {
+                if (td.Namespace != "Terraria")
+                    continue;
+
+                PublicifyRec(td);
+            }
         }
     }
 }
