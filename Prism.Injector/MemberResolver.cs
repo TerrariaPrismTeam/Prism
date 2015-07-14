@@ -38,116 +38,32 @@ namespace Prism.Injector
         }
 
         [DebuggerStepThrough]
-        AsmInfo InfoOf(AssemblyDefinition def)
+        public TypeDefinition GetType(string fullName)
         {
-            if (def == Context.PrimaryAssembly)
-                return Context.primaryAssembly;
-
-            return Context.stdLibAsms.FirstOrDefault(ai => ai.assembly == def);
-        }
-
-        [DebuggerStepThrough]
-        public AssemblyDefinition GetAssembly(string displayName)
-        {
-            if (displayName == Context.PrimaryAssembly.Name.Name)
-                return Context.PrimaryAssembly;
-
-            return Context.stdLibAsms.FirstOrDefault(ai => ai.assembly.Name.Name == displayName).assembly;
-        }
-
-        [DebuggerStepThrough]
-        public TypeDefinition GetType(string fullName, string asmDisplayName = null)
-        {
-            return GetType(fullName, asmDisplayName == null ? null : GetAssembly(asmDisplayName));
+            return Context.primaryAssembly.types.FirstOrDefault(td => td.FullName == fullName);
         }
         [DebuggerStepThrough]
-        public TypeDefinition GetType(string fullName, AssemblyDefinition asm = null)
+        public TypeDefinition GetType(Type t)
         {
-            IEnumerable<AsmInfo> i = asm == null
-                ? Context.AllDefinedAssemblies.Select(ad => InfoOf(ad)).Where(ai => ai != null)
-                : new[] { InfoOf(asm) };
-
-            foreach (var ai in i)
-            {
-                var fod = ai.types.FirstOrDefault(td => td.FullName == fullName);
-                if (fod != null)
-                    return fod;
-            }
-
-            return null;
+            return Context.primaryAssembly.types.FirstOrDefault(td => Comparer.TypeEquals(td, t));
         }
 
-        [DebuggerStepThrough]
-        public bool HasAssemblyDef(Assembly a)
-        {
-            var an = a.GetName().FullName;
-
-            if (Comparer.AssemblyEquals(Context.PrimaryAssembly, a))
-                return true;
-
-            return Context.StdLibReferences.Any(ad => Comparer.AssemblyEquals(ad, a));
-        }
         [DebuggerStepThrough]
         public bool HasTypeDefinition(Type t)
         {
-            if (!HasAssemblyDef(t.Assembly))
-                return false;
-
-            return Context.primaryAssembly.types.Any(td => Comparer.TypeEquals(td, t))
-                || Context.stdLibAsms.Any(ai => ai.types.Any(td => Comparer.TypeEquals(td, t)));
+            return Context.primaryAssembly.types.Any(td => Comparer.TypeEquals(td, t));
         }
 
-        [DebuggerStepThrough]
-        public AssemblyDefinition DefinitionOf(Assembly a)
-        {
-            if (!HasAssemblyDef(a))
-                return null;
-
-            if (Comparer.AssemblyEquals(Context.PrimaryAssembly, a))
-                return Context.PrimaryAssembly;
-
-            return Context.StdLibReferences.FirstOrDefault(ad => Comparer.AssemblyEquals(ad, a));
-        }
-        [DebuggerStepThrough]
-        public TypeDefinition DefinitionOf(Type t)
-        {
-            if (!HasTypeDefinition(t))
-                return null;
-
-            return Context.primaryAssembly.types.FirstOrDefault(td => Comparer.TypeEquals(td, t))
-                ?? Context.stdLibAsms.Select(ai => ai.types.FirstOrDefault(td => Comparer.TypeEquals(td, t))).FirstOrDefault();
-        }
         [DebuggerStepThrough]
         public TypeReference ReferenceOf(Type t)
         {
             return Context.PrimaryAssembly.MainModule.Import(t);
-            //var fod = Context.loadedRefTypes.FirstOrDefault(tr =>
-            //    Comparer.AssemblyEquals(tr.Module.Assembly, t.Assembly) && tr.FullName == t.FullName);
-            //if (fod != null)
-            //    return fod;
-
-            //if (HasTypeDefinition(t))
-            //    return DefinitionOf(t);
-
-            //if (!HasAssemblyDef(t.Assembly))
-            //    return null;
-
-            //// meh
-            //return null;
         }
 
         [DebuggerStepThrough]
         public FieldReference FieldOf   (FieldInfo fi)
         {
             return Context.PrimaryAssembly.MainModule.Import(fi);
-            //var td = DefinitionOf(fi.DeclaringType);
-            //if (td != null)
-            //{
-            //    var r = td.Fields.FirstOrDefault(fd => Comparer.FieldEquals(fd, fi));
-            //    if (r == null) return null;
-            //    return Context.PrimaryAssembly.MainModule.Import(r);
-            //}
-            //return null;
         }
         [DebuggerStepThrough]
         public FieldReference FieldOf<T>(Expression<Func<T>> expr)
@@ -156,32 +72,9 @@ namespace Prism.Injector
         }
 
         [DebuggerStepThrough]
-        public PropertyReference PropertyOf   (PropertyInfo pi)
-        {
-            var td = DefinitionOf(pi.DeclaringType);
-            if (td != null)
-                return td.Properties.FirstOrDefault(pd => Comparer.PropertyEquals(pd, pi));
-
-            return null;
-        }
-        [DebuggerStepThrough]
-        public PropertyReference PropertyOf<T>(Expression<Func<T>> expr)
-        {
-            return PropertyOf((PropertyInfo)((MemberExpression)expr.Body).Member);
-        }
-
-        [DebuggerStepThrough]
         public MethodReference MethodOf(MethodInfo mi)
         {
             return Context.PrimaryAssembly.MainModule.Import(mi);
-            //var td = DefinitionOf(mi.DeclaringType);
-            //if (td != null)
-            //{
-            //    var r = td.Methods.FirstOrDefault(md => Comparer.MethodEquals(md, mi));
-            //    if (r == null) return null;
-            //    return Context.PrimaryAssembly.MainModule.Import(r);
-            //}
-            //return null;
         }
         [DebuggerStepThrough]
         public MethodReference MethodOf<TDelegate>(TDelegate @delegate)

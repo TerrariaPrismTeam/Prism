@@ -17,9 +17,8 @@ namespace Prism.Injector
 
             var writeStrLine = r.MethodOfA<string>(Console.WriteLine);
 
-            // the MemberResolver can get these, too, but because the injector doesn't have a compile-time reference to Terraria (which it can't because it EDITS it),
-            // this would require more boilerplate code here (see the Inject call for an example on how to use the resolver in this case)
-            var mainUpdate = r.GetType("Terraria.Main", toInjectIn).Methods.First(md => md.Name == "Update"); // TODO: make getting methods/fields/... easier (probably using extension methods)
+            // get the update method
+            var mainUpdate = r.GetType("Terraria.Main").GetMethod("Update");
             // Console.WriteLine("Hello, world") in IL
             Instruction[] hw = new[] // TODO: make this easier to do, too (emitter class, fluent pattern?)
             {

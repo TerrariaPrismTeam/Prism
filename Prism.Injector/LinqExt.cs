@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Prism.Injector
 {
     public static class LinqExt
     {
+        [DebuggerStepThrough]
         public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> coll)
         {
             return coll.DefaultIfEmpty(new T[0]).Aggregate((a, b) => a.SafeConcat(b));
         }
+        [DebuggerStepThrough]
         public static IEnumerable<T> SafeConcat<T>(this IEnumerable<T> coll, IEnumerable<T> other)
         {
             if (coll == null && other == null)

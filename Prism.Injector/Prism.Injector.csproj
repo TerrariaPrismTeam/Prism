@@ -71,6 +71,7 @@
     <Compile Include="InjectionExample.cs" />
     <Compile Include="LinqExt.cs" />
     <Compile Include="MemberResolver.cs" />
+    <Compile Include="MemberResolverExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

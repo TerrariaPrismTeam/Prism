@@ -82,10 +82,7 @@ namespace Prism.Injector
         internal AsmInfo primaryAssembly;
         internal Assembly reflectionOnlyAsm;
 
-        internal List<AsmInfo> stdLibAsms = new List<AsmInfo>();
-
-        internal List<AssemblyNameReference> referencedAssemblies;
-        internal List<TypeReference> loadedRefTypes = new List<TypeReference>();
+        //internal List<AsmInfo> stdLibAsms = new List<AsmInfo>();
 
         public AssemblyDefinition PrimaryAssembly
         {
@@ -94,27 +91,29 @@ namespace Prism.Injector
                 return primaryAssembly.assembly;
             }
         }
-        public IEnumerable<AssemblyNameReference> References
+        public AssemblyNameReference[] References
         {
-            get
-            {
-                return referencedAssemblies;
-            }
+            //get
+            //{
+            //    return referencedAssemblies;
+            //}
+            get;
+            private set;
         }
-        public IEnumerable<AssemblyDefinition> StdLibReferences
-        {
-            get
-            {
-                return stdLibAsms.Select(ai => ai.assembly);
-            }
-        }
-        public IEnumerable<AssemblyDefinition> AllDefinedAssemblies
-        {
-            get
-            {
-                return StdLibReferences.Concat(new[] { primaryAssembly.assembly });
-            }
-        }
+        //public IEnumerable<AssemblyDefinition> StdLibReferences
+        //{
+        //    get
+        //    {
+        //        return stdLibAsms.Select(ai => ai.assembly);
+        //    }
+        //}
+        //public IEnumerable<AssemblyDefinition> AllDefinedAssemblies
+        //{
+        //    get
+        //    {
+        //        return StdLibReferences.Concat(new[] { primaryAssembly.assembly });
+        //    }
+        //}
 
         public CecilReflectionComparer Comparer
         {
@@ -134,24 +133,24 @@ namespace Prism.Injector
             reflectionOnlyAsm = Assembly.ReflectionOnlyLoadFrom(asmToLoad);
 
             var refs = reflectionOnlyAsm.GetReferencedAssemblies();
-            referencedAssemblies = refs.Select(TranslateReference).ToList();
+            References = refs.Select(TranslateReference).ToArray();
 
-            stdLibAsms = refs.Where(n =>
-            {
-                try
-                {
-                    return Assembly.ReflectionOnlyLoad(n.FullName).GlobalAssemblyCache;
-                }
-                catch
-                {
-                    return false;
-                }
-            }).Select(TranslateReference).Select(n => new AsmInfo(pa.MainModule.AssemblyResolver.Resolve(n))).ToList();
+            //stdLibAsms = refs.Where(n =>
+            //{
+            //    try
+            //    {
+            //        return Assembly.ReflectionOnlyLoad(n.FullName).GlobalAssemblyCache;
+            //    }
+            //    catch
+            //    {
+            //        return false;
+            //    }
+            //}).Select(TranslateReference).Select(n => new AsmInfo(pa.MainModule.AssemblyResolver.Resolve(n))).ToList();
 
             primaryAssembly = new AsmInfo(pa); // load types after stdlib/gac references are loaded
 
             Comparer = new CecilReflectionComparer(this);
-            Resolver = new MetadataResolver(this);
+            Resolver = new MetadataResolver       (this);
         }
 
         AssemblyNameReference TranslateReference(AssemblyName name)
