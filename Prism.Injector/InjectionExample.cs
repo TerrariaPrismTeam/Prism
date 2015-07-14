@@ -6,17 +6,19 @@ using Mono.Cecil.Cil;
 
 namespace Prism.Injector
 {
-    static class InjectionExample
+    public static class InjectionExample
     {
-        static void Example()
+        public static void Example()
         {
-            // I'll write helper methods for this (reflection stuff -> cecil stuff) later
-            AssemblyDefinition
-                toInjectIn = null, // meh
-                mscorlib = AssemblyDefinition.ReadAssembly(typeof(int).Assembly.Location);
+            CecilContext c = new CecilContext("Terraria.exe");
 
-            TypeDefinition console = mscorlib.MainModule.GetType("System.Console");
-            TypeDefinition string_t = mscorlib.MainModule.GetType("System.String");
+            AssemblyDefinition
+                toInjectIn = c.PrimaryAssembly, // meh
+                mscorlib   = c.DefinitionOf(typeof(int).Assembly);
+
+            var console  = c.DefinitionOf(typeof(Console));
+            var string_t = c.DefinitionOf(typeof(String ));
+
             MethodDefinition writeStrLine = console.Methods.Where(md => md.Name == "WriteLine" && md.Parameters.Count == 1 && md.Parameters[0].ParameterType == string_t).First();
 
             MethodInfo mainUpdate = new MethodInfo("Terraria.Main", "Update");
@@ -38,6 +40,8 @@ namespace Prism.Injector
                 InjectionData.Instruction.NewInstructionIndex(mainUpdate, InjectionPosition.Post, hw, 5), // inject it after the 5th instruction
                 InjectionData.Call.NewCall(mainUpdate, InjectionPosition.Post, hw, new MethodInfo("System.String", "Concat")) // inject it after the first occurence of a "String.Concat" call
             });
+
+            toInjectIn.Write("foo.dll");
         }
     }
 }

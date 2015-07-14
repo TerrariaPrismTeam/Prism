@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-static class Program
+static class DefaultProgram
 {
     static void Main(string[] args)
     {
