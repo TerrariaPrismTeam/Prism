@@ -181,17 +181,6 @@ namespace Prism.Injector
             return MethodOf(((Delegate)(object)@delegate).Method);
         }
 
-        //[DebuggerStepThrough]
-        //public MethodRef RefOfDefinition(MethodDefinition md)
-        //{
-        //    return new MethodRef(md.DeclaringType.FullName, md.Name, Array.IndexOf(md.DeclaringType.Methods.Where(m => m.Name == md.Name).ToArray(), md));
-        //}
-        //[DebuggerStepThrough]
-        //public MethodRef RefOfInfo(MethodInfo mi)
-        //{
-        //    return new MethodRef(mi.DeclaringType.FullName, mi.Name, Array.IndexOf(mi.DeclaringType.GetMethods(ALL_FLAGS).Where(m => m.Name == mi.Name).ToArray(), mi));
-        //}
-
         #region MethodOf overloads of common delegate types (func, action, converter, predicate, eventhandler)
         [DebuggerStepThrough]
         public MethodDefinition MethodOfA                               (Action                                act)

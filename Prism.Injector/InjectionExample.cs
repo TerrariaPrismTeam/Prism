@@ -19,7 +19,6 @@ namespace Prism.Injector
 
             // the MemberResolver can get these, too, but because the injector doesn't have a compile-time reference to Terraria (which it can't because it EDITS it),
             // this would require more boilerplate code here (see the Inject call for an example on how to use the resolver in this case)
-            //MethodRef mainUpdate = new MethodRef("Terraria.Main", "Update");
             var mainUpdate = r.GetType("Terraria.Main", toInjectIn).Methods.First(md => md.Name == "Update");
             // Console.WriteLine("Hello, world") in IL
             Instruction[] hw = new[]
@@ -38,11 +37,14 @@ namespace Prism.Injector
                 // this injects 'hello world' in 3 places
                 // (also see all XmlDoc in InjectionData.cs)
 
-                InjectionData.Method.NewMethodPre(mainUpdate, hw), // inject it in the very beginning of Main.Update
-                InjectionData.Instruction.NewInstructionIndex(mainUpdate, InjectionPosition.Post, hw, 5), // inject it after the 5th instruction
+                // inject it in the very beginning of Main.Update
+                InjectionData.Method.NewMethodPre(mainUpdate, hw),
+                // inject it after the 5th instruction
+                InjectionData.Instruction.NewInstructionIndex(mainUpdate, InjectionPosition.Post, hw, 5),
 
+                // inject it after the first occurence of a "String.Concat(object[])" call
                 // this throws an exception, because there is no String.Concat call in Update, but I hope you get how it works
-                //InjectionData.Call.NewCall(mainUpdate, InjectionPosition.Post, hw, /*r.RefOfDefinition(*/r.MethodOfF<object[], string>(String.Concat)/*)*/) // inject it after the first occurence of a "String.Concat(object[])" call
+                //InjectionData.Call.NewCall(mainUpdate, InjectionPosition.Post, hw, r.MethodOfF<object[], string>(String.Concat))
             });
 
             toInjectIn.Write("Prism.Terraria.dll");

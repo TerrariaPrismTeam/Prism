@@ -16,34 +16,6 @@ namespace Prism.Injector
         Post
     }
 
-    //public struct MethodRef
-    //{
-    //    readonly static string
-    //        DOT = ".",
-    //        H_T = "#";
-
-    //    public string Type;
-    //    public string Name;
-    //    /// <summary>
-    //    /// Overload index, if multiple exist.
-    //    /// </summary>
-    //    public int Overload;
-
-    //    [DebuggerStepThrough]
-    //    public MethodRef(string type, string name, int ovl = -1)
-    //    {
-    //        Type = type;
-    //        Name = name;
-    //        Overload = ovl;
-    //    }
-
-    //    [DebuggerStepThrough]
-    //    public override string ToString()
-    //    {
-    //        return Type + DOT + Name + H_T + Overload;
-    //    }
-    //}
-
     public abstract class InjectionData
     {
         /// <summary>
@@ -178,16 +150,8 @@ namespace Prism.Injector
 
         internal Instruction ToInstruction()
         {
-            //if (methodResolver == null)
-            //    throw new ArgumentNullException("methodResolver");
-
             if (this is Instruction)
                 return (Instruction)this;
-
-            //var t = methodResolver(Target);
-
-            //if (t == null)
-            //    throw new Exception("Resolved target method is null. Method to resolve: " + Target);
 
             var b = Target.Body;
             var ins = b.Instructions;
@@ -204,7 +168,7 @@ namespace Prism.Injector
                     var f = ins.Where(i => i.OpCode.Code == Code.Ret).ToArray();
 
                     if (ri < 0 || ri >= f.Length)
-                        throw new Exception("Invalid ret OpCode index" + ri + " in method " + Target.Name);// + ":" + Target.Overload);
+                        throw new Exception("Invalid ret OpCode index" + ri + " in method " + Target);
 
                     off = f[ri].Offset;
                 }
@@ -225,9 +189,7 @@ namespace Prism.Injector
                 }).ToArray();
 
                 if (cp < 0 || cp >= cs.Length)
-                    throw new Exception("Invalid call index " + cp
-                        + " to method " + ce    .Name// + ":" + ce    .Overload
-                        + " in method " + Target.Name/* + ":" + Target.Overload*/);
+                    throw new Exception("Invalid call index " + cp + " to method " + ce + " in method " + Target);
 
                 return new Instruction(Target, Position, ToInject, cs[cp].Offset);
             }
