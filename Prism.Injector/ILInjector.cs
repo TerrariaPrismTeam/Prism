@@ -29,12 +29,12 @@ namespace Prism.Injector
 
                 var ninsts = instr.ToInject;
 
-                var emit = instr.Position == InjectionPosition.Post
-                    ? (Action<Instruction>)(i => p.InsertAfter (tar, i))
-                    :                       i => p.InsertBefore(tar, i) ;
-
-                for (int i = ninsts.Length - 1; i >= 0; i--) // reverse order, otherwise it will blow up
-                    emit(ninsts[i]);
+                if (instr.Position == InjectionPosition.Pre)
+                    for (int i = 0; i < ninsts.Length; i++)
+                        p.InsertBefore(tar, ninsts[i]);
+                else
+                    for (int i = ninsts.Length - 1; i >= 0; i--) // reverse order, otherwise it will blow up
+                        p.InsertAfter (tar, ninsts[i]);
             }
         }
     }

@@ -120,59 +120,71 @@ namespace Prism.Injector
         [DebuggerStepThrough]
         public TypeReference ReferenceOf(Type t)
         {
-            var fod = Context.loadedRefTypes.FirstOrDefault(tr =>
-                Comparer.AssemblyEquals(tr.Module.Assembly, t.Assembly) && tr.FullName == t.FullName);
-            if (fod != null)
-                return fod;
+            return Context.PrimaryAssembly.MainModule.Import(t);
+            //var fod = Context.loadedRefTypes.FirstOrDefault(tr =>
+            //    Comparer.AssemblyEquals(tr.Module.Assembly, t.Assembly) && tr.FullName == t.FullName);
+            //if (fod != null)
+            //    return fod;
 
-            if (HasTypeDefinition(t))
-                return DefinitionOf(t);
+            //if (HasTypeDefinition(t))
+            //    return DefinitionOf(t);
 
-            if (!HasAssemblyDef(t.Assembly))
-                return null;
+            //if (!HasAssemblyDef(t.Assembly))
+            //    return null;
 
-            // meh
-            return null;
+            //// meh
+            //return null;
         }
 
         [DebuggerStepThrough]
-        public FieldDefinition FieldOf   (FieldInfo fi)
+        public FieldReference FieldOf   (FieldInfo fi)
         {
-            var td = DefinitionOf(fi.DeclaringType);
-            if (td != null)
-                return td.Fields.FirstOrDefault(fd => Comparer.FieldEquals(fd, fi));
-            return null;
+            return Context.PrimaryAssembly.MainModule.Import(fi);
+            //var td = DefinitionOf(fi.DeclaringType);
+            //if (td != null)
+            //{
+            //    var r = td.Fields.FirstOrDefault(fd => Comparer.FieldEquals(fd, fi));
+            //    if (r == null) return null;
+            //    return Context.PrimaryAssembly.MainModule.Import(r);
+            //}
+            //return null;
         }
         [DebuggerStepThrough]
-        public FieldDefinition FieldOf<T>(Expression<Func<T>> expr)
+        public FieldReference FieldOf<T>(Expression<Func<T>> expr)
         {
             return FieldOf((FieldInfo)((MemberExpression)expr.Body).Member);
         }
 
         [DebuggerStepThrough]
-        public PropertyDefinition PropertyOf   (PropertyInfo pi)
+        public PropertyReference PropertyOf   (PropertyInfo pi)
         {
             var td = DefinitionOf(pi.DeclaringType);
             if (td != null)
                 return td.Properties.FirstOrDefault(pd => Comparer.PropertyEquals(pd, pi));
+
             return null;
         }
         [DebuggerStepThrough]
-        public PropertyDefinition PropertyOf<T>(Expression<Func<T>> expr)
+        public PropertyReference PropertyOf<T>(Expression<Func<T>> expr)
         {
             return PropertyOf((PropertyInfo)((MemberExpression)expr.Body).Member);
         }
 
         [DebuggerStepThrough]
-        public MethodDefinition MethodOf(MethodInfo mi)
+        public MethodReference MethodOf(MethodInfo mi)
         {
-            var td = DefinitionOf(mi.DeclaringType);
-            if (td != null)
-                return td.Methods.FirstOrDefault(md => Comparer.MethodEquals(md, mi));
-            return null;
+            return Context.PrimaryAssembly.MainModule.Import(mi);
+            //var td = DefinitionOf(mi.DeclaringType);
+            //if (td != null)
+            //{
+            //    var r = td.Methods.FirstOrDefault(md => Comparer.MethodEquals(md, mi));
+            //    if (r == null) return null;
+            //    return Context.PrimaryAssembly.MainModule.Import(r);
+            //}
+            //return null;
         }
         [DebuggerStepThrough]
-        public MethodDefinition MethodOf<TDelegate>(TDelegate @delegate)
+        public MethodReference MethodOf<TDelegate>(TDelegate @delegate)
             where TDelegate : class
         {
             if (!(@delegate is Delegate))
@@ -183,117 +195,117 @@ namespace Prism.Injector
 
         #region MethodOf overloads of common delegate types (func, action, converter, predicate, eventhandler)
         [DebuggerStepThrough]
-        public MethodDefinition MethodOfA                               (Action                                act)
+        public MethodReference MethodOfA                               (Action                                act)
         {
             return MethodOf(act.Method);
         }
         [DebuggerStepThrough]
-        public MethodDefinition MethodOfA<T                            >(Action<T                            > act)
+        public MethodReference MethodOfA<T                            >(Action<T                            > act)
         {
             return MethodOf(act.Method);
         }
         [DebuggerStepThrough]
-        public MethodDefinition MethodOfA<T, T2                        >(Action<T, T2                        > act)
+        public MethodReference MethodOfA<T, T2                        >(Action<T, T2                        > act)
         {
             return MethodOf(act.Method);
         }
         [DebuggerStepThrough]
-        public MethodDefinition MethodOfA<T, T2, T3                    >(Action<T, T2, T3                    > act)
+        public MethodReference MethodOfA<T, T2, T3                    >(Action<T, T2, T3                    > act)
         {
             return MethodOf(act.Method);
         }
         [DebuggerStepThrough]
-        public MethodDefinition MethodOfA<T, T2, T3, T4                >(Action<T, T2, T3, T4                > act)
+        public MethodReference MethodOfA<T, T2, T3, T4                >(Action<T, T2, T3, T4                > act)
         {
             return MethodOf(act.Method);
         }
         [DebuggerStepThrough]
-        public MethodDefinition MethodOfA<T, T2, T3, T4, T5            >(Action<T, T2, T3, T4, T5            > act)
+        public MethodReference MethodOfA<T, T2, T3, T4, T5            >(Action<T, T2, T3, T4, T5            > act)
         {
             return MethodOf(act.Method);
         }
         [DebuggerStepThrough]
-        public MethodDefinition MethodOfA<T, T2, T3, T4, T5, T6        >(Action<T, T2, T3, T4, T5, T6        > act)
+        public MethodReference MethodOfA<T, T2, T3, T4, T5, T6        >(Action<T, T2, T3, T4, T5, T6        > act)
         {
             return MethodOf(act.Method);
         }
         [DebuggerStepThrough]
-        public MethodDefinition MethodOfA<T, T2, T3, T4, T5, T6, T7    >(Action<T, T2, T3, T4, T5, T6, T7    > act)
+        public MethodReference MethodOfA<T, T2, T3, T4, T5, T6, T7    >(Action<T, T2, T3, T4, T5, T6, T7    > act)
         {
             return MethodOf(act.Method);
         }
         [DebuggerStepThrough]
-        public MethodDefinition MethodOfA<T, T2, T3, T4, T5, T6, T7, T8>(Action<T, T2, T3, T4, T5, T6, T7, T8> act)
+        public MethodReference MethodOfA<T, T2, T3, T4, T5, T6, T7, T8>(Action<T, T2, T3, T4, T5, T6, T7, T8> act)
         {
             return MethodOf(act.Method);
         }
 
         [DebuggerStepThrough]
-        public MethodDefinition MethodOfF<                               TResult>(Func<                               TResult> func)
+        public MethodReference MethodOfF<                               TResult>(Func<                               TResult> func)
         {
             return MethodOf(func.Method);
         }
         [DebuggerStepThrough]
-        public MethodDefinition MethodOfF<T,                             TResult>(Func<T,                             TResult> func)
+        public MethodReference MethodOfF<T,                             TResult>(Func<T,                             TResult> func)
         {
             return MethodOf(func.Method);
         }
         [DebuggerStepThrough]
-        public MethodDefinition MethodOfF<T, T2,                         TResult>(Func<T, T2,                         TResult> func)
+        public MethodReference MethodOfF<T, T2,                         TResult>(Func<T, T2,                         TResult> func)
         {
             return MethodOf(func.Method);
         }
         [DebuggerStepThrough]
-        public MethodDefinition MethodOfF<T, T2, T3,                     TResult>(Func<T, T2, T3,                     TResult> func)
+        public MethodReference MethodOfF<T, T2, T3,                     TResult>(Func<T, T2, T3,                     TResult> func)
         {
             return MethodOf(func.Method);
         }
         [DebuggerStepThrough]
-        public MethodDefinition MethodOfF<T, T2, T3, T4,                 TResult>(Func<T, T2, T3, T4,                 TResult> func)
+        public MethodReference MethodOfF<T, T2, T3, T4,                 TResult>(Func<T, T2, T3, T4,                 TResult> func)
         {
             return MethodOf(func.Method);
         }
         [DebuggerStepThrough]
-        public MethodDefinition MethodOfF<T, T2, T3, T4, T5,             TResult>(Func<T, T2, T3, T4, T5,             TResult> func)
+        public MethodReference MethodOfF<T, T2, T3, T4, T5,             TResult>(Func<T, T2, T3, T4, T5,             TResult> func)
         {
             return MethodOf(func.Method);
         }
         [DebuggerStepThrough]
-        public MethodDefinition MethodOfF<T, T2, T3, T4, T5, T6,         TResult>(Func<T, T2, T3, T4, T5, T6,         TResult> func)
+        public MethodReference MethodOfF<T, T2, T3, T4, T5, T6,         TResult>(Func<T, T2, T3, T4, T5, T6,         TResult> func)
         {
             return MethodOf(func.Method);
         }
         [DebuggerStepThrough]
-        public MethodDefinition MethodOfF<T, T2, T3, T4, T5, T6, T7,     TResult>(Func<T, T2, T3, T4, T5, T6, T7,     TResult> func)
+        public MethodReference MethodOfF<T, T2, T3, T4, T5, T6, T7,     TResult>(Func<T, T2, T3, T4, T5, T6, T7,     TResult> func)
         {
             return MethodOf(func.Method);
         }
         [DebuggerStepThrough]
-        public MethodDefinition MethodOfF<T, T2, T3, T4, T5, T6, T7, T8, TResult>(Func<T, T2, T3, T4, T5, T6, T7, T8, TResult> func)
+        public MethodReference MethodOfF<T, T2, T3, T4, T5, T6, T7, T8, TResult>(Func<T, T2, T3, T4, T5, T6, T7, T8, TResult> func)
         {
             return MethodOf(func.Method);
         }
 
         [DebuggerStepThrough]
-        public MethodDefinition MethodOfE        (EventHandler         handler)
+        public MethodReference MethodOfE        (EventHandler         handler)
         {
             return MethodOf(handler.Method);
         }
         [DebuggerStepThrough]
-        public MethodDefinition MethodOfE<TEvent>(EventHandler<TEvent> handler)
+        public MethodReference MethodOfE<TEvent>(EventHandler<TEvent> handler)
             where TEvent : EventArgs
         {
             return MethodOf(handler.Method);
         }
 
         [DebuggerStepThrough]
-        public MethodDefinition MethodOf<TIn, TOut>(Converter<TIn, TOut> conv)
+        public MethodReference MethodOf<TIn, TOut>(Converter<TIn, TOut> conv)
         {
             return MethodOf(conv.Method);
         }
 
         [DebuggerStepThrough]
-        public MethodDefinition MethodOf<T>(Predicate<T> pred)
+        public MethodReference MethodOf<T>(Predicate<T> pred)
         {
             return MethodOf(pred.Method);
         }

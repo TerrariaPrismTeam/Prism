@@ -69,14 +69,14 @@ namespace Prism.Injector
         /// </summary>
         public sealed class Call : InjectionData
         {
-            public MethodDefinition Callee;
+            public MethodReference Callee;
             /// <summary>
             /// If the method is called multiple times, this specifies where exactly the instructions should be injected.
             /// </summary>
             public int CallPosition;
 
             [DebuggerStepThrough]
-            public Call(MethodDefinition tar, InjectionPosition pos, ILInstruction[] toInject, MethodDefinition callee, int cpos = 0)
+            public Call(MethodDefinition tar, InjectionPosition pos, ILInstruction[] toInject, MethodReference callee, int cpos = 0)
                 : base(tar, pos, toInject)
             {
                 Callee       = callee;
@@ -84,7 +84,7 @@ namespace Prism.Injector
             }
 
             [DebuggerStepThrough]
-            public static Call NewCall(MethodDefinition tar, InjectionPosition pos, ILInstruction[] toInject, MethodDefinition callee, int cpos = 0)
+            public static Call NewCall(MethodDefinition tar, InjectionPosition pos, ILInstruction[] toInject, MethodReference callee, int cpos = 0)
             {
                 return new Call(tar, pos, toInject, callee, cpos);
             }

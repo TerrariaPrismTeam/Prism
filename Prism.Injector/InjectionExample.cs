@@ -19,9 +19,9 @@ namespace Prism.Injector
 
             // the MemberResolver can get these, too, but because the injector doesn't have a compile-time reference to Terraria (which it can't because it EDITS it),
             // this would require more boilerplate code here (see the Inject call for an example on how to use the resolver in this case)
-            var mainUpdate = r.GetType("Terraria.Main", toInjectIn).Methods.First(md => md.Name == "Update");
+            var mainUpdate = r.GetType("Terraria.Main", toInjectIn).Methods.First(md => md.Name == "Update"); // TODO: make getting methods/fields/... easier (probably using extension methods)
             // Console.WriteLine("Hello, world") in IL
-            Instruction[] hw = new[]
+            Instruction[] hw = new[] // TODO: make this easier to do, too (emitter class, fluent pattern?)
             {
                 // these instructions are hardcoded, but ILSnippetCompiler can be used as well (but snippets should be embedded resources or something, not directly embedded in the source)
                 // references to prism and (unpatched) terraria must be passed to the compilesnippet(s) methods
