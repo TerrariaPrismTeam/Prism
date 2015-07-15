@@ -4,11 +4,11 @@ using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
-namespace Prism.Injector
+namespace Prism.Injector.Patcher
 {
     public static class InjectionExample
     {
-        static CecilContext c;
+        static CecilContext   c;
         static MemberResolver r;
 
         public static void Load()
@@ -18,6 +18,7 @@ namespace Prism.Injector
         }
         public static void Emit()
         {
+            // Newtonsoft.Json.dll and Steamworks.NET.dll are required to write the assembly
             c.PrimaryAssembly.Write("Prism.Terraria.dll");
         }
 
@@ -30,10 +31,11 @@ namespace Prism.Injector
             // get the update method
             var mainUpdate = r.GetType("Terraria.Main").GetMethod("Update");
             // Console.WriteLine("Hello, world") in IL
-            Instruction[] hw = new[] // TODO: make this easier to do, too (emitter class, fluent pattern?)
+            Instruction[] hw = new[]
             {
                 // these instructions are hardcoded, but ILSnippetCompiler can be used as well (but snippets should be embedded resources or something, not directly embedded in the source)
                 // references to prism and (unpatched) terraria must be passed to the compilesnippet(s) methods
+                // but this can be easier in some places (and definitely faster)
 
                 // ldstr "Hello, world"
                 Instruction.Create(OpCodes.Ldstr, "Hello, world"),
@@ -55,29 +57,6 @@ namespace Prism.Injector
                 // this throws an exception, because there is no String.Concat call in Update, but I hope you get how it works
                 //InjectionData.Call.NewCall(mainUpdate, InjectionPosition.Post, hw, r.MethodOfF<object[], string>(String.Concat))
             });
-        }
-
-        static void PublicifyRec(TypeDefinition td)
-        {
-            td.IsPublic = true;
-
-            foreach (FieldDefinition  d in td.Fields ) d.IsPublic = true;
-            foreach (MethodDefinition d in td.Methods) d.IsPublic = true;
-
-            if (td.HasNestedTypes)
-                foreach (TypeDefinition d in td.NestedTypes) PublicifyRec(d);
-        }
-        public static void Publicify()
-        {
-            // make all types and members in the "Terraria" namespace public
-
-            foreach (TypeDefinition td in c.PrimaryAssembly.MainModule.Types)
-            {
-                if (td.Namespace != "Terraria")
-                    continue;
-
-                PublicifyRec(td);
-            }
         }
     }
 }

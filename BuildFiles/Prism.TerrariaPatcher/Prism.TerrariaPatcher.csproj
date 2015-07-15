@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{75264225-6481-4139-95DD-11D62BBFE691}</ProjectGuid>
+    <ProjectGuid>{6B42EB0B-AFA3-4449-ACDA-AA91C8A39DC0}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Prism</RootNamespace>
-    <AssemblyName>Prism</AssemblyName>
+    <RootNamespace>Prism.TerrariaPatcher</RootNamespace>
+    <AssemblyName>patcher</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -23,7 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -32,23 +32,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>DefaultProgram</StartupObject>
-  </PropertyGroup>
-  <PropertyGroup>
     <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\References\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Prism.Terraria, Version=1.3.0.5, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\Prism.Terraria.dll</HintPath>
-    </Reference>
-    <Reference Include="Steamworks.NET, Version=7.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\Steamworks.NET.dll</HintPath>
+    <Reference Include="Steamworks.NET">
+      <HintPath>..\..\References\Steamworks.NET.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -56,25 +48,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\EmptyProgram.cs">
-      <Link>EmptyProgram.cs</Link>
-    </Compile>
-    <Compile Include="..\SharedAssemblyInfo.cs">
+    <Compile Include="..\..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BuildFiles\Prism.TerrariaPatcher\Prism.TerrariaPatcher.csproj">
-      <Project>{6b42eb0b-afa3-4449-acda-aa91c8a39dc0}</Project>
-      <Name>Prism.TerrariaPatcher</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Prism.Injector\Prism.Injector.csproj">
+    <ProjectReference Include="..\..\Prism.Injector\Prism.Injector.csproj">
       <Project>{fa53dc38-9b2b-45d3-818e-3e60f69143f6}</Project>
       <Name>Prism.Injector</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>rem this patches the Terraria assembly
+rem in order to build, one must provide their own .exe.
+rem this will create a patched terraria assembly, which is referenced by Prism.csproj.
+
+"$(TargetPath)" "$(SolutionDir)References\Terraria.exe" "$(SolutionDir)References\Prism.Terraria.dll"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
