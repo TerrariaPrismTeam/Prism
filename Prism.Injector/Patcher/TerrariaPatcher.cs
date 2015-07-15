@@ -14,10 +14,8 @@ namespace Prism.Injector.Patcher
         {
             td.IsPublic = true;
 
-            foreach (FieldDefinition d in td.Fields) d.IsPublic = true;
-            foreach (MethodDefinition d in td.Methods)
-                if (d.IsVirtual && !d.IsNewSlot && !d.IsAbstract) // don't change access modifier of overridden protected members etc
-                    d.IsPublic = true;
+            foreach (FieldDefinition  d in td.Fields ) d.IsPublic = true;
+            foreach (MethodDefinition d in td.Methods) if (!d.IsVirtual) d.IsPublic = true; // don't change access modifier of overridden protected members etc
 
             if (td.HasNestedTypes)
                 foreach (TypeDefinition d in td.NestedTypes) PublicifyRec(d);
