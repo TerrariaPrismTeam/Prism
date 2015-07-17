@@ -12,13 +12,17 @@ namespace Prism.Injector.Patcher
 
         static void PublicifyRec(TypeDefinition td)
         {
-            td.IsPublic = true;
+            if (!td.IsPublic)
+                td.Attributes =
+                    (td.Attributes & ~(td.Attributes & TypeAttributes.VisibilityMask)) | // remove all bits from the visibility mask (contains IsNested!)
+                    (td.IsNested ? TypeAttributes.NestedPublic : TypeAttributes.Public); // set it to either Public (1) or NestedPublic (2), if it was nested before.
 
-            foreach (FieldDefinition  d in td.Fields ) d.IsPublic = true;
-            foreach (MethodDefinition d in td.Methods) if (!d.IsVirtual) d.IsPublic = true; // don't change access modifier of overridden protected members etc
+            foreach (FieldDefinition  d in td.Fields ) if (                !d.IsPublic) d.IsPublic = true;
+            foreach (MethodDefinition d in td.Methods) if (!d.IsVirtual && !d.IsPublic) d.IsPublic = true; // don't change access modifier of overridden protected members etc
 
             if (td.HasNestedTypes)
-                foreach (TypeDefinition d in td.NestedTypes) PublicifyRec(d);
+                foreach (TypeDefinition d in td.NestedTypes)
+                    PublicifyRec(d);
         }
         public static void Publicify()
         {
