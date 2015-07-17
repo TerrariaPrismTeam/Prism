@@ -20,6 +20,8 @@ namespace Prism
 
         static int nextItemID = ItemID.Count;
 
+        static bool justDrawCrashed = false;
+
         int PnAS_ID;
 
         bool hasPnAS = false;
@@ -28,12 +30,26 @@ namespace Prism
             : base()
         {
             versionNumber += ", Prism v" + AssemblyInfo.VERSION;
+
+            SavePath += "\\Prism";
+            PlayerPath = SavePath + "\\Players";
+            WorldPath = SavePath + "\\Worlds";
         }
 
         static int AddItem()
         {
             Array.Resize(ref itemTexture, itemTexture.Length + 1);
             Array.Resize(ref itemAnimations, itemAnimations.Length + 1);
+            Array.Resize(ref itemFlameLoaded, itemFlameLoaded.Length + 1);
+            Array.Resize(ref itemFlameTexture, itemFlameTexture.Length + 1);
+            Array.Resize(ref itemFrame, itemFrame.Length + 1);
+            Array.Resize(ref itemFrameCounter, itemFrameCounter.Length + 1);
+
+            Array.Resize(ref Item.bodyType, Item.bodyType.Length + 1);
+            Array.Resize(ref Item.claw, Item.claw.Length + 1);
+            Array.Resize(ref Item.headType, Item.headType.Length + 1);
+            Array.Resize(ref Item.legType, Item.legType.Length + 1);
+            Array.Resize(ref Item.staff, Item.staff.Length + 1);
 
             Array.Resize(ref ItemID.Sets.AnimatesAsSoul, ItemID.Sets.AnimatesAsSoul.Length + 1);
             Array.Resize(ref ItemID.Sets.Deprecated, ItemID.Sets.Deprecated.Length + 1);
@@ -165,10 +181,19 @@ namespace Prism
                 DrawTrace(spriteBatch, PrismDebug.lines);
 
                 spriteBatch.End();
+
+                justDrawCrashed = false;
             }
             catch (Exception e)
             {
-                ExceptionHandler.Handle(e);
+                if (justDrawCrashed)
+                    ExceptionHandler.HandleFatal(e); // drawing state got fucked up
+                else
+                {
+                    justDrawCrashed = true;
+
+                    ExceptionHandler.Handle(e);
+                }
             }
         }
     }
