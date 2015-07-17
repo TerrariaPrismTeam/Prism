@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
@@ -23,6 +22,10 @@ namespace Prism
 
         protected override void Initialize()
         {
+            Item.OnSetDefaults += (i, t, nmc) => i.RealSetDefaults(t, nmc);
+
+            new Item().SetDefaults(1);
+
             base.Initialize();
         }
 
@@ -65,9 +68,6 @@ namespace Prism
                 base.Update(gt);
 
                 PrismDebug.Update();
-
-                if (mouseLeft && mouseLeftRelease)
-                    Trace.WriteLine("mouse click");
             }
             catch (Exception e)
             {

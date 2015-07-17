@@ -7,8 +7,8 @@ namespace Prism.Injector.Patcher
 {
     public static class TerrariaPatcher
     {
-        static CecilContext   c;
-        static MemberResolver r;
+        internal static CecilContext   c;
+        internal static MemberResolver r;
 
         static void PublicifyRec(TypeDefinition td)
         {
@@ -44,6 +44,7 @@ namespace Prism.Injector.Patcher
 
             Publicify();
 
+            ItemPatcher.Patch();
             // do other stuff here
 
             // Newtonsoft.Json.dll and Steamworks.NET.dll are required to write the assembly

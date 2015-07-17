@@ -75,10 +75,12 @@
     <Compile Include="ILAsm\ILSnippetCompiler.cs" />
     <Compile Include="ILInjector.cs" />
     <Compile Include="InjectionData.cs" />
+    <Compile Include="Patcher\CecilHelper.cs" />
     <Compile Include="Patcher\InjectionExample.cs" />
     <Compile Include="LinqExt.cs" />
     <Compile Include="MemberResolver.cs" />
     <Compile Include="MemberResolverExtensions.cs" />
+    <Compile Include="Patcher\ItemPatcher.cs" />
     <Compile Include="Patcher\TerrariaPatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
