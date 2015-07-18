@@ -16,6 +16,13 @@ namespace Prism.Mods
         public readonly static ReadOnlyDictionary<string, ModDef> ModsFromInternalName = new ReadOnlyDictionary<string, ModDef>(modsFromInternalName);
         // other dicts etc
 
+        /// <summary>
+        /// Gets the property from the Json data or throws an exception if it fails (See <see cref="GetOrDef{T}(JsonData, string, T)"/> to return a default on failure)."/>
+        /// </summary>
+        /// <typeparam name="T">Type to convert the Json property to</typeparam>
+        /// <param name="j">The Json Data</param>
+        /// <param name="key">The Json Property's Key</param>
+        /// <returns>The Json data</returns>
         static T GetOrExn<T>(JsonData j, string key)
         {
             if (j.Has(key))
@@ -23,6 +30,15 @@ namespace Prism.Mods
 
             throw new FormatException("Could not find property '" + key + "'.");
         }
+
+        /// <summary>
+        /// Gets the property from the Json data or returns a specified default if it fails (See <see cref="GetOrExn{T}(JsonData, string)"/> to throw an exception on failure)."/>
+        /// </summary>
+        /// <typeparam name="T">Type to convert the Json property to</typeparam>
+        /// <param name="j">The Json Data</param>
+        /// <param name="key">The Json Property's Key</param>
+        /// <param name="def">The default T value to return. Defaults to default(T).</param>
+        /// <returns>Either the Json data, if successful, or the default, if not successful.</returns>
         static T GetOrDef<T>(JsonData j, string key, T def = default(T))
         {
             if (j.Has(key))
@@ -30,6 +46,13 @@ namespace Prism.Mods
 
             return def;
         }
+
+        /// <summary>
+        /// Parses the mod's information from Json, loading any required references, and returns its <see cref="ModInfo"/> object.
+        /// </summary>
+        /// <param name="j">Json Data to load the <see cref="ModInfo"/> from</param>
+        /// <param name="path">The path to the mod</param>
+        /// <returns>The <see cref="ModInfo"/> of the mod</returns>
         public static ModInfo ParseModInfo(JsonData j, string path)
         {
             List<IReference> refs = new List<IReference>();

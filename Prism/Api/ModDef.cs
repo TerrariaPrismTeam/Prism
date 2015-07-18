@@ -17,7 +17,7 @@ namespace Prism.API
         internal Dictionary<string, Stream> resources = new Dictionary<string, Stream>();
 
         /// <summary>
-        /// Gets the <see cref="ModInfo" /> of this mod.
+        /// Gets the <see cref="ModInfo"/> of this mod.
         /// </summary>
         public ModInfo Info
         {
@@ -25,7 +25,7 @@ namespace Prism.API
             internal set;
         }
         /// <summary>
-        /// Gets the <see cref="System.Reflection.Assembly" /> that defines this mod.
+        /// Gets the <see cref="System.Reflection.Assembly"/> that defines this mod.
         /// </summary>
         public Assembly Assembly
         {
@@ -67,6 +67,12 @@ namespace Prism.API
         /// </returns>
         protected abstract Dictionary<string, ItemDef> GetItemDefs();
 
+        /// <summary>
+        /// Contains resources loaded by the mod.
+        /// </summary>
+        /// <typeparam name="T">The type of resource.</typeparam>
+        /// <param name="path">The path to the resource.</param>
+        /// <returns>The resource</returns>
         public T GetResource<T>(string path)
         {
             if (!resources.ContainsKey(path))
@@ -78,6 +84,9 @@ namespace Prism.API
             throw new InvalidOperationException("No resource reader found for type " + typeof(T) + ".");
         }
 
+        /// <summary>
+        /// Disposes of resources.
+        /// </summary>
         internal void Unload()
         {
             OnUnload();
@@ -87,6 +96,10 @@ namespace Prism.API
 
             resources.Clear();
         }
+        /// <summary>
+        /// Gets the item defs very redundantly.
+        /// </summary>
+        /// <returns></returns>
         internal Dictionary<string, ItemDef> GetItemDefsI()
         {
             return GetItemDefs();

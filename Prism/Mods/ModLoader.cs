@@ -17,6 +17,11 @@ namespace Prism.Mods
         internal static List<LoaderError> errors = new List<LoaderError>();
         static List<string> circRefList = new List<string>();
 
+        /// <summary>
+        /// Loads the mod info from the specified path and adds any errors encountered to the internal <see cref="errors"/> list.
+        /// </summary>
+        /// <param name="path">The path to load from.</param>
+        /// <returns><see cref="ModInfo"/> if loaded successfully, null if failed to load</returns>
         static ModInfo? ModInfoFromModPath(string path)
         {
             var fn = path + Path.DirectorySeparatorChar + PrismApi.JsonManifestFileName;
@@ -29,6 +34,12 @@ namespace Prism.Mods
 
             return ModData.ParseModInfo(JsonMapper.ToObject(File.ReadAllText(fn)), path);
         }
+
+        /// <summary>
+        /// Gets a <see cref="ModInfo"/> object from the mod's internal name.
+        /// </summary>
+        /// <param name="internalName">The internal name of the mod info.</param>
+        /// <returns>The ModInfo object whose internal name is that of internalName if able to locate it. Null if unable to locate it.</returns>
         static ModInfo? ModInfoFromInternalName(string internalName)
         {
             return Directory.EnumerateDirectories(PrismApi.ModDirectory)
@@ -37,6 +48,12 @@ namespace Prism.Mods
                 .FirstOrDefault();
         }
 
+        /// <summary>
+        /// Recursively checks for circular mod references.
+        /// </summary>
+        /// <param name="info">The <see cref="ModInfo"/> of the mod to check</param>
+        /// <param name="evilMod">Outputs the <see cref="ModReference.Name"/> causing the circular references if applicable.</param>
+        /// <returns>True if circular referencing is found. False if not.</returns>
         static bool CheckForCircularReferences(ModInfo info, out string evilMod)
         {
             evilMod = String.Empty;
@@ -69,6 +86,12 @@ namespace Prism.Mods
             return false;
         }
 
+        /// <summary>
+        /// Loads a mod from an <see cref="System.Reflection.Assembly"/>.
+        /// </summary>
+        /// <param name="asm">The mod's <see cref="System.Reflection.Assembly"/></param>
+        /// <param name="info">The mod's <see cref="ModInfo"/></param>
+        /// <returns>The <see cref="ModDef"/> of the mod</returns>
         static ModDef LoadModFromAssembly(Assembly asm, ModInfo info)
         {
             var mdType = asm.GetType(info.ModDefTypeName, false);
@@ -95,6 +118,12 @@ namespace Prism.Mods
 
             return mod;
         }
+
+        /// <summary>
+        /// Loads a mod from the specified path.
+        /// </summary>
+        /// <param name="path">The specified path</param>
+        /// <returns>The <see cref="ModDef"/> of the mod or null if something went wrong</returns>
         internal static ModDef LoadMod(string path)
         {
             var info_n = ModInfoFromModPath(path);
@@ -136,6 +165,10 @@ namespace Prism.Mods
             return LoadModFromAssembly(asm, info);
         }
 
+        /// <summary>
+        /// Loads all mods from the Prism mod directory.
+        /// </summary>
+        /// <returns>Any <see cref="LoaderError"/>'s encountered while loading.</returns>
         internal static IEnumerable<LoaderError>   Load()
         {
             errors.Clear();
@@ -172,6 +205,10 @@ namespace Prism.Mods
 
             return errors;
         }
+
+        /// <summary>
+        /// Unloads all loaded mods.
+        /// </summary>
         internal static void                     Unload()
         {
             foreach (var v in ModData.mods.Values)
@@ -187,6 +224,11 @@ namespace Prism.Mods
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
             GC.WaitForPendingFinalizers();
         }
+
+        /// <summary>
+        /// Just calls <see cref="Unload"/> then <see cref="Load"/>
+        /// </summary>
+        /// <returns>The result of <see cref="Load"/> (Any <see cref="LoaderError"/>'s encountered while loading)</returns>
         internal static IEnumerable<LoaderError> Reload()
         {
             Unload();

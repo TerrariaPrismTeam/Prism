@@ -13,7 +13,11 @@ namespace Prism.Mods.Defs
         internal static Dictionary<int, ItemDef> DefFromType = new Dictionary<int, ItemDef>();
         internal static Dictionary<string, ItemDef> VanillaDefFromName = new Dictionary<string, ItemDef>();
 
-        static void ResizeArrays(int amt = 1)
+        /// <summary>
+        /// Resizes the vanilla arrays through which the game iterates through for various type checks.
+        /// </summary>
+        /// <param name="amt">The amount by which to extend.</param>
+        static void ExtendArrays(int amt = 1)
         {
             int newLen = amt > 0 ? Main.itemAnimations.Length + amt : ItemID.Count;
 
@@ -44,15 +48,22 @@ namespace Prism.Mods.Defs
             Array.Resize(ref ItemID.Sets.StaffMinionSlotsRequired, newLen);
         }
 
+        /// <summary>
+        /// Resets the loaded items.
+        /// </summary>
         internal static void Reset()
         {
             nextType = ItemID.Count;
             DefFromType.Clear();
-            ResizeArrays(0);
+            ExtendArrays(0);
         }
+        /// <summary>
+        /// Loads the items!
+        /// </summary>
+        /// <param name="dict"></param>
         internal static void Load(Dictionary<string, ItemDef> dict)
         {
-            ResizeArrays(dict.Count);
+            ExtendArrays(dict.Count);
 
             foreach (var v in dict.Values)
             {
@@ -63,6 +74,9 @@ namespace Prism.Mods.Defs
             }
         }
 
+        /// <summary>
+        /// Adds all the original vanilla items.
+        /// </summary>
         internal static void FillVanilla()
         {
             for (int i = -24 /* some phasesabre */; i < ItemID.Count; i++)
