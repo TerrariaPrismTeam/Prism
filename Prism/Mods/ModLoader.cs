@@ -140,6 +140,9 @@ namespace Prism.Mods
         {
             errors.Clear();
 
+            if (!Directory.Exists(PrismApi.ModDirectory))
+                Directory.CreateDirectory(PrismApi.ModDirectory);
+
             ResourceLoader.Setup();
 
             foreach (string s in Directory.EnumerateDirectories(PrismApi.ModDirectory))
