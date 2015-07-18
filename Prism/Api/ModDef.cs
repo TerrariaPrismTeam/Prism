@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Prism.Mods;
+using Prism.Mods.Resources;
 
 namespace Prism.API
 {
@@ -12,6 +14,8 @@ namespace Prism.API
     /// </summary>
     public abstract class ModDef
     {
+        internal Dictionary<string, Stream> resources = new Dictionary<string, Stream>();
+
         /// <summary>
         /// Gets the <see cref="ModInfo" /> of this mod.
         /// </summary>
@@ -48,7 +52,11 @@ namespace Prism.API
         /// <summary>
         /// Called as soon as the mod is loaded.
         /// </summary>
-        public virtual void OnLoad() { }
+        public virtual void OnLoad  () { }
+        /// <summary>
+        /// Called as soon as the mod is unloaded.
+        /// </summary>
+        public virtual void OnUnload() { }
 
         /// <summary>
         /// Gets all item definitions created by the mod.
@@ -59,6 +67,26 @@ namespace Prism.API
         /// </returns>
         protected abstract Dictionary<string, ItemDef> GetItemDefs();
 
+        public T GetResource<T>(string path)
+        {
+            if (!resources.ContainsKey(path))
+                throw new FileNotFoundException("Resource '" + path + "' not found.");
+
+            if (ResourceLoader.ResourceReaders.ContainsKey(typeof(T)))
+                return (T)ResourceLoader.ResourceReaders[typeof(T)].ReadResource(resources[path]);
+
+            throw new InvalidOperationException("No resource reader found for type " + typeof(T) + ".");
+        }
+
+        internal void Unload()
+        {
+            OnUnload();
+
+            foreach (var v in resources.Values)
+                v.Dispose();
+
+            resources.Clear();
+        }
         internal Dictionary<string, ItemDef> GetItemDefsI()
         {
             return GetItemDefs();

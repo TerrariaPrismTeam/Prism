@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Terraria;
 
 namespace Prism
 {
@@ -20,6 +21,11 @@ namespace Prism
             JsonManifestFileName = "manifest.json",
             DefaultDllRefsSubdirectory = "\\References";
 
+        public static Main MainInstance
+        {
+            get;
+            internal set;
+        }
         public static string ModDirectory
         {
             get;

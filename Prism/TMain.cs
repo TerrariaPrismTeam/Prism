@@ -76,6 +76,8 @@ namespace Prism
 
         protected override void Initialize()
         {
+            PrismApi.MainInstance = this;
+
             Item.OnSetDefaults += (Item i, int t, bool nmc) =>
             {
                 if (t >= ItemID.Count)
@@ -136,6 +138,8 @@ namespace Prism
 
             base.Initialize(); // terraria init and LoadContent happen here
 
+            ModLoader.Load();
+
             // setdefaults tests
             new Item().SetDefaults(PizzaAndAntSword_ID /* Pizza & Ant Sword */);
             new Item().SetDefaults(PizzaAntscalibur_ID /* Pizza Antscalibur */);
@@ -156,6 +160,10 @@ namespace Prism
         }
         protected override void UnloadContent()
         {
+            ModLoader.Unload();
+
+            PrismApi.MainInstance = null;
+
             WhitePixel.Dispose();
             WhitePixel = null;
 

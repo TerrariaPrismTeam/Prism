@@ -6,6 +6,8 @@ using System.Linq;
 using System.Reflection;
 using LitJson;
 using Prism.API;
+using Prism.Mods.Defs;
+using Prism.Mods.Resources;
 using Prism.Util;
 
 namespace Prism.Mods
@@ -88,7 +90,8 @@ namespace Prism.Mods
             mod.Assembly = asm;
             mod.Info = info;
 
-            errors.AddRange(EntityDefLoader.LoadDefinitions(mod));
+            errors.AddRange(EntityDefLoader.Load(mod));
+            errors.AddRange(ResourceLoader .Load(mod));
 
             return mod;
         }
@@ -137,6 +140,8 @@ namespace Prism.Mods
         {
             errors.Clear();
 
+            ResourceLoader.Setup();
+
             foreach (string s in Directory.EnumerateDirectories(PrismApi.ModDirectory))
             {
                 var d = LoadMod(s);
@@ -165,6 +170,12 @@ namespace Prism.Mods
         }
         internal static void                     Unload()
         {
+            foreach (var v in ModData.mods.Values)
+                v.Unload();
+
+            EntityDefLoader.Reset ();
+            ResourceLoader .Unload();
+
             ModData.mods.Clear();
 
             errors.Clear();

@@ -12,6 +12,7 @@ namespace Prism.Mods
         internal readonly static Dictionary<ModInfo, ModDef> mods = new Dictionary<ModInfo, ModDef>();
 
         public readonly static ReadOnlyDictionary<ModInfo, ModDef> Mods = new ReadOnlyDictionary<ModInfo, ModDef>(mods);
+        // other dicts etc
 
         static T GetOrExn<T>(JsonData j, string key)
         {

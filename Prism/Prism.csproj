@@ -82,6 +82,9 @@
     <Compile Include="Mods\ModData.cs" />
     <Compile Include="Mods\ModLoader.cs" />
     <Compile Include="Mods\ModReference.cs" />
+    <Compile Include="Mods\Resources\IResourceReader.cs" />
+    <Compile Include="Mods\Resources\ResourceLoader.cs" />
+    <Compile Include="Mods\Resources\ResourceReaders.cs" />
     <Compile Include="PrismApi.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
