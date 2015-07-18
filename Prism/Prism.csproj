@@ -69,6 +69,12 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="API\PrismMod.cs" />
+    <Compile Include="API\PrismProjectile.cs" />
+    <Compile Include="API\PrismRecipe.cs" />
+    <Compile Include="API\PrismTile.cs" />
+    <Compile Include="API\PrismNPC.cs" />
+    <Compile Include="API\PrismItem.cs" />
     <Compile Include="Debugging\PrismDebug.cs" />
     <Compile Include="Debugging\PrismTraceListener.cs" />
     <Compile Include="ExceptionHandler.cs" />
@@ -91,6 +97,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Pizza &amp; Ant Sword.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Pizza Antscalibur.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

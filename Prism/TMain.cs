@@ -17,23 +17,29 @@ namespace Prism
         readonly static Color TraceBgColour = new Color(0, 43, 54, 175);
         static Texture2D WhitePixel;
         static Texture2D PizzaAndAntSword;
+        static Texture2D PizzaAntscalibur;
 
         static int nextItemID = ItemID.Count;
 
         static bool justDrawCrashed = false;
 
-        int PnAS_ID;
+        int PizzaAndAntSword_ID;
+        int PizzaAntscalibur_ID;
 
-        bool hasPnAS = false;
+        bool hasPizzaAndAntSword = false;
+        bool hasPizzaAntscalibur = false;
 
         internal TMain()
             : base()
         {
-            versionNumber += ", Prism v" + AssemblyInfo.VERSION;
+            versionNumber += ", Prism [Prerelease]v" + AssemblyInfo.VERSION;
 
             SavePath += "\\Prism";
             PlayerPath = SavePath + "\\Players";
             WorldPath = SavePath + "\\Worlds";
+
+            CloudPlayerPath = "players_Prism";
+            CloudWorldPath = "worlds_Prism";
         }
 
         static int AddItem()
@@ -77,11 +83,44 @@ namespace Prism
                     i.width = i.height = 16;
                     i.stack = i.maxStack = 1;
 
-                    if (t == PnAS_ID)
+                    if (t == PizzaAndAntSword_ID)
                     {
                         i.name = "Pizza & Ant Sword";
                         i.toolTip = "This is a custom item! Woo!";
+                        i.autoReuse = true;
                         i.maxStack = 5;
+                        i.rare = 10;
+                        i.useSound = 1;
+                        i.useStyle = 1;
+                        i.damage = 80;
+                        i.knockBack = 4;
+                        i.useAnimation = 20;
+                        i.useTime = 15;
+                        i.width = 30;
+                        i.height = 30;
+                        i.melee = true;
+                        i.scale = 1.1f;
+                        i.value = Item.sellPrice(0, 50, 0, 0);
+                    }
+                    else if (t == PizzaAntscalibur_ID)
+                    {
+                        i.name = "Pizza Antscalibur";
+                        i.toolTip = "Contains the mystical power of pizza and ants.";
+                        i.toolTip2 = "...also a custom item!";
+                        i.autoReuse = true;
+                        i.maxStack = 1;
+                        i.rare = 10;
+                        i.useSound = 1;
+                        i.useStyle = 1;
+                        i.damage = 150;
+                        i.knockBack = 10;
+                        i.useAnimation = 16;
+                        i.useTime = 20;
+                        i.width = 30;
+                        i.height = 30;
+                        i.melee = true;
+                        i.scale = 1.1f;
+                        i.value = Item.sellPrice(0, 500, 0, 0);
                     }
                     else
                     {
@@ -95,6 +134,7 @@ namespace Prism
             base.Initialize();
 
             new Item().SetDefaults(ItemID.Count /* Pizza & Ant Sword */);
+            new Item().SetDefaults(ItemID.Count + 1 /* Pizza Antscalibur */);
         }
 
         protected override void   LoadContent()
@@ -102,11 +142,13 @@ namespace Prism
             WhitePixel = new Texture2D(GraphicsDevice, 1, 1);
             WhitePixel.SetData(new[] { Color.White });
 
-            PnAS_ID = AddItem();
+            PizzaAndAntSword_ID = AddItem();
+            PizzaAntscalibur_ID = AddItem();
 
             base.  LoadContent();
 
-            itemTexture[PnAS_ID] = PizzaAndAntSword = Texture2D.FromStream(GraphicsDevice, Assembly.GetExecutingAssembly().GetManifestResourceStream("Prism.Pizza & Ant Sword.png"));
+            itemTexture[PizzaAndAntSword_ID] = PizzaAndAntSword = Texture2D.FromStream(GraphicsDevice, Assembly.GetExecutingAssembly().GetManifestResourceStream("Prism.Pizza & Ant Sword.png"));
+            itemTexture[PizzaAntscalibur_ID] = PizzaAntscalibur = Texture2D.FromStream(GraphicsDevice, Assembly.GetExecutingAssembly().GetManifestResourceStream("Prism.Pizza Antscalibur.png"));
         }
         protected override void UnloadContent()
         {
@@ -115,6 +157,9 @@ namespace Prism
 
             PizzaAndAntSword.Dispose();
             PizzaAndAntSword = null;
+
+            PizzaAntscalibur.Dispose();
+            PizzaAntscalibur = null;
 
             base.UnloadContent();
         }
@@ -144,7 +189,7 @@ namespace Prism
 
                 PrismDebug.Update();
 
-                if (keyState.IsKeyDown(Keys.Y) && !hasPnAS && !gameMenu && hasFocus)
+                if (keyState.IsKeyDown(Keys.Y) && !(hasPizzaAndAntSword && hasPizzaAntscalibur) && !gameMenu && hasFocus)
                 {
                     var inv = player[myPlayer].inventory;
 
@@ -152,17 +197,23 @@ namespace Prism
                     {
                         if (inv[i].type == 0)
                         {
-                            inv[i].SetDefaults(PnAS_ID);
-                            break;
+                            if (!hasPizzaAndAntSword)
+                            {
+                                inv[i].SetDefaults(PizzaAndAntSword_ID);
+                                hasPizzaAndAntSword = true;
+                                while (inv[i].stack < inv[i].maxStack) inv[i].stack++;
+                                continue;
+                            }
+                            else if (!hasPizzaAntscalibur)
+                            {
+                                inv[i].SetDefaults(PizzaAntscalibur_ID);
+                                hasPizzaAntscalibur = true;
+                                while (inv[i].stack < inv[i].maxStack) inv[i].stack++;
+                                break;
+                            }                            
                         }
-                        if (inv[i].type == PnAS_ID && inv[i].stack < inv[i].maxStack)
-                        {
-                            inv[i].stack++;
-                            break;
-                        }
+                        
                     }
-
-                    hasPnAS = true;
                 }
             }
             catch (Exception e)
