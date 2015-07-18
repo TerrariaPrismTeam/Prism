@@ -42,6 +42,9 @@ namespace Prism.Injector.Patcher
             c = context;
             r = c.Resolver;
 
+            c.PrimaryAssembly.Name.Name = "Prism.Terraria";
+            c.PrimaryAssembly.MainModule.Name = c.PrimaryAssembly.Name.Name + ".dll";
+
             Publicify();
 
             ItemPatcher.Patch();

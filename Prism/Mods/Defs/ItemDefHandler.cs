@@ -11,6 +11,7 @@ namespace Prism.Mods.Defs
     {
         static int nextType = ItemID.Count;
         internal static Dictionary<int, ItemDef> DefFromType = new Dictionary<int, ItemDef>();
+        internal static Dictionary<string, ItemDef> VanillaDefFromName = new Dictionary<string, ItemDef>();
 
         static void ResizeArrays(int amt = 1)
         {
@@ -64,7 +65,26 @@ namespace Prism.Mods.Defs
 
         internal static void FillVanilla()
         {
+            for (int i = -24 /* some phasesabre */; i < ItemID.Count; i++)
+            {
+                if (i == 0)
+                    continue;
 
+                Item it = new Item();
+                it.RealSetDefaults(i, true);
+
+                ItemDef def = new ItemDef();
+
+                def.DisplayName = Lang.itemName(it.type, true);
+                def.InternalName = it.name;
+                def.Type = it.type;
+                def.NetID = i;
+
+                // copy to ItemDef
+
+                DefFromType.Add(i, def);
+                VanillaDefFromName.Add(it.name, def);
+            }
         }
     }
 }

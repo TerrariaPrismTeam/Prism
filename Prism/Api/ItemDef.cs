@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Prism.Mods;
+using Prism.Mods.Defs;
 
 namespace Prism.API
 {
@@ -12,7 +14,7 @@ namespace Prism.API
             {
                 get
                 {
-                    return null;
+                    return ItemDefHandler.DefFromType[type];
                 }
             }
         }
@@ -23,12 +25,39 @@ namespace Prism.API
                 get
                 {
                     if (String.IsNullOrEmpty(modInternalName) || modInternalName == VanillaString || modInternalName == TerrariaString)
-                    {
-                        return null;
-                    }
+                        return ItemDefHandler.VanillaDefFromName[itemInternalName];
 
-                    return null;
+                    return ModData.ModsFromInternalName[modInternalName].ItemDefs[itemInternalName];
                 }
+            }
+        }
+
+        public static ByTypeGetter ByType
+        {
+            get
+            {
+                return new ByTypeGetter();
+            }
+        }
+        public static ByNameGetter ByName
+        {
+            get
+            {
+                return new ByNameGetter();
+            }
+        }
+
+        // stupid red and his stupid netids
+        int setNetID = 0;
+        public int NetID
+        {
+            get
+            {
+                return setNetID == 0 ? Type : setNetID;
+            }
+            internal set
+            {
+                setNetID = value;
             }
         }
 

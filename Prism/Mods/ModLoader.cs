@@ -148,7 +148,8 @@ namespace Prism.Mods
 
                 if (d != null)
                 {
-                    ModData.mods.Add(d.Info, d);
+                    ModData.mods                .Add(d.Info             , d);
+                    ModData.modsFromInternalName.Add(d.Info.InternalName, d);
 
                     try
                     {

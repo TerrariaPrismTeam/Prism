@@ -25,12 +25,17 @@ namespace Prism.Mods.Defs
         {
             ItemDefHandler.Reset();
         }
+        internal static void Setup()
+        {
+            ItemDefHandler.FillVanilla();
+        }
         internal static IEnumerable<LoaderError> Load(ModDef mod)
         {
             mod.ItemDefs = SetROProperties(mod, mod.GetItemDefsI());
+
             // validate props
 
-            int amt = mod.ItemDefs.Count;
+            ItemDefHandler.Load(mod.ItemDefs);
 
             return new List<LoaderError>();
         }
