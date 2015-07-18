@@ -8,6 +8,9 @@ namespace Prism.API
 {
     public class ItemDef : EntityDef
     {
+        /// <summary>
+        /// Returns ItemDefs by their type number.
+        /// </summary>
         public struct ByTypeGetter
         {
             public ItemDef this[int type]
@@ -18,6 +21,10 @@ namespace Prism.API
                 }
             }
         }
+
+        /// <summary>
+        /// Returns ItemDefs by their internal name (and optionally by their mod's internal name).
+        /// </summary>
         public struct ByNameGetter
         {
             public ItemDef this[string itemInternalName, string modInternalName = null]
@@ -32,6 +39,9 @@ namespace Prism.API
             }
         }
 
+        /// <summary>
+        /// Returns ItemDefs by their type number.
+        /// </summary>
         public static ByTypeGetter ByType
         {
             get
@@ -39,6 +49,10 @@ namespace Prism.API
                 return new ByTypeGetter();
             }
         }
+
+        /// <summary>
+        /// Returns ItemDefs by their internal name (and optionally by their mod's internal name).
+        /// </summary>
         public static ByNameGetter ByName
         {
             get
@@ -49,6 +63,9 @@ namespace Prism.API
 
         // stupid red and his stupid netids
         int setNetID = 0;
+        /// <summary>
+        /// Returns this item's stupid ass NetID (aka Phasesabre ID).
+        /// </summary>
         public int NetID
         {
             get
@@ -60,7 +77,10 @@ namespace Prism.API
                 setNetID = value;
             }
         }
-
+		
+        /// <summary>
+        /// The damage this item does if it were a weapon.
+        /// </summary>
         public virtual int Damage
         {
             get;

@@ -19,6 +19,10 @@ namespace Prism.Mods
         public string ModDefTypeName;
         public IReference[] References;
 
+
+        /// <summary>
+        /// Returns the mod's version as a <see cref="System.Version"/> object.
+        /// </summary>
         public Version VersionAsVersion
         {
             get
@@ -66,20 +70,39 @@ namespace Prism.Mods
 
             return false;
         }
+
+        /// <summary>
+        /// The hashcode of this <see cref="ModInfo"/>, based on its fields.
+        /// </summary>
+        /// <returns>The combined hashcodes of the <see cref="InternalName"/>, <see cref="DisplayName"/>, <see cref="Author"/>, and <see cref="Version"/> of this this <see cref="ModInfo"/>.</returns>
         public override int GetHashCode()
         {
             return InternalName.GetHashCode() + DisplayName.GetHashCode() + Author.GetHashCode() + Version.GetHashCode();
         }
+
+        /// <summary>
+        /// The string representation of this <see cref="ModInfo"/> object.
+        /// </summary>
+        /// <returns>"{ <see cref="InternalName"/> }"</returns>
         public override string ToString()
         {
             return "{" + InternalName + "}";
         }
 
+        /// <summary>
+        /// The pretty string representation of this <see cref="ModInfo"/> object.
+        /// </summary>
+        /// <returns>Display Name by Author vX.X.X.X</returns>
         public string ToPrettyString()
         {
             return DisplayName + " by " + Author + " v" + Version;
         }
 
+        /// <summary>
+        /// Checks the equality of <see cref="ModInfo"/> objects. You can also simply use the '==' and '!=' operators.
+        /// </summary>
+        /// <param name="other">The other <see cref="ModInfo"/> to compare against.</param>
+        /// <returns>True if the <see cref="ModInfo"/>'s have the same <see cref="InternalName"/>, <see cref="DisplayName"/>, <see cref="Author"/>, and <see cref="Version"/></returns>
         public bool Equals(ModInfo other)
         {
             return InternalName == other.InternalName && DisplayName == other.DisplayName && Author == other.Author && Version == other.Version /* ? */;
