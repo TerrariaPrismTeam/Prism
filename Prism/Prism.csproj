@@ -69,21 +69,37 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="API\PrismMod.cs" />
-    <Compile Include="API\PrismProjectile.cs" />
-    <Compile Include="API\PrismRecipe.cs" />
-    <Compile Include="API\PrismTile.cs" />
-    <Compile Include="API\PrismNPC.cs" />
-    <Compile Include="API\PrismItem.cs" />
+    <Compile Include="API\EntityDef.cs" />
+    <Compile Include="API\ItemDef.cs" />
+    <Compile Include="API\ModDef.cs" />
+    <Compile Include="Mods\Defs\EntityDefLoader.cs" />
+    <Compile Include="Mods\Defs\ItemDefHandler.cs" />
+    <Compile Include="Mods\ModInfo.cs" />
     <Compile Include="Debugging\PrismDebug.cs" />
     <Compile Include="Debugging\PrismTraceListener.cs" />
     <Compile Include="ExceptionHandler.cs" />
-    <Compile Include="LinqExt.cs" />
+    <Compile Include="Mods\LoaderError.cs" />
+    <Compile Include="Mods\ModData.cs" />
+    <Compile Include="Mods\ModLoader.cs" />
+    <Compile Include="Mods\ModReference.cs" />
+    <Compile Include="PrismApi.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RethrownException.cs" />
     <Compile Include="TerrariaLauncher.cs" />
     <Compile Include="TMain.cs" />
+    <Compile Include="Util\IndexGetter.cs" />
+    <Compile Include="Util\LinqExt.cs" />
+    <Compile Include="Util\ReadOnlyDictionary.cs" />
+    <Compile Include="_LitJson\IJsonWrapper.cs" />
+    <Compile Include="_LitJson\JsonData.cs" />
+    <Compile Include="_LitJson\JsonException.cs" />
+    <Compile Include="_LitJson\JsonMapper.cs" />
+    <Compile Include="_LitJson\JsonMockWrapper.cs" />
+    <Compile Include="_LitJson\JsonReader.cs" />
+    <Compile Include="_LitJson\JsonWriter.cs" />
+    <Compile Include="_LitJson\Lexer.cs" />
+    <Compile Include="_LitJson\ParserToken.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BuildFiles\Prism.TerrariaPatcher\Prism.TerrariaPatcher.csproj">
@@ -100,6 +116,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Pizza Antscalibur.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Mods\Hooks\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -7,6 +7,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Prism.Debugging;
+using Prism.Mods;
+using Prism.Util;
 using Terraria;
 using Terraria.ID;
 
@@ -16,27 +18,28 @@ namespace Prism
     {
         readonly static Color TraceBgColour = new Color(0, 43, 54, 175);
         static Texture2D WhitePixel;
-        static Texture2D PizzaAndAntSword;
-        static Texture2D PizzaAntscalibur;
 
+        // todo: move these to somewhere e
         static int nextItemID = ItemID.Count;
 
         static bool justDrawCrashed = false;
 
-        int PizzaAndAntSword_ID;
-        int PizzaAntscalibur_ID;
-
-        bool hasPizzaAndAntSword = false;
-        bool hasPizzaAntscalibur = false;
+        int PizzaAndAntSword_ID, PizzaAntscalibur_ID;
+        bool hasPizzaAndAntSword = false, hasPizzaAntscalibur = false;
+        Texture2D PizzaAndAntSword, PizzaAntscalibur;
 
         internal TMain()
             : base()
         {
-            versionNumber += ", Prism [Prerelease]v" + AssemblyInfo.VERSION;
+            versionNumber += ", Prism v" + PrismApi.Version;
+            if (PrismApi.VersionType != VersionType.Normal)
+                versionNumber += " " + PrismApi.VersionType;
 
             SavePath += "\\Prism";
             PlayerPath = SavePath + "\\Players";
             WorldPath = SavePath + "\\Worlds";
+
+            PrismApi.ModDirectory = SavePath + "\\Mods";
 
             CloudPlayerPath = "players_Prism";
             CloudWorldPath = "worlds_Prism";
@@ -131,10 +134,11 @@ namespace Prism
                     i.RealSetDefaults(t, nmc);
             };
 
-            base.Initialize();
+            base.Initialize(); // terraria init and LoadContent happen here
 
-            new Item().SetDefaults(ItemID.Count /* Pizza & Ant Sword */);
-            new Item().SetDefaults(ItemID.Count + 1 /* Pizza Antscalibur */);
+            // setdefaults tests
+            new Item().SetDefaults(PizzaAndAntSword_ID /* Pizza & Ant Sword */);
+            new Item().SetDefaults(PizzaAntscalibur_ID /* Pizza Antscalibur */);
         }
 
         protected override void   LoadContent()
@@ -210,9 +214,9 @@ namespace Prism
                                 hasPizzaAntscalibur = true;
                                 while (inv[i].stack < inv[i].maxStack) inv[i].stack++;
                                 break;
-                            }                            
+                            }
                         }
-                        
+
                     }
                 }
             }
