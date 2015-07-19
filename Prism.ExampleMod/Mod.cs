@@ -2,13 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using Prism.API;
+using Terraria;
 using Terraria.ID;
 
 namespace Prism.ExampleMod
 {
     public class Mod : ModDef
     {
+        bool hasPizza = false;
+
         protected override Dictionary<string, ItemDef> GetItemDefs()
         {
             return new Dictionary<string, ItemDef>
@@ -26,6 +30,28 @@ namespace Prism.ExampleMod
                     value: new ItemValue(50, 10, 2),
                     buff: new ItemBuff(BuffID.WellFed, 60 * 60 * 30)) }
             };
+        }
+
+        public override void PostUpdate()
+        {
+            if (Main.keyState.IsKeyDown(Keys.Y) && !hasPizza && !Main.gameMenu && Main.hasFocus)
+            {
+                var inv = Main.player[Main.myPlayer].inventory;
+
+                for (int i = 0; i < inv.Length; i++)
+                {
+                    if (inv[i].type == 0)
+                    {
+                        if (!hasPizza)
+                        {
+                            inv[i].SetDefaults(ItemDef.ByName["Pizza", Info.InternalName].Type);
+                            hasPizza = true;
+                            inv[i].stack = inv[i].maxStack;
+                            continue;
+                        }
+                    }
+                }
+            }
         }
     }
 }

@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Input;
 using Prism.Debugging;
 using Prism.Mods;
 using Prism.Mods.Defs;
+using Prism.Mods.Hooks;
 using Prism.Util;
 using Terraria;
 using Terraria.ID;
@@ -91,6 +92,8 @@ namespace Prism
             try
             {
                 base.Update(gt);
+
+                HookManager.ModDef.PostUpdate();
 
                 PrismDebug.Update();
             }

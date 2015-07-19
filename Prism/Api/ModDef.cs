@@ -67,6 +67,13 @@ namespace Prism.API
         [Hook]
         public virtual void OnAllModsLoaded() { }
 
+        // TODO: move this to a separate class containing game- or world-related hooks
+        /// <summary>
+        /// A hook called at the end of the game's Update method.
+        /// </summary>
+        [Hook]
+        public virtual void PostUpdate() { }
+
         /// <summary>
         /// Gets all item definitions created by the mod.
         /// </summary>

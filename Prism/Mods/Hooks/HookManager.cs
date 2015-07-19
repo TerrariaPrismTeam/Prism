@@ -91,12 +91,12 @@ namespace Prism.Mods.Hooks
         /// <param name="delegates">The hook to invoke (1 hook per mod).</param>
         /// <param name="args">The arguments to pass to the hook. Please use null if the method doesn't take any arguments to prevent unnecessary memory allocation.</param>
         /// <returns>The return values of all called hooks.</returns>
-        public static IEnumerable<object> Call(IEnumerable<Delegate> delegates, params object[] args)
+        public static object[] Call(IEnumerable<Delegate> delegates, params object[] args)
         {
             if (!CanCallHooks)
                 return new object[0];
 
-            return delegates.Select(del => del.DynamicInvoke(args));
+            return delegates.Select(del => del.DynamicInvoke(args)).ToArray();
         }
 
         /// <summary>
