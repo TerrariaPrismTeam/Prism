@@ -7,6 +7,7 @@ using System.Reflection;
 using LitJson;
 using Prism.API;
 using Prism.Mods.Defs;
+using Prism.Mods.Hooks;
 using Prism.Mods.Resources;
 using Prism.Util;
 
@@ -201,10 +202,13 @@ namespace Prism.Mods
                 }
             }
 
-            // load hooks etc here
+            HookManager.Create();
+            HookManager.CanCallHooks = true;
 
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
             GC.WaitForPendingFinalizers();
+
+            HookManager.ModDef.OnAllModsLoaded();
 
             return errors;
         }
@@ -214,6 +218,12 @@ namespace Prism.Mods
         /// </summary>
         internal static void Unload()
         {
+            HookManager.ModDef.OnUnload();
+
+            HookManager.CanCallHooks = false;
+
+            HookManager.Clear();
+
             foreach (var v in ModData.mods.Values)
                 v.Unload();
 

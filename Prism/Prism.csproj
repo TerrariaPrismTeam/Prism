@@ -11,6 +11,7 @@
     <AssemblyName>Prism</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -21,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -30,6 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>Prism.Program</StartupObject>
@@ -77,6 +80,10 @@
     <Compile Include="API\ModDef.cs" />
     <Compile Include="Mods\Defs\EntityDefLoader.cs" />
     <Compile Include="Mods\Defs\ItemDefHandler.cs" />
+    <Compile Include="Mods\Hooks\Attributes.cs" />
+    <Compile Include="Mods\Hooks\HookContainer.cs" />
+    <Compile Include="Mods\Hooks\HookManager.cs" />
+    <Compile Include="Mods\Hooks\ModDefHooks.cs" />
     <Compile Include="Mods\ModInfo.cs" />
     <Compile Include="Debugging\PrismDebug.cs" />
     <Compile Include="Debugging\PrismTraceListener.cs" />
@@ -124,7 +131,7 @@
     <EmbeddedResource Include="Pizza Antscalibur.png" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Mods\Hooks\" />
+    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

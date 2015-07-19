@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Prism.Mods;
+using Prism.Mods.Hooks;
 using Prism.Mods.Resources;
 
 namespace Prism.API
@@ -12,7 +13,7 @@ namespace Prism.API
     /// The base class used to define a mod.
     /// Every mod must have exactly one type that inherits from <see cref="ModDef"/>.
     /// </summary>
-    public abstract class ModDef
+    public abstract class ModDef : HookContainer
     {
         internal Dictionary<string, Stream> resources = new Dictionary<string, Stream>();
 
@@ -54,10 +55,17 @@ namespace Prism.API
         /// Called as soon as the mod is loaded.
         /// </summary>
         public virtual void OnLoad  () { }
+
         /// <summary>
-        /// Called as soon as the mod is unloaded.
+        /// A hook called when all mods are being unloaded.
         /// </summary>
+        [Hook]
         public virtual void OnUnload() { }
+        /// <summary>
+        /// A hook called when all mods are loaded.
+        /// </summary>
+        [Hook]
+        public virtual void OnAllModsLoaded() { }
 
         /// <summary>
         /// Gets all item definitions created by the mod.
@@ -90,8 +98,6 @@ namespace Prism.API
         /// </summary>
         internal void Unload()
         {
-            OnUnload();
-
             foreach (var v in resources.Values)
                 v.Dispose();
 
