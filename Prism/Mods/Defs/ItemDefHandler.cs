@@ -13,7 +13,7 @@ namespace Prism.Mods.Defs
     static class ItemDefHandler
     {
         static int nextType = ItemID.Count;
-        internal static Dictionary<int, ItemDef> DefFromType = new Dictionary<int, ItemDef>();
+        internal static Dictionary<int   , ItemDef> DefFromType = new Dictionary<int, ItemDef>();
         internal static Dictionary<string, ItemDef> VanillaDefFromName = new Dictionary<string, ItemDef>();
 
         /// <summary>

@@ -70,7 +70,9 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="API\EntityDef.cs" />
+    <Compile Include="API\EntityRef.cs" />
     <Compile Include="API\ItemDef.cs" />
+    <Compile Include="API\ItemRef.cs" />
     <Compile Include="API\ModDef.cs" />
     <Compile Include="Mods\Defs\EntityDefLoader.cs" />
     <Compile Include="Mods\Defs\ItemDefHandler.cs" />
