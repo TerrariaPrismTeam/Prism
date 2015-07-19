@@ -539,6 +539,8 @@ namespace Prism.API
 
         public ItemDef(
             #region arguments
+            string displayName,
+
             int damage = 0,
             int useAnimation = 0,
             int useTime = 0,
@@ -602,6 +604,8 @@ namespace Prism.API
             #endregion
             )
         {
+            DisplayName = displayName;
+
             Damage = damage;
             UseAnimation = useAnimation;
             UseTime = useTime;

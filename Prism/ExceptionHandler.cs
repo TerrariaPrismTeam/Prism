@@ -23,13 +23,15 @@ namespace Prism
             // TODO: move to exception UI page
             Trace.WriteLine(e.Message + " at " + e.TargetSite);
         }
-        public static void HandleFatal(Exception e)
+        public static void HandleFatal(Exception e, bool exitImmediately = true)
         {
             if (Debugger.IsAttached)
                 throw new RethrownException(e); // signal to the debugger instead of displaying the error message, for convenience
 
             MessageBox.Show("A fatal error occured:\n" + e, e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
-            Environment.Exit(GetHResult(e));
+
+            if (exitImmediately)
+                Environment.Exit(GetHResult(e));
         }
     }
 }

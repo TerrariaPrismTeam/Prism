@@ -19,7 +19,7 @@ namespace Prism.Mods.Hooks
             List<MethodInfo> ret = new List<MethodInfo>();
 
             Type t = GetType();
-            MethodInfo[] all = t.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.DeclaredOnly);
+            MethodInfo[] all = t.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.FlattenHierarchy);
 
             object[] attrs;
             for (int i = 0; i < all.Length; i++)

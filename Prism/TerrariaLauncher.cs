@@ -30,7 +30,14 @@ namespace Prism
                 SocialAPI.Initialize(SteamExists() ? SocialMode.Steam : SocialMode.None);
                 PrismDebug.Init();
 
-                m.Run();
+                try
+                {
+                    m.Run();
+                }
+                catch (Exception e)
+                {
+                    ExceptionHandler.HandleFatal(e, false);
+                }
             }
         }
     }

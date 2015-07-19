@@ -12,10 +12,10 @@ namespace Prism.Mods.Resources
     {
         internal static Dictionary<Type, IResourceReader> ResourceReaders = new Dictionary<Type, IResourceReader>();
 
-        static string NormalizeResourceFilePath(string file, string basePath = null)
+        internal static string NormalizeResourceFilePath(string file, string basePath = null)
         {
             if (!String.IsNullOrEmpty(basePath) && file.StartsWith(basePath))
-                file = file.Remove(basePath.Length); // + 1, remove the '/'?
+                file = file.Substring(basePath.Length + 1);
 
             return file.Replace('\\', '/').ToLowerInvariant();
         }

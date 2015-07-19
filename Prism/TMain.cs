@@ -43,13 +43,13 @@ namespace Prism
 
         protected override void Initialize()
         {
-            PrismApi.MainInstance = this;
-
             Item.OnSetDefaults += ItemDefHandler.OnSetDefaults;
 
             base.Initialize(); // terraria init and LoadContent happen here
 
             ModLoader.Load();
+
+            versionNumber += ", mods loaded: " + ModData.Mods.Count;
         }
 
         protected override void   LoadContent()
@@ -62,8 +62,6 @@ namespace Prism
         protected override void UnloadContent()
         {
             ModLoader.Unload();
-
-            PrismApi.MainInstance = null;
 
             WhitePixel.Dispose();
             WhitePixel = null;

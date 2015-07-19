@@ -117,8 +117,8 @@ namespace Prism.Mods
             mod.Assembly = asm;
             mod.Info = info;
 
-            errors.AddRange(EntityDefLoader.Load(mod));
             errors.AddRange(ResourceLoader .Load(mod));
+            errors.AddRange(EntityDefLoader.Load(mod));
 
             return mod;
         }

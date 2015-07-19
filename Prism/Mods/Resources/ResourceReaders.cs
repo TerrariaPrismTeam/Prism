@@ -11,7 +11,7 @@ namespace Prism.Mods.Resources
     {
         protected override Texture2D ReadTypedResource(Stream resourceStream)
         {
-            return Texture2D.FromStream(PrismApi.MainInstance.GraphicsDevice, resourceStream);
+            return Texture2D.FromStream(TMain.instance.GraphicsDevice, resourceStream);
         }
     }
     class SoundEffectResourceReader : ResourceReader<SoundEffect>

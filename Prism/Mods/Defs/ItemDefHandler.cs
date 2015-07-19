@@ -98,9 +98,8 @@ namespace Prism.Mods.Defs
                 Item it = new Item();
                 it.RealSetDefaults(i, true);
 
-                ItemDef def = new ItemDef();
+                ItemDef def = new ItemDef(Lang.itemName(it.type, true));
 
-                def.DisplayName = Lang.itemName(it.type, true);
                 def.InternalName = it.name;
                 def.Type = it.type;
                 def.NetID = i;

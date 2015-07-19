@@ -26,6 +26,36 @@ namespace Prism.Mods
         public readonly static ReadOnlyDictionary<string, ModDef> ModsFromInternalName = new ReadOnlyDictionary<string, ModDef>(modsFromInternalName);
         // other dicts etc
 
+        static object CastJsonToT(JsonData j)
+        {
+            switch (j.GetJsonType())
+            {
+                case JsonType.Boolean:
+                    return (bool)j;
+                case JsonType.Double:
+                    return (double)j;
+                case JsonType.Int:
+                    return (int)j;
+                case JsonType.Long:
+                    return (long)j;
+                case JsonType.None:
+                    return null;
+                case JsonType.Array:
+                case JsonType.Object:
+                    return j;
+                case JsonType.String:
+                    return (string)j;
+            }
+
+            throw new InvalidCastException();
+        }
+        static T CastObjToT<T>(object o)
+        {
+            if (o is T)
+                return (T)o;
+
+            return (T)Convert.ChangeType(o, typeof(T));
+        }
         /// <summary>
         /// Gets the property from the Json data or throws an exception if it fails (See <see cref="GetOrDef{T}(JsonData, string, T)"/> to return a default on failure)."/>
         /// </summary>
@@ -36,7 +66,7 @@ namespace Prism.Mods
         static T GetOrExn<T>(JsonData j, string key)
         {
             if (j.Has(key))
-                return (T)Convert.ChangeType(j[key], typeof(T));
+                return CastObjToT<T>(CastJsonToT(j[key]));
 
             throw new FormatException("Could not find property '" + key + "'.");
         }
@@ -52,7 +82,7 @@ namespace Prism.Mods
         static T GetOrDef<T>(JsonData j, string key, T def = default(T))
         {
             if (j.Has(key))
-                return (T)Convert.ChangeType(j[key], typeof(T));
+                return CastObjToT<T>(CastJsonToT(j[key]));
 
             return def;
         }
@@ -83,8 +113,8 @@ namespace Prism.Mods
                 GetOrDef<string>(j, "description"),
                 GetOrExn<string>(j, "asmFileName"),
                 GetOrExn<string>(j, "modDefTypeName"),
-                new IReference[0]
-                );
+                refs.ToArray()
+            );
         }
     }
 }

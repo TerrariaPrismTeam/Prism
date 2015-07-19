@@ -84,6 +84,8 @@ namespace Prism.API
         /// <returns>The resource</returns>
         public T GetResource<T>(string path)
         {
+            path = ResourceLoader.NormalizeResourceFilePath(path);
+
             if (!resources.ContainsKey(path))
                 throw new FileNotFoundException("Resource '" + path + "' not found.");
 

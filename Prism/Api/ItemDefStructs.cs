@@ -133,7 +133,7 @@ namespace Prism.API
             }
         }
 
-        public ItemValue(int c, int s, int g, int p)
+        public ItemValue(int c, int s, int g = 0, int p = 0)
         {
             Copper   = c;
             Silver   = s;

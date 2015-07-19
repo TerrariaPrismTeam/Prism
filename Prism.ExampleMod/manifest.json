@@ -1,0 +1,10 @@
+﻿{
+    "internalName": "Prism.ExampleMod",
+    "asmFileName": "Prism.ExampleMod.dll",
+    "modDefTypeName": "Prism.ExampleMod.Mod",
+
+    "displayName": "Prism example mod",
+    "author": "Terraria Prism Team",
+    "version": "1.0.0.0",
+    "description": "A mod meant to be an example."
+}
