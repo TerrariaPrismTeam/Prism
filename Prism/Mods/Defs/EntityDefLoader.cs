@@ -40,7 +40,7 @@ namespace Prism.Mods.Defs
         {
             ItemDefHandler.Reset();
         }
-		
+
         /// <summary>
         /// Sets up this EntityDefLoader for loading mods, creating/adding all of the vanilla content defs, etc.
         /// </summary>
@@ -56,7 +56,7 @@ namespace Prism.Mods.Defs
         /// <returns>Enumerable list of LoaderErrors encountered while loading the mod.</returns>
         internal static IEnumerable<LoaderError> Load(ModDef mod)
         {
-            mod.ItemDefs = SetChildReadonlyProperties(mod, mod.GetItemDefsI());
+            mod.ItemDefs = SetChildReadonlyProperties(mod, mod.GetItemDefsInternally());
 
             // validate props
 

@@ -77,7 +77,7 @@ namespace Prism.API
                 setNetID = value;
             }
         }
-		
+
         /// <summary>
         /// Gets or sets the damage this item does if it were a weapon.
         /// </summary>

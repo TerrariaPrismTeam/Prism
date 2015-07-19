@@ -98,10 +98,10 @@ namespace Prism.API
         }
 
         /// <summary>
-        /// Gets the item defs quite redundantly by calling <see cref="GetItemDefs"/>.
+        /// Gets the item defs quite by calling the protected version of <see cref="GetItemDefs"/>.
         /// </summary>
         /// <returns><see cref="GetItemDefs"/></returns>
-        internal Dictionary<string, ItemDef> GetItemDefsI()
+        internal Dictionary<string, ItemDef> GetItemDefsInternally()
         {
             return GetItemDefs();
         }

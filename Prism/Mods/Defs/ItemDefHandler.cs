@@ -8,7 +8,7 @@ using Terraria.ID;
 namespace Prism.Mods.Defs
 {
     /// <summary>
-    /// Handles all the <see cref="ItemDef"/>'s.
+    /// Handles all the <see cref="ItemDef"/>s.
     /// </summary>
     static class ItemDefHandler
     {
@@ -84,7 +84,9 @@ namespace Prism.Mods.Defs
         {
             for (int i = -24 /* some phasesabre */; i < ItemID.Count; i++)
             {
-                if (i > -19 /* phasesabres stop at -19 because Redigit */ && i <= 0)
+                //if (i > -19 /* phasesabres stop at -19 because Redigit */ && i <= 0)
+                // copper etc items, using <=1.2-style netids instead of the new types (backwards compatibility needed for terraria code that still uses those netids)
+                if (i == 0)
                     continue;
 
                 Item it = new Item();
