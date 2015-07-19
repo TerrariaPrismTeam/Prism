@@ -7,6 +7,9 @@ using Terraria.ID;
 
 namespace Prism.Mods.Defs
 {
+    /// <summary>
+    /// Handles all the <see cref="ItemDef"/>'s.
+    /// </summary>
     static class ItemDefHandler
     {
         static int nextType = ItemID.Count;
@@ -14,9 +17,9 @@ namespace Prism.Mods.Defs
         internal static Dictionary<string, ItemDef> VanillaDefFromName = new Dictionary<string, ItemDef>();
 
         /// <summary>
-        /// Resizes the vanilla arrays through which the game iterates through for various type checks.
+        /// Extends the vanilla arrays through which the game iterates for various type checks.
         /// </summary>
-        /// <param name="amt">The amount by which to extend.</param>
+        /// <param name="amt">The amount by which to extend the arrays.</param>
         static void ExtendArrays(int amt = 1)
         {
             int newLen = amt > 0 ? Main.itemAnimations.Length + amt : ItemID.Count;
@@ -58,9 +61,9 @@ namespace Prism.Mods.Defs
             ExtendArrays(0);
         }
         /// <summary>
-        /// Loads the items!
+        /// Loads the items into the specified Dictionary.
         /// </summary>
-        /// <param name="dict"></param>
+        /// <param name="dict">The <see cref="Dictionary{TKey, TValue}"/> to load the items into.</param>
         internal static void Load(Dictionary<string, ItemDef> dict)
         {
             ExtendArrays(dict.Count);
@@ -81,7 +84,7 @@ namespace Prism.Mods.Defs
         {
             for (int i = -24 /* some phasesabre */; i < ItemID.Count; i++)
             {
-                if (i == 0)
+                if (i > -19 /* phasesabres stop at -19 because Redigit */ && i <= 0)
                     continue;
 
                 Item it = new Item();

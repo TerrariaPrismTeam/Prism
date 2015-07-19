@@ -5,6 +5,9 @@ using Prism.Mods;
 
 namespace Prism.API
 {
+    /// <summary>
+    /// The class from which the definitions for items, NPCs, projectiles, tiles, etc. are derived.
+    /// </summary>
     public abstract class EntityDef
     {
         public readonly static string
@@ -12,7 +15,7 @@ namespace Prism.API
             TerrariaString = "Terraria";
 
         /// <summary>
-        /// The internal name used to reference this entity from any mod in Prism which uses it.
+        /// Gets the internal name used to reference this entity from any mod in Prism which uses it.
         /// </summary>
         public string InternalName
         {
@@ -20,7 +23,7 @@ namespace Prism.API
             internal set;
         }
         /// <summary>
-        /// Information about the mod to which this entity belongs.
+        /// Gets Information about the mod to which this entity belongs.
         /// </summary>
         public ModInfo Mod
         {
@@ -28,7 +31,7 @@ namespace Prism.API
             internal set;
         }
         /// <summary>
-        /// The type of entity [need to elaborate on this...]
+        /// Gets the type of entity [need to elaborate on this...]
         /// </summary>
         public int Type
         {
@@ -37,7 +40,7 @@ namespace Prism.API
         }
 
         /// <summary>
-        /// The name of the entity which will show up in-game (e.g. on item in inventory, on NPC mouse hover, etc).
+        /// Gets or sets the name of the entity which will show up in-game (e.g. on item in inventory, on NPC mouse hover, etc).
         /// </summary>
         public virtual string DisplayName
         {

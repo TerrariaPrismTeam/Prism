@@ -12,13 +12,16 @@ using Prism.Util;
 
 namespace Prism.Mods
 {
+    /// <summary>
+    /// Handles the loading of mods.
+    /// </summary>
     static class ModLoader
     {
         internal static List<LoaderError> errors = new List<LoaderError>();
         static List<string> circRefList = new List<string>();
 
         /// <summary>
-        /// Loads the mod info from the specified path and adds any errors encountered to the internal <see cref="errors"/> list.
+        /// Loads and returns the mod info from the specified path and adds any errors encountered to the internal <see cref="errors"/> list.
         /// </summary>
         /// <param name="path">The path to load from.</param>
         /// <returns><see cref="ModInfo"/> if loaded successfully, null if failed to load</returns>
@@ -49,7 +52,7 @@ namespace Prism.Mods
         }
 
         /// <summary>
-        /// Recursively checks for circular mod references.
+        /// Recursively checks and returns whether a mod has a circular mod reference and outputs the name of the circular reference if applicable.
         /// </summary>
         /// <param name="info">The <see cref="ModInfo"/> of the mod to check</param>
         /// <param name="evilMod">Outputs the <see cref="ModReference.Name"/> causing the circular references if applicable.</param>
@@ -87,7 +90,7 @@ namespace Prism.Mods
         }
 
         /// <summary>
-        /// Loads a mod from an <see cref="System.Reflection.Assembly"/>.
+        /// Loads a mod from an <see cref="System.Reflection.Assembly"/> and returns its <see cref="ModDef"/>.
         /// </summary>
         /// <param name="asm">The mod's <see cref="System.Reflection.Assembly"/></param>
         /// <param name="info">The mod's <see cref="ModInfo"/></param>
@@ -120,7 +123,7 @@ namespace Prism.Mods
         }
 
         /// <summary>
-        /// Loads a mod from the specified path.
+        /// Loads a mod from the specified path and returns its <see cref="ModDef"/>.
         /// </summary>
         /// <param name="path">The specified path</param>
         /// <returns>The <see cref="ModDef"/> of the mod or null if something went wrong</returns>
@@ -166,10 +169,10 @@ namespace Prism.Mods
         }
 
         /// <summary>
-        /// Loads all mods from the Prism mod directory.
+        /// Loads all mods from the Prism mod directory and returns a list containing any loader errors encountered.
         /// </summary>
         /// <returns>Any <see cref="LoaderError"/>'s encountered while loading.</returns>
-        internal static IEnumerable<LoaderError>   Load()
+        internal static IEnumerable<LoaderError> Load()
         {
             errors.Clear();
 
@@ -209,12 +212,12 @@ namespace Prism.Mods
         /// <summary>
         /// Unloads all loaded mods.
         /// </summary>
-        internal static void                     Unload()
+        internal static void Unload()
         {
             foreach (var v in ModData.mods.Values)
                 v.Unload();
 
-            EntityDefLoader.Reset ();
+            EntityDefLoader.ResetEntityHandlers ();
             ResourceLoader .Unload();
 
             ModData.mods.Clear();

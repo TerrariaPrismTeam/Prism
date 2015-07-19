@@ -7,16 +7,21 @@ using Terraria.ID;
 
 namespace Prism.Mods.Defs
 {
+    /// <summary>
+    /// Controls the loading of entities.
+    /// </summary>
     static class EntityDefLoader
     {
         /// <summary>
-        /// Sets the "ROProperties"...(what the fuck does this even mean poro y u do dis)
+        /// Sets the read-only properties of the entity definitions contained within the dictionary specified,
+        /// setting their <see cref="EntityDef.InternalName"/> properties as well as assuring that their <see cref="EntityDef.Mod"/> properties
+        /// point to the specified <see cref="ModDef"/>.
         /// </summary>
         /// <typeparam name="TEntityDef"></typeparam>
         /// <param name="def"></param>
         /// <param name="dict"></param>
         /// <returns></returns>
-        static Dictionary<string, TEntityDef> SetROProperties<TEntityDef>(ModDef def, Dictionary<string, TEntityDef> dict)
+        static Dictionary<string, TEntityDef> SetChildReadonlyProperties<TEntityDef>(ModDef def, Dictionary<string, TEntityDef> dict)
             where TEntityDef : EntityDef
         {
             foreach (var kvp in dict)
@@ -31,15 +36,15 @@ namespace Prism.Mods.Defs
         /// <summary>
         /// Resets all the item/NPC/tile/projectile/etc def handlers.
         /// </summary>
-        internal static void Reset()
+        internal static void ResetEntityHandlers()
         {
             ItemDefHandler.Reset();
         }
 		
         /// <summary>
-        /// Sets up this EntityDefLoader for loading mods, creating/adding all of the vanilla content defs.
+        /// Sets up this EntityDefLoader for loading mods, creating/adding all of the vanilla content defs, etc.
         /// </summary>
-        internal static void Setup()
+        internal static void SetupEntityHandlers()
         {
             ItemDefHandler.FillVanilla();
         }
@@ -51,7 +56,7 @@ namespace Prism.Mods.Defs
         /// <returns>Enumerable list of LoaderErrors encountered while loading the mod.</returns>
         internal static IEnumerable<LoaderError> Load(ModDef mod)
         {
-            mod.ItemDefs = SetROProperties(mod, mod.GetItemDefsI());
+            mod.ItemDefs = SetChildReadonlyProperties(mod, mod.GetItemDefsI());
 
             // validate props
 

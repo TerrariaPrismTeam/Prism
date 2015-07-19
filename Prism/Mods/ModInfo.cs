@@ -5,23 +5,59 @@ using System.Linq;
 
 namespace Prism.Mods
 {
+    /// <summary>
+    /// Container which holds the information associated with a mod definition.
+    /// </summary>
     public struct ModInfo : IEquatable<ModInfo>
     {
-        public string ModPath;
+        /// <summary>
+        /// Gets the path associated with this mod definition.
+        /// </summary>
+        public readonly string ModPath;
 
-        public string InternalName;
-        public string DisplayName;
-        public string Author;
-        public string Version;
-        public string Description;
+        /// <summary>
+        /// Gets the internal name associated with this mod definition by which it is referenced from any mod.
+        /// </summary>
+        public readonly string InternalName;
 
-        public string AssemblyFileName;
-        public string ModDefTypeName;
-        public IReference[] References;
+        /// <summary>
+        /// Gets the display name associated with this mod definition.
+        /// </summary>
+        public readonly string DisplayName;
+
+        /// <summary>
+        /// Gets the author associated with this mod definition.
+        /// </summary>
+        public readonly string Author;
+
+        /// <summary>
+        /// Gets the version string associated with this mod definition.
+        /// </summary>
+        public readonly string Version;
+
+        /// <summary>
+        /// Gets the description associated with this mod definition.
+        /// </summary>
+        public readonly string Description;
+
+        /// <summary>
+        /// Gets the file name of the <see cref="System.Reflection.Assembly"/> associated with this mod definition.
+        /// </summary>
+        public readonly string AssemblyFileName;
+
+        /// <summary>
+        /// Gets the type name associated with this mod definition.
+        /// </summary>
+        public readonly string ModDefTypeName;
+
+        /// <summary>
+        /// Gets the references to the <see cref="System.Reflection.Assembly"/>'s (including other mods) associated with this mod definition.
+        /// </summary>
+        public readonly IReference[] References;
 
 
         /// <summary>
-        /// Returns the mod's version as a <see cref="System.Version"/> object.
+        /// Gets the mod's version as a <see cref="System.Version"/> object.
         /// </summary>
         public Version VersionAsVersion
         {
@@ -46,6 +82,18 @@ namespace Prism.Mods
             }
         }
 
+        /// <summary>
+        /// Constructs a new <see cref="ModInfo"/> object.
+        /// </summary>
+        /// <param name="modPath"><see cref="ModInfo.ModPath"/></param>
+        /// <param name="internalName"><see cref="ModInfo.InternalName"/></param>
+        /// <param name="displayName"><see cref="ModInfo.DisplayName"/></param>
+        /// <param name="author"><see cref="ModInfo.Author"/></param>
+        /// <param name="version"><see cref="ModInfo.Version"/></param>
+        /// <param name="descr"><see cref="ModInfo.Description"/></param>
+        /// <param name="asmFileName"><see cref="ModInfo.AssemblyFileName"/></param>
+        /// <param name="modDefTypeName"><see cref="ModInfo.ModDefTypeName"/></param>
+        /// <param name="references"><see cref="ModInfo.References"/></param>
         public ModInfo(string modPath, string internalName, string displayName, string author, string version, string descr, string asmFileName, string modDefTypeName, IReference[] references)
         {
             ModPath = modPath;
@@ -72,7 +120,7 @@ namespace Prism.Mods
         }
 
         /// <summary>
-        /// The hashcode of this <see cref="ModInfo"/>, based on its fields.
+        /// Gets the hashcode of this <see cref="ModInfo"/>, based on its fields.
         /// </summary>
         /// <returns>The combined hashcodes of the <see cref="InternalName"/>, <see cref="DisplayName"/>, <see cref="Author"/>, and <see cref="Version"/> of this this <see cref="ModInfo"/>.</returns>
         public override int GetHashCode()
@@ -81,7 +129,7 @@ namespace Prism.Mods
         }
 
         /// <summary>
-        /// The string representation of this <see cref="ModInfo"/> object.
+        /// Gets the basic string representation of this <see cref="ModInfo"/> object.
         /// </summary>
         /// <returns>"{ <see cref="InternalName"/> }"</returns>
         public override string ToString()
@@ -90,7 +138,7 @@ namespace Prism.Mods
         }
 
         /// <summary>
-        /// The pretty string representation of this <see cref="ModInfo"/> object.
+        /// Gets the pretty string representation of this <see cref="ModInfo"/> object.
         /// </summary>
         /// <returns>Display Name by Author vX.X.X.X</returns>
         public string ToPrettyString()

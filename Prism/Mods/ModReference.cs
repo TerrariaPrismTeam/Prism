@@ -13,7 +13,7 @@ namespace Prism.Mods
     public interface IReference
     {
         /// <summary>
-        /// The local name of the reference.
+        /// Gets the local name of the reference.
         /// </summary>
         string Name
         {
@@ -21,7 +21,7 @@ namespace Prism.Mods
         }
 
         /// <summary>
-        /// The path to the referenced file.
+        /// Gets the path to the referenced file.
         /// </summary>
         string Path
         {
@@ -29,7 +29,7 @@ namespace Prism.Mods
         }
 
         /// <summary>
-        /// Loads the <see cref="System.Reflection.Assembly"/>.
+        /// Loads and returns the <see cref="System.Reflection.Assembly"/> associated with this <see cref="ModReference"/>.
         /// </summary>
         /// <returns>The <see cref="System.Reflection.Assembly"/></returns>
         Assembly LoadAssembly();
@@ -41,7 +41,7 @@ namespace Prism.Mods
     public struct AssemblyReference : IReference
     {
         /// <summary>
-        /// The name of the <see cref="System.Reflection.Assembly"/>.
+        /// Gets the name of the <see cref="System.Reflection.Assembly"/>.
         /// </summary>
         public string Name
         {
@@ -52,7 +52,7 @@ namespace Prism.Mods
         }
 
         /// <summary>
-        /// The path to the <see cref="System.Reflection.Assembly"/> file.
+        /// Gets the path to the <see cref="System.Reflection.Assembly"/> file.
         /// </summary>
         public string Path
         {
@@ -70,7 +70,7 @@ namespace Prism.Mods
         }
 
         /// <summary>
-        /// Loads the <see cref="System.Reflection.Assembly"/>.
+        /// Loads and returns the <see cref="System.Reflection.Assembly"/> associated with this <see cref="AssemblyReference"/>.
         /// </summary>
         /// <returns>The <see cref="System.Reflection.Assembly"/></returns>
         public Assembly LoadAssembly()

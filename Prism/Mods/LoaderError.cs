@@ -5,30 +5,54 @@ using System.Linq;
 
 namespace Prism.Mods
 {
+    /// <summary>
+    /// Represents an error encountered while loading mods.
+    /// </summary>
     public class LoaderError
     {
+        /// <summary>
+        /// Gets the path to the mod associated with this error.
+        /// </summary>
         public string ModPath
         {
             get;
             private set;
         }
+
+        /// <summary>
+        /// Gets the message associated with this error.
+        /// </summary>
         public string Message
         {
             get;
             private set;
         }
 
+        /// <summary>
+        /// Gets the <see cref="ModInfo"/> of the mod associated with this error.
+        /// </summary>
         public ModInfo? Mod
         {
             get;
             private set;
         }
+
+        /// <summary>
+        /// Gets the data associated with this error.
+        /// </summary>
         public object Data
         {
             get;
             private set;
         }
 
+        /// <summary>
+        /// Constructs a new <see cref="LoaderError"/>.
+        /// </summary>
+        /// <param name="modPath">The path to the mod associated with this error</param>
+        /// <param name="message">The message associated with this error</param>
+        /// <param name="data">The data associated with this error</param>
+        /// <param name="info">The <see cref="ModInfo"/> of the mod associated with this error</param>
         public LoaderError(string modPath, string message = null, object data = null, ModInfo? info = null)
         {
             if (String.IsNullOrEmpty(modPath))
@@ -56,6 +80,10 @@ namespace Prism.Mods
 
         }
 
+        /// <summary>
+        /// Gets the string representation of this error including its <see cref="ModPath"/>, <see cref="ModInfo"/>, <see cref="Message"/>, and <see cref="Data"/>.
+        /// </summary>
+        /// <returns>A string</returns>
         public override string ToString()
         {
             return "An error occured when trying to load mod "

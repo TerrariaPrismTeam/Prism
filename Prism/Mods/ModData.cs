@@ -7,12 +7,22 @@ using Prism.Util;
 
 namespace Prism.Mods
 {
+    /// <summary>
+    /// Provides global access to the data of all mods loaded into Prism.
+    /// </summary>
     public static class ModData
     {
         internal readonly static Dictionary<ModInfo, ModDef> mods = new Dictionary<ModInfo, ModDef>();
         internal readonly static Dictionary<string, ModDef> modsFromInternalName = new Dictionary<string, ModDef>();
 
+        /// <summary>
+        /// Contains all loaded mods indexed by their <see cref="ModInfo"/>.
+        /// </summary>
         public readonly static ReadOnlyDictionary<ModInfo, ModDef> Mods = new ReadOnlyDictionary<ModInfo, ModDef>(mods);
+
+        /// <summary>
+        /// Contains all loaded mods indexed by their <see cref="ModInfo.InternalName"/>.
+        /// </summary>
         public readonly static ReadOnlyDictionary<string, ModDef> ModsFromInternalName = new ReadOnlyDictionary<string, ModDef>(modsFromInternalName);
         // other dicts etc
 

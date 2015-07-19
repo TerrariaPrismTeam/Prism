@@ -96,10 +96,11 @@ namespace Prism.API
 
             resources.Clear();
         }
+
         /// <summary>
-        /// Gets the item defs very redundantly.
+        /// Gets the item defs quite redundantly by calling <see cref="GetItemDefs"/>.
         /// </summary>
-        /// <returns></returns>
+        /// <returns><see cref="GetItemDefs"/></returns>
         internal Dictionary<string, ItemDef> GetItemDefsI()
         {
             return GetItemDefs();

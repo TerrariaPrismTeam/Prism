@@ -9,7 +9,7 @@ namespace Prism.API
     public class ItemDef : EntityDef
     {
         /// <summary>
-        /// Returns ItemDefs by their type number.
+        /// Gets ItemDefs by their type number.
         /// </summary>
         public struct ByTypeGetter
         {
@@ -23,7 +23,7 @@ namespace Prism.API
         }
 
         /// <summary>
-        /// Returns ItemDefs by their internal name (and optionally by their mod's internal name).
+        /// Gets ItemDefs by their internal name (and optionally by their mod's internal name).
         /// </summary>
         public struct ByNameGetter
         {
@@ -40,7 +40,7 @@ namespace Prism.API
         }
 
         /// <summary>
-        /// Returns ItemDefs by their type number.
+        /// Gets ItemDefs by their type number.
         /// </summary>
         public static ByTypeGetter ByType
         {
@@ -51,7 +51,7 @@ namespace Prism.API
         }
 
         /// <summary>
-        /// Returns ItemDefs by their internal name (and optionally by their mod's internal name).
+        /// Gets ItemDefs by their internal name (and optionally by their mod's internal name).
         /// </summary>
         public static ByNameGetter ByName
         {
@@ -64,7 +64,7 @@ namespace Prism.API
         // stupid red and his stupid netids
         int setNetID = 0;
         /// <summary>
-        /// Returns this item's stupid ass NetID (aka Phasesabre ID).
+        /// Gets this item's stupid ass NetID (aka Phasesabre ID).
         /// </summary>
         public int NetID
         {
@@ -79,9 +79,18 @@ namespace Prism.API
         }
 		
         /// <summary>
-        /// The damage this item does if it were a weapon.
+        /// Gets or sets the damage this item does if it were a weapon.
         /// </summary>
         public virtual int Damage
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the use style of this item.
+        /// </summary>
+        public virtual int UseStyle
         {
             get;
             set;
