@@ -91,26 +91,10 @@ namespace Prism.API
         public readonly static ItemValue Zero = new ItemValue(0, 0, 0, 0);
 
         // base 10 is annoying
-        public int Copper
-        {
-            get;
-            set;
-        }
-        public int Silver
-        {
-            get;
-            set;
-        }
-        public int Gold
-        {
-            get;
-            set;
-        }
-        public int Platinum
-        {
-            get;
-            set;
-        }
+        public int Copper;
+        public int Silver;
+        public int Gold;
+        public int Platinum;
 
         /// <summary>
         /// Gets or sets the resulting value.
@@ -294,20 +278,12 @@ namespace Prism.API
         /// Gets or sets the type of buff this item gives the player.
         /// </summary>
         /// <remarks>Item.buffType</remarks>
-        public int Type
-        {
-            get;
-            set;
-        }
+        public int Type;
         /// <summary>
         /// Gets or sets the duration for which this item buffs the player (in whole seconds).
         /// </summary>
         /// <remarks>Item.buffTime</remarks>
-        public int Duration
-        {
-            get;
-            set;
-        }
+        public int Duration;
 
         /// <summary>
         /// Constructs a new <see cref="ItemBuff"/> structure.
@@ -357,63 +333,57 @@ namespace Prism.API
     /// </summary>
     public struct ItemArmourData : IEquatable<ItemArmourData>
     {
+        internal int headId, maleBodyId, femaleBodyId, legsId;
+
         public int HeadId
         {
-            get;
-            internal set;
+            get
+            {
+                return headId;
+            }
         }
         public int MaleBodyId
         {
-            get;
-            internal set;
+            get
+            {
+                return maleBodyId;
+            }
         }
         public int FemaleBodyId
         {
-            get;
-            internal set;
+            get
+            {
+                return femaleBodyId;
+            }
         }
         public int LegsId
         {
-            get;
-            internal set;
+            get
+            {
+                return legsId;
+            }
         }
 
         /// <summary>
         /// Gets or sets whether the item can be used as a helmet.
         /// </summary>
         /// <remarks>Item.headSlot</remarks>
-        public Func<Texture2D> Helmet
-        {
-            get;
-            set;
-        }
+        public Func<Texture2D> Helmet;
         /// <summary>
         /// Gets or sets whether the item can be used as body armour.
         /// </summary>
         /// <remarks>Item.bodySlot</remarks>
-        public Func<Texture2D> MaleBodyArmour
-        {
-            get;
-            set;
-        }
+        public Func<Texture2D> MaleBodyArmour;
         /// <summary>
         /// Gets or sets whether the item can be used as body armour.
         /// </summary>
         /// <remarks>Item.bodySlot</remarks>
-        public Func<Texture2D> FemaleBodyArmour
-        {
-            get;
-            set;
-        }
+        public Func<Texture2D> FemaleBodyArmour;
         /// <summary>
         /// Gets or sets whether the item can be used as greaves.
         /// </summary>
         /// <remarks>Item.legSlot</remarks>
-        public Func<Texture2D> Greaves
-        {
-            get;
-            set;
-        }
+        public Func<Texture2D> Greaves;
 
         /// <summary>
         /// Constructs a new <see cref="ItemArmourData"/> structure.
@@ -423,7 +393,7 @@ namespace Prism.API
         /// <param name="legs"><see cref="Greaves"/></param>
         public ItemArmourData(Func<Texture2D> head, Func<Texture2D> maleBody, Func<Texture2D> legs, Func<Texture2D> femaleBody = null)
         {
-            HeadId = MaleBodyId = FemaleBodyId = LegsId = -1;
+            headId = maleBodyId = femaleBodyId = legsId = -1;
 
             Helmet = head;
             MaleBodyArmour = maleBody;
@@ -470,39 +440,23 @@ namespace Prism.API
         /// Gets or sets the item's description.
         /// </summary>
         /// <remarks>Item.toolTip</remarks>
-        public string Description
-        {
-            get;
-            set;
-        }
+        public string Description;
         /// <summary>
         /// Gets or sets the item's extra description (funny quote, reference, etc).
         /// </summary>
         /// <remarks>Item.toolTip2</remarks>
-        public string ExtraDescription
-        {
-            get;
-            set;
-        }
+        public string ExtraDescription;
 
         /// <summary>
         /// Gets or sets whether this item is labeled as "Vanity item" in its tool-tip.
         /// </summary>
         /// <remarks>Item.vanity</remarks>
-        public bool ShowVanity
-        {
-            get;
-            set;
-        }
+        public bool ShowVanity;
         /// <summary>
         /// Gets or sets whether this item is labeled as "Ammo" in its tool-tip.
         /// </summary>
         /// <remarks>!Item.notAmmo</remarks>
-        public bool HideAmmoFlag
-        {
-            get;
-            set;
-        }
+        public bool HideAmmoFlag;
 
         /// <summary>
         /// Constructs a new <see cref="ItemDescription"/> structure.

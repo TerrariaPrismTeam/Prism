@@ -160,7 +160,7 @@ namespace Prism.Mods.Defs
                 Array.Resize(ref Main.armorHeadLoaded, Main.armorHeadLoaded.Length + 1);
                 Main.armorHeadLoaded[id] = true;
                 Main.armorHeadTexture[id] = t;
-                ad.HeadId = id;
+                ad.headId = id;
             }
             if (ad.MaleBodyArmour != null)
             {
@@ -173,7 +173,7 @@ namespace Prism.Mods.Defs
                 Array.Resize(ref Main.armorBodyLoaded, Main.armorBodyLoaded.Length + 1);
                 Main.armorBodyLoaded[id] = true;
                 Main.armorBodyTexture[id] = t;
-                ad.MaleBodyId = id;
+                ad.maleBodyId = id;
 
                 t = ad.FemaleBodyArmour();
                 if (t == null)
@@ -183,7 +183,7 @@ namespace Prism.Mods.Defs
                 if (Main.femaleBodyTexture.Length <= id)
                     Array.Resize(ref Main.femaleBodyTexture, id + 1);
                 Main.femaleBodyTexture[id] = t;
-                ad.FemaleBodyId = id;
+                ad.femaleBodyId = id;
             }
             if (ad.Greaves != null)
             {
@@ -196,7 +196,7 @@ namespace Prism.Mods.Defs
                 Array.Resize(ref Main.armorLegsLoaded, Main.armorLegsLoaded.Length + 1);
                 Main.armorLegsLoaded[id] = true;
                 Main.armorLegTexture[id] = t;
-                ad.LegsId = id;
+                ad.legsId = id;
             }
         }
         static void LoadSetProperties(ItemDef def)

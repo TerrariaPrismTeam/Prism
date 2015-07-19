@@ -40,6 +40,8 @@ namespace Prism.Mods
     /// </summary>
     public struct AssemblyReference : IReference
     {
+        string path;
+
         /// <summary>
         /// Gets the name of the <see cref="System.Reflection.Assembly"/>.
         /// </summary>
@@ -50,14 +52,15 @@ namespace Prism.Mods
                 return IOPath.GetFileNameWithoutExtension(Path);
             }
         }
-
         /// <summary>
         /// Gets the path to the <see cref="System.Reflection.Assembly"/> file.
         /// </summary>
         public string Path
         {
-            get;
-            private set;
+            get
+            {
+                return path;
+            }
         }
 
         /// <summary>
@@ -66,7 +69,7 @@ namespace Prism.Mods
         /// <param name="path">The path to the assembly to referencce.</param>
         public AssemblyReference(string path)
         {
-            Path = path;
+            this.path = path;
         }
 
         /// <summary>
@@ -84,15 +87,18 @@ namespace Prism.Mods
     /// </summary>
     public struct ModReference : IReference
     {
+        string name;
+
         /// <summary>
         /// The name of the mod.
         /// </summary>
         public string Name
         {
-            get;
-            private set;
+            get
+            {
+                return name;
+            }
         }
-
         /// <summary>
         /// The path to the mod's files.
         /// </summary>
@@ -110,7 +116,7 @@ namespace Prism.Mods
         /// <param name="name">The name of the mod</param>
         public ModReference(string name)
         {
-            Name = name;
+            this.name = name;
         }
 
         /// <summary>
