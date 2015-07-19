@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Prism.Mods.Defs;
 
 namespace Prism.API
 {
@@ -19,7 +20,8 @@ namespace Prism.API
 
         public override ItemDef Resolve()
         {
-            return ItemDef.ByName[ResourceName, ModName];
+            // TODO: handle missing keys
+            return Mod == PrismApi.VanillaInfo ? ItemDefHandler.VanillaDefFromName[ResourceName] : ItemDef.ByName[ResourceName, ModName];
         }
     }
 }

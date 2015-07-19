@@ -5,297 +5,10 @@ using Prism.Mods;
 using Prism.Mods.Defs;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Prism.API
 {
-    public enum ItemDamageType
-    {
-        Melee,
-        Ranged,
-        Magic,
-        Summon,
-        Thrown
-    }
-    public enum ItemUseStyle
-    {
-        None,
-        /// <summary>
-        /// Swords, pickaxes, etc.
-        /// </summary>
-        Swing,
-        /// <summary>
-        /// Consumable items.
-        /// </summary>
-        Eat,
-        /// <summary>
-        /// Shortswords.
-        /// </summary>
-        Stab,
-        /// <summary>
-        /// Summoning items, heart/mana crystal, etc.
-        /// </summary>
-        HoldUp,
-        /// <summary>
-        /// Guns, spell tomes, etc.
-        /// </summary>
-        AimToMouse
-    }
-    public enum ItemHoldStyle
-    {
-        Default,
-        HeldLightSource, // torch etc
-        BreathingReed
-    }
-    public enum ItemRarity
-    {
-        /// <summary>
-        /// Rarity of quest items.
-        /// </summary>
-        Amber = -3, // Item.questItem
-        /// <summary>
-        /// Rarity of items only obtainable in Expert Mode.
-        /// </summary>
-        Rainbow = -2, // Item.expert (not expertOnly)
-        Gray = -1,
-        White = 0,
-        Blue = 1,
-        Green = 2,
-        Orange = 3,
-        LightRed = 4,
-        Pink = 5,
-        LightPurple = 6,
-        Lime = 7,
-        Yellow = 8,
-        Cyan = 9,
-        Red = 10,
-        Purple = 11
-    }
-
-    // TODO: equality & tostring stuff
-    /// <summary>
-    /// Utility for Item.value stuff.
-    /// </summary>
-    public struct ItemValue
-    {
-        public const int
-            BASE = 100,
-
-            COPPER_MULT   =                  1,
-            SILVER_MULT   = BASE * COPPER_MULT,
-            GOLD_MULT     = BASE * SILVER_MULT,
-            PLATINUM_MULT = BASE * GOLD_MULT  ,
-
-            COPPER_MAX   = BASE * COPPER_MULT  ,
-            SILVER_MAX   = BASE * SILVER_MULT  ,
-            GOLD_MAX     = BASE * GOLD_MULT    ,
-            PLATINUM_MAX = BASE * PLATINUM_MULT;
-
-        // base 10 is annoying
-        public int Copper
-        {
-            get;
-            set;
-        }
-        public int Silver
-        {
-            get;
-            set;
-        }
-        public int Gold
-        {
-            get;
-            set;
-        }
-        public int Platinum
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the resulting value.
-        /// </summary>
-        public int Value
-        {
-            get
-            {
-                return (Copper   % BASE) * COPPER_MULT
-                     + (Silver   % BASE) * SILVER_MULT
-                     + (Gold     % BASE) * GOLD_MULT
-                     + (Platinum % BASE) * PLATINUM_MULT;
-            }
-            set
-            {
-                Copper   = value % COPPER_MAX           ;
-                Silver   = value % SILVER_MAX   - Copper;
-                Gold     = value % GOLD_MAX     - Silver;
-                Platinum = value % PLATINUM_MAX - Gold  ;
-            }
-        }
-
-        public ItemValue(int c, int s, int g, int p)
-        {
-            Copper   = c;
-            Silver   = s;
-            Gold     = g;
-            Platinum = p;
-        }
-        public ItemValue(int value)
-        {
-            Copper   = value % COPPER_MAX           ;
-            Silver   = value % SILVER_MAX   - Copper;
-            Gold     = value % GOLD_MAX     - Silver;
-            Platinum = value % PLATINUM_MAX - Gold  ;
-        }
-    }
-    /// <summary>
-    /// Container for the properties of the item which relate to player buffs.
-    /// I've chosen more friendly/less-vanilla-y names for the fields because
-    /// Prism should be the last modding API we *ever* need for Terraria and
-    /// I want it to be really nice and user-friendly.
-    /// </summary>
-    public struct ItemBuff
-    {
-        /// <summary>
-        /// Gets or sets the type of buff this item gives the player.
-        /// </summary>
-        /// <remarks>Item.buffType</remarks>
-        public int Type
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the duration for which this item buffs the player (in whole seconds).
-        /// </summary>
-        /// <remarks>Item.buffTime</remarks>
-        public int Duration
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Constructs a new <see cref="ItemBuff"/> structure.
-        /// </summary>
-        /// <param name="type"><see cref="ItemBuff.Type"/></param>
-        /// <param name="duration"><see cref="ItemBuff.Duration"/></param>
-        public ItemBuff(int type, int duration)
-        {
-            Type = type;
-            Duration = duration;
-        }
-    }
-    /// <summary>
-    /// Container for the properties of the item which determine its use as armor.
-    /// </summary>
-    public struct ItemArmorType
-    {
-        /// <summary>
-        /// Gets or sets the "Head" equipment type index.
-        /// </summary>
-        /// <remarks>Item.headSlot</remarks>
-        public ItemRef HeadType
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the "Body" equipment type index.
-        /// </summary>
-        /// <remarks>Item.bodySlot</remarks>
-        public ItemRef BodyType
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the "Legs" equipment type index.
-        /// </summary>
-        /// <remarks>Item.legSlot</remarks>
-        public ItemRef LegType
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Constructs a new <see cref="ItemArmorType"/> structure.
-        /// </summary>
-        /// <param name="head"><see cref="ItemArmorType.HeadType"/></param>
-        /// <param name="body"><see cref="ItemArmorType.BodyType"/></param>
-        /// <param name="legs"<see cref="ItemArmorType.LegType"/>></param>
-        public ItemArmorType(ItemRef head, ItemRef body, ItemRef legs)
-        {
-            HeadType = head;
-            BodyType = body;
-            LegType = legs;
-        }
-    }
-    /// <summary>
-    /// Container for the properties of the item which relate to its description.
-    /// </summary>
-    public struct ItemDescription
-    {
-        /// <summary>
-        /// Gets or sets the item's description.
-        /// </summary>
-        /// <remarks>Item.toolTip</remarks>
-        public string Description
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the item's extra description (funny quote, reference, etc).
-        /// </summary>
-        /// <remarks>Item.toolTip2</remarks>
-        public string ExtraDescription
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets whether this item is labeled as "Vanity item" in its tool-tip.
-        /// </summary>
-        /// <remarks>Item.vanity</remarks>
-        public bool ShowVanity
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets whether this item is labeled as "Ammo" in its tool-tip.
-        /// </summary>
-        /// <remarks>!Item.notAmmo</remarks>
-        public bool HideAmmoFlag
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Constructs a new <see cref="ItemDescription"/> structure.
-        /// </summary>
-        /// <param name="desc"><see cref="ItemDescription.Description"/></param>
-        /// <param name="extraDesc"><see cref="ItemDescription.ExtraDescription"/></param>
-        /// <param name="vanity"><see cref="ItemDescription.ShowVanity"/></param>
-        /// <param name="hideAmmo"><see cref="ItemDescription.HideAmmoFlag"/></param>
-        public ItemDescription(string desc, string extraDesc, bool vanity, bool hideAmmo)
-        {
-            Description = desc;
-            ExtraDescription = extraDesc;
-            ShowVanity = vanity;
-            HideAmmoFlag = hideAmmo;
-        }
-    }
-
     public class ItemDef : EntityDef
     {
         /// <summary>
@@ -489,6 +202,22 @@ namespace Prism.API
             get;
             set;
         }
+        /// <summary>
+        /// Gets or sets the amount of health restored when the item is used.
+        /// </summary>
+        public virtual int LifeHeal
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets the amount of mana restored when the item is used.
+        /// </summary>
+        public virtual int ManaHeal
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Gets or sets the velocity at which this item shoots projectiles (in pixels / game tick).
@@ -503,7 +232,7 @@ namespace Prism.API
         /// Gets or sets the amount of knockback this item inflicts.
         /// </summary>
         /// <remarks>Item.knockBack</remarks>
-        public virtual float KnockBack
+        public virtual float Knockback
         {
             get;
             set;
@@ -580,12 +309,94 @@ namespace Prism.API
             get;
             set;
         }
+        /// <summary>
+        /// Gets or sets whether the item is channeled, instead of used once or continuously used over and over again.
+        /// </summary>
+        public virtual bool IsChanneled
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets whether the item behaves as a soul.
+        /// </summary>
+        public virtual bool IsSoul
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets whether the item can be traded as a strange plant.
+        /// </summary>
+        public virtual bool IsStrangePlant
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets whether the item is a bullet kind of ammo.
+        /// </summary>
+        public virtual bool IsBullet
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets whether the item pulses.
+        /// </summary>
+        public virtual bool Pulses
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets whether the item is affected by gravity.
+        /// </summary>
+        public virtual bool NoGravity
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets whether... idk, really.
+        /// </summary>
+        public virtual bool IsNebulaPickup
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets whether the item can blink or not.
+        /// </summary>
+        public virtual bool NeverShiny
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets whether the extractinator can do something with the item.
+        /// </summary>
+        public virtual int ExtractinatorMode
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets the amount of minion slots required to use the item.
+        /// </summary>
+        public virtual int RequiredStaffMinionSlots
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Gets or sets the color to which the item's sprite is tinted (<see cref="Color.White"/> = no tinting applied).
         /// </summary>
         /// <remarks>Item.color</remarks>
-        public virtual Color Color
+        public virtual Color Colour
         {
             get;
             set;
@@ -632,7 +443,7 @@ namespace Prism.API
         /// Gets or sets this item's value in coins (PPGGSSCC).
         /// </summary>
         /// <remarks>Item.value</remarks>
-        public virtual int Value
+        public virtual ItemValue Value
         {
             get;
             set;
@@ -648,7 +459,7 @@ namespace Prism.API
         /// <summary>
         /// Gets or sets this item's armor type structure.
         /// </summary>
-        public virtual ItemArmorType ArmorType
+        public virtual ItemArmourData ArmourData
         {
             get;
             set;
@@ -662,7 +473,15 @@ namespace Prism.API
             set;
         }
 
-        // use references for these... later
+        /// <summary>
+        /// Gets or sets the ammo item the item consumes when used.
+        /// </summary>
+        public virtual ItemRef UsedAmmo
+        {
+            get;
+            set;
+        }
+        // TODO: use references for these... later
         /// <summary>
         /// Gets or sets the projectile which this item shoots upon use.
         /// </summary>
@@ -707,6 +526,141 @@ namespace Prism.API
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Gets or sets the item's texture.
+        /// </summary>
+        public virtual Func<Texture2D> GetTexture
+        {
+            get;
+            set;
+        }
+
+        public ItemDef(
+            #region arguments
+            int damage = 0,
+            int useAnimation = 0,
+            int useTime = 0,
+            int mana = 0,
+            int width = 16,
+            int height = 16,
+            int maxStack = 1,
+            int placeStyle = 0,
+            int alpha = 0,
+            int defense = 0,
+            int crit = 4,
+            int pick = 0,
+            int axe = 0,
+            int hammer = 0,
+            int healLife = 0,
+            int healMana = 0,
+
+            float shootSpeed = 0f,
+            float knockback = 0f,
+            float scale = 1f,
+
+            bool noMelee = false,
+            bool consumable = false,
+            bool useTurn = false,
+            bool autoReuse = false,
+            bool noUseGraphic = false,
+            bool accessory = false,
+            bool expertOnly = false,
+            bool channel = false,
+
+            bool soul = false,
+            bool strangePlant = false,
+            bool bullet = false,
+            bool pulses = false,
+            bool noGravity = false,
+            bool nebulaPickup = false,
+            bool neverShiny = false,
+
+            int extractinatorMode = 0,
+            int staffMinionSlotsRequired = 0,
+
+            Color colour = default(Color),
+            ItemRarity rare = ItemRarity.White,
+            ItemUseStyle useStyle = ItemUseStyle.None,
+            ItemHoldStyle holdStyle = ItemHoldStyle.Default,
+            ItemDamageType damageType = ItemDamageType.None,
+
+            ItemValue value = default(ItemValue),
+            ItemDescription descr = default(ItemDescription),
+            ItemArmourData armour = default(ItemArmourData),
+            ItemBuff buff = default(ItemBuff),
+
+            ItemRef useAmmo = null,
+            int shoot = 0,
+            int ammo = 0,
+            int useSound = 1,
+            int createTile = -1,
+            int createWall = 0,
+
+            Func<Texture2D> getTex = null
+            #endregion
+            )
+        {
+            Damage = damage;
+            UseAnimation = useAnimation;
+            UseTime = useTime;
+            ManaConsumption = mana;
+            Width = width;
+            Height = height;
+            MaxStack = maxStack;
+            PlacementStyle = placeStyle;
+            Alpha = alpha;
+            Defense = defense;
+            CritChanceModifier = crit;
+            PickaxePower = pick;
+            AxePower = axe;
+            HammerPower = hammer;
+            ManaHeal = healMana;
+            LifeHeal = healLife;
+
+            ShootVelocity = shootSpeed;
+            Knockback = knockback;
+            Scale = scale;
+
+            NoMelee = noMelee;
+            IsConsumable = consumable;
+            TurnPlayerOnUse = useTurn;
+            AutoReuse = autoReuse;
+            HideUseGraphic = noUseGraphic;
+            IsAccessory = accessory;
+            IsExpertModeOnly = expertOnly;
+            IsChanneled = channel;
+
+            IsSoul = soul;
+            IsStrangePlant = strangePlant;
+            ExtractinatorMode = extractinatorMode;
+            IsBullet = bullet;
+            Pulses = pulses;
+            NoGravity = noGravity;
+            IsNebulaPickup = nebulaPickup;
+            NeverShiny = neverShiny;
+            RequiredStaffMinionSlots = staffMinionSlotsRequired;
+
+            Colour = colour;
+            Rarity = rare;
+            UseStyle = useStyle;
+            HoldStyle = holdStyle;
+            DamageType = damageType;
+
+            Value = value;
+            Description = descr;
+            ArmourData = armour;
+            Buff = buff;
+
+            UsedAmmo = useAmmo;
+            ShootProjectile = shoot;
+            AmmoType = ammo;
+            UseSound = useSound;
+            CreateTile = createTile;
+            CreateWall = createWall;
+
+            GetTexture = getTex ?? (() => null);
         }
     }
 }

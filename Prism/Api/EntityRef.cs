@@ -7,7 +7,7 @@ using Terraria.ID;
 
 namespace Prism.API
 {
-    public abstract class EntityRef<TEntityDef>
+    public abstract class EntityRef<TEntityDef> : IEquatable<EntityRef<TEntityDef>>
         where TEntityDef : EntityDef
     {
         public string ResourceName
@@ -39,9 +39,33 @@ namespace Prism.API
         public EntityRef(string resourceName, string modName = null)
         {
             ResourceName = resourceName;
-            ModName = modName;
+            ModName = modName; //== EntityDef.VanillaString || modName == EntityDef.TerrariaString ? null : modName;
         }
 
         public abstract TEntityDef Resolve();
+
+        public bool Equals(EntityRef<TEntityDef> other)
+        {
+            return ResourceName == other.ResourceName && Mod == other.Mod;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(obj, null))
+                return false;
+
+            if (obj is EntityRef<TEntityDef>)
+                return Equals((EntityRef<TEntityDef>)obj);
+
+            return false;
+        }
+        public override int GetHashCode()
+        {
+            return ResourceName.GetHashCode() + Mod.GetHashCode();
+        }
+        public override string ToString()
+        {
+            return "{" + Mod.InternalName + "." + ResourceName + "}";
+        }
     }
 }

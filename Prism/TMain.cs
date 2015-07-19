@@ -21,6 +21,7 @@ namespace Prism
         static Texture2D WhitePixel;
 
         static bool justDrawCrashed = false;
+        static Exception lastDrawExn = null;
 
         internal TMain()
             : base()
@@ -30,36 +31,21 @@ namespace Prism
                 versionNumber += " " + PrismApi.VersionType;
 
             SavePath += "\\Prism";
+
             PlayerPath = SavePath + "\\Players";
-            WorldPath = SavePath + "\\Worlds";
+            WorldPath  = SavePath + "\\Worlds" ;
 
             PrismApi.ModDirectory = SavePath + "\\Mods";
 
             CloudPlayerPath = "players_Prism";
-            CloudWorldPath = "worlds_Prism";
+            CloudWorldPath  = "worlds_Prism" ;
         }
 
         protected override void Initialize()
         {
             PrismApi.MainInstance = this;
 
-            Item.OnSetDefaults += (Item i, int t, bool nmc) =>
-            {
-                if (t >= ItemID.Count)
-                {
-                    i.RealSetDefaults(0, nmc);
-
-                    i.type = i.netID = t;
-                    i.width = i.height = 16;
-                    i.stack = i.maxStack = 1;
-
-                    // todo: check if exists
-                    var def = ItemDefHandler.DefFromType[t];
-                    // copy from def
-                }
-                else
-                    i.RealSetDefaults(t, nmc);
-            };
+            Item.OnSetDefaults += ItemDefHandler.OnSetDefaults;
 
             base.Initialize(); // terraria init and LoadContent happen here
 
@@ -128,16 +114,17 @@ namespace Prism
                 spriteBatch.End();
 
                 justDrawCrashed = false;
+                lastDrawExn = null;
             }
             catch (Exception e)
             {
                 if (justDrawCrashed)
-                    ExceptionHandler.HandleFatal(e); // drawing state got fucked up
+                    ExceptionHandler.HandleFatal(new AggregateException(lastDrawExn, e)); // drawing state got fucked up
                 else
                 {
                     justDrawCrashed = true;
 
-                    ExceptionHandler.Handle(e);
+                    ExceptionHandler.Handle(lastDrawExn = e);
                 }
             }
         }
