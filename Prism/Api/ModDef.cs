@@ -67,7 +67,7 @@ namespace Prism.API
         [Hook]
         public virtual void OnAllModsLoaded() { }
 
-        // TODO: move this to a separate class containing game- or world-related hooks
+        // TODO: move this to a separate class containing game- or world-related hooks... later
         /// <summary>
         /// A hook called at the end of the game's Update method.
         /// </summary>

@@ -289,7 +289,7 @@ namespace Prism.API
     /// </summary>
     public struct ItemBuff : IEquatable<ItemBuff>
     {
-        // TODO: use BuffRef
+        // TODO: use BuffRef... later
         /// <summary>
         /// Gets or sets the type of buff this item gives the player.
         /// </summary>

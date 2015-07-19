@@ -65,22 +65,31 @@ namespace Prism.Mods.Defs
         /// Loads the items into the specified Dictionary.
         /// </summary>
         /// <param name="dict">The <see cref="Dictionary{TKey, TValue}"/> to load the items into.</param>
-        internal static void Load(Dictionary<string, ItemDef> dict)
+        internal static IEnumerable<LoaderError> Load(Dictionary<string, ItemDef> dict)
         {
+            var ret = new List<LoaderError>();
+
             ExtendArrays(dict.Count);
 
             foreach (var v in dict.Values)
             {
-                int type = nextType++;
+                if (v.GetTexture == null)
+                    ret.Add(new LoaderError(v.Mod, "GetTexture is null."));
+                else
+                {
+                    int type = nextType++;
 
-                v.Type = type;
-                DefFromType.Add(type, v);
+                    v.Type = type;
+                    DefFromType.Add(type, v);
 
-                LoadSetProperties(v);
+                    LoadSetProperties(v);
 
-                if (!Main.dedServ)
-                    LoadTextures(v);
+                    if (!Main.dedServ)
+                        LoadTextures(v);
+                }
             }
+
+            return ret;
         }
 
         /// <summary>
@@ -117,12 +126,14 @@ namespace Prism.Mods.Defs
             {
                 i.RealSetDefaults(0, noMatCheck);
 
-                i.type = i.netID = type;
-                i.width = i.height = 16;
-                i.stack = i.maxStack = 1;
+                if (DefFromType.ContainsKey(type))
+                {
+                    i.type = i.netID = type;
+                    i.width = i.height = 16;
+                    i.stack = i.maxStack = 1;
 
-                // TODO: check if exists
-                CopyDefToItem(i, DefFromType[type]);
+                    CopyDefToItem(i, DefFromType[type]);
+                }
             }
             else
                 i.RealSetDefaults(type, noMatCheck);
@@ -130,42 +141,61 @@ namespace Prism.Mods.Defs
 
         static void LoadTextures(ItemDef def)
         {
-            // TODO: check for null in func calls
+            // def.GetTexture itself should be checked when it's loaded
+            var t = def.GetTexture();
+            if (t == null)
+                throw new ArgumentNullException("GetTexture return value is null for ItemDef " + def.InternalName + " from mod " + def.Mod + ".");
             Main.itemTexture[def.Type] = def.GetTexture();
 
             var ad = def.ArmourData;
 
             if (ad.Helmet != null)
             {
+                t = ad.Helmet();
+                if (t == null)
+                    throw new ArgumentNullException("ArmourData.Helmet return value is null for ItemDef " + def.InternalName + " from mod " + def.Mod + ".");
+
                 int id = Main.armorHeadTexture.Length;
                 Array.Resize(ref Main.armorHeadTexture, Main.armorHeadTexture.Length + 1);
                 Array.Resize(ref Main.armorHeadLoaded, Main.armorHeadLoaded.Length + 1);
                 Main.armorHeadLoaded[id] = true;
-                Main.armorHeadTexture[id] = ad.Helmet();
+                Main.armorHeadTexture[id] = t;
                 ad.HeadId = id;
             }
             if (ad.MaleBodyArmour != null)
             {
+                t = ad.MaleBodyArmour();
+                if (t == null)
+                    throw new ArgumentNullException("ArmourData.MaleBodyArmour return value is null for ItemDef " + def.InternalName + " from mod " + def.Mod + ".");
+
                 int id = Main.armorBodyTexture.Length;
                 Array.Resize(ref Main.armorBodyTexture, Main.armorBodyTexture.Length + 1);
                 Array.Resize(ref Main.armorBodyLoaded, Main.armorBodyLoaded.Length + 1);
                 Main.armorBodyLoaded[id] = true;
-                Main.armorBodyTexture[id] = ad.MaleBodyArmour();
+                Main.armorBodyTexture[id] = t;
                 ad.MaleBodyId = id;
+
+                t = ad.FemaleBodyArmour();
+                if (t == null)
+                    throw new ArgumentNullException("ArmourData.FemaleBodyArmour return value is null for ItemDef " + def.InternalName + " from mod " + def.Mod + ".");
 
                 id = Main.femaleBodyTexture.Length;
                 if (Main.femaleBodyTexture.Length <= id)
                     Array.Resize(ref Main.femaleBodyTexture, id + 1);
-                Main.femaleBodyTexture[id] = ad.FemaleBodyArmour();
+                Main.femaleBodyTexture[id] = t;
                 ad.FemaleBodyId = id;
             }
             if (ad.Greaves != null)
             {
+                t = ad.Greaves();
+                if (t == null)
+                    throw new ArgumentNullException("ArmourData.Greaves return value is null for ItemDef " + def.InternalName + " from mod " + def.Mod + ".");
+
                 int id = Main.armorLegTexture.Length;
                 Array.Resize(ref Main.armorLegTexture, Main.armorLegTexture.Length + 1);
                 Array.Resize(ref Main.armorLegsLoaded, Main.armorLegsLoaded.Length + 1);
                 Main.armorLegsLoaded[id] = true;
-                Main.armorLegTexture[id] = ad.Greaves();
+                Main.armorLegTexture[id] = t;
                 ad.LegsId = id;
             }
         }
@@ -339,6 +369,8 @@ namespace Prism.Mods.Defs
             tar.UseSound = source.useSound;
             tar.CreateTile = source.createTile;
             tar.CreateWall = source.createWall;
+
+            tar.GetTexture = () => Main.itemTexture[source.type];
 
             tar.InternalName = source.name;
             tar.DisplayName = Main.itemName[source.type];

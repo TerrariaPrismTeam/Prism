@@ -20,7 +20,7 @@ namespace Prism
             if (Debugger.IsAttached)
                 throw new RethrownException(e); // signal to the debugger instead of displaying the error message, for convenience
 
-            // TODO: move to exception UI page
+            // TODO: move to exception UI page... later
             Trace.WriteLine(e.Message + " at " + e.TargetSite);
         }
         public static void HandleFatal(Exception e, bool exitImmediately = true)

@@ -56,13 +56,13 @@ namespace Prism.Mods.Defs
         /// <returns>Enumerable list of LoaderErrors encountered while loading the mod.</returns>
         internal static IEnumerable<LoaderError> Load(ModDef mod)
         {
+            var ret = new List<LoaderError>();
+
             mod.ItemDefs = SetChildReadonlyProperties(mod, mod.GetItemDefsInternally());
 
-            // validate props
+            ret.AddRange(ItemDefHandler.Load(mod. ItemDefs));
 
-            ItemDefHandler.Load(mod.ItemDefs);
-
-            return new List<LoaderError>();
+            return ret;
         }
     }
 }
