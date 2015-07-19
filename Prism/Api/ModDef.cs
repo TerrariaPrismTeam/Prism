@@ -10,7 +10,7 @@ namespace Prism.API
 {
     /// <summary>
     /// The base class used to define a mod.
-    /// Every mod must have exactly one type that inherits from <see cref="ModDef" />.
+    /// Every mod must have exactly one type that inherits from <see cref="ModDef"/>.
     /// </summary>
     public abstract class ModDef
     {
@@ -24,6 +24,7 @@ namespace Prism.API
             get;
             internal set;
         }
+
         /// <summary>
         /// Gets the <see cref="System.Reflection.Assembly"/> that defines this mod.
         /// </summary>
