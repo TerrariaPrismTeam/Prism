@@ -218,7 +218,11 @@ namespace Prism.Mods
         /// </summary>
         internal static void Unload()
         {
-            HookManager.ModDef.OnUnload();
+            if (HookManager.ModDef != null)
+            {
+                HookManager.ModDef.OnUnload();
+                // other hookmgrs here
+            }
 
             HookManager.CanCallHooks = false;
 
