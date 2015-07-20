@@ -43,7 +43,8 @@ namespace Prism.API
     {
         Default,
         HeldLightSource, // torch etc
-        BreathingReed
+        BreathingReed,
+        Harp
     }
     public enum ItemRarity
     {
@@ -329,7 +330,7 @@ namespace Prism.API
         }
     }
     /// <summary>
-    /// Container for the properties of the item which determine its use as armor.
+    /// Container for the properties of the item which determine its use as armour.
     /// </summary>
     public struct ItemArmourData : IEquatable<ItemArmourData>
     {

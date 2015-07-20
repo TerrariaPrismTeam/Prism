@@ -107,6 +107,15 @@ namespace Prism.API
             set;
         }
         /// <summary>
+        /// Gets or sets the the amount of time, in frames, which you must wait in order to reuse this item.
+        /// </summary>
+        /// <remarks>Item.resuseDelay</remarks>
+        public virtual int ReuseDelay
+        {
+            get;
+            set;
+        }
+        /// <summary>
         /// Gets or sets the amount of mana this item consumes upon use.
         /// </summary>
         /// <remarks>Item.mana</remarks>
@@ -544,6 +553,7 @@ namespace Prism.API
             int damage = 0,
             int useAnimation = 0,
             int useTime = 0,
+            int reuseDelay = 0,
             int mana = 0,
             int width = 16,
             int height = 16,
@@ -598,7 +608,7 @@ namespace Prism.API
             int ammo = 0,
             int useSound = 1,
             int createTile = -1,
-            int createWall = 0,
+            int createWall = -1,
 
             Func<Texture2D> getTex = null
             #endregion
@@ -609,6 +619,7 @@ namespace Prism.API
             Damage = damage;
             UseAnimation = useAnimation;
             UseTime = useTime;
+            ReuseDelay = reuseDelay;
             ManaConsumption = mana;
             Width = width;
             Height = height;

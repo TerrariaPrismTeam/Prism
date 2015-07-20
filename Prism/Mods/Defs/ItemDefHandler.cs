@@ -222,13 +222,14 @@ namespace Prism.Mods.Defs
             tar.damage = source.Damage;
             tar.useAnimation = source.UseAnimation;
             tar.useTime = source.UseTime;
+            tar.reuseDelay = source.ReuseDelay;
             tar.mana = source.ManaConsumption;
             tar.width = source.Width;
             tar.height = source.Height;
             tar.maxStack = source.MaxStack;
             tar.placeStyle = source.PlacementStyle;
             tar.alpha = source.Alpha;
-            tar.defense = source.Alpha;
+            tar.defense = source.Defense;
             tar.crit = source.CritChanceModifier;
             tar.pick = source.PickaxePower;
             tar.axe = source.AxePower / 5; // fucking red
@@ -296,7 +297,7 @@ namespace Prism.Mods.Defs
 
             tar.shoot = source.ShootProjectile;
             tar.ammo = source.AmmoType;
-            tar.useSound = source.AmmoType;
+            tar.useSound = source.UseSound;
             tar.createTile = source.CreateTile;
             tar.createWall = source.CreateWall;
 
@@ -308,6 +309,7 @@ namespace Prism.Mods.Defs
             tar.Damage = source.damage;
             tar.UseAnimation = source.useAnimation;
             tar.UseTime = source.useTime;
+            tar.ReuseDelay = source.reuseDelay;
             tar.ManaConsumption = source.mana;
             tar.Width = source.width;
             tar.Height = source.height;
