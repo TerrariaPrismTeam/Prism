@@ -46,6 +46,16 @@ namespace Prism.API
         }
 
         /// <summary>
+        /// Gets the mod's NPC definitions.
+        /// </summary>
+        /// <remarks>The key of the dictionary is the NPC's internal name (without mod internal name).</remarks>
+        public Dictionary<string, NpcDef> NpcDefs
+        {
+            get;
+            internal set;
+        }
+
+        /// <summary>
         /// WARNING: Do not place anything in the ModDef constructor, because the mod is not completely loaded yet (eg. Assembly is null).
         /// Use OnLoad to initialize fields, etc. instead.
         /// </summary>
@@ -82,6 +92,15 @@ namespace Prism.API
         /// The key of each key/value pair is the internal name of the item.
         /// </returns>
         protected abstract Dictionary<string, ItemDef> GetItemDefs();
+
+        /// <summary>
+        /// Gets all NPC definitions created by the mod.
+        /// </summary>
+        /// <returns>
+        /// A dictionary containing all NPC definitions.
+        /// The key of each key/value pair is the internal name of the NPC.
+        /// </returns>
+        protected abstract Dictionary<string, NpcDef> GetNpcDefs();
 
         /// <summary>
         /// Contains resources loaded by the mod.

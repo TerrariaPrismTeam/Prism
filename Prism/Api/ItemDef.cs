@@ -452,7 +452,7 @@ namespace Prism.API
         /// Gets or sets this item's value in coins (PPGGSSCC).
         /// </summary>
         /// <remarks>Item.value</remarks>
-        public virtual ItemValue Value
+        public virtual CoinValue Value
         {
             get;
             set;
@@ -476,7 +476,7 @@ namespace Prism.API
         /// <summary>
         /// Gets or sets the buff this item grants to the player.
         /// </summary>
-        public virtual ItemBuff Buff
+        public virtual BuffDef Buff
         {
             get;
             set;
@@ -598,10 +598,10 @@ namespace Prism.API
             ItemHoldStyle holdStyle = ItemHoldStyle.Default,
             ItemDamageType damageType = ItemDamageType.None,
 
-            ItemValue value = default(ItemValue),
+            CoinValue value = default(CoinValue),
             ItemDescription descr = default(ItemDescription),
             ItemArmourData armour = default(ItemArmourData),
-            ItemBuff buff = default(ItemBuff),
+            BuffDef buff = default(BuffDef),
 
             ItemRef useAmmo = null,
             int shoot = 0,

@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Prism</RootNamespace>
-    <AssemblyName>Prism</AssemblyName>
+    <AssemblyName>cmon</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -77,11 +77,16 @@
     </Compile>
     <Compile Include="API\EntityDef.cs" />
     <Compile Include="API\EntityRef.cs" />
+    <Compile Include="API\EntityDefStructs.cs" />
+    <Compile Include="API\NpcDefStructs.cs" />
+    <Compile Include="API\NpcDef.cs" />
     <Compile Include="API\ItemDef.cs" />
     <Compile Include="API\ItemDefStructs.cs" />
+    <Compile Include="API\NpcRef.cs" />
     <Compile Include="API\ItemRef.cs" />
     <Compile Include="API\ModDef.cs" />
     <Compile Include="Mods\Defs\EntityDefLoader.cs" />
+    <Compile Include="Mods\Defs\NpcDefHandler.cs" />
     <Compile Include="Mods\Defs\ItemDefHandler.cs" />
     <Compile Include="Mods\Hooks\Attributes.cs" />
     <Compile Include="Mods\Hooks\HookContainer.cs" />

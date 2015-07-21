@@ -360,9 +360,9 @@ namespace Prism.Mods.Defs
             else if (source.thrown)
                 tar.DamageType = ItemDamageType.Thrown;
 
-            tar.Value = new ItemValue(source.value);
+            tar.Value = new CoinValue(source.value);
             tar.Description = new ItemDescription(source.toolTip, source.toolTip2, source.vanity, source.notAmmo);
-            tar.Buff = new ItemBuff(source.buffType, source.buffTime);
+            tar.Buff = new BuffDef(source.buffType, source.buffTime);
 
             if (source.useAmmo != 0)
                 tar.UsedAmmo = new ItemRef(source.useAmmo);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Prism.API;
@@ -15,6 +16,23 @@ namespace Prism.ExampleMod
         bool hasAnt = false;
         bool hasPizzant = false;
         bool hasPizzantzioli = false;
+
+        protected override Dictionary<string, NpcDef> GetNpcDefs()
+        {
+            return new Dictionary<string, NpcDef>
+            {
+
+                { "Pizzantzioli", new NpcDef("Pizza NPC", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizzantzioli.png"),                                                      damage: 50,
+                    width: 128,
+                    height: 128,
+                    alpha: 0,
+                    scale: 1.0f,
+                    color: Color.White,
+                    value: new NpcValue(new CoinValue(1000000), new CoinValue(1000000)),
+                    aiStyle: NpcAiStyle.Head
+                    ) }
+            };
+        }
 
         protected override Dictionary<string, ItemDef> GetItemDefs()
         {
@@ -33,8 +51,8 @@ namespace Prism.ExampleMod
                     holdStyle: ItemHoldStyle.HeldLightSource,
                     healLife: 400,
                     useTurn: true,
-                    value: new ItemValue(50, 10, 2),
-                    buff: new ItemBuff(BuffID.WellFed, 60 * 60 * 30)
+                    value: new CoinValue(50, 10, 2),
+                    buff: new BuffDef(BuffID.WellFed, 60 * 60 * 30)
                     ) },
                 { "Ant", new ItemDef("Ant", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Ant.png"),
                     descr: new ItemDescription("By ants, for ants.", "'B-but...ants aren't this big!'", false, true),
@@ -53,7 +71,7 @@ namespace Prism.ExampleMod
                     useTurn: true,
                     useStyle: ItemUseStyle.Stab,
                     holdStyle: ItemHoldStyle.Default,
-                    value: new ItemValue(0, 40, 8, 25),
+                    value: new CoinValue(0, 40, 8, 25),
                     scale: 1.1f
                     ) },
                 { "Pizzant", new ItemDef("Pizzant", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizzant.png"),
@@ -73,7 +91,7 @@ namespace Prism.ExampleMod
                     useTurn: true,
                     useStyle: ItemUseStyle.Stab,
                     holdStyle: ItemHoldStyle.Default,
-                    value: new ItemValue(1, 34, 1, 67),                    
+                    value: new CoinValue(1, 34, 1, 67),                    
                     scale: 1.1f
                     ) },
                 { "Pizzantzioli", new ItemDef("Pizzantzioli", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizzantzioli.png"),
@@ -93,7 +111,7 @@ namespace Prism.ExampleMod
                     useTurn: true,
                     useStyle: ItemUseStyle.Swing,
                     holdStyle: ItemHoldStyle.Default,
-                    value: new ItemValue(2, 51, 3, 9),
+                    value: new CoinValue(2, 51, 3, 9),
                     scale: 1.1f
                     ) }
             };
