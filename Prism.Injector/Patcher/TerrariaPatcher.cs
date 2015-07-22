@@ -48,6 +48,7 @@ namespace Prism.Injector.Patcher
             Publicify();
 
             ItemPatcher.Patch();
+            NpcPatcher .Patch();
             // do other stuff here
 
             // Newtonsoft.Json.dll and Steamworks.NET.dll are required to write the assembly

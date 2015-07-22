@@ -3,15 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using Prism.Mods;
 using Prism.Mods.Defs;
+using Terraria.ID;
 
 namespace Prism.API
 {
     public class ItemRef : EntityRef<ItemDef>
     {
         public ItemRef(int resourceId)
-            : base(resourceId)
+            : base(ItemDefHandler.DefFromType.ContainsKey(resourceId) ? ItemDefHandler.DefFromType[resourceId].InternalName : String.Empty)
         {
-
+            if (resourceId >= ItemID.Count)
+                throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla Item type or netID.");
         }
         public ItemRef(string resourceName, string modName = null)
             : base(resourceName, modName)

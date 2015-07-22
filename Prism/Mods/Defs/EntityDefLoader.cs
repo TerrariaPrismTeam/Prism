@@ -39,6 +39,7 @@ namespace Prism.Mods.Defs
         internal static void ResetEntityHandlers()
         {
             ItemDefHandler.Reset();
+            NpcDefHandler .Reset();
         }
 
         /// <summary>
@@ -47,10 +48,11 @@ namespace Prism.Mods.Defs
         internal static void SetupEntityHandlers()
         {
             ItemDefHandler.FillVanilla();
+            NpcDefHandler .FillVanilla();
         }
 
         /// <summary>
-        /// Loads a mod and returns all <see cref="LoaderError"/>'s encountered.
+        /// Loads a mod and returns all <see cref="LoaderError"/>s encountered.
         /// </summary>
         /// <param name="mod">The mod to load.</param>
         /// <returns>Enumerable list of LoaderErrors encountered while loading the mod.</returns>
@@ -59,8 +61,10 @@ namespace Prism.Mods.Defs
             var ret = new List<LoaderError>();
 
             mod.ItemDefs = SetChildReadonlyProperties(mod, mod.GetItemDefsInternally());
+            ret.AddRange(ItemDefHandler.Load(mod.ItemDefs));
 
-            ret.AddRange(ItemDefHandler.Load(mod. ItemDefs));
+            mod.NpcDefs  = SetChildReadonlyProperties(mod, mod.GetNpcDefsInternally ());
+            ret.AddRange(NpcDefHandler .Load(mod.NpcDefs ));
 
             return ret;
         }

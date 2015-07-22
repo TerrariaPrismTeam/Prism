@@ -6,16 +6,15 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Prism.API
 {
+    //TODO: OVERRIDE THE HARDCODED VALUE RANGES AND USE MAX FIELD.
     /// <summary>
     /// A structure for NPC values. Used for coin drops and overall NPC worth detection (biome keys, etc).
-    /// TO-DO: OVERRIDE THE HARDCODED VALUE RANGES AND USE MAX FIELD.
     /// </summary>
     public struct NpcValue : IEquatable<NpcValue>
-    {       
-        public readonly static NpcValue Zero = new NpcValue((CoinValue)0, (CoinValue)0);
+    {
+        public readonly static NpcValue Zero = new NpcValue(CoinValue.Zero, CoinValue.Zero);
 
-        public CoinValue Min;
-        public CoinValue Max;
+        public CoinValue Min, Max;
 
         public NpcValue(CoinValue minValue, CoinValue maxValue)
         {
@@ -40,10 +39,12 @@ namespace Prism.API
         {
             return ToString(CultureInfo.InvariantCulture);
         }
+
         public bool Equals(NpcValue other)
         {
             return Min == other.Min && Max == other.Max;
         }
+
         public static bool operator ==(NpcValue a, NpcValue b)
         {
             return a.Equals(b);
@@ -52,6 +53,7 @@ namespace Prism.API
         {
             return !a.Equals(b);
         }
+
         public string ToString(IFormatProvider provider)
         {
             return "[" + Min.ToString(provider) + " ~ " + Max.ToString(provider) + "]";
@@ -86,16 +88,16 @@ namespace Prism.API
         /// <para>
         /// Used by: Demon Eye, Wandering Eye, The Hungry II (part of Wall of Flesh), Pigron
         /// </para>
-        /// </summary>        
+        /// </summary>
         DemonEye = 2,
 
         /// <summary>
         /// Walks, jumps over holes, follows player. It will try to line up vertically first. If it fails to reach its target, it will back up a bit, then re-attempt.
         /// <para>
-        /// Used by: Zombie, Skeleton, Undead Miner, Skeleton Archer, Angry Bones, Armored Skeleton, Goblin Scout, Goblin Archer, Corrupt Bunny, Crab, Werewolf, Clown, Chaos Elemental, 
-        /// Possessed Armor, Mummy, Spectral Elemental (console / mobile exclusive), Vampire, Vampire Miner, Frankenstein, Swamp Thing, Undead Viking, Corrupt Penguin, Face Monster, 
-        /// Snow Flinx, Nymph, Armored Viking, Lihzahrd, Icy Merman, Pirate Deckhand, Pirate Corsair, Pirate Deadeye, Pirate Crossbower, Pirate Captain, Cochineal Beetle, Cyan Beetle, 
-        /// Lac Beetle, Sea Snail, Ice Golem, Eyezor, Anomura Fungus, Mushi Ladybug, Rusty Armored Bones, Blue Armored Bones, Hell Armored Bones, Bone Lee, Paladin, Skeleton Sniper, 
+        /// Used by: Zombie, Skeleton, Undead Miner, Skeleton Archer, Angry Bones, Armored Skeleton, Goblin Scout, Goblin Archer, Corrupt Bunny, Crab, Werewolf, Clown, Chaos Elemental,
+        /// Possessed Armor, Mummy, Spectral Elemental (console / mobile exclusive), Vampire, Vampire Miner, Frankenstein, Swamp Thing, Undead Viking, Corrupt Penguin, Face Monster,
+        /// Snow Flinx, Nymph, Armored Viking, Lihzahrd, Icy Merman, Pirate Deckhand, Pirate Corsair, Pirate Deadeye, Pirate Crossbower, Pirate Captain, Cochineal Beetle, Cyan Beetle,
+        /// Lac Beetle, Sea Snail, Ice Golem, Eyezor, Anomura Fungus, Mushi Ladybug, Rusty Armored Bones, Blue Armored Bones, Hell Armored Bones, Bone Lee, Paladin, Skeleton Sniper,
         /// Tactical Skeleton, Skeleton Commando, Scarecrow, Splinterling, Zombie Elf, Elf Archer, Gingerbread Man, Nutcracker, Yeti, Krampus
         /// </para>
         /// </summary>
@@ -844,7 +846,7 @@ namespace Prism.API
         FlyingDutchman = 93,
 
         /// <summary>
-        /// Hovers up and down slowly. Has a shield that prevents all damage. 
+        /// Hovers up and down slowly. Has a shield that prevents all damage.
         /// If used by the of the 4 Celestial Towers, the shield can be destroyed after killing 100 (150 in expert mode) of its respective minions.
         /// <para>
         /// Used by: Vortex Pillar, Solar Pillar, Nebular Pillar, Stardust Pillar

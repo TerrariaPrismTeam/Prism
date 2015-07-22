@@ -209,7 +209,7 @@ namespace Prism.API
 
     public struct BuffDef : IEquatable<BuffDef>
     {
-        // TODO: use BuffRef... later
+        //TODO: use BuffRef... later
         /// <summary>
         /// Gets or sets the type of buff.
         /// </summary>
@@ -263,5 +263,5 @@ namespace Prism.API
         {
             return !a.Equals(b);
         }
-    }    
+    }
 }

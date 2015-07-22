@@ -78,6 +78,13 @@ namespace Prism.API
                 setNetID = value;
             }
         }
+
+        internal int BossHeadTextureIndex
+        {
+            get;
+            set;
+        }
+
         /// <summary>
         /// Gets or sets the damage this NPC inflicts.
         /// </summary>
@@ -124,44 +131,25 @@ namespace Prism.API
             set;
         }
         /// <summary>
-        /// Gets or sets the scale at which the NPC's sprite is rendered (1.0f = normal scale).
-        /// </summary>
-        /// <remarks>NPC.scale</remarks>
-        public virtual float Scale
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// Gets or sets the color to which the NPC's sprite is tinted (<see cref="Color.White"/> = no tinting applied).
-        /// </summary>
-        /// <remarks>NPC.color</remarks>
-        public virtual Color Colour
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// Gets or sets the value of this NPC (used for coin drops, biome keys, etc)
-        /// </summary>
-        public virtual NpcValue Value
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// Gets or sets the AI style of this NPC.
-        /// </summary>
-        public virtual NpcAiStyle AiStyle
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// Gets or sets the maximum life of this NPC.
         /// </summary>
         public virtual int MaxLife
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets the ID of the sound effect this NPC plays upon getting hurt.
+        /// </summary>
+        public virtual int SoundOnHit
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets the ID of the sound effect this NPC plays upon dying.
+        /// </summary>
+        public virtual int SoundOnDeath
         {
             get;
             set;
@@ -204,36 +192,11 @@ namespace Prism.API
             get;
             set;
         }
-
-
-        /// <summary>
-        /// Gets or sets the NPC's boss head texture function.
-        /// </summary>
-        public virtual Func<Texture2D> GetBossHeadTexture
-        {
-            get;
-            set;
-        }
-
-        internal virtual int BossHeadTextureIndex
-        {
-            get;
-            set;
-        }
         /// <summary>
         /// Gets or sets this NPC's danger detection range (for town NPCs).
         /// </summary>
         /// <remarks>NPCID.Sets.DangerDetectRange[Type]</remarks>
         public virtual int DangerDetectRange
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// Gets or sets whether this NPC is excluded from death tallies (for banners, etc).
-        /// </summary>
-        /// <remarks>NPCID.Sets.ExcludedFromDeathTally[Type]</remarks>
-        public virtual bool ExcludedFromDeathTally
         {
             get;
             set;
@@ -257,14 +220,58 @@ namespace Prism.API
             set;
         }
         /// <summary>
-        /// Gets or sets the color of this NPC's magic aura (if it has one).
+        /// Gets or sets whether this NPC is "pretty safe", or poses little to no threat to the player.
         /// </summary>
-        /// <remarks>NPCID.Sets.MagicAuraColor[Type]</remarks>
-        public virtual Color MagicAuraColor
+        /// <remarks>NPCID.Sets.PrettySafe[Type]</remarks>
+        public virtual int PrettySafe
         {
             get;
             set;
         }
+        /// <summary>
+        /// NeedsSummary
+        /// </summary>
+        /// <remarks>NPCID.Sets.TrailCacheLength[Type]</remarks>
+        public virtual int TrailCacheLength
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets the total number of animation frames in this NPC's sprite.
+        /// </summary>
+        /// <remarks>Main.npcFrameCount[Type]</remarks>
+        public virtual int TotalFrameCount
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets whether or not this NPC ignores tile collision.
+        /// </summary>
+        public virtual bool IgnoreTileCollision
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets whether or not this NPC ignores gravity.
+        /// </summary>
+        public virtual bool IgnoreGravity
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets whether the NPC is a boss or not.
+        /// </summary>
+        public virtual bool IsBoss
+        {
+            get;
+            set;
+        }
+
         /// <summary>
         /// NeedsSummary
         /// </summary>
@@ -283,7 +290,6 @@ namespace Prism.API
             get;
             set;
         }
-
         /// <summary>
         /// Gets or sets whether or not this NPC gets a damage boost in Expert mode.
         /// </summary>
@@ -293,19 +299,8 @@ namespace Prism.API
             get;
             set;
         }
-
         /// <summary>
-        /// Gets or sets whether this NPC is "pretty safe", or poses little to no threat to the player.
-        /// </summary>
-        /// <remarks>NPCID.Sets.PrettySafe[Type]</remarks>
-        public virtual int PrettySafe
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets whether this NPC is nothing but a projectile.
+        /// Gets or sets whether this NPC is used as a projectile that can be destroyed using a weapon.
         /// </summary>
         /// <remarks>NPCID.Sets.ProjectileNPC[Type]</remarks>
         public virtual bool IsProjectileNPC
@@ -313,7 +308,15 @@ namespace Prism.API
             get;
             set;
         }
-
+        /// <summary>
+        /// Gets or sets whether this NPC is excluded from death tallies (for banners, etc).
+        /// </summary>
+        /// <remarks>NPCID.Sets.ExcludedFromDeathTally[Type]</remarks>
+        public virtual bool ExcludedFromDeathTally
+        {
+            get;
+            set;
+        }
         /// <summary>
         /// Gets or sets whether this NPCs spawning is saved and loaded with the world file (Used for Celestial Towers).
         /// </summary>
@@ -323,7 +326,6 @@ namespace Prism.API
             get;
             set;
         }
-
         /// <summary>
         /// Gets or sets whether this NPC is a skeleton.
         /// </summary>
@@ -333,9 +335,8 @@ namespace Prism.API
             get;
             set;
         }
-
         /// <summary>
-        /// Gets or sets whether this NPC technically counts as a boss.
+        /// Gets or sets whether this NPC technically counts as a boss (either probably to display on the map or to play boss music, or something like that).
         /// </summary>
         /// <remarks>NPCID.Sets.TechnicallyABoss[Type]</remarks>
         public virtual bool IsTechnicallyABoss
@@ -343,7 +344,6 @@ namespace Prism.API
             get;
             set;
         }
-
         /// <summary>
         /// Gets or sets whether this NPC is a friendly town critter.
         /// </summary>
@@ -355,20 +355,62 @@ namespace Prism.API
         }
 
         /// <summary>
-        /// NeedsSummary
+        /// Gets or sets the scale at which the NPC's sprite is rendered (1.0f = normal scale).
         /// </summary>
-        /// <remarks>NPCID.Sets.TrailCacheLength[Type]</remarks>
-        public virtual int TrailCacheLength
+        /// <remarks>NPC.scale</remarks>
+        public virtual float Scale
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets this NPC's resistance to knockback.
+        /// </summary>
+        public virtual float KnockbackResistance
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets the amount of NPC slots this NPC takes up, which go toward the active NPC count limit.
+        /// </summary>
+        public virtual float NpcSlots
         {
             get;
             set;
         }
 
         /// <summary>
-        /// Gets or sets the total number of animation frames in this NPC's sprite.
+        /// Gets or sets the color to which the NPC's sprite is tinted (<see cref="Color.White"/> = no tinting applied).
         /// </summary>
-        /// <remarks>Main.npcFrameCount[Type]</remarks>
-        public virtual int TotalFrameCount
+        /// <remarks>NPC.color</remarks>
+        public virtual Color Colour
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets the value of this NPC (used for coin drops, biome keys, etc)
+        /// </summary>
+        public virtual NpcValue Value
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets the AI style of this NPC.
+        /// </summary>
+        public virtual NpcAiStyle AiStyle
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the color of this NPC's magic aura (if it has one).
+        /// </summary>
+        /// <remarks>NPCID.Sets.MagicAuraColor[Type]</remarks>
+        public virtual Color MagicAuraColor
         {
             get;
             set;
@@ -384,60 +426,6 @@ namespace Prism.API
         }
 
         /// <summary>
-        /// Gets or sets the ID of the sound effect this NPC plays upon getting hurt.
-        /// </summary>
-        public virtual int SoundOnHit
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the ID of the sound effect this NPC plays upon dying.
-        /// </summary>
-        public virtual int SoundOnDeath
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets this NPC's resistance to knockback.
-        /// </summary>
-        public virtual float KnockbackResistance
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets whether or not this NPC ignores tile collision.
-        /// </summary>
-        public virtual bool IgnoreTileCollision
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets whether or not this NPC ignores gravity.
-        /// </summary>
-        public virtual bool IgnoreGravity
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the amount of NPC slots this NPC takes up, which go toward the active NPC count limit.
-        /// </summary>
-        public virtual float NpcSlots
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// Gets or sets the NPC's texture.
         /// </summary>
         public virtual Func<Texture2D> GetTexture
@@ -445,12 +433,21 @@ namespace Prism.API
             get;
             set;
         }
-        
+        /// <summary>
+        /// Gets or sets the NPC's boss head texture function.
+        /// </summary>
+        public virtual Func<Texture2D> GetBossHeadTexture
+        {
+            get;
+            set;
+        }
+
+        //TODO: add all the properties to the ctor
         public NpcDef(
             #region arguments
             string displayName,
 
-            int damage = 0,     
+            int damage = 0,
             int width = 16,
             int height = 16,
             int alpha = 0,
@@ -458,7 +455,7 @@ namespace Prism.API
             float scale = 1,
             Color color = default(Color),
             NpcValue value = default(NpcValue),
-            NpcAiStyle aiStyle = NpcAiStyle.None,      
+            NpcAiStyle aiStyle = NpcAiStyle.None,
 
             Func<Texture2D> getTex = null,
             Func<Texture2D> getBossHeadTex = null
@@ -477,7 +474,7 @@ namespace Prism.API
             Value = value;
             AiStyle = aiStyle;
 
-            GetTexture = getTex ?? (() => null);
+            GetTexture         = getTex         ?? (() => null);
             GetBossHeadTexture = getBossHeadTex ?? (() => null);
         }
     }

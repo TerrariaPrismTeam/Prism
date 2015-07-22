@@ -44,12 +44,11 @@ namespace Prism.API
             get;
             internal set;
         }
-
         /// <summary>
         /// Gets the mod's NPC definitions.
         /// </summary>
         /// <remarks>The key of the dictionary is the NPC's internal name (without mod internal name).</remarks>
-        public Dictionary<string, NpcDef> NpcDefs
+        public Dictionary<string, NpcDef > NpcDefs
         {
             get;
             internal set;
@@ -77,7 +76,7 @@ namespace Prism.API
         [Hook]
         public virtual void OnAllModsLoaded() { }
 
-        // TODO: move this to a separate class containing game- or world-related hooks... later
+        //TODO: move this to a separate class containing game- or world-related hooks... later
         /// <summary>
         /// A hook called at the end of the game's Update method.
         /// </summary>
@@ -92,7 +91,6 @@ namespace Prism.API
         /// The key of each key/value pair is the internal name of the item.
         /// </returns>
         protected abstract Dictionary<string, ItemDef> GetItemDefs();
-
         /// <summary>
         /// Gets all NPC definitions created by the mod.
         /// </summary>
@@ -100,7 +98,7 @@ namespace Prism.API
         /// A dictionary containing all NPC definitions.
         /// The key of each key/value pair is the internal name of the NPC.
         /// </returns>
-        protected abstract Dictionary<string, NpcDef> GetNpcDefs();
+        protected abstract Dictionary<string, NpcDef > GetNpcDefs ();
 
         /// <summary>
         /// Contains resources loaded by the mod.
@@ -139,6 +137,14 @@ namespace Prism.API
         internal Dictionary<string, ItemDef> GetItemDefsInternally()
         {
             return GetItemDefs();
+        }
+        /// <summary>
+        /// Gets the item defs quite by calling the protected version of <see cref="GetNpcDefs"/>.
+        /// </summary>
+        /// <returns><see cref="GetItemDefs"/></returns>
+        internal Dictionary<string, NpcDef > GetNpcDefsInternally ()
+        {
+            return GetNpcDefs();
         }
     }
 }

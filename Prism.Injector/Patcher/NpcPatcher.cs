@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Mono.Collections.Generic;
 
 namespace Prism.Injector.Patcher
 {
-    public static class ItemPatcher
+    public static class NpcPatcher
     {
         static CecilContext   c;
         static MemberResolver r;
@@ -16,17 +15,17 @@ namespace Prism.Injector.Patcher
         {
             var ts = c.PrimaryAssembly.MainModule.TypeSystem;
 
-            var item_t = r.GetType("Terraria.Item");
+            var npc_t = r.GetType("Terraria.NPC");
 
             MethodDefinition invokeOnSetDefaults;
-            var onSetDefaultsDel = CecilHelper.CreateDelegate(c, "Terraria.PrismInjections", "Item_OnSetDefaultsDelegate", ts.Void, out invokeOnSetDefaults, item_t, ts.Int32, ts.Boolean);
+            var onSetDefaultsDel = CecilHelper.CreateDelegate(c, "Terraria.PrismInjections", "NPC_OnSetDefaultsDelegate", ts.Void, out invokeOnSetDefaults, npc_t, ts.Int32, ts.Single);
             c.PrimaryAssembly.MainModule.Types.Add(onSetDefaultsDel);
 
             var onSetDefaults = new FieldDefinition("OnSetDefaults", FieldAttributes.Public | FieldAttributes.Static, onSetDefaultsDel);
 
-            item_t.Fields.Add(onSetDefaults);
+            npc_t.Fields.Add(onSetDefaults);
 
-            var setDefaults = item_t.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, ts.Int32, ts.Boolean);
+            var setDefaults = npc_t.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, ts.Int32, ts.Single);
             setDefaults.Name = "RealSetDefaults";
 
             var newSetDefaults = new MethodDefinition("SetDefaults", setDefaults.Attributes, ts.Void);
@@ -36,13 +35,13 @@ namespace Prism.Injector.Patcher
             newSetDefaults.Body.MaxStackSize = 4;
             var nsd_ilproc = newSetDefaults.Body.GetILProcessor();
 
-            // Item.OnSetDefaults(this, Type, noMatCheck);
+            // NPC.OnSetDefaults(this, Type, scaleOverride);
             /*
-            ldsfld class Terraria.PrismInjections.Item_OnSetDefaultsDelegate Terraria.Item::OnSetDefaults
+            ldsfld class Terraria.PrismInjections.NPC_OnSetDefaultsDelegate Terraria.NPC::OnSetDefaults
             ldarg.0
             ldarg.1
             ldarg.2
-            callvirt instance void Terraria.PrismInjections.Item_OnSetDefaultsDelegate::Invoke(class Terraria.Item, int32, bool)
+            callvirt instance void Terraria.PrismInjections.NPC_OnSetDefaultsDelegate::Invoke(class Terraria.NPC, int32, float32)
 
             ret
             */
@@ -53,7 +52,7 @@ namespace Prism.Injector.Patcher
             nsd_ilproc.Emit(OpCodes.Callvirt, invokeOnSetDefaults);
             nsd_ilproc.Emit(OpCodes.Ret);
 
-            item_t.Methods.Add(newSetDefaults);
+            npc_t.Methods.Add(newSetDefaults);
         }
 
         public static void Patch()

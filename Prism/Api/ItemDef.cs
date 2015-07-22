@@ -490,7 +490,7 @@ namespace Prism.API
             get;
             set;
         }
-        // TODO: use references for these... later
+        //TODO: use references for these... later
         /// <summary>
         /// Gets or sets the projectile which this item shoots upon use.
         /// </summary>

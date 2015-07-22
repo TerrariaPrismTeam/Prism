@@ -30,12 +30,6 @@ namespace Prism.API
             }
         }
 
-        public EntityRef(int resourceId)
-            : this(resourceId < ItemID.Count ? ItemDefHandler.DefFromType[resourceId].InternalName : String.Empty)
-        {
-            if (resourceId >= ItemID.Count)
-                throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla Item type or netID.");
-        }
         public EntityRef(string resourceName, string modName = null)
         {
             ResourceName = resourceName;

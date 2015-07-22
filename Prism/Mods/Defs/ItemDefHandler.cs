@@ -73,7 +73,7 @@ namespace Prism.Mods.Defs
 
             foreach (var v in dict.Values)
             {
-                if (v.GetTexture == null)
+                if (v.GetTexture == null && !Main.dedServ)
                     ret.Add(new LoaderError(v.Mod, "GetTexture is null."));
                 else
                 {
@@ -139,7 +139,7 @@ namespace Prism.Mods.Defs
                 i.RealSetDefaults(type, noMatCheck);
         }
 
-        static void LoadTextures(ItemDef def)
+        static void LoadTextures     (ItemDef def)
         {
             // def.GetTexture itself should be checked when it's loaded
             var t = def.GetTexture();
@@ -204,15 +204,15 @@ namespace Prism.Mods.Defs
             // assuming space is allocated in the ExtendArrays call
             Main.itemName[def.Type] = def.DisplayName;
 
-            ItemID.Sets.AnimatesAsSoul[def.Type] = def.IsSoul;
+            ItemID.Sets.AnimatesAsSoul         [def.Type] = def.IsSoul;
             ItemID.Sets.ExoticPlantsForDyeTrade[def.Type] = def.IsStrangePlant;
-            ItemID.Sets.gunProj[def.Type] = def.IsBullet;
-            ItemID.Sets.ItemIconPulse[def.Type] = def.Pulses;
-            ItemID.Sets.ItemNoGravity[def.Type] = def.NoGravity;
-            ItemID.Sets.NebulaPickup[def.Type] = def.IsNebulaPickup;
-            ItemID.Sets.NeverShiny[def.Type] = def.NeverShiny;
+            ItemID.Sets.gunProj                [def.Type] = def.IsBullet;
+            ItemID.Sets.ItemIconPulse          [def.Type] = def.Pulses;
+            ItemID.Sets.ItemNoGravity          [def.Type] = def.NoGravity;
+            ItemID.Sets.NebulaPickup           [def.Type] = def.IsNebulaPickup;
+            ItemID.Sets.NeverShiny             [def.Type] = def.NeverShiny;
 
-            ItemID.Sets.ExtractinatorMode[def.Type] = def.ExtractinatorMode;
+            ItemID.Sets.ExtractinatorMode       [def.Type] = def.ExtractinatorMode;
             ItemID.Sets.StaffMinionSlotsRequired[def.Type] = def.RequiredStaffMinionSlots;
         }
 
