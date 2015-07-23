@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Prism.API.Behaviours;
 using Prism.Mods;
 
 namespace Prism.API.Defs
 {
-    public abstract class EntityRef<TEntityDef> : IEquatable<EntityRef<TEntityDef>>
-        where TEntityDef : EntityDef
+    public abstract class EntityRef<TEntityDef, TBehaviour, TEntity> : IEquatable<EntityRef<TEntityDef, TBehaviour, TEntity>>
+        where TEntity : class
+        where TBehaviour : EntityBehaviour<TEntity>
+        where TEntityDef : EntityDef<TBehaviour, TEntity>
     {
         public string ResourceName
         {
@@ -19,12 +22,19 @@ namespace Prism.API.Defs
             private set;
         }
 
+        public bool IsVanillaRef
+        {
+            get
+            {
+                return String.IsNullOrEmpty(ModName) || ModName == PrismApi.VanillaString || ModName == PrismApi.TerrariaString;
+            }
+        }
+
         public ModInfo Mod
         {
             get
             {
-                return String.IsNullOrEmpty(ModName) || ModName == EntityDef.VanillaString || ModName == EntityDef.TerrariaString
-                    ? PrismApi.VanillaInfo : ModData.mods.Keys.FirstOrDefault(mi => mi.InternalName == ModName);
+                return IsVanillaRef ? PrismApi.VanillaInfo : ModData.mods.Keys.FirstOrDefault(mi => mi.InternalName == ModName);
             }
         }
 
@@ -36,7 +46,7 @@ namespace Prism.API.Defs
 
         public abstract TEntityDef Resolve();
 
-        public bool Equals(EntityRef<TEntityDef> other)
+        public bool Equals(EntityRef<TEntityDef, TBehaviour, TEntity> other)
         {
             return ResourceName == other.ResourceName && Mod == other.Mod;
         }
@@ -46,8 +56,8 @@ namespace Prism.API.Defs
             if (ReferenceEquals(obj, null))
                 return false;
 
-            if (obj is EntityRef<TEntityDef>)
-                return Equals((EntityRef<TEntityDef>)obj);
+            if (obj is EntityRef<TEntityDef, TBehaviour, TEntity>)
+                return Equals((EntityRef<TEntityDef, TBehaviour, TEntity>)obj);
 
             return false;
         }

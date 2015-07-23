@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Prism.API;
+using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Terraria;
 using Terraria.ID;
@@ -22,8 +23,10 @@ namespace Prism.Mods.Defs
         /// <param name="def"></param>
         /// <param name="dict"></param>
         /// <returns></returns>
-        static Dictionary<string, TEntityDef> SetChildReadonlyProperties<TEntityDef>(ModDef def, Dictionary<string, TEntityDef> dict)
-            where TEntityDef : EntityDef
+        static Dictionary<string, TEntityDef> SetChildReadonlyProperties<TEntityDef, TBehaviour, TEntity>(ModDef def, Dictionary<string, TEntityDef> dict)
+            where TEntity : class
+            where TBehaviour : EntityBehaviour<TEntity>
+            where TEntityDef : EntityDef<TBehaviour, TEntity>
         {
             foreach (var kvp in dict)
             {
@@ -61,10 +64,10 @@ namespace Prism.Mods.Defs
         {
             var ret = new List<LoaderError>();
 
-            mod.ItemDefs = SetChildReadonlyProperties(mod, mod.GetItemDefsInternally());
+            mod.ItemDefs = SetChildReadonlyProperties<ItemDef, ItemBehaviour, Item>(mod, mod.GetItemDefsInternally());
             ret.AddRange(ItemDefHandler.Load(mod.ItemDefs));
 
-            mod.NpcDefs  = SetChildReadonlyProperties(mod, mod.GetNpcDefsInternally ());
+            mod.NpcDefs  = SetChildReadonlyProperties<NpcDef , NpcBehaviour , NPC >(mod, mod.GetNpcDefsInternally ());
             ret.AddRange(NpcDefHandler .Load(mod.NpcDefs ));
 
             return ret;

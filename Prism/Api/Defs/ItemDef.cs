@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Prism.API.Behaviours;
 using Prism.Mods;
 using Prism.Mods.Defs;
+using Terraria;
 
 namespace Prism.API.Defs
 {
-    public class ItemDef : EntityDef
+    public class ItemDef : EntityDef<ItemBehaviour, Item>
     {
         /// <summary>
         /// Gets ItemDefs by their type number.
@@ -32,7 +34,7 @@ namespace Prism.API.Defs
             {
                 get
                 {
-                    if (String.IsNullOrEmpty(modInternalName) || modInternalName == VanillaString || modInternalName == TerrariaString)
+                    if (String.IsNullOrEmpty(modInternalName) || modInternalName == PrismApi.VanillaString || modInternalName == PrismApi.TerrariaString)
                         return ItemDefHandler.VanillaDefFromName[itemInternalName];
 
                     return ModData.ModsFromInternalName[modInternalName].ItemDefs[itemInternalName];
@@ -548,6 +550,7 @@ namespace Prism.API.Defs
         public ItemDef(
             #region arguments
             string displayName,
+            Func<ItemBehaviour> newBehaviour = null,
 
             int damage = 0,
             int useAnimation = 0,
@@ -614,6 +617,7 @@ namespace Prism.API.Defs
             )
         {
             DisplayName = displayName;
+            CreateBehaviour = newBehaviour;
 
             Damage = damage;
             UseAnimation = useAnimation;

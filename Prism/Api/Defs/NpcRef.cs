@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Prism.API.Behaviours;
 using Prism.Mods;
 using Prism.Mods.Defs;
+using Terraria;
 using Terraria.ID;
 
 namespace Prism.API.Defs
 {
-    public class NpcRef : EntityRef<NpcDef>
+    public class NpcRef : EntityRef<NpcDef, NpcBehaviour, NPC>
     {
         public NpcRef(int resourceId)
             : base(NpcDefHandler.DefFromType.ContainsKey(resourceId) ? NpcDefHandler.DefFromType[resourceId].InternalName : String.Empty)
@@ -23,7 +25,7 @@ namespace Prism.API.Defs
 
         public override NpcDef Resolve()
         {
-            if (Mod == PrismApi.VanillaInfo)
+            if (IsVanillaRef)
             {
                 if (!NpcDefHandler.VanillaDefFromName.ContainsKey(ResourceName))
                     throw new InvalidOperationException("Vanilla NPC reference '" + ResourceName + "' is not found.");

@@ -103,7 +103,7 @@ namespace Prism.ExampleMod
                     ) }
             };
         }
-        protected override Dictionary<string, NpcDef> GetNpcDefs()
+        protected override Dictionary<string, NpcDef > GetNpcDefs ()
         {
             return new Dictionary<string, NpcDef>
             {

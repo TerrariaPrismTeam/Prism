@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Prism.Mods;
-using Terraria;
 
 namespace Prism
 {
@@ -19,8 +18,10 @@ namespace Prism
         public readonly static VersionType VersionType = VersionType.DevBuild;
 
         public readonly static string
-            JsonManifestFileName = "manifest.json",
-            DefaultDllRefsSubdirectory = "\\References";
+            JsonManifestFileName       = "manifest.json",
+            DefaultDllRefsSubdirectory = "\\References",
+            VanillaString              = "Vanilla",
+            TerrariaString             = "Terraria";
 
         public static string ModDirectory
         {

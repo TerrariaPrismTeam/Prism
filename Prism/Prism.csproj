@@ -75,6 +75,9 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="API\Behaviours\EntityBehaviour.cs" />
+    <Compile Include="API\Behaviours\ItemBehaviour.cs" />
+    <Compile Include="API\Behaviours\NpcBehaviour.cs" />
     <Compile Include="API\Defs\EntityDef.cs" />
     <Compile Include="API\Defs\EntityRef.cs" />
     <Compile Include="API\Defs\EntityDefStructs.cs" />
