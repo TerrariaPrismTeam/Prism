@@ -88,6 +88,9 @@
     <Compile Include="API\Defs\NpcRef.cs" />
     <Compile Include="API\Defs\ItemRef.cs" />
     <Compile Include="API\ModDef.cs" />
+    <Compile Include="Mods\Behaviours\EntityBHandler.cs" />
+    <Compile Include="Mods\Behaviours\ItemBHandler.cs" />
+    <Compile Include="Mods\Behaviours\NpcBHandler.cs" />
     <Compile Include="Mods\Defs\EntityDefLoader.cs" />
     <Compile Include="Mods\Defs\NpcDefHandler.cs" />
     <Compile Include="Mods\Defs\ItemDefHandler.cs" />

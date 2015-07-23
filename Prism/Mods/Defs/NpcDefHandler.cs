@@ -141,10 +141,14 @@ namespace Prism.Mods.Defs
 
                     if (scaleOverride > -1f)
                         n.scale = scaleOverride;
+
+                    //TODO: add def-specific hooks here
                 }
             }
             else
                 n.RealSetDefaults(type, scaleOverride);
+
+            //TODO: add global hooks here
         }
 
         static void LoadTextures     (NpcDef def)

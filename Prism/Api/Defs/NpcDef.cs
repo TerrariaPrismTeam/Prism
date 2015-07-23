@@ -501,7 +501,7 @@ namespace Prism.API.Defs
             )
         {
             DisplayName = displayName;
-            CreateBehaviour = newBehaviour;
+            CreateBehaviour = newBehaviour ?? (() => null);
 
             Damage = damage;
             Width = width;

@@ -134,10 +134,14 @@ namespace Prism.Mods.Defs
                     i.stack = i.maxStack = 1;
 
                     CopyDefToItem(i, DefFromType[type]);
+
+                    //TODO: add def-specific hooks here
                 }
             }
             else
                 i.RealSetDefaults(type, noMatCheck);
+
+            //TODO: add global hooks here
         }
 
         static void LoadTextures     (ItemDef def)

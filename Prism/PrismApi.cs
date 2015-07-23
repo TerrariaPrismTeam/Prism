@@ -17,6 +17,9 @@ namespace Prism
         public readonly static Version Version = new Version(AssemblyInfo.VERSION);
         public readonly static VersionType VersionType = VersionType.DevBuild;
 
+        public readonly static string TerrariaVersionString = AssemblyInfo.TERRARIA_VERSION;
+        public readonly static Version TerrariaVersion = new Version(AssemblyInfo.TERRARIA_VERSION);
+
         public readonly static string
             JsonManifestFileName       = "manifest.json",
             DefaultDllRefsSubdirectory = "\\References",
@@ -28,6 +31,6 @@ namespace Prism
             get;
             internal set;
         }
-        public readonly static ModInfo VanillaInfo = new ModInfo("_", "Terraria", "Terraria", "Re-Logic", AssemblyInfo.TERRARIA_VERSION, "Vanilla terraria", String.Empty, String.Empty, new IReference[0]);
+        public readonly static ModInfo VanillaInfo = new ModInfo("_", TerrariaString, TerrariaString, "Re-Logic", TerrariaVersionString, "Vanilla terraria", String.Empty, String.Empty, new IReference[0]);
     }
 }
