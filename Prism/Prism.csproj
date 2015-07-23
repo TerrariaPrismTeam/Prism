@@ -59,7 +59,7 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="Prism.Terraria, Version=1.3.0.5, Culture=neutral, processorArchitecture=x86">
+    <Reference Include="Prism.Terraria, Version=1.3.0.7, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\Prism.Terraria.dll</HintPath>
     </Reference>
