@@ -14,7 +14,7 @@ namespace Prism.Mods.Resources
 
         internal static string NormalizeResourceFilePath(string file, string basePath = null)
         {
-            if (!String.IsNullOrEmpty(basePath) && file.StartsWith(basePath))
+            if (!String.IsNullOrEmpty(basePath) && file.StartsWith(basePath, StringComparison.Ordinal))
                 file = file.Substring(basePath.Length + 1);
 
             return file.Replace('\\', '/').ToLowerInvariant();

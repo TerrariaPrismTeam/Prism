@@ -75,15 +75,15 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="API\EntityDef.cs" />
-    <Compile Include="API\EntityRef.cs" />
-    <Compile Include="API\EntityDefStructs.cs" />
-    <Compile Include="API\NpcDefStructs.cs" />
-    <Compile Include="API\NpcDef.cs" />
-    <Compile Include="API\ItemDef.cs" />
-    <Compile Include="API\ItemDefStructs.cs" />
-    <Compile Include="API\NpcRef.cs" />
-    <Compile Include="API\ItemRef.cs" />
+    <Compile Include="API\Defs\EntityDef.cs" />
+    <Compile Include="API\Defs\EntityRef.cs" />
+    <Compile Include="API\Defs\EntityDefStructs.cs" />
+    <Compile Include="API\Defs\NpcDefStructs.cs" />
+    <Compile Include="API\Defs\NpcDef.cs" />
+    <Compile Include="API\Defs\ItemDef.cs" />
+    <Compile Include="API\Defs\ItemDefStructs.cs" />
+    <Compile Include="API\Defs\NpcRef.cs" />
+    <Compile Include="API\Defs\ItemRef.cs" />
     <Compile Include="API\ModDef.cs" />
     <Compile Include="Mods\Defs\EntityDefLoader.cs" />
     <Compile Include="Mods\Defs\NpcDefHandler.cs" />

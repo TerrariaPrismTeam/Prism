@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Prism.Mods;
 
-namespace Prism.API
+namespace Prism.API.Defs
 {
     /// <summary>
     /// The class from which the definitions for items, NPCs, projectiles, tiles, etc. are derived.

@@ -5,7 +5,7 @@ using Prism.Mods;
 using Prism.Mods.Defs;
 using Terraria.ID;
 
-namespace Prism.API
+namespace Prism.API.Defs
 {
     public class ItemRef : EntityRef<ItemDef>
     {

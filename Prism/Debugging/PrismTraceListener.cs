@@ -22,7 +22,10 @@ namespace Prism.Debugging
             {
                 return NAME;
             }
-            set { }
+            set
+            {
+                throw new InvalidOperationException();
+            }
         }
 
         public override void Write(string message, string category)

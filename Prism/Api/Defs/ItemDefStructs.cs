@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Prism.API
+namespace Prism.API.Defs
 {
     public enum ItemDamageType
     {
@@ -71,7 +71,7 @@ namespace Prism.API
         Purple = 11
     }
 
-    
+
     /// <summary>
     /// Container for the properties of the item which determine its use as armour.
     /// </summary>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Prism.API.Defs;
 using Prism.Mods;
 using Prism.Mods.Hooks;
 using Prism.Mods.Resources;
@@ -58,7 +59,7 @@ namespace Prism.API
         /// WARNING: Do not place anything in the ModDef constructor, because the mod is not completely loaded yet (eg. Assembly is null).
         /// Use OnLoad to initialize fields, etc. instead.
         /// </summary>
-        public ModDef() { }
+        protected ModDef() { }
 
         /// <summary>
         /// Called as soon as the mod is loaded.

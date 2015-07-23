@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Prism.Mods;
 using Prism.Mods.Defs;
-using Microsoft.Xna.Framework;
-using Terraria;
-using Microsoft.Xna.Framework.Graphics;
 
-namespace Prism.API
+namespace Prism.API.Defs
 {
     public class ItemDef : EntityDef
     {

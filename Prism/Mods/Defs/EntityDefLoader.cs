@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Prism.API;
+using Prism.API.Defs;
 using Terraria;
 using Terraria.ID;
 

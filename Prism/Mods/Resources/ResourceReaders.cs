@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
+using Terraria;
 
 namespace Prism.Mods.Resources
 {
@@ -11,7 +12,7 @@ namespace Prism.Mods.Resources
     {
         protected override Texture2D ReadTypedResource(Stream resourceStream)
         {
-            return Texture2D.FromStream(TMain.instance.GraphicsDevice, resourceStream);
+            return Texture2D.FromStream(Main.instance.GraphicsDevice, resourceStream);
         }
     }
     class SoundEffectResourceReader : ResourceReader<SoundEffect>

@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Prism.Mods;
-using Prism.Mods.Defs;
-using Terraria.ID;
 
-namespace Prism.API
+namespace Prism.API.Defs
 {
     public abstract class EntityRef<TEntityDef> : IEquatable<EntityRef<TEntityDef>>
         where TEntityDef : EntityDef

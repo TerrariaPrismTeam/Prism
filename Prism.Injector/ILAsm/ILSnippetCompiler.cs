@@ -101,7 +101,7 @@ namespace Prism.Injector.ILAsm
 
             List<Instruction[]> mtds = new List<Instruction[]>();
 
-            foreach (var m in ad.MainModule.GetType(CLASS_NAME).Methods.Where(m => m.Name.StartsWith(METHOD_NAME) /* should be in the correct order */))
+            foreach (var m in ad.MainModule.GetType(CLASS_NAME).Methods.Where(m => m.Name.StartsWith(METHOD_NAME, StringComparison.Ordinal) /* should be in the correct order */))
                 mtds.Add(m.Body.Instructions.Take(m.Body.Instructions.Count - 1 /* don't include the final 'ret' */).ToArray());
 
             return mtds.ToArray();

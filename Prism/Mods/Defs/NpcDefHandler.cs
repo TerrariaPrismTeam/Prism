@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Prism.API;
+using Prism.API.Defs;
 using Terraria;
 using Terraria.ID;
 
@@ -185,7 +186,7 @@ namespace Prism.Mods.Defs
             NPCID.Sets.ExcludedFromDeathTally[def.Type] = def.ExcludedFromDeathTally;
             NPCID.Sets.ExtraFramesCount      [def.Type] = def.ExtraFramesCount;
             NPCID.Sets.FaceEmote             [def.Type] = def.FaceEmote;
-            NPCID.Sets.MagicAuraColor        [def.Type] = def.MagicAuraColor;
+            NPCID.Sets.MagicAuraColor        [def.Type] = def.MagicAuraColour;
             NPCID.Sets.MPAllowedEnemies      [def.Type] = def.IsAllowedInMP;
             NPCID.Sets.MustAlwaysDraw        [def.Type] = def.MustAlwaysDraw;
             NPCID.Sets.NeedsExpertScaling    [def.Type] = def.NeedsExpertScaling;
@@ -218,7 +219,7 @@ namespace Prism.Mods.Defs
             tar.aiStyle = (int)source.AiStyle;
             tar.lifeMax = source.MaxLife;
 
-            for (int i = 0; i < source.BuffImmunityIDs.Count; i++)
+            for (int i = 0; i < source.BuffImmunities.Count; i++)
                 tar.buffImmune[i] = true;
 
             tar.soundHit = source.SoundOnHit;
@@ -246,7 +247,7 @@ namespace Prism.Mods.Defs
 
             for (int i = 0; i < source.buffImmune.Length; i++)
                 if (source.buffImmune[i])
-                    tar.BuffImmunityIDs.Add(i);
+                    tar.BuffImmunities.Add(i);
 
             tar.GetTexture = () => Main.npcTexture[source.type];
             tar.GetTexture = () => Main.npcHeadBossTexture[NPCID.Sets.BossHeadTextures[source.type]];

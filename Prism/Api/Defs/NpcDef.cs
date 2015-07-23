@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Prism.Mods;
 using Prism.Mods.Defs;
-using Microsoft.Xna.Framework;
-using Terraria;
-using Microsoft.Xna.Framework.Graphics;
 
-namespace Prism.API
+namespace Prism.API.Defs
 {
     public class NpcDef : EntityDef
     {
@@ -410,16 +409,17 @@ namespace Prism.API
         /// Gets or sets the color of this NPC's magic aura (if it has one).
         /// </summary>
         /// <remarks>NPCID.Sets.MagicAuraColor[Type]</remarks>
-        public virtual Color MagicAuraColor
+        public virtual Color MagicAuraColour
         {
             get;
             set;
         }
 
+        //TODO: use BuffRef... later
         /// <summary>
         /// Gets or sets the list of buff IDs this NPC is immune to.
         /// </summary>
-        public virtual List<int> BuffImmunityIDs
+        public virtual List<int> BuffImmunities
         {
             get;
             set;
@@ -442,7 +442,6 @@ namespace Prism.API
             set;
         }
 
-        //TODO: add all the properties to the ctor
         public NpcDef(
             #region arguments
             string displayName,
@@ -450,14 +449,50 @@ namespace Prism.API
             int damage = 0,
             int width = 16,
             int height = 16,
-            int alpha = 0,
             int defense = 0,
-            float scale = 1,
+            int alpha = 0,
+            int lifeMax = 1,
+            int soundHit = 1,
+            int soundKilled = 1,
+
+            int attackAverageChance = 1,
+            int attackFrameCount = 0,
+            int attackTime = 0,
+            int attackType = 0,
+            int dangerDetectRange = 0,
+            int extraFramesCount = 0,
+            int faceEmote = 0,
+            int prettySafe = 0,
+            int trailCacheLength = 0,
+            int frameCount = 1,
+
+            bool noTileCollide = false,
+            bool noGravity = false,
+            bool boss = false,
+
+            bool allowedInMP = true,
+            bool alwaysDraw = false,
+            bool needsExpertScaling = true,
+            bool projectileNpc = false,
+            bool excludedFromDeathTally = true,
+            bool savesAndLoads = false,
+            bool skeleton = false,
+            bool? technicallyABoss = null,
+            bool townCritter = false,
+
+            float scale = 1f,
+            float knockbackResist = 1f,
+            float npcSlots = 1f,
+
             Color color = default(Color),
             NpcValue value = default(NpcValue),
             NpcAiStyle aiStyle = NpcAiStyle.None,
 
-            Func<Texture2D> getTex = null,
+            Color magicAuraColour = default(Color),
+
+            List<int> buffImmunities = null,
+
+            Func<Texture2D> getTex         = null,
             Func<Texture2D> getBossHeadTex = null
             #endregion
             )
@@ -467,12 +502,47 @@ namespace Prism.API
             Damage = damage;
             Width = width;
             Height = height;
-            Alpha = alpha;
             Defense = defense;
+            Alpha = alpha;
+            MaxLife = lifeMax;
+            SoundOnHit = soundHit;
+            SoundOnDeath = soundKilled;
+
+            AttackAverageChance = attackAverageChance;
+            AttackFrameCount = attackFrameCount;
+            AttackTime = attackTime;
+            AttackType = attackType;
+            DangerDetectRange = dangerDetectRange;
+            ExtraFramesCount = extraFramesCount;
+            FaceEmote = faceEmote;
+            PrettySafe = prettySafe;
+            TrailCacheLength = trailCacheLength;
+            TotalFrameCount = frameCount;
+
+            IgnoreTileCollision = noTileCollide;
+            IgnoreGravity = noGravity;
+            IsBoss = boss;
+
+            IsAllowedInMP = allowedInMP;
+            MustAlwaysDraw = alwaysDraw;
+            NeedsExpertScaling = needsExpertScaling;
+            IsProjectileNPC = projectileNpc;
+            ExcludedFromDeathTally = excludedFromDeathTally;
+            SavesAndLoads = savesAndLoads;
+            IsSkeleton = skeleton;
+            IsTechnicallyABoss = technicallyABoss ?? boss;
+
             Scale = scale;
+            KnockbackResistance = knockbackResist;
+            NpcSlots = npcSlots;
+
             Colour = color;
             Value = value;
             AiStyle = aiStyle;
+
+            MagicAuraColour = magicAuraColour;
+
+            BuffImmunities = buffImmunities ?? new List<int>(0);
 
             GetTexture         = getTex         ?? (() => null);
             GetBossHeadTexture = getBossHeadTex ?? (() => null);

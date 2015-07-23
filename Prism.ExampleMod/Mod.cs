@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Prism.API;
+using Prism.API.Defs;
 using Terraria;
 using Terraria.ID;
 
@@ -12,27 +13,13 @@ namespace Prism.ExampleMod
 {
     public class Mod : ModDef
     {
-        bool hasPizza = false;
-        bool hasAnt = false;
-        bool hasPizzant = false;
-        bool hasPizzantzioli = false;
+        bool
+            hasPizza        = false,
+            hasAnt          = false,
+            hasPizzant      = false,
+            hasPizzantzioli = false;
 
-        protected override Dictionary<string, NpcDef> GetNpcDefs()
-        {
-            return new Dictionary<string, NpcDef>
-            {
-
-                { "Pizzantzioli", new NpcDef("Pizza NPC", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizzantzioli.png"),                                                      damage: 50,
-                    width: 128,
-                    height: 128,
-                    alpha: 0,
-                    scale: 1.0f,
-                    color: Color.White,
-                    value: new NpcValue(new CoinValue(1000000), new CoinValue(1000000)),
-                    aiStyle: NpcAiStyle.Head
-                    ) }
-            };
-        }
+        bool spawnedPizzantzioli = false;
 
         protected override Dictionary<string, ItemDef> GetItemDefs()
         {
@@ -91,7 +78,7 @@ namespace Prism.ExampleMod
                     useTurn: true,
                     useStyle: ItemUseStyle.Stab,
                     holdStyle: ItemHoldStyle.Default,
-                    value: new CoinValue(1, 34, 1, 67),                    
+                    value: new CoinValue(1, 34, 1, 67),
                     scale: 1.1f
                     ) },
                 { "Pizzantzioli", new ItemDef("Pizzantzioli", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizzantzioli.png"),
@@ -116,12 +103,36 @@ namespace Prism.ExampleMod
                     ) }
             };
         }
+        protected override Dictionary<string, NpcDef> GetNpcDefs()
+        {
+            return new Dictionary<string, NpcDef>
+            {
+
+                { "Pizzantzioli", new NpcDef("Pizza NPC", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizzantzioli.png"),
+                    damage: 50,
+                    width: 128,
+                    height: 128,
+                    alpha: 0,
+                    scale: 1.0f,
+                    noTileCollide: true,
+                    color: Color.White,
+                    value: new NpcValue(new CoinValue(0, 0, 0, 1)),
+                    aiStyle: NpcAiStyle.FlyingHead
+                    ) }
+            };
+        }
 
         public override void PostUpdate()
         {
-            if (Main.keyState.IsKeyDown(Keys.Y) && !hasPizza && !Main.gameMenu && Main.hasFocus)
+            if (Main.gameMenu || !Main.hasFocus)
+                return;
+
+            var p = Main.player[Main.myPlayer];
+
+            #region invedit custom items
+            if (Main.keyState.IsKeyDown(Keys.Y) && !(hasPizza && hasAnt && hasPizzant && hasPizzantzioli))
             {
-                var inv = Main.player[Main.myPlayer].inventory;
+                var inv = p.inventory;
 
                 for (int i = 0; i < inv.Length; i++)
                 {
@@ -158,6 +169,16 @@ namespace Prism.ExampleMod
                     }
                 }
             }
+            #endregion
+
+            #region spawn custom npcs
+            if (Main.keyState.IsKeyDown(Keys.U) && !spawnedPizzantzioli)
+            {
+                NPC.NewNPC((int)p.Center.X, (int)p.Center.Y - 75, NpcDef.ByName["Pizzantzioli", Info.InternalName].Type);
+
+                spawnedPizzantzioli = true;
+            }
+            #endregion
         }
     }
 }

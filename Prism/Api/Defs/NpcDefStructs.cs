@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Microsoft.Xna.Framework.Graphics;
 
-namespace Prism.API
+namespace Prism.API.Defs
 {
     //TODO: OVERRIDE THE HARDCODED VALUE RANGES AND USE MAX FIELD.
     /// <summary>
@@ -16,6 +15,11 @@ namespace Prism.API
 
         public CoinValue Min, Max;
 
+        public NpcValue(CoinValue value)
+            : this(value, value)
+        {
+
+        }
         public NpcValue(CoinValue minValue, CoinValue maxValue)
         {
             Min = minValue;

@@ -20,10 +20,10 @@ namespace Prism
 
             string
                 fileName = name + ".dll",
-                fullName = Array.Find(allNames, e => e.EndsWith(fileName)),
+                fullName = Array.Find(allNames, e => e.EndsWith(fileName, StringComparison.Ordinal)),
 
                 pdbName = Path.ChangeExtension(fileName, ".pdb"),
-                fullPdbName = Array.Find(allNames, e => e.EndsWith(pdbName)); // null if not found
+                fullPdbName = Array.Find(allNames, e => e.EndsWith(pdbName, StringComparison.Ordinal)); // null if not found
 
             if (String.IsNullOrEmpty(fullName))
                 return null;
