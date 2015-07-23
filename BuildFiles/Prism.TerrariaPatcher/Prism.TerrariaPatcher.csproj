@@ -2,6 +2,9 @@
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
+    <!-- XBuild specifies an OS property, but MSBuild doesn't. This sets the default value on MSBuild. -->
+    <OS Condition="'$(OS)' == ''">Windows_NT</OS>
+
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{6B42EB0B-AFA3-4449-ACDA-AA91C8A39DC0}</ProjectGuid>
@@ -74,13 +77,20 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>rem this patches the Terraria assembly
+    <PostBuildEvent Condition="'$(OS)' == 'Windows_NT'">rem this patches the Terraria assembly
 rem in order to build, one must provide their own .exe.
 rem this will create a patched terraria assembly, which is referenced by Prism.csproj.
+rem a shell script is used in unix environments.
 
 "$(TargetPath)" "$(SolutionDir)References\Terraria.exe" "$(SolutionDir)References\Prism.Terraria.dll"</PostBuildEvent>
+    <PostBuildEvent Condition="'$(OS)' != 'Windows_NT'"># this patches the Terraria assembly
+# in order to build, one must provide their own .exe.
+# this will create a patched terraria assembly, which is referenced by Prism.csproj.
+# a batch script is used in windows environments.
+
+mono "$(TargetPath)" "$(SolutionDir)References/Terraria.exe" "$(SolutionDir)References/Prism.Terraria.dll"</PostBuildEvent>
   </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
