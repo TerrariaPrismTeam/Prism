@@ -80,11 +80,7 @@ namespace Prism.API.Defs
             }
         }
 
-        internal int BossHeadTextureIndex
-        {
-            get;
-            set;
-        }
+        internal int BossHeadTextureIndex;
 
         /// <summary>
         /// Gets or sets the damage this NPC inflicts.
@@ -268,6 +264,14 @@ namespace Prism.API.Defs
         /// Gets or sets whether the NPC is a boss or not.
         /// </summary>
         public virtual bool IsBoss
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets whether the NPC is a town npc.
+        /// </summary>
+        public virtual bool IsTownNpc
         {
             get;
             set;
@@ -472,6 +476,7 @@ namespace Prism.API.Defs
             bool noTileCollide = false,
             bool noGravity = false,
             bool boss = false,
+            bool townNpc = false,
 
             bool allowedInMP = true,
             bool alwaysDraw = false,
@@ -526,6 +531,7 @@ namespace Prism.API.Defs
             IgnoreTileCollision = noTileCollide;
             IgnoreGravity = noGravity;
             IsBoss = boss;
+            IsTownNpc = townNpc;
 
             IsAllowedInMP = allowedInMP;
             MustAlwaysDraw = alwaysDraw;

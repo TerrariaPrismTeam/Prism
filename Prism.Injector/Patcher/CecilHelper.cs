@@ -43,6 +43,8 @@ namespace Prism.Injector.Patcher
 
             ret.Methods.Add(endInvoke);
 
+            c.PrimaryAssembly.MainModule.Types.Add(ret);
+
             return ret;
         }
     }

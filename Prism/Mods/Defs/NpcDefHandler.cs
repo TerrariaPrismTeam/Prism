@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Prism.API;
+using Prism.API.Behaviours;
 using Prism.API.Defs;
+using Prism.Mods.Behaviours;
 using Terraria;
 using Terraria.ID;
 
@@ -15,7 +17,7 @@ namespace Prism.Mods.Defs
     {
         const int VanillaBossAmount = 31;
 
-        static int nextType = ItemID.Count;
+        static int nextType = NPCID.Count;
         internal static Dictionary<int   , NpcDef> DefFromType        = new Dictionary<int   , NpcDef>();
         internal static Dictionary<string, NpcDef> VanillaDefFromName = new Dictionary<string, NpcDef>();
 
@@ -34,9 +36,10 @@ namespace Prism.Mods.Defs
                 Array.Resize(ref Main.npcHeadBossTexture, newBossLen);
             }
 
-            Array.Resize(ref Main.npcName     , newLen);
-            Array.Resize(ref Main.NPCLoaded   , newLen);
-            Array.Resize(ref Main.npcCatchable, newLen);
+            Array.Resize(ref Main.npcName      , newLen);
+            Array.Resize(ref Main.NPCLoaded    , newLen);
+            Array.Resize(ref Main.npcFrameCount, newLen);
+            Array.Resize(ref Main.npcCatchable , newLen);
 
             Array.Resize(ref NPC.killCount, newLen); //Hardcoded 540 in NPC.ResetKillCount();
 
@@ -56,6 +59,9 @@ namespace Prism.Mods.Defs
             Array.Resize(ref NPCID.Sets.PrettySafe             , newLen);
             Array.Resize(ref NPCID.Sets.ProjectileNPC          , newLen);
             Array.Resize(ref NPCID.Sets.SavesAndLoads          , newLen);
+            Array.Resize(ref NPCID.Sets.TechnicallyABoss       , newLen);
+            Array.Resize(ref NPCID.Sets.TownCritter            , newLen);
+            Array.Resize(ref NPCID.Sets.TrailCacheLength       , newLen);
         }
 
         /// <summary>
@@ -63,7 +69,7 @@ namespace Prism.Mods.Defs
         /// </summary>
         internal static void Reset()
         {
-            nextType = ItemID.Count;
+            nextType = NPCID.Count;
             DefFromType.Clear();
             ExtendArrays(0);
         }
@@ -128,27 +134,43 @@ namespace Prism.Mods.Defs
 
         internal static void OnSetDefaults(NPC n, int type, float scaleOverride)
         {
+            NpcBHandler h = null;
+
             if (type >= NPCID.Count)
             {
                 n.RealSetDefaults(0, scaleOverride);
 
                 if (DefFromType.ContainsKey(type))
                 {
+                    var d = DefFromType[type];
+
                     n.type = n.netID = type;
                     n.width = n.height = 16;
 
-                    CopyDefToNpc(n, DefFromType[type]);
+                    CopyDefToNpc(n, d);
 
                     if (scaleOverride > -1f)
                         n.scale = scaleOverride;
 
-                    //TODO: add def-specific hooks here
+                    h = new NpcBHandler();
+                    if (d.CreateBehaviour != null)
+                    {
+                        var b = d.CreateBehaviour();
+
+                        if (b != null)
+                            h.behaviours.Add(b);
+                    }
+
+                    n.BHandler = h;
                 }
             }
             else
                 n.RealSetDefaults(type, scaleOverride);
 
-            //TODO: add global hooks here
+            //TODO: add global hooks here (and check for null)
+
+            if (h != null)
+                h.OnInit();
         }
 
         static void LoadTextures     (NpcDef def)
@@ -158,6 +180,7 @@ namespace Prism.Mods.Defs
             if (texture == null)
                 throw new ArgumentNullException("GetTexture return value is null for NpcDef " + def.InternalName + " from mod " + def.Mod + ".");
             Main.npcTexture[def.Type] = def.GetTexture();
+            Main.NPCLoaded[def.Type] = true;
 
             if (def.IsTechnicallyABoss)
             {
@@ -179,6 +202,7 @@ namespace Prism.Mods.Defs
         static void LoadSetProperties(NpcDef def)
         {
             // assuming space is allocated in the ExtendArrays call
+
             Main.npcName[def.Type] = def.DisplayName;
             Main.npcFrameCount[def.Type] = def.TotalFrameCount;
 
@@ -187,24 +211,24 @@ namespace Prism.Mods.Defs
             NPCID.Sets.AttackTime            [def.Type] = def.AttackTime;
             NPCID.Sets.AttackType            [def.Type] = def.AttackType;
             NPCID.Sets.DangerDetectRange     [def.Type] = def.DangerDetectRange;
-            NPCID.Sets.ExcludedFromDeathTally[def.Type] = def.ExcludedFromDeathTally;
             NPCID.Sets.ExtraFramesCount      [def.Type] = def.ExtraFramesCount;
             NPCID.Sets.FaceEmote             [def.Type] = def.FaceEmote;
-            NPCID.Sets.MagicAuraColor        [def.Type] = def.MagicAuraColour;
+            NPCID.Sets.PrettySafe            [def.Type] = def.PrettySafe;
+            NPCID.Sets.TrailCacheLength      [def.Type] = def.TrailCacheLength;
+
+            NPCID.Sets.ExcludedFromDeathTally[def.Type] = def.ExcludedFromDeathTally;
             NPCID.Sets.MPAllowedEnemies      [def.Type] = def.IsAllowedInMP;
             NPCID.Sets.MustAlwaysDraw        [def.Type] = def.MustAlwaysDraw;
             NPCID.Sets.NeedsExpertScaling    [def.Type] = def.NeedsExpertScaling;
-            NPCID.Sets.PrettySafe            [def.Type] = def.PrettySafe;
             NPCID.Sets.ProjectileNPC         [def.Type] = def.IsProjectileNPC;
             NPCID.Sets.SavesAndLoads         [def.Type] = def.SavesAndLoads;
+            NPCID.Sets.TechnicallyABoss      [def.Type] = def.IsTechnicallyABoss;
+            NPCID.Sets.TownCritter           [def.Type] = def.IsTownCritter;
 
             if (def.IsSkeleton)
                 NPCID.Sets.Skeletons.Add(def.Type);
 
-            NPCID.Sets.TechnicallyABoss[def.Type] = def.IsTechnicallyABoss;
-            NPCID.Sets.TownCritter     [def.Type] = def.IsTownCritter;
-            NPCID.Sets.TrailCacheLength[def.Type] = def.TrailCacheLength;
-
+            NPCID.Sets.MagicAuraColor[def.Type] = def.MagicAuraColour;
         }
 
         // set properties aren't copied, type/netid is preserved
@@ -213,42 +237,60 @@ namespace Prism.Mods.Defs
             tar.damage = source.Damage;
             tar.width = source.Width;
             tar.height = source.Height;
-            tar.alpha = source.Alpha;
             tar.defense = source.Defense;
+            tar.alpha = source.Alpha;
+            tar.lifeMax = source.MaxLife;
+            tar.soundHit = source.SoundOnHit;
+            tar.soundKilled = source.SoundOnDeath;
+
+            tar.noTileCollide = source.IgnoreTileCollision;
+            tar.noGravity = source.IgnoreGravity;
+            tar.boss = source.IsBoss;
+            tar.townNPC = source.IsTownNpc;
+
             tar.scale = source.Scale;
+            tar.knockBackResist = source.KnockbackResistance;
+            tar.npcSlots = source.NpcSlots;
+
             tar.color = source.Colour;
                         //(float)(source.Value.Min.Value);
                         //TODO: Look at NpcValue xmldoc lmao
             tar.value = Main.rand.Next(source.Value.Min.Value, source.Value.Max.Value); // close enough
             tar.aiStyle = (int)source.AiStyle;
-            tar.lifeMax = source.MaxLife;
 
             for (int i = 0; i < source.BuffImmunities.Count; i++)
                 tar.buffImmune[i] = true;
 
-            tar.soundHit = source.SoundOnHit;
-            tar.soundKilled = source.SoundOnDeath;
-            tar.knockBackResist = source.KnockbackResistance;
-            tar.noTileCollide = source.IgnoreTileCollision;
-            tar.noGravity = source.IgnoreGravity;
-            tar.npcSlots = source.NpcSlots;
-
             tar.name = source.InternalName;
-            Main.npcName[tar.type] = source.DisplayName;
+            tar.displayName = source.DisplayName;
         }
         static void CopyNpcToDef(NpcDef tar, NPC    source)
         {
             tar.Damage = source.damage;
             tar.Width = source.width;
             tar.Height = source.height;
-            tar.Alpha = source.alpha;
             tar.Defense = source.defense;
+            tar.Alpha = source.alpha;
+            tar.MaxLife = source.lifeMax;
+            tar.SoundOnHit = source.soundHit;
+            tar.SoundOnDeath = source.soundKilled;
+
+            tar.IgnoreTileCollision = source.noTileCollide;
+            tar.IgnoreGravity = source.noGravity;
+            tar.IsBoss = source.boss;
+            tar.IsTownNpc = source.townNPC;
+
             tar.Scale = source.scale;
+            tar.KnockbackResistance = source.knockBackResist;
+            tar.NpcSlots = source.npcSlots;
+
             tar.Colour = source.color;
+
             tar.Value = new NpcValue(new CoinValue((int)(source.value * 0.8f)), new CoinValue((int)(source.value * 1.2f)));
             tar.AiStyle = (NpcAiStyle)source.aiStyle;
             tar.MaxLife = source.lifeMax;
 
+            tar.BuffImmunities.Clear();
             for (int i = 0; i < source.buffImmune.Length; i++)
                 if (source.buffImmune[i])
                     tar.BuffImmunities.Add(i);
@@ -257,7 +299,7 @@ namespace Prism.Mods.Defs
             tar.GetTexture = () => Main.npcHeadBossTexture[NPCID.Sets.BossHeadTextures[source.type]];
 
             tar.InternalName = source.name;
-            tar.DisplayName = Main.npcName[source.type];
+            tar.DisplayName = source.displayName;
         }
     }
 }

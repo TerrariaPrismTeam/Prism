@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
 using Mono.Cecil;
 
 namespace Prism.Injector.Patcher
@@ -35,6 +37,14 @@ namespace Prism.Injector.Patcher
 
                 PublicifyRec(td);
             }
+        }
+
+        public static void AddInternalsVisibleToAttr()
+        {
+            var ivt_t = r.ReferenceOf(typeof(InternalsVisibleToAttribute)).Resolve();
+            var ivt_ctor = ivt_t.Methods.First(md => (md.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)) != 0);
+
+            c.PrimaryAssembly.CustomAttributes.Add(new CustomAttribute(ivt_ctor, Encoding.UTF8.GetBytes("Prism")));
         }
 
         public static void Patch(CecilContext context, string outputPath)

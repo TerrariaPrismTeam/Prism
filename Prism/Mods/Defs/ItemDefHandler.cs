@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Prism.API;
+using Prism.API.Behaviours;
 using Prism.API.Defs;
+using Prism.Mods.Behaviours;
 using Terraria;
 using Terraria.ID;
 
@@ -123,25 +125,41 @@ namespace Prism.Mods.Defs
 
         internal static void OnSetDefaults(Item i, int type, bool noMatCheck)
         {
+            ItemBHandler h = null;
+
             if (type >= ItemID.Count)
             {
                 i.RealSetDefaults(0, noMatCheck);
 
                 if (DefFromType.ContainsKey(type))
                 {
+                    var d = DefFromType[type];
+
                     i.type = i.netID = type;
                     i.width = i.height = 16;
                     i.stack = i.maxStack = 1;
 
-                    CopyDefToItem(i, DefFromType[type]);
+                    CopyDefToItem(i, d);
 
-                    //TODO: add def-specific hooks here
+                    h = new ItemBHandler();
+                    if (d.CreateBehaviour != null)
+                    {
+                        var b = d.CreateBehaviour();
+
+                        if (b != null)
+                            h.behaviours.Add(b);
+                    }
+
+                    i.BHandler = h;
                 }
             }
             else
                 i.RealSetDefaults(type, noMatCheck);
 
-            //TODO: add global hooks here
+            //TODO: add global hooks here (and check for null)
+
+            if (h != null)
+                h.OnInit();
         }
 
         static void LoadTextures     (ItemDef def)

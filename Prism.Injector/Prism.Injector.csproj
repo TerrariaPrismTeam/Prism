@@ -89,6 +89,7 @@
     <Compile Include="Patcher\ItemPatcher.cs" />
     <Compile Include="Patcher\NpcPatcher.cs" />
     <Compile Include="Patcher\TerrariaPatcher.cs" />
+    <Compile Include="Patcher\WrapperHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
