@@ -159,7 +159,14 @@ namespace Prism.Mods.Defs
             //TODO: add global hooks here (and check for null)
 
             if (h != null)
+            {
+                i.BHandler = h;
+
+                foreach (var b in h.Behaviours)
+                    b.Entity = i;
+
                 h.OnInit();
+            }
         }
 
         static void LoadTextures     (ItemDef def)
