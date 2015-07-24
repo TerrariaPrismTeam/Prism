@@ -11,7 +11,14 @@ namespace Prism
     {
         static int GetHResult(Exception e)
         {
-            return (int)typeof(Exception).GetProperty("HResult", BindingFlags.NonPublic | BindingFlags.GetProperty | BindingFlags.Instance).GetValue(e, null);
+            try
+            {
+                return (int)typeof(Exception).GetProperty("HResult", BindingFlags.NonPublic | BindingFlags.GetProperty | BindingFlags.Instance).GetValue(e, null);
+            }
+            catch
+            {
+                return 1; // fuckfuckfuckfuckfuckfuck
+            }
         }
 
         public static void Handle     (Exception e)
