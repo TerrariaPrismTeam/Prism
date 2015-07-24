@@ -50,15 +50,19 @@
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework.Xact, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="WindowsBase" />
+    <Reference Condition="'$(OS)' == 'Windows_NT'" Include="PresentationCore" />
+    <Reference Condition="'$(OS)' == 'Windows_NT'" Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
     <Reference Condition="'$(OS)' != 'Windows_NT'" Include="FNA, Version=0.0.0.1, Culture=neutral, PublicKeyToken=null">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\FNA.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Condition="'$(OS)' != 'Windows_NT'" Include="WindowsBase, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\WindowsBase.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -70,8 +74,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
     <Reference Include="Prism.Terraria, Version=1.3.0.7, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\Prism.Terraria.dll</HintPath>
@@ -92,19 +94,19 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="API\Behaviours\EntityBehaviour.cs" />
-    <Compile Include="API\Behaviours\ItemBehaviour.cs" />
-    <Compile Include="API\Behaviours\NpcBehaviour.cs" />
-    <Compile Include="API\Defs\EntityDef.cs" />
-    <Compile Include="API\Defs\EntityRef.cs" />
-    <Compile Include="API\Defs\EntityDefStructs.cs" />
-    <Compile Include="API\Defs\NpcDefStructs.cs" />
-    <Compile Include="API\Defs\NpcDef.cs" />
-    <Compile Include="API\Defs\ItemDef.cs" />
-    <Compile Include="API\Defs\ItemDefStructs.cs" />
-    <Compile Include="API\Defs\NpcRef.cs" />
-    <Compile Include="API\Defs\ItemRef.cs" />
-    <Compile Include="API\ModDef.cs" />
+    <Compile Include="Api\Behaviours\EntityBehaviour.cs" />
+    <Compile Include="Api\Behaviours\ItemBehaviour.cs" />
+    <Compile Include="Api\Behaviours\NpcBehaviour.cs" />
+    <Compile Include="Api\Defs\EntityDef.cs" />
+    <Compile Include="Api\Defs\EntityRef.cs" />
+    <Compile Include="Api\Defs\EntityDefStructs.cs" />
+    <Compile Include="Api\Defs\NpcDefStructs.cs" />
+    <Compile Include="Api\Defs\NpcDef.cs" />
+    <Compile Include="Api\Defs\ItemDef.cs" />
+    <Compile Include="Api\Defs\ItemDefStructs.cs" />
+    <Compile Include="Api\Defs\NpcRef.cs" />
+    <Compile Include="Api\Defs\ItemRef.cs" />
+    <Compile Include="Api\ModDef.cs" />
     <Compile Include="Mods\Behaviours\EntityBHandler.cs" />
     <Compile Include="Mods\Behaviours\ItemBHandler.cs" />
     <Compile Include="Mods\Behaviours\NpcBHandler.cs" />
