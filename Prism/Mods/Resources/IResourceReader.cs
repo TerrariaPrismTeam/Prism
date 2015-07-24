@@ -36,7 +36,11 @@ namespace Prism.Mods.Resources
 
         public object ReadResource(Stream resourceStream)
         {
+            var origPos = resourceStream.Position;
+
             var r = ReadTypedResource(resourceStream);
+
+            resourceStream.Position = origPos; // reset the position so the resource can be read again
 
             read.Add(r);
 
