@@ -9,6 +9,10 @@ namespace Prism.Injector.Patcher
 {
     public static class TerrariaPatcher
     {
+        readonly static Version
+            V7_0_0_0 = new Version(7, 0, 0, 0),
+            V4_5_0_0 = new Version(4, 5, 0, 0);
+
         internal static CecilContext   c;
         internal static MemberResolver r;
 
@@ -26,7 +30,7 @@ namespace Prism.Injector.Patcher
                 foreach (TypeDefinition d in td.NestedTypes)
                     PublicifyRec(d);
         }
-        public static void Publicify()
+        static void Publicify()
         {
             // make all types and members in the "Terraria" namespace public
 
@@ -39,12 +43,19 @@ namespace Prism.Injector.Patcher
             }
         }
 
-        public static void AddInternalsVisibleToAttr()
+        static void AddInternalsVisibleToAttr()
         {
+            // raises attribute not imported error on write
             var ivt_t = r.ReferenceOf(typeof(InternalsVisibleToAttribute)).Resolve();
             var ivt_ctor = ivt_t.Methods.First(md => (md.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)) != 0);
 
             c.PrimaryAssembly.CustomAttributes.Add(new CustomAttribute(ivt_ctor, Encoding.UTF8.GetBytes("Prism")));
+        }
+        static void FixNewtonsoftJsonReferenceVersion()
+        {
+            foreach (var ar in c.PrimaryAssembly.MainModule.AssemblyReferences)
+                if (ar.Name == "Newtonsoft.Json" && ar.Version == V7_0_0_0)
+                    ar.Version = V4_5_0_0;
         }
 
         public static void Patch(CecilContext context, string outputPath)
@@ -56,12 +67,14 @@ namespace Prism.Injector.Patcher
             c.PrimaryAssembly.MainModule.Name = c.PrimaryAssembly.Name.Name + ".dll";
 
             Publicify();
+            //AddInternalsVisibleToAttr();
+            FixNewtonsoftJsonReferenceVersion();
 
             ItemPatcher.Patch();
             NpcPatcher .Patch();
             // do other stuff here
 
-            // Newtonsoft.Json.dll and Steamworks.NET.dll are required to write the assembly
+            // Newtonsoft.Json.dll, Steamworks.NET.dll and Ionic.Zip.CF.dll are required to write the assembly (and FNA and WindowsBase on mono, too)
             c.PrimaryAssembly.Write(outputPath);
 
             r = null;
