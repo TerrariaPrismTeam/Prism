@@ -17,7 +17,7 @@ namespace Prism.TerrariaPatcher
 
         static void Main(string[] args)
         {
-            // writing to stderr cancels the MSBuild build process
+            // writing to stderr cancels the MSBuild build process (I think)
             if (args.Length != 2)
                 Console.Error.WriteLine("Incorrect usage, two arguments required: Terraria.exe path and output assembly path.");
 
@@ -33,6 +33,10 @@ namespace Prism.TerrariaPatcher
             var d = Path.GetDirectoryName(args[1]);
             if (!Directory.Exists(d))
                 Directory.CreateDirectory(d);
+
+            // this will stop the build process if the patcher fails, because a reference in Prism.csproj will be missing
+            if (File.Exists(args[1]))
+                File.Delete(args[1]);
 
             try
             {

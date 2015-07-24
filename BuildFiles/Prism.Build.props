@@ -1,0 +1,6 @@
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!-- XBuild specifies an OS property, but MSBuild doesn't. This sets the default value on MSBuild. -->
+    <OS Condition="'$(OS)' == ''">Windows_NT</OS>
+  </PropertyGroup>
+</Project>

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22823.1
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prism.Injector", "Prism.Injector\Prism.Injector.csproj", "{FA53DC38-9B2B-45D3-818E-3E60F69143F6}"
 EndProject
@@ -16,6 +16,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prism", "Prism\Prism.csproj", "{75264225-6481-4139-95DD-11D62BBFE691}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildFiles", "BuildFiles", "{276F330E-F5CE-4ECB-B27F-E2050AF3E21B}"
+	ProjectSection(SolutionItems) = preProject
+		BuildFiles\Prism.Build.props = BuildFiles\Prism.Build.props
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prism.TerrariaPatcher", "BuildFiles\Prism.TerrariaPatcher\Prism.TerrariaPatcher.csproj", "{6B42EB0B-AFA3-4449-ACDA-AA91C8A39DC0}"
 EndProject
