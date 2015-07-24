@@ -40,6 +40,7 @@ namespace Prism
 
         static Exception GetRealInner(Exception inner)
         {
+            Debug.WriteLine("Uncaught exception is thrown!\n" + inner);
             Debugger.Break();
 
             if (inner is RethrownException)
