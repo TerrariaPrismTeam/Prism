@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Windows;
+using System.Windows.Forms;
 
 namespace Prism
 {
@@ -28,7 +27,7 @@ namespace Prism
             if (Debugger.IsAttached)
                 throw new RethrownException(e); // signal to the debugger instead of displaying the error message, for convenience
 
-            MessageBox.Show("A fatal error occured:\n" + e, e.Message, MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show("A fatal error occured:\n" + e, e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             if (exitImmediately)
                 Environment.Exit(GetHResult(e));
