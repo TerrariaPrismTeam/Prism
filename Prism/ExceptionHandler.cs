@@ -18,6 +18,7 @@ namespace Prism
             catch
             {
                 return 1; // fuckfuckfuckfuckfuckfuck
+                //RIP D:
             }
         }
 

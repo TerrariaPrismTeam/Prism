@@ -38,6 +38,8 @@ namespace Prism.Debugging
     {
         const int MAX_LINES = 10;
 
+        public const int PADDING_X = 48, PADDING_Y = 24;
+
         static object @lock = new object();
         static PrismTraceListener listener;
         internal static List<TraceLine> lines = new List<TraceLine>();
