@@ -64,12 +64,12 @@ namespace Prism.Debugging
             bool altBg = false;
 
             var lineAmt = lines.Count();
-            List<string> drawText   = new List<string>(lineAmt - 1);
-            List<float > fadeAlphas = new List<float >(lineAmt - 1);
+            List<string> drawText   = new List<string>(lineAmt);
+            List<float > fadeAlphas = new List<float >(lineAmt);
 
             var curLine = new StringBuilder();
 
-            foreach (var l in lines.Take(lineAmt - 1))
+            foreach (var l in lines.Take(lineAmt))
             {
                 float curW = 0f;
                 string[] words = l.Text.Split(SpaceArray);
