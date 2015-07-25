@@ -94,19 +94,19 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Api\Behaviours\EntityBehaviour.cs" />
-    <Compile Include="Api\Behaviours\ItemBehaviour.cs" />
-    <Compile Include="Api\Behaviours\NpcBehaviour.cs" />
-    <Compile Include="Api\Defs\EntityDef.cs" />
-    <Compile Include="Api\Defs\EntityRef.cs" />
-    <Compile Include="Api\Defs\EntityDefStructs.cs" />
-    <Compile Include="Api\Defs\NpcDefStructs.cs" />
-    <Compile Include="Api\Defs\NpcDef.cs" />
-    <Compile Include="Api\Defs\ItemDef.cs" />
-    <Compile Include="Api\Defs\ItemDefStructs.cs" />
-    <Compile Include="Api\Defs\NpcRef.cs" />
-    <Compile Include="Api\Defs\ItemRef.cs" />
-    <Compile Include="Api\ModDef.cs" />
+    <Compile Include="API\Behaviours\EntityBehaviour.cs" />
+    <Compile Include="API\Behaviours\ItemBehaviour.cs" />
+    <Compile Include="API\Behaviours\NpcBehaviour.cs" />
+    <Compile Include="API\Defs\EntityDef.cs" />
+    <Compile Include="API\Defs\EntityRef.cs" />
+    <Compile Include="API\Defs\EntityDefStructs.cs" />
+    <Compile Include="API\Defs\NpcDefStructs.cs" />
+    <Compile Include="API\Defs\NpcDef.cs" />
+    <Compile Include="API\Defs\ItemDef.cs" />
+    <Compile Include="API\Defs\ItemDefStructs.cs" />
+    <Compile Include="API\Defs\NpcRef.cs" />
+    <Compile Include="API\Defs\ItemRef.cs" />
+    <Compile Include="API\ModDef.cs" />
     <Compile Include="Debugging\TraceDrawer.cs" />
     <Compile Include="Mods\Behaviours\EntityBHandler.cs" />
     <Compile Include="Mods\Behaviours\ItemBHandler.cs" />
@@ -126,7 +126,7 @@
     <Compile Include="Mods\ModData.cs" />
     <Compile Include="Mods\ModLoader.cs" />
     <Compile Include="Mods\ModReference.cs" />
-    <Compile Include="Api\RecipeHelper.cs" />
+    <Compile Include="API\RecipeHelper.cs" />
     <Compile Include="Mods\Resources\IResourceReader.cs" />
     <Compile Include="Mods\Resources\ResourceLoader.cs" />
     <Compile Include="Mods\Resources\ResourceReaders.cs" />
