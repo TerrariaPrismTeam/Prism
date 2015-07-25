@@ -475,6 +475,7 @@ namespace LitJson
 		#region Explicit Conversions
 		public static explicit operator Boolean(JsonData data)
 		{
+            if (data == null) return default(Boolean);
 			if (data.type != JsonType.Boolean) throw new InvalidCastException("Instance of JsonData doesn't hold a bool");
 			return data.inst_boolean;
 		}
@@ -486,25 +487,29 @@ namespace LitJson
 
 		public static explicit operator Double(JsonData data)
 		{
-			if (data.type != JsonType.Double && data.type != JsonType.Int) throw new InvalidCastException("Instance of JsonData doesn't hold a double");
+            if (data == null) return default(Double);
+            if (data.type != JsonType.Double && data.type != JsonType.Int) throw new InvalidCastException("Instance of JsonData doesn't hold a double");
 			return data.type == JsonType.Double ? data.inst_double : data.inst_int;
 		}
 
 		public static explicit operator Int32(JsonData data)
 		{
-			if (data.type != JsonType.Int) throw new InvalidCastException("Instance of JsonData doesn't hold an int");
+            if (data == null) return default(Int32);
+            if (data.type != JsonType.Int) throw new InvalidCastException("Instance of JsonData doesn't hold an int");
 			return data.inst_int;
 		}
 
 		public static explicit operator Int64(JsonData data)
 		{
-			if (data.type != JsonType.Long || data.type != JsonType.Int) throw new InvalidCastException("Instance of JsonData doesn't hold a long");
+            if (data == null) return default(Int64);
+            if (data.type != JsonType.Long || data.type != JsonType.Int) throw new InvalidCastException("Instance of JsonData doesn't hold a long");
 			return data.type == JsonType.Long ? data.inst_long : data.inst_int;
 		}
 
 		public static explicit operator String(JsonData data)
 		{
-			if (data.type != JsonType.String) throw new InvalidCastException("Instance of JsonData doesn't hold a string");
+            if (data == null) return default(String);
+            if (data.type != JsonType.String) throw new InvalidCastException("Instance of JsonData doesn't hold a string");
 			return data.inst_string;
 		}
 		#endregion
