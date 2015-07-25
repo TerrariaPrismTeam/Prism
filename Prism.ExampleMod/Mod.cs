@@ -8,6 +8,7 @@ using Prism.API;
 using Prism.API.Defs;
 using Terraria;
 using Terraria.ID;
+using Prism.Mods;
 
 namespace Prism.ExampleMod
 {
@@ -120,6 +121,11 @@ namespace Prism.ExampleMod
                     aiStyle: NpcAiStyle.FlyingHead
                     ) }
             };
+        }
+
+        public override void OnLoad()
+        {
+            RecipeHelper.CreateRecipe(ItemID.Wood, ItemDef.ByName["Pizza", Info.InternalName], 1, 1);
         }
 
         public override void PostUpdate()
