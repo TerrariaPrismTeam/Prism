@@ -157,7 +157,11 @@
       <Name>Prism.Injector</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+    <Content Condition="'$(OS)' != 'Windows_NT'" Include="..\Prism.sh">
+      <Link>Prism.sh</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>

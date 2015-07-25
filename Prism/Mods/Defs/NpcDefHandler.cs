@@ -171,6 +171,7 @@ namespace Prism.Mods.Defs
 
             if (h != null)
             {
+                h.Create();
                 n.BHandler = h;
 
                 foreach (var b in h.Behaviours)
