@@ -1,16 +1,14 @@
-﻿using Prism.API;
-using Prism.API.Defs;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using Prism.API.Defs;
 using Terraria;
 
-namespace Prism.Mods
+namespace Prism.API
 {
     public class RecipeHelper : Recipe
     {
-        private static new Recipe newRecipe = new Recipe();
+        static new Recipe newRecipe = new Recipe();
 
         public static void CreateRecipe(int requiredItemId, int createItemId, int requiredStack = 1, int createStack = 1)
         {
@@ -48,7 +46,7 @@ namespace Prism.Mods
             addRecipe();
         }
 
-        private static void addRecipe()
+        static void addRecipe()
         {
             Main.recipe[numRecipes] = newRecipe;
             newRecipe = new Recipe();

@@ -107,6 +107,7 @@
     <Compile Include="Api\Defs\NpcRef.cs" />
     <Compile Include="Api\Defs\ItemRef.cs" />
     <Compile Include="Api\ModDef.cs" />
+    <Compile Include="Debugging\TraceDrawer.cs" />
     <Compile Include="Mods\Behaviours\EntityBHandler.cs" />
     <Compile Include="Mods\Behaviours\ItemBHandler.cs" />
     <Compile Include="Mods\Behaviours\NpcBHandler.cs" />
@@ -125,7 +126,7 @@
     <Compile Include="Mods\ModData.cs" />
     <Compile Include="Mods\ModLoader.cs" />
     <Compile Include="Mods\ModReference.cs" />
-    <Compile Include="Mods\RecipeHelper.cs" />
+    <Compile Include="Api\RecipeHelper.cs" />
     <Compile Include="Mods\Resources\IResourceReader.cs" />
     <Compile Include="Mods\Resources\ResourceLoader.cs" />
     <Compile Include="Mods\Resources\ResourceReaders.cs" />
