@@ -125,6 +125,7 @@
     <Compile Include="Mods\ModData.cs" />
     <Compile Include="Mods\ModLoader.cs" />
     <Compile Include="Mods\ModReference.cs" />
+    <Compile Include="Mods\RecipeHelper.cs" />
     <Compile Include="Mods\Resources\IResourceReader.cs" />
     <Compile Include="Mods\Resources\ResourceLoader.cs" />
     <Compile Include="Mods\Resources\ResourceReaders.cs" />
@@ -162,6 +163,7 @@
       <Link>Prism.sh</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
