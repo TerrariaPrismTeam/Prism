@@ -14,6 +14,12 @@ If that is done, just build the solution in Visual Studio.
 
 Building on the Mono platform can be done by using XBuild (simply execute ```xbuild Prism.sln```).
 
+## Launching Prism
+Prism can be launched by simply running the .exe file, using Steam (by replacing Terraria.exe), or by adding it to the App list in the Game Launcher.
+All the .dll files in the output folder are required for Prism to run.
+
+On Linux and OS X, 'Prism.sh' must be ran instead of directly executing the .exe file using mono. Prism.exe (and its dependencies) must be in the same directory as the shell script.
+
 ## Mods
 Mods are loaded in the ```Documents\My Games\Terraria\Prism\Mods\``` folder. Every mod is placed in its own folder, and every mod folder must contain a ```manifest.json``` file, that contains information about the mod: its internal name, display name, author (optional), version (optional), description (optional), assembly file name and ```ModDef``` full type name.
 
