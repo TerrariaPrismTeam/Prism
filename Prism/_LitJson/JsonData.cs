@@ -223,7 +223,8 @@ namespace LitJson
 		{
 			get
 			{
-				return EnsureDictionary()[key];
+                IDictionary dictionary = EnsureDictionary();
+                return dictionary.Contains(key) ? dictionary[key] : null;
 			}
 
 			set
@@ -292,7 +293,7 @@ namespace LitJson
 			get
 			{
 				EnsureDictionary();
-				return inst_object[prop_name];
+				return inst_object.ContainsKey(prop_name) ? inst_object[prop_name] : null;
 			}
 
 			set
