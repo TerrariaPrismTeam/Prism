@@ -27,15 +27,27 @@ namespace Prism
             if (Debugger.IsAttached)
                 throw new RethrownException(e); // signal to the debugger instead of displaying the error message, for convenience
 
+            //TODO: log the full exception in some way or another... later
             //TODO: move to exception UI page... later
-
-            Trace.WriteLine(e.Message + " at " + e.TargetSite);
-
-            if (e.GetType() == typeof(TargetInvocationException))
+            if (e is TargetInvocationException)
             {
-                TargetInvocationException tie = (TargetInvocationException)e;
+                var tie = (TargetInvocationException)e;
                 Trace.WriteLine(tie.InnerException.Message + " at " + tie.InnerException.TargetSite);
             }
+            else if (e is TypeLoadException)
+            {
+                var tle = (TypeLoadException)e;
+                Trace.WriteLine("Could not load type " + tle.TypeName + " at " + tle.TargetSite);
+            }
+            else if (e is AggregateException)
+            {
+                var ae = (AggregateException)e;
+
+                for (int i = 0; i < ae.InnerExceptions.Count; i++)
+                    Handle(ae.InnerExceptions[i]); // prints it
+            }
+            else
+                Trace.WriteLine(e.Message + " at " + e.TargetSite);
         }
         public static void HandleFatal(Exception e, bool exitImmediately = true)
         {
