@@ -48,7 +48,8 @@ namespace Prism
 
             ModLoader.Load();
 
-            versionNumber += ", mods loaded: " + ModData.Mods.Count;
+            versionNumber += ", mods loaded: " + ModData.Mods.Count +
+                (ModLoader.errors.Count > 0 ? ", load errors: " + ModLoader.errors.Count : "");
         }
 
         protected override void   LoadContent()
