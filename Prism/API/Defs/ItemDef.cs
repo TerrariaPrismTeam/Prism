@@ -64,6 +64,11 @@ namespace Prism.API.Defs
             }
         }
 
+        /// <summary>
+        /// List of all recipes that make this item.
+        /// </summary>
+        public List<Recipe> Recipes = new List<Recipe>();
+
         // stupid red and his stupid netids
         int setNetID = 0;
         /// <summary>

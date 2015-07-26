@@ -117,7 +117,7 @@ namespace Prism.Mods.Defs
                     continue;
 
                 NPC n = new NPC();
-                n.RealSetDefaults(i);
+                n.netDefaults(i);
 
                 NpcDef def = new NpcDef(Lang.npcName(n.type, true));
 
@@ -128,7 +128,8 @@ namespace Prism.Mods.Defs
                 CopyNpcToDef(def, n);
 
                 DefFromType.Add(i, def);
-                VanillaDefFromName.Add(n.name, def);
+                // TODO Fix overlapping names
+                //VanillaDefFromName.Add(n.name, def);
             }
         }
 
