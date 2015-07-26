@@ -108,7 +108,7 @@ namespace Prism.Mods.Defs
                     continue;
 
                 Item it = new Item();
-                it.RealSetDefaults(i, true);
+                it.netDefaults(i);
 
                 ItemDef def = new ItemDef(Lang.itemName(it.type, true));
 
@@ -119,8 +119,11 @@ namespace Prism.Mods.Defs
                 CopyItemToDef(def, it);
 
                 DefFromType.Add(i, def);
-                VanillaDefFromName.Add(it.name, def);
+                // TODO Fix overlapping names
+                //VanillaDefFromName.Add(it.name, def);
             }
+
+            Recipes.AddVanillaRecipeReferences();
         }
 
         internal static void OnSetDefaults(Item i, int type, bool noMatCheck)

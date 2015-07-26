@@ -142,31 +142,29 @@ namespace Prism.ExampleMod
                     ) }
             };
         }
-
+        
         public override void OnLoad()
         {
-            Recipes.Create(new Dictionary<int, int>
-            {
-                { ItemID.Gel, 30 }
-            },
-            ItemDef.ByName["Pizza", Info.InternalName], 8);
+            ExceptionHandler.DetailedExceptions = true;
 
-            Recipes.Create(new Dictionary<int, int> {
-                { ItemDef.ByName["Pizza", Info.InternalName].Type, 1 },
-                { ItemID.Gel, 20 }
-            }, ItemDef.ByName["Ant", Info.InternalName]);
+            Recipes.Create(ItemDef.ByName["Pizza", Info.InternalName], 8,
+                ItemDef.ByType[ItemID.Gel], 30);
 
-            Recipes.Create(new Dictionary<int, int> {
-                { ItemDef.ByName["Pizza", Info.InternalName].Type, 1 },
-                { ItemDef.ByName["Ant", Info.InternalName].Type, 1 },
-                { ItemID.Gel, 4 }
-            }, ItemDef.ByName["Pizzant", Info.InternalName]);
+            Recipes.Create(ItemDef.ByName["Ant", Info.InternalName], 1,
+                ItemDef.ByName["Pizza", Info.InternalName], 1,
+                ItemDef.ByType[ItemID.Gel], 20);
 
-            Recipes.Create(new Dictionary<int, int> {
-                { ItemDef.ByName["Pizza", Info.InternalName].Type, 3 },
-                { ItemDef.ByName["Pizzant", Info.InternalName].Type, 1 },
-                { ItemID.Gel, 4 }
-            }, ItemDef.ByName["Pizzantzioli", Info.InternalName]);
+            Recipes.Create(ItemDef.ByName["Pizzant", Info.InternalName], 1,
+                ItemDef.ByName["Pizza", Info.InternalName], 1,
+                ItemDef.ByName["Ant", Info.InternalName], 1,
+                ItemDef.ByType[ItemID.Gel], 4,
+                RecipeRequires.Tile, TileID.WorkBenches); // You clearly need a workbench to stab pizza with an ant mandible.
+
+            Recipes.Create(ItemDef.ByName["Pizzantzioli", Info.InternalName], 1,
+                ItemDef.ByName["Pizza", Info.InternalName], 3,
+                ItemDef.ByName["Pizzant", Info.InternalName], 1,
+                ItemDef.ByType[ItemID.Gel], 4,
+                RecipeRequires.Tile, TileID.Dirt); // Collect ants from your nearest ant hill.
         }
 
         public override void PostUpdate()
@@ -175,7 +173,6 @@ namespace Prism.ExampleMod
                 return;
 
             var p = Main.player[Main.myPlayer];
-
 
             #region CHEATERRRRRRRRRR
             if (Main.keyState.IsKeyDown(Keys.G))

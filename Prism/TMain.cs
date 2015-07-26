@@ -46,6 +46,7 @@ namespace Prism
 
             base.Initialize(); // terraria init and LoadContent happen here
 
+            EntityDefLoader.SetupEntityHandlers();
             ModLoader.Load();
 
             versionNumber += ", mods loaded: " + ModData.Mods.Count +
