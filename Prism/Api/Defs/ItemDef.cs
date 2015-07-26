@@ -7,6 +7,7 @@ using Prism.API.Behaviours;
 using Prism.Mods;
 using Prism.Mods.Defs;
 using Terraria;
+using LitJson;
 
 namespace Prism.API.Defs
 {
@@ -550,6 +551,7 @@ namespace Prism.API.Defs
         public ItemDef(
             #region arguments
             string displayName,
+            Func<Texture2D> getTex = null,
             Func<ItemBehaviour> newBehaviour = null,
 
             int damage = 0,
@@ -601,7 +603,7 @@ namespace Prism.API.Defs
             ItemDamageType damageType = ItemDamageType.None,
 
             CoinValue value = default(CoinValue),
-            ItemDescription descr = default(ItemDescription),
+            ItemDescription description = default(ItemDescription),
             ItemArmourData armour = default(ItemArmourData),
             BuffDef buff = default(BuffDef),
 
@@ -610,13 +612,12 @@ namespace Prism.API.Defs
             int ammo = 0,
             int useSound = 1,
             int createTile = -1,
-            int createWall = -1,
-
-            Func<Texture2D> getTex = null
+            int createWall = -1
             #endregion
             )
         {
             DisplayName = displayName;
+            GetTexture = getTex ?? (() => null);
             CreateBehaviour = newBehaviour ?? (() => null);
 
             Damage = damage;
@@ -667,7 +668,7 @@ namespace Prism.API.Defs
             DamageType = damageType;
 
             Value = value;
-            Description = descr;
+            Description = description;
             ArmourData = armour;
             Buff = buff;
 
@@ -677,8 +678,213 @@ namespace Prism.API.Defs
             UseSound = useSound;
             CreateTile = createTile;
             CreateWall = createWall;
+        }
 
+        public ItemDef(string displayName, JsonData json,
+            Func<Texture2D> getTex = null,
+            ItemArmourData armour = default(ItemArmourData),
+            Func<ItemBehaviour> newBehaviour = null)
+        {
+            DisplayName = displayName;
             GetTexture = getTex ?? (() => null);
+            ArmourData = armour;
+            CreateBehaviour = newBehaviour ?? (() => null);
+
+            Damage = (int)json["damage"];
+            UseAnimation = (int)json["useAnimation"];
+            UseTime = (int)json["useTime"];
+            ReuseDelay = (int)json["reuseDelay"];
+            ManaConsumption = (int)json["mana"];
+            Width = json.Has("width") ? (int)json["width"] : 16;
+            Height = json.Has("height") ? (int)json["height"] : 16;
+            MaxStack = json.Has("maxStack") ? (int)json["maxStack"] : 1;
+            PlacementStyle = (int)json["placeStyle"];
+            Alpha = (int)json["alpha"];
+            Defense = (int)json["defense"];
+            CritChanceModifier = json.Has("crit") ? (int)json["crit"] : 4;
+            PickaxePower = (int)json["pick"];
+            AxePower = (int)json["axe"];
+            HammerPower = (int)json["hammer"];
+            ManaHeal = (int)json["healMana"];
+            LifeHeal = (int)json["healLife"];
+
+            ShootVelocity = (float)json["shootSpeed"];
+            Knockback = (float)json["knockback"];
+            Scale = json.Has("scale") ? (float)json["scale"] : 1f;
+
+            NoMelee = (bool)json["noMelee"];
+            IsConsumable = (bool)json["consumable"];
+            TurnPlayerOnUse = (bool)json["useTurn"];
+            AutoReuse = (bool)json["autoReuse"];
+            HideUseGraphic = (bool)json["noUseGraphic"];
+            IsAccessory = (bool)json["accessory"];
+            IsExpertModeOnly = (bool)json["expertOnly"];
+            IsChanneled = (bool)json["channel"];
+
+            IsSoul = (bool)json["soul"];
+            IsStrangePlant = (bool)json["strangePlant"];
+            ExtractinatorMode = (int)json["extractinatorMode"];
+            IsBullet = (bool)json["bullet"];
+            Pulses = (bool)json["pulses"];
+            NoGravity = (bool)json["noGravity"];
+            IsNebulaPickup = (bool)json["nebulaPickup"];
+            NeverShiny = (bool)json["neverShiny"];
+            RequiredStaffMinionSlots = (int)json["staffMinionSlotsRequired"];
+
+            if (json.Has("colour"))
+            {
+                JsonData colour = json["colour"];
+                Colour = new Color((int)colour[0], (int)colour[1], (int)colour[2]);
+            }
+            else
+            {
+                Colour = default(Color);
+            }
+
+            if (json.Has("rare"))
+            {
+                JsonData rare = json["rare"];
+                if (rare.IsString)
+                {
+                    Rarity = (ItemRarity)Enum.Parse(typeof(ItemRarity), (string)rare);
+                }
+                else
+                {
+                    Rarity = (ItemRarity)(int)rare;
+                }
+            }
+            else
+            {
+                Rarity = default(ItemRarity);
+            }
+
+            if (json.Has("useStyle"))
+            {
+                JsonData useStyle = json["useStyle"];
+                if (useStyle.IsString)
+                {
+                    UseStyle = (ItemUseStyle)Enum.Parse(typeof(ItemUseStyle), (string)useStyle);
+                }
+                else
+                {
+                    UseStyle = (ItemUseStyle)(int)useStyle;
+                }
+            }
+            else
+            {
+                UseStyle = default(ItemUseStyle);
+            }
+
+            if (json.Has("holdStyle"))
+            {
+                JsonData holdStyle = json["holdStyle"];
+                if (holdStyle.IsString)
+                {
+                    HoldStyle = (ItemHoldStyle)Enum.Parse(typeof(ItemHoldStyle), (string)holdStyle);
+                }
+                else
+                {
+                    HoldStyle = (ItemHoldStyle)(int)holdStyle;
+                }
+            }
+            else
+            {
+                HoldStyle = default(ItemHoldStyle);
+            }
+            
+            if (json.Has("damageType"))
+            {
+                JsonData damageType = json["damageType"];
+                if (damageType.IsString)
+                {
+                    DamageType = (ItemDamageType)Enum.Parse(typeof(ItemDamageType), (string)damageType);
+                }
+                else
+                {
+                    DamageType = (ItemDamageType)(int)damageType;
+                }
+            }
+            else
+            {
+                DamageType = default(ItemDamageType);
+            }
+            
+            if (json.Has("value"))
+            {
+                JsonData value = json["value"];
+                if (value.IsArray)
+                {
+                    Value = new CoinValue((int)value[0], (int)value[1], (int)value[2], (int)value[3]);
+                }
+                else
+                {
+                    Value = (CoinValue)(int)value;
+                }
+            }
+            else
+            {
+                Value = default(CoinValue);
+            }
+            
+            if (json.Has("description"))
+            {
+                JsonData description = json["description"];
+                Description = new ItemDescription(
+                    (string)description["tooltip1"],
+                    (string)description["tooltip2"],
+                    (bool)description["vanity"],
+                    (bool)description["hideAmmo"]);
+            }
+            
+            if (json.Has("buff"))
+            {
+                JsonData buff = json["buff"];
+                JsonData type = buff["type"];
+                // TODO Add string compatibility with BuffRef
+                Buff = new BuffDef((int)type, (int)buff["duration"]);
+            }
+            else
+            {
+                Buff = default(BuffDef);
+            }
+            
+            if (json.Has("useAmmo"))
+            {
+                JsonData useAmmo = json["useAmmo"];
+                if (useAmmo.IsString)
+                {
+                    string[] s = ((string)useAmmo).Split('.');
+
+                    if (s.Length < 2)
+                    {
+                        UsedAmmo = new ItemRef(s[0]);
+                    }
+                    else
+                    {
+                        UsedAmmo = new ItemRef(s[1], s[0]);
+                    }
+                }
+                else
+                {
+                    UsedAmmo = new ItemRef((int)useAmmo);
+                }
+            }
+            else
+            {
+                UsedAmmo = null;
+            }
+            
+            if (json.Has("shoot"))
+            {
+                JsonData shoot = json["shoot"];
+                // TODO Add string compatibility with ProjectileRef
+                ShootProjectile = (int)shoot;
+            }
+
+            AmmoType = (int)json["ammo"];
+            UseSound = json.Has("useSound") ? (int)json["useSound"] : 1;
+            CreateTile = json.Has("createTile") ? (int)json["createTile"] : -1;
+            CreateWall = json.Has("createWall") ? (int)json["createWall"] : -1;
         }
     }
 }

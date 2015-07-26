@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -8,6 +9,8 @@ using Prism.API;
 using Prism.API.Defs;
 using Terraria;
 using Terraria.ID;
+using LitJson;
+
 
 namespace Prism.ExampleMod
 {
@@ -25,8 +28,12 @@ namespace Prism.ExampleMod
         {
             return new Dictionary<string, ItemDef>
             {
+                // Pizza done with JSON method using an external resource
+                { "Pizza", new ItemDef("Pizza", JsonMapper.ToObject(GetResource<string>("Resources\\Items\\Pizza.json")),
+                    getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizza.png")) },
+                /*  Pizza done with pure code method
                 { "Pizza", new ItemDef("Pizza", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizza.png"),
-                    descr: new ItemDescription("LOTZA SPA-pizza. It's pizza.", "'MMmmmmmmm'", false, true),
+                    description: new ItemDescription("LOTZA SPA-pizza. It's pizza.", "'MMmmmmmmm'", false, true),
                     useTime: 15,
                     reuseDelay: 0,
                     useAnimation: 15,
@@ -41,8 +48,13 @@ namespace Prism.ExampleMod
                     value: new CoinValue(50, 10, 2),
                     buff: new BuffDef(BuffID.WellFed, 60 * 60 * 30)
                     ) },
+                */
+                // Ant done with JSON method using an embedded resource
+                { "Ant", new ItemDef("Ant", JsonMapper.ToObject(new StreamReader(Assembly.GetManifestResourceStream("Prism.ExampleMod.Resources.Items.Ant.json"))),
+                    getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Ant.png")) },
+                /* Ant done with pure code method
                 { "Ant", new ItemDef("Ant", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Ant.png"),
-                    descr: new ItemDescription("By ants, for ants.", "'B-but...ants aren't this big!'", false, true),
+                    description: new ItemDescription("By ants, for ants.", "'B-but...ants aren't this big!'", false, true),
                     damageType: ItemDamageType.Melee,
                     autoReuse: true,
                     useTime: 12,
@@ -61,8 +73,9 @@ namespace Prism.ExampleMod
                     value: new CoinValue(0, 40, 8, 25),
                     scale: 1.1f
                     ) },
+                */
                 { "Pizzant", new ItemDef("Pizzant", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizzant.png"),
-                    descr: new ItemDescription("The chaotic forces of italian spices and insects and bread.", "", false, true),
+                    description: new ItemDescription("The chaotic forces of italian spices and insects and bread.", "", false, true),
                     damageType: ItemDamageType.Melee,
                     autoReuse: true,
                     useTime: 15,
@@ -82,7 +95,7 @@ namespace Prism.ExampleMod
                     scale: 1.1f
                     ) },
                 { "Pizzantzioli", new ItemDef("Pizzantzioli", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizzantzioli.png"),
-                    descr: new ItemDescription("The forces of ants and pizza come together as one.", "The name is Italian for 'KICKING ASS'! YEAH!", false, true),
+                    description: new ItemDescription("The forces of ants and pizza come together as one.", "The name is Italian for 'KICKING ASS'! YEAH!", false, true),
                     damageType: ItemDamageType.Melee,
                     autoReuse: true,
                     useTime: 20,
