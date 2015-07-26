@@ -9,6 +9,11 @@ namespace Prism
 {
     public static class ExceptionHandler
     {
+        /// <summary>
+        /// Set to true in order to get full stack traces in a message box
+        /// </summary>
+        public static bool DetailedExceptions = false;
+
         static int GetHResult(Exception e)
         {
             try
@@ -29,12 +34,21 @@ namespace Prism
 
             //TODO: move to exception UI page... later
 
-            Trace.WriteLine(e.Message + " at " + e.TargetSite);
-
             if (e.GetType() == typeof(TargetInvocationException))
             {
                 TargetInvocationException tie = (TargetInvocationException)e;
-                Trace.WriteLine(tie.InnerException.Message + " at " + tie.InnerException.TargetSite);
+                Trace.WriteLine(e.Message + ":\n" + tie.InnerException.Message + " at " + tie.InnerException.TargetSite);
+
+                e = tie.InnerException;
+            }
+            else
+            {
+                Trace.WriteLine(e.Message + " at " + e.TargetSite);
+            }
+
+            if(DetailedExceptions)
+            {
+                MessageBox.Show("An exception has occured:\n" + e, e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         public static void HandleFatal(Exception e, bool exitImmediately = true)

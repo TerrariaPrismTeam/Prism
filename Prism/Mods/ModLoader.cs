@@ -10,6 +10,7 @@ using Prism.Mods.Defs;
 using Prism.Mods.Hooks;
 using Prism.Mods.Resources;
 using Prism.Util;
+using System.Windows.Forms;
 
 namespace Prism.Mods
 {
@@ -198,6 +199,12 @@ namespace Prism.Mods
                     catch (Exception e)
                     {
                         errors.Add(new LoaderError(d.Info, "An exception occured in ModDef.OnLoad()", e));
+
+                        // Temporary until we have a proper way to see loader errors
+                        if (ExceptionHandler.DetailedExceptions)
+                        {
+                            MessageBox.Show("An exception has occured:\n" + e, e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
                     }
                 }
             }
