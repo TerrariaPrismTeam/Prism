@@ -30,6 +30,7 @@ namespace Prism.Mods.Resources
             using (var ms = new MemoryStream((int)resourceStream.Length))
             {
                 resourceStream.CopyTo(ms);
+                ms.Position = 0;
 
                 using (var sr = new StreamReader(ms, true)) // using resourceStream directly will close the stream at the end of the method
                 {
