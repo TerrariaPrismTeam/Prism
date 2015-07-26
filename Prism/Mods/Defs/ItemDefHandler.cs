@@ -295,19 +295,19 @@ namespace Prism.Mods.Defs
 
             switch (source.DamageType)
             {
-                case ItemDamageType.Melee:
+                case DamageType.Melee:
                     tar.melee = true;
                     break;
-                case ItemDamageType.Ranged:
+                case DamageType.Ranged:
                     tar.ranged = true;
                     break;
-                case ItemDamageType.Magic:
+                case DamageType.Magic:
                     tar.magic = true;
                     break;
-                case ItemDamageType.Summon:
+                case DamageType.Minion:
                     tar.summon = true;
                     break;
-                case ItemDamageType.Thrown:
+                case DamageType.Thrown:
                     tar.thrown = true;
                     break;
                 // None -> all false
@@ -379,17 +379,17 @@ namespace Prism.Mods.Defs
             tar.UseStyle = (ItemUseStyle)source.useStyle;
             tar.HoldStyle = (ItemHoldStyle)source.holdStyle;
 
-            tar.DamageType = ItemDamageType.None;
+            tar.DamageType = DamageType.None;
             if (source.melee)
-                tar.DamageType = ItemDamageType.Melee;
+                tar.DamageType = DamageType.Melee;
             else if (source.ranged)
-                tar.DamageType = ItemDamageType.Ranged;
+                tar.DamageType = DamageType.Ranged;
             else if (source.magic)
-                tar.DamageType = ItemDamageType.Magic;
+                tar.DamageType = DamageType.Magic;
             else if (source.summon)
-                tar.DamageType = ItemDamageType.Summon;
+                tar.DamageType = DamageType.Minion;
             else if (source.thrown)
-                tar.DamageType = ItemDamageType.Thrown;
+                tar.DamageType = DamageType.Thrown;
 
             tar.Value = new CoinValue(source.value);
             tar.Description = new ItemDescription(source.toolTip, source.toolTip2, source.vanity, source.notAmmo);

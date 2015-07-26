@@ -444,7 +444,7 @@ namespace Prism.API.Defs
         /// Gets or sets the type of damage this item does.
         /// </summary>
         /// <remarks>Item.melee, Item.ranged, Item.magic, Item.thrown, Item.</remarks>
-        public virtual ItemDamageType DamageType
+        public virtual DamageType DamageType
         {
             get;
             set;
@@ -600,7 +600,7 @@ namespace Prism.API.Defs
             ItemRarity rare = ItemRarity.White,
             ItemUseStyle useStyle = ItemUseStyle.None,
             ItemHoldStyle holdStyle = ItemHoldStyle.Default,
-            ItemDamageType damageType = ItemDamageType.None,
+            DamageType damageType = DamageType.None,
 
             CoinValue value = default(CoinValue),
             ItemDescription description = default(ItemDescription),
@@ -797,16 +797,16 @@ namespace Prism.API.Defs
                 JsonData damageType = json["damageType"];
                 if (damageType.IsString)
                 {
-                    DamageType = (ItemDamageType)Enum.Parse(typeof(ItemDamageType), (string)damageType);
+                    DamageType = (DamageType)Enum.Parse(typeof(DamageType), (string)damageType);
                 }
                 else
                 {
-                    DamageType = (ItemDamageType)(int)damageType;
+                    DamageType = (DamageType)(int)damageType;
                 }
             }
             else
             {
-                DamageType = default(ItemDamageType);
+                DamageType = default(DamageType);
             }
             
             if (json.Has("value"))

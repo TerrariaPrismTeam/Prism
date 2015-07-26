@@ -14,7 +14,7 @@ using Terraria;
 namespace Prism
 {
     public sealed class TMain : Main
-    {
+    {        
         internal static Texture2D WhitePixel;
 
         static bool justDrawCrashed = false;
@@ -42,6 +42,7 @@ namespace Prism
         {
             Item.OnSetDefaults += ItemDefHandler.OnSetDefaults;
             NPC .OnSetDefaults += NpcDefHandler .OnSetDefaults;
+            Projectile.OnSetDefaults += ProjectileDefHandler.OnSetDefaults;
 
             base.Initialize(); // terraria init and LoadContent happen here
 

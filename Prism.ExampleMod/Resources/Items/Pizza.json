@@ -1,24 +1,24 @@
 ﻿{
-	"description": {
-		"tooltip1": "LOTZA SPA-pizza. It's pizza.",
-		"tooltip2": "'MMmmmmmmm'",
-		"vanity": false,
-		"hideAmmo": true
-	},
-    "useTime": 15,
-    "reuseDelay": 0,
-    "useAnimation": 15,
-    "consumable": true,
-    "maxStack": 999,
-    "rare": "Lime",
-    "useSound": 2,
-    "useStyle": "Eat",
-    "holdStyle": "HeldLightSource",
-    "healLife": 400,
-    "useTurn": true,
-    "value": [0, 2, 10, 50],
-    "buff": {
-		"type": 26,
-		"duration": 108000
-	}
+  "description": {
+	  "tooltip1": "LOTZA SPA-pizza. It's pizza.",
+	  "tooltip2": "'MMmmmmmmm'",
+	  "vanity": false,
+	  "hideAmmo": true
+  },
+  "useTime": 15,
+  "reuseDelay": 0,
+  "useAnimation": 15,
+  "consumable": true,
+  "maxStack": 999,
+  "rare": "Lime",
+  "useSound": 2,
+  "useStyle": "Eat",
+  "holdStyle": "HeldLightSource",
+  "healLife": 400,
+  "useTurn": true,
+  "value": [0, 2, 10, 50],
+  "buff": {
+	  "type": 26,
+	  "duration": 108000
+  }
 }

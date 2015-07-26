@@ -13,7 +13,7 @@ namespace Prism.API.Defs
     public class NpcDef : EntityDef<NpcBehaviour, NPC>
     {
         /// <summary>
-        /// Gets ItemDefs by their type number.
+        /// Gets NpcDefs by their type number.
         /// </summary>
         public struct ByTypeGetter
         {
@@ -26,24 +26,24 @@ namespace Prism.API.Defs
             }
         }
         /// <summary>
-        /// Gets ItemDefs by their internal name (and optionally by their mod's internal name).
+        /// Gets NpcDefs by their internal name (and optionally by their mod's internal name).
         /// </summary>
         public struct ByNameGetter
         {
-            public NpcDef this[string itemInternalName, string modInternalName = null]
+            public NpcDef this[string npcInternalName, string modInternalName = null]
             {
                 get
                 {
                     if (String.IsNullOrEmpty(modInternalName) || modInternalName == PrismApi.VanillaString || modInternalName == PrismApi.TerrariaString)
-                        return NpcDefHandler.VanillaDefFromName[itemInternalName];
+                        return NpcDefHandler.VanillaDefFromName[npcInternalName];
 
-                    return ModData.ModsFromInternalName[modInternalName].NpcDefs[itemInternalName];
+                    return ModData.ModsFromInternalName[modInternalName].NpcDefs[npcInternalName];
                 }
             }
         }
 
         /// <summary>
-        /// Gets ItemDefs by their type number.
+        /// Gets NpcDefs by their type number.
         /// </summary>
         public static ByTypeGetter ByType
         {
@@ -53,7 +53,7 @@ namespace Prism.API.Defs
             }
         }
         /// <summary>
-        /// Gets ItemDefs by their internal name (and optionally by their mod's internal name).
+        /// Gets NpcDefs by their internal name (and optionally by their mod's internal name).
         /// </summary>
         public static ByNameGetter ByName
         {
@@ -66,7 +66,7 @@ namespace Prism.API.Defs
         // stupid red and his stupid netids
         int setNetID = 0;
         /// <summary>
-        /// Gets this item's NetID.
+        /// Gets this NPC's NetID.
         /// </summary>
         public int NetID
         {

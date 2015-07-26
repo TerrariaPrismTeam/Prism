@@ -96,22 +96,28 @@
     </Compile>
     <Compile Include="API\Behaviours\EntityBehaviour.cs" />
     <Compile Include="API\Behaviours\ItemBehaviour.cs" />
+    <Compile Include="API\Behaviours\ProjectileBehaviour.cs" />
     <Compile Include="API\Behaviours\NpcBehaviour.cs" />
     <Compile Include="API\Defs\EntityDef.cs" />
     <Compile Include="API\Defs\EntityRef.cs" />
     <Compile Include="API\Defs\EntityDefStructs.cs" />
+    <Compile Include="API\Defs\ProjectileDef.cs" />
+    <Compile Include="API\Defs\ProjectileDefStructs.cs" />
     <Compile Include="API\Defs\NpcDefStructs.cs" />
     <Compile Include="API\Defs\NpcDef.cs" />
     <Compile Include="API\Defs\ItemDef.cs" />
     <Compile Include="API\Defs\ItemDefStructs.cs" />
+    <Compile Include="API\Defs\ProjectileRef.cs" />
     <Compile Include="API\Defs\NpcRef.cs" />
     <Compile Include="API\Defs\ItemRef.cs" />
     <Compile Include="API\ModDef.cs" />
     <Compile Include="Debugging\TraceDrawer.cs" />
     <Compile Include="Mods\Behaviours\EntityBHandler.cs" />
     <Compile Include="Mods\Behaviours\ItemBHandler.cs" />
+    <Compile Include="Mods\Behaviours\ProjectileBHandler.cs" />
     <Compile Include="Mods\Behaviours\NpcBHandler.cs" />
     <Compile Include="Mods\Defs\EntityDefLoader.cs" />
+    <Compile Include="Mods\Defs\ProjectileDefHandler.cs" />
     <Compile Include="Mods\Defs\NpcDefHandler.cs" />
     <Compile Include="Mods\Defs\ItemDefHandler.cs" />
     <Compile Include="Mods\Hooks\Attributes.cs" />
@@ -126,7 +132,7 @@
     <Compile Include="Mods\ModData.cs" />
     <Compile Include="Mods\ModLoader.cs" />
     <Compile Include="Mods\ModReference.cs" />
-    <Compile Include="API\RecipeHelper.cs" />
+    <Compile Include="API\Recipes.cs" />
     <Compile Include="Mods\Resources\IResourceReader.cs" />
     <Compile Include="Mods\Resources\ResourceLoader.cs" />
     <Compile Include="Mods\Resources\ResourceReaders.cs" />

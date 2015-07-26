@@ -17,13 +17,17 @@ namespace Prism.ExampleMod
 {
     public class Mod : ModDef
     {
-        bool
-            hasPizza        = false,
-            hasAnt          = false,
-            hasPizzant      = false,
-            hasPizzantzioli = false;
-
         bool spawnedPizzaNPC = false;
+
+        protected override Dictionary<string, ProjectileDef> GetProjectileDefs()
+        {
+            return new Dictionary<string, ProjectileDef>
+            {
+                { "PizzaProjectile", new ProjectileDef(
+
+                ) }
+            };
+        }
 
         protected override Dictionary<string, ItemDef> GetItemDefs()
         {
@@ -56,11 +60,11 @@ namespace Prism.ExampleMod
                 /* Ant done with pure code method
                 { "Ant", new ItemDef("Ant", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Ant.png"),
                     description: new ItemDescription("By ants, for ants.", "'B-but...ants aren't this big!'", false, true),
-                    damageType: ItemDamageType.Melee,
+                    damageType: DamageType.Melee,
                     autoReuse: true,
-                    useTime: 12,
-                    reuseDelay: 0,
-                    useAnimation: 20,
+                    useTime: 6,
+                    reuseDelay: 6,
+                    useAnimation: 6,
                     maxStack: 1,
                     rare: ItemRarity.LightPurple,
                     useSound: 1,
@@ -77,11 +81,11 @@ namespace Prism.ExampleMod
                 */
                 { "Pizzant", new ItemDef("Pizzant", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizzant.png"),
                     description: new ItemDescription("The chaotic forces of italian spices and insects and bread.", "", false, true),
-                    damageType: ItemDamageType.Melee,
+                    damageType: DamageType.Melee,
                     autoReuse: true,
-                    useTime: 15,
+                    useTime: 12,
                     reuseDelay: 0,
-                    useAnimation: 20,
+                    useAnimation: 8,
                     maxStack: 1,
                     rare: ItemRarity.Yellow,
                     useSound: 1,
@@ -89,15 +93,15 @@ namespace Prism.ExampleMod
                     knockback: 4f,
                     width: 30,
                     height: 30,
-                    useTurn: true,
+                    useTurn: false,
                     useStyle: ItemUseStyle.Stab,
                     holdStyle: ItemHoldStyle.Default,
                     value: new CoinValue(1, 34, 1, 67),
                     scale: 1.1f
                     ) },
                 { "Pizzantzioli", new ItemDef("Pizzantzioli", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizzantzioli.png"),
-                    description: new ItemDescription("The forces of ants and pizza come together as one.", "The name is Italian for 'KICKING ASS'! YEAH!", false, true),
-                    damageType: ItemDamageType.Melee,
+                    description: new ItemDescription("The forces of ants and pizza come together as one.", "The name is Italian for 'KICKING ASS'! YEAH! BROFIST!", false, true),
+                    damageType: DamageType.Melee,
                     autoReuse: true,
                     useTime: 20,
                     reuseDelay: 0,
@@ -109,7 +113,7 @@ namespace Prism.ExampleMod
                     knockback: 10f,
                     width: 30,
                     height: 30,
-                    useTurn: true,
+                    useTurn: false,
                     useStyle: ItemUseStyle.Swing,
                     holdStyle: ItemHoldStyle.Default,
                     value: new CoinValue(2, 51, 3, 9),
@@ -123,22 +127,46 @@ namespace Prism.ExampleMod
             {
 
                 { "PizzaNPC", new NpcDef("Pizza NPC", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizza.png"),
-                    damage: 50,
+                    lifeMax: 10000,
+                    frameCount: 1,
+                    townCritter: true,
+                    damage: 0,
                     width: 128,
                     height: 128,
-                    alpha: 0,
+                    alpha: 255,
                     scale: 1.0f,
                     noTileCollide: true,
                     color: Color.White,
-                    value: new NpcValue(new CoinValue(0, 0, 0, 1)),
-                    aiStyle: NpcAiStyle.FlyingHead
+                    value: new NpcValue((CoinValue)0),
+                    aiStyle: NpcAiStyle.Plantera
                     ) }
             };
         }
 
         public override void OnLoad()
         {
-            RecipeHelper.CreateRecipe(ItemID.Wood, ItemDef.ByName["Pizza", Info.InternalName], 1, 1);
+            Recipes.Create(new Dictionary<int, int>
+            {
+                { ItemID.Gel, 30 }
+            },
+            ItemDef.ByName["Pizza", Info.InternalName], 8);
+
+            Recipes.Create(new Dictionary<int, int> {
+                { ItemDef.ByName["Pizza", Info.InternalName].Type, 1 },
+                { ItemID.Gel, 20 }
+            }, ItemDef.ByName["Ant", Info.InternalName]);
+
+            Recipes.Create(new Dictionary<int, int> {
+                { ItemDef.ByName["Pizza", Info.InternalName].Type, 1 },
+                { ItemDef.ByName["Ant", Info.InternalName].Type, 1 },
+                { ItemID.Gel, 4 }
+            }, ItemDef.ByName["Pizzant", Info.InternalName]);
+
+            Recipes.Create(new Dictionary<int, int> {
+                { ItemDef.ByName["Pizza", Info.InternalName].Type, 3 },
+                { ItemDef.ByName["Pizzant", Info.InternalName].Type, 1 },
+                { ItemID.Gel, 4 }
+            }, ItemDef.ByName["Pizzantzioli", Info.InternalName]);
         }
 
         public override void PostUpdate()
@@ -148,56 +176,25 @@ namespace Prism.ExampleMod
 
             var p = Main.player[Main.myPlayer];
 
-            #region invedit custom items
-            if (Main.keyState.IsKeyDown(Keys.Y) && !(hasPizza && hasAnt && hasPizzant && hasPizzantzioli))
-            {
-                var inv = p.inventory;
 
-                for (int i = 0; i < inv.Length; i++)
-                {
-                    if (inv[i].type == 0)
-                    {
-                        if (!hasPizza)
-                        {
-                            inv[i].SetDefaults(ItemDef.ByName["Pizza", Info.InternalName].Type);
-                            hasPizza = true;
-                            inv[i].stack = inv[i].maxStack;
-                            continue;
-                        }
-                        else if (!hasAnt)
-                        {
-                            inv[i].SetDefaults(ItemDef.ByName["Ant", Info.InternalName].Type);
-                            hasAnt = true;
-                            inv[i].stack = inv[i].maxStack;
-                            continue;
-                        }
-                        else if (!hasPizzant)
-                        {
-                            inv[i].SetDefaults(ItemDef.ByName["Pizzant", Info.InternalName].Type);
-                            hasPizzant = true;
-                            inv[i].stack = inv[i].maxStack;
-                            continue;
-                        }
-                        else if (!hasPizzantzioli)
-                        {
-                            inv[i].SetDefaults(ItemDef.ByName["Pizzantzioli", Info.InternalName].Type);
-                            hasPizzantzioli = true;
-                            inv[i].stack = inv[i].maxStack;
-                            continue;
-                        }
-                    }
-                }
+            #region CHEATERRRRRRRRRR
+            if (Main.keyState.IsKeyDown(Keys.G))
+            {
+                Point me = Main.player[Main.myPlayer].Center.ToPoint();
+                Item.NewItem(me.X, me.Y, 1, 1, ItemID.Gel, 1, false, 0, true, false);
             }
             #endregion
 
+
             #region spawn custom npcs
-            if (Main.keyState.IsKeyDown(Keys.U) && !spawnedPizzaNPC)
+                if (Main.keyState.IsKeyDown(Keys.U) && !spawnedPizzaNPC)
             {
                 NPC.NewNPC((int)p.Center.X, (int)p.Center.Y - 75, NpcDef.ByName["PizzaNPC", Info.InternalName].Type);
 
                 spawnedPizzaNPC = true;
             }
             #endregion
+
         }
     }
 }

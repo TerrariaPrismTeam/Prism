@@ -6,6 +6,19 @@ using System.Linq;
 namespace Prism.API.Defs
 {
     /// <summary>
+    /// Damage types for items/projectiles.
+    /// </summary>
+    public enum DamageType
+    {
+        None,
+        Melee,
+        Ranged,
+        Magic,
+        Minion,
+        Thrown
+    }
+
+    /// <summary>
     /// Utility for Item.value stuff.
     /// </summary>
     public struct CoinValue : IEquatable<CoinValue>, IEquatable<int>, IConvertible

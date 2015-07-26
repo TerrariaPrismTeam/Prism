@@ -107,7 +107,7 @@ namespace Prism.Mods.Defs
         }
 
         /// <summary>
-        /// Adds all the original vanilla items.
+        /// Adds all the original vanilla NPCs.
         /// </summary>
         internal static void FillVanilla()
         {

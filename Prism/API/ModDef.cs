@@ -49,7 +49,16 @@ namespace Prism.API
         /// Gets the mod's NPC definitions.
         /// </summary>
         /// <remarks>The key of the dictionary is the NPC's internal name (without mod internal name).</remarks>
-        public Dictionary<string, NpcDef > NpcDefs
+        public Dictionary<string, NpcDef> NpcDefs
+        {
+            get;
+            internal set;
+        }
+        /// <summary>
+        /// Gets the mod's projectile definitions.
+        /// </summary>
+        /// <remarks>The key of the dictionary is the projectile's internal name (without mod internal name).</remarks>
+        public Dictionary<string, ProjectileDef> ProjectileDefs
         {
             get;
             internal set;
@@ -99,7 +108,15 @@ namespace Prism.API
         /// A dictionary containing all NPC definitions.
         /// The key of each key/value pair is the internal name of the NPC.
         /// </returns>
-        protected abstract Dictionary<string, NpcDef > GetNpcDefs ();
+        protected abstract Dictionary<string, NpcDef> GetNpcDefs();
+        /// <summary>
+        /// Gets all projectile definitions created by the mod.
+        /// </summary>
+        /// <returns>
+        /// A dictionary containing all projectile definitions.
+        /// The key of each key/value pair is the internal name of the projectile.
+        /// </returns>
+        protected abstract Dictionary<string, ProjectileDef> GetProjectileDefs();
 
         /// <summary>
         /// Contains resources loaded by the mod.
@@ -132,7 +149,7 @@ namespace Prism.API
         }
 
         /// <summary>
-        /// Gets the item defs quite by calling the protected version of <see cref="GetItemDefs"/>.
+        /// Gets the item defs by calling the protected version of <see cref="GetItemDefs"/>.
         /// </summary>
         /// <returns><see cref="GetItemDefs"/></returns>
         internal Dictionary<string, ItemDef> GetItemDefsInternally()
@@ -140,12 +157,20 @@ namespace Prism.API
             return GetItemDefs();
         }
         /// <summary>
-        /// Gets the item defs quite by calling the protected version of <see cref="GetNpcDefs"/>.
+        /// Gets the NPC defs by calling the protected version of <see cref="GetNpcDefs"/>.
         /// </summary>
-        /// <returns><see cref="GetItemDefs"/></returns>
-        internal Dictionary<string, NpcDef > GetNpcDefsInternally ()
+        /// <returns><see cref="GetNpcDefs"/></returns>
+        internal Dictionary<string, NpcDef> GetNpcDefsInternally()
         {
             return GetNpcDefs();
+        }
+        /// <summary>
+        /// Gets the projectile defs by calling the protected version of <see cref="GetProjectileDefs"/>.
+        /// </summary>
+        /// <returns><see cref="GetProjectileDefs"/></returns>
+        internal Dictionary<string, ProjectileDef> GetProjectileDefsInternally()
+        {
+            return GetProjectileDefs();
         }
     }
 }

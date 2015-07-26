@@ -5,16 +5,7 @@ using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Prism.API.Defs
-{
-    public enum ItemDamageType
-    {
-        None,
-        Melee,
-        Ranged,
-        Magic,
-        Summon,
-        Thrown
-    }
+{    
     public enum ItemUseStyle
     {
         None,

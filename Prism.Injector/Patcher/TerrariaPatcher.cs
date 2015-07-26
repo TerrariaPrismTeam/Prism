@@ -70,8 +70,9 @@ namespace Prism.Injector.Patcher
             //AddInternalsVisibleToAttr();
             //FixNewtonsoftJsonReferenceVersion();
 
-            ItemPatcher.Patch();
-            NpcPatcher .Patch();
+            ItemPatcher      .Patch();
+            NpcPatcher       .Patch();
+            ProjectilePatcher.Patch();
             // do other stuff here
 
             // Newtonsoft.Json.dll, Steamworks.NET.dll and Ionic.Zip.CF.dll are required to write the assembly (and FNA and WindowsBase on mono, too)
