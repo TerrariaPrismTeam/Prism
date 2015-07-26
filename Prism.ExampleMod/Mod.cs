@@ -9,6 +9,7 @@ using Prism.API;
 using Prism.API.Defs;
 using Terraria;
 using Terraria.ID;
+using Prism.Mods;
 using LitJson;
 
 
@@ -22,7 +23,7 @@ namespace Prism.ExampleMod
             hasPizzant      = false,
             hasPizzantzioli = false;
 
-        bool spawnedPizzantzioli = false;
+        bool spawnedPizzaNPC = false;
 
         protected override Dictionary<string, ItemDef> GetItemDefs()
         {
@@ -121,7 +122,7 @@ namespace Prism.ExampleMod
             return new Dictionary<string, NpcDef>
             {
 
-                { "Pizzantzioli", new NpcDef("Pizza NPC", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizzantzioli.png"),
+                { "PizzaNPC", new NpcDef("Pizza NPC", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizza.png"),
                     damage: 50,
                     width: 128,
                     height: 128,
@@ -133,6 +134,11 @@ namespace Prism.ExampleMod
                     aiStyle: NpcAiStyle.FlyingHead
                     ) }
             };
+        }
+
+        public override void OnLoad()
+        {
+            RecipeHelper.CreateRecipe(ItemID.Wood, ItemDef.ByName["Pizza", Info.InternalName], 1, 1);
         }
 
         public override void PostUpdate()
@@ -185,11 +191,11 @@ namespace Prism.ExampleMod
             #endregion
 
             #region spawn custom npcs
-            if (Main.keyState.IsKeyDown(Keys.U) && !spawnedPizzantzioli)
+            if (Main.keyState.IsKeyDown(Keys.U) && !spawnedPizzaNPC)
             {
-                NPC.NewNPC((int)p.Center.X, (int)p.Center.Y - 75, NpcDef.ByName["Pizzantzioli", Info.InternalName].Type);
+                NPC.NewNPC((int)p.Center.X, (int)p.Center.Y - 75, NpcDef.ByName["PizzaNPC", Info.InternalName].Type);
 
-                spawnedPizzantzioli = true;
+                spawnedPizzaNPC = true;
             }
             #endregion
         }

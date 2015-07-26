@@ -5,6 +5,7 @@
 		"vanity": false,
 		"hideAmmo": true
 	},
+	"damageType": "Melee",
 	"autoReuse": true,
     "useTime": 12,
     "reuseDelay": 0,

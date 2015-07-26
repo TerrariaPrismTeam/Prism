@@ -209,10 +209,10 @@ namespace Prism.API.Defs
         /// <param name="extraDesc"><see cref="ItemDescription.ExtraDescription"/></param>
         /// <param name="vanity"><see cref="ItemDescription.ShowVanity"/></param>
         /// <param name="hideAmmo"><see cref="ItemDescription.HideAmmoFlag"/></param>
-        public ItemDescription(string desc, string extraDesc, bool vanity, bool hideAmmo)
+        public ItemDescription(string desc, string extraDesc = null, bool vanity = false, bool hideAmmo = false)
         {
-            Description = desc;
-            ExtraDescription = extraDesc;
+            Description = desc ?? String.Empty;
+            ExtraDescription = extraDesc ?? String.Empty;
             ShowVanity = vanity;
             HideAmmoFlag = hideAmmo;
         }
