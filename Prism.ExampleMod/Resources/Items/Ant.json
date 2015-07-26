@@ -1,12 +1,12 @@
 ﻿{
-	"description": {
-		"tooltip1": "By ants, for ants.",
-		"tooltip2": "'B-but...ants aren't this big!'",
-		"vanity": false,
-		"hideAmmo": true
-	},
-	"damageType": "Melee",
-	"autoReuse": true,
+  "description": {
+    "tooltip1": "By ants, for ants.",
+    "tooltip2": "'B-but...ants aren't this big!'",
+    "vanity": false,
+    "hideAmmo": true
+  },
+  "damageType": "Melee",
+  "autoReuse": true,
   "useTime": 8,
   "reuseDelay": 0,
   "useAnimation": 8,

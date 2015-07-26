@@ -1,9 +1,9 @@
 ﻿{
   "description": {
-	  "tooltip1": "LOTZA SPA-pizza. It's pizza.",
-	  "tooltip2": "'MMmmmmmmm'",
-	  "vanity": false,
-	  "hideAmmo": true
+    "tooltip1": "LOTZA SPA-pizza. It's pizza.",
+    "tooltip2": "'MMmmmmmmm'",
+    "vanity": false,
+    "hideAmmo": true
   },
   "useTime": 15,
   "reuseDelay": 0,
@@ -18,7 +18,7 @@
   "useTurn": true,
   "value": [0, 2, 10, 50],
   "buff": {
-	  "type": 26,
-	  "duration": 108000
+    "type": 26,
+    "duration": 108000
   }
 }
