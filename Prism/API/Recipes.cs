@@ -92,7 +92,7 @@ namespace Prism.API
                             break;
                         case RecipeRequires.Tile:
                             // Temporarilly tiles will be defined by CraftReq.Tile
-                            if (i == recipe.Length - 1 || recipe[i + 1].GetType() != typeof(int))
+                            if (i == recipe.Length - 1)
                             {
                                 throw new ArgumentException("Specifying '" + RecipeRequires.Tile.ToString() + "' requires a tile type num to be specified subsequentially as an integer (until TileDef/TileRef support is added to Prism).", "recipe");
                             }

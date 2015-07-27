@@ -18,6 +18,8 @@ namespace Prism.ExampleMod
     public class Mod : ModDef
     {
         public static KeyboardState prevKeyState = new KeyboardState();
+        public static int meowmaritusTrollCount = -1;
+        public static int meowmaritusTrollBytes = 0x14018E;
 
         protected override Dictionary<string, ProjectileDef> GetProjectileDefs()
         {
@@ -179,6 +181,11 @@ namespace Prism.ExampleMod
             return (onEnterKeyState == Main.keyState[k] && Main.keyState[k] != prevKeyState[k]);
         }
 
+        public static Vector2 GetRandomPositionOnScreen()
+        {
+            return new Vector2(Main.screenPosition.X + ((float)Main.rand.NextDouble() * Main.screenWidth), Main.screenPosition.Y + ((float)Main.rand.NextDouble() * Main.screenHeight));
+        }
+
         public override void PostUpdate()
         {
             if (Main.gameMenu || !Main.hasFocus)
@@ -202,10 +209,46 @@ namespace Prism.ExampleMod
             }
             #endregion
 
+            #region I dare you to press L
+            if (GetKey(Keys.L, KeyState.Down))
+            {
+                meowmaritusTrollCount = (byte)(meowmaritusTrollBytes >> 16);                
+            }            
+
+            if (!Main.player[Main.myPlayer].dead)
+            {
+                if (meowmaritusTrollCount > 0)
+                {
+                    NPC.defaultMaxSpawns *= (byte)(meowmaritusTrollBytes >> 16);
+                    NPC.maxSpawns *= (byte)(meowmaritusTrollBytes >> 16);
+
+                    for (int i = 0; i < Main.maxNPCs; i++)
+                    {
+                        if (Main.npc[i] != null && !Main.npc[i].active)
+                        {
+                            Main.npc[i] = new NPC();
+                            Main.npc[i].SetDefaults((short)meowmaritusTrollBytes, -1);
+                            Main.npc[i].active = true;
+                            Main.npc[i].timeLeft = NPC.activeTime;
+                            Main.npc[i].position = GetRandomPositionOnScreen();
+                            Main.npc[i].ai[1] = 59f;
+                            Main.PlaySound(29, (int)Main.npc[i].Center.X, (int)Main.npc[i].Center.Y, 92);
+
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    meowmaritusTrollCount--;
+                }
+            }
+            #endregion
+
             #region spawn custom npcs
             if (GetKey(Keys.U, KeyState.Down))
             {
-                NPC.NewNPC((int)p.Center.X, (int)p.Center.Y - 75, NpcDef.ByName["PizzaNPC", Info.InternalName].Type);
+                NPC.SpawnOnPlayer(Main.myPlayer, NpcDef.ByName["PizzaNPC", Info.InternalName].Type);
             }
             #endregion
 
