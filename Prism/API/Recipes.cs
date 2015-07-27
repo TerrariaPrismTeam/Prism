@@ -6,7 +6,7 @@ using Terraria;
 
 namespace Prism.API
 {
-    public enum CraftReq
+    public enum RecipeRequires
     {
         Water,
         Lava,
@@ -77,24 +77,24 @@ namespace Prism.API
                     tileNum++;
                 }
                 */
-                else if (type == typeof(CraftReq))
+                else if (type == typeof(RecipeRequires))
                 {
-                    switch ((CraftReq)recipe[i])
+                    switch ((RecipeRequires)recipe[i])
                     {
-                        case CraftReq.Water:
+                        case RecipeRequires.Water:
                             Recipe.newRecipe.needWater = true;
                             break;
-                        case CraftReq.Lava:
+                        case RecipeRequires.Lava:
                             Recipe.newRecipe.needLava = true;
                             break;
-                        case CraftReq.Honey:
+                        case RecipeRequires.Honey:
                             Recipe.newRecipe.needHoney = true;
                             break;
-                        case CraftReq.Tile:
+                        case RecipeRequires.Tile:
                             // Temporarilly tiles will be defined by CraftReq.Tile
                             if (i == recipe.Length - 1 || recipe[i + 1].GetType() != typeof(int))
                             {
-                                throw new ArgumentException("Specifying '" + CraftReq.Tile.ToString() + "' requires a tile type num to be specified subsequentially as an integer (until TileDef/TileRef support is added to Prism).", "recipe");
+                                throw new ArgumentException("Specifying '" + RecipeRequires.Tile.ToString() + "' requires a tile type num to be specified subsequentially as an integer (until TileDef/TileRef support is added to Prism).", "recipe");
                             }
                             else if (tileNum >= Recipe.maxRequirements - 1)
                             {

@@ -160,13 +160,13 @@ namespace Prism.ExampleMod
                 ItemDef.ByName["Pizza", Info.InternalName], 1,
                 ItemDef.ByName["Ant", Info.InternalName], 1,
                 ItemDef.ByType[ItemID.Gel], 4,
-                CraftReq.Tile, TileID.WorkBenches); // You clearly need a workbench to stab pizza with an ant mandible.
+                RecipeRequires.Tile, TileID.WorkBenches); // You clearly need a workbench to stab pizza with an ant mandible.
 
             Recipes.Create(ItemDef.ByName["Pizzantzioli", Info.InternalName], 1,
                 ItemDef.ByName["Pizza", Info.InternalName], 3,
                 ItemDef.ByName["Pizzant", Info.InternalName], 1,
                 ItemDef.ByType[ItemID.Gel], 4,
-                CraftReq.Tile, TileID.Dirt); // Collect ants from your nearest ant hill.
+                RecipeRequires.Tile, TileID.Dirt); // Collect ants from your nearest ant hill.
         }
 
         public static bool GetKey(Keys k)
