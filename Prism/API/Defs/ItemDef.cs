@@ -16,7 +16,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets ItemDefs by their type number.
         /// </summary>
-        public struct ByTypeGetter
+        public struct ByTypeEnumerator
         {
             public ItemDef this[int type]
             {
@@ -29,7 +29,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets ItemDefs by their internal name (and optionally by their mod's internal name).
         /// </summary>
-        public struct ByNameGetter
+        public struct ByNameEnumerator
         {
             public ItemDef this[string itemInternalName, string modInternalName = null]
             {
@@ -46,21 +46,21 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets ItemDefs by their type number.
         /// </summary>
-        public static ByTypeGetter ByType
+        public static ByTypeEnumerator ByType
         {
             get
             {
-                return new ByTypeGetter();
+                return new ByTypeEnumerator();
             }
         }
         /// <summary>
         /// Gets ItemDefs by their internal name (and optionally by their mod's internal name).
         /// </summary>
-        public static ByNameGetter ByName
+        public static ByNameEnumerator ByName
         {
             get
             {
-                return new ByNameGetter();
+                return new ByNameEnumerator();
             }
         }
 

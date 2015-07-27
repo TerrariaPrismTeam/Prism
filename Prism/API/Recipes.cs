@@ -6,16 +6,17 @@ using Terraria;
 
 namespace Prism.API
 {
-    public enum RecipeRequires
+    public enum CraftReq
     {
         Water,
         Lava,
         Honey,
-        Tile // TEMPORARY
+        Tile //Temporary implementation of required tiles until TileDefs are implemented.
     }
-
+       
     public class Recipes
     {
+
         public static int Create(ItemRef result, int amt, params object[] recipe)
         {
             return Create(result.Resolve().Type, amt, recipe);
@@ -34,14 +35,18 @@ namespace Prism.API
             int itemNum = 0;
             int tileNum = 0;
 
-            for (int i=0; i<recipe.Length; i++)
+            for (int i = 0; i < recipe.Length; i++)
             {
                 Type type = recipe[i].GetType();
                 if (type == typeof(ItemRef) || type == typeof(ItemDef))
                 {
-                    if (itemNum >= Recipe.maxRequirements - 1)
+                    if (i == recipe.Length - 1 || recipe[i + 1].GetType() != typeof(int))
                     {
-                        throw new ArgumentException("Attempted to add too many required items to recipe", "recipe");
+                        throw new ArgumentException("Specifying an ingredient ItemDef or ItemRef requires the amount to be specified subsequentially as an integer.", "recipe");
+                    }
+                    else if (itemNum >= Recipe.maxRequirements - 1)
+                    {
+                        throw new ArgumentException("Exceeded the hardcoded maximum number of ingredients while constructing recipe for '" + Recipe.newRecipe.createItem.name + "'.", "recipe");
                     }
 
                     if (type == typeof(ItemRef))
@@ -72,24 +77,28 @@ namespace Prism.API
                     tileNum++;
                 }
                 */
-                else if (type == typeof(RecipeRequires))
+                else if (type == typeof(CraftReq))
                 {
-                    switch ((RecipeRequires)recipe[i])
+                    switch ((CraftReq)recipe[i])
                     {
-                        case RecipeRequires.Water:
+                        case CraftReq.Water:
                             Recipe.newRecipe.needWater = true;
                             break;
-                        case RecipeRequires.Lava:
+                        case CraftReq.Lava:
                             Recipe.newRecipe.needLava = true;
                             break;
-                        case RecipeRequires.Honey:
+                        case CraftReq.Honey:
                             Recipe.newRecipe.needHoney = true;
                             break;
-                        case RecipeRequires.Tile:
-                            // Temporarilly tiles will be defined by RecipeRequires.Tile
-                            if (tileNum >= Recipe.maxRequirements - 1)
+                        case CraftReq.Tile:
+                            // Temporarilly tiles will be defined by CraftReq.Tile
+                            if (i == recipe.Length - 1 || recipe[i + 1].GetType() != typeof(int))
                             {
-                                throw new ArgumentException("Attempted to add too many required tiles to recipe", "recipe");
+                                throw new ArgumentException("Specifying '" + CraftReq.Tile.ToString() + "' requires a tile type num to be specified subsequentially as an integer (until TileDef/TileRef support is added to Prism).", "recipe");
+                            }
+                            else if (tileNum >= Recipe.maxRequirements - 1)
+                            {
+                                throw new ArgumentException("Exceeded the hardcoded maximum number of tile requirements while constructing recipe for '" + Recipe.newRecipe.createItem.name + "'.", "recipe");
                             }
 
                             Recipe.newRecipe.requiredTile[tileNum] = (ushort)recipe[++i];
@@ -100,7 +109,7 @@ namespace Prism.API
                 }
                 else
                 {
-                    throw new ArgumentException("Recipe definition contained invalid data at index " + i + " of type '" + type.ToString() + "'", "recipe");
+                    throw new ArgumentException("Encountered invalid parameter of type '"+ type.ToString() + "' with value '"+ recipe[i].ToString() + "' while constructing recipe for '" + Recipe.newRecipe.createItem.name + "' at index " + i + " of the parameters specified.", "recipe");
                 }
             }
 

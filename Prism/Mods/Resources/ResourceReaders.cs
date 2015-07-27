@@ -5,9 +5,17 @@ using System.Linq;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using LitJson;
 
 namespace Prism.Mods.Resources
 {
+    class JsonDataResourceReader : ResourceReader<JsonData>
+    {
+        protected override JsonData ReadTypedResource(Stream resourceStream)
+        {
+            return JsonMapper.ToObject(new StreamReader(resourceStream));
+        }
+    }
     class Texture2DResourceReader : ResourceReader<Texture2D>
     {
         protected override Texture2D ReadTypedResource(Stream resourceStream)

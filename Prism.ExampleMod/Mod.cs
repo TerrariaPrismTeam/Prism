@@ -17,7 +17,7 @@ namespace Prism.ExampleMod
 {
     public class Mod : ModDef
     {
-        bool spawnedPizzaNPC = false;
+        public static KeyboardState prevKeyState = new KeyboardState();
 
         protected override Dictionary<string, ProjectileDef> GetProjectileDefs()
         {
@@ -34,9 +34,9 @@ namespace Prism.ExampleMod
             return new Dictionary<string, ItemDef>
             {
                 // Pizza done with JSON method using an external resource
-                { "Pizza", new ItemDef("Pizza", JsonMapper.ToObject(GetResource<string>("Resources\\Items\\Pizza.json")),
+                { "Pizza", new ItemDef("Pizza", GetResource<JsonData>("Resources\\Items\\Pizza.json"),
                     getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizza.png")) },
-                /*  Pizza done with pure code method
+                /* Pizza done with pure code method
                 { "Pizza", new ItemDef("Pizza", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizza.png"),
                     description: new ItemDescription("LOTZA SPA-pizza. It's pizza.", "'MMmmmmmmm'", false, true),
                     useTime: 15,
@@ -55,7 +55,7 @@ namespace Prism.ExampleMod
                     ) },
                 */
                 // Ant done with JSON method using an embedded resource
-                { "Ant", new ItemDef("Ant", JsonMapper.ToObject(new StreamReader(Assembly.GetManifestResourceStream("Prism.ExampleMod.Resources.Items.Ant.json"))),
+                { "Ant", new ItemDef("Ant", GetResource<JsonData>("Resources\\Items\\Ant.json"),
                     getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Ant.png")) },
                 /* Ant done with pure code method
                 { "Ant", new ItemDef("Ant", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Ant.png"),
@@ -98,27 +98,29 @@ namespace Prism.ExampleMod
                     holdStyle: ItemHoldStyle.Default,
                     value: new CoinValue(1, 34, 1, 67),
                     scale: 1.1f
-                    ) },
-                { "Pizzantzioli", new ItemDef("Pizzantzioli", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizzantzioli.png"),
-                    description: new ItemDescription("The forces of ants and pizza come together as one.", "The name is Italian for 'KICKING ASS'! YEAH! BROFIST!", false, true),
-                    damageType: DamageType.Melee,
-                    autoReuse: true,
-                    useTime: 20,
-                    reuseDelay: 0,
-                    useAnimation: 16,
-                    maxStack: 1,
-                    rare: ItemRarity.Cyan,
-                    useSound: 1,
-                    damage: 150,
-                    knockback: 10f,
-                    width: 30,
-                    height: 30,
-                    useTurn: false,
-                    useStyle: ItemUseStyle.Swing,
-                    holdStyle: ItemHoldStyle.Default,
-                    value: new CoinValue(2, 51, 3, 9),
-                    scale: 1.1f
-                    ) }
+                ) },
+                //The *not fucking terrible* way to make a new item def in code (you can actually see the XmlDoc's of the fields this way and also it's not ugly camel-case):
+                { "Pizzantzioli", new ItemDef("Pizzantzioli") {
+                    Description = new ItemDescription("The forces of ants and pizza come together as one.", "The name is Italian for 'KICKING ASS'! YEAH! BROFISSSSST!!1!", false, true),
+                    GetTexture = () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizzantzioli.png"),
+                    DamageType = DamageType.Melee,
+                    AutoReuse = true,
+                    UseTime = 20,
+                    ReuseDelay = 0,
+                    UseAnimation = 16,
+                    MaxStack = 1,
+                    Rarity = ItemRarity.Cyan,
+                    UseSound = 1,
+                    Damage = 150,
+                    Knockback = 10f,
+                    Width = 30,
+                    Height = 30,
+                    TurnPlayerOnUse = false,
+                    UseStyle = ItemUseStyle.Swing,
+                    HoldStyle = ItemHoldStyle.Default,
+                    Value = new CoinValue(2, 51, 3, 9),
+                    Scale = 1.1f
+                } }
             };
         }
         protected override Dictionary<string, NpcDef > GetNpcDefs ()
@@ -129,16 +131,16 @@ namespace Prism.ExampleMod
                 { "PizzaNPC", new NpcDef("Pizza NPC", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizza.png"),
                     lifeMax: 10000,
                     frameCount: 1,
-                    townCritter: true,
-                    damage: 0,
+                    damage: 1,
                     width: 128,
                     height: 128,
-                    alpha: 255,
+                    alpha: 0,
                     scale: 1.0f,
                     noTileCollide: true,
                     color: Color.White,
                     value: new NpcValue((CoinValue)0),
-                    aiStyle: NpcAiStyle.Plantera
+                    aiStyle: NpcAiStyle.Plantera,
+                    alwaysDraw: true
                     ) }
             };
         }
@@ -158,13 +160,23 @@ namespace Prism.ExampleMod
                 ItemDef.ByName["Pizza", Info.InternalName], 1,
                 ItemDef.ByName["Ant", Info.InternalName], 1,
                 ItemDef.ByType[ItemID.Gel], 4,
-                RecipeRequires.Tile, TileID.WorkBenches); // You clearly need a workbench to stab pizza with an ant mandible.
+                CraftReq.Tile, TileID.WorkBenches); // You clearly need a workbench to stab pizza with an ant mandible.
 
             Recipes.Create(ItemDef.ByName["Pizzantzioli", Info.InternalName], 1,
                 ItemDef.ByName["Pizza", Info.InternalName], 3,
                 ItemDef.ByName["Pizzant", Info.InternalName], 1,
                 ItemDef.ByType[ItemID.Gel], 4,
-                RecipeRequires.Tile, TileID.Dirt); // Collect ants from your nearest ant hill.
+                CraftReq.Tile, TileID.Dirt); // Collect ants from your nearest ant hill.
+        }
+
+        public static bool GetKey(Keys k)
+        {
+            return Main.keyState.IsKeyDown(k);
+        }
+
+        public static bool GetKey(Keys k, KeyState onEnterKeyState)
+        {
+            return (onEnterKeyState == Main.keyState[k] && Main.keyState[k] != prevKeyState[k]);
         }
 
         public override void PostUpdate()
@@ -175,23 +187,29 @@ namespace Prism.ExampleMod
             var p = Main.player[Main.myPlayer];
 
             #region CHEATERRRRRRRRRR
-            if (Main.keyState.IsKeyDown(Keys.G))
+            if (GetKey(Keys.G))
             {
                 Point me = Main.player[Main.myPlayer].Center.ToPoint();
-                Item.NewItem(me.X, me.Y, 1, 1, ItemID.Gel, 1, false, 0, true, false);
+                Item.NewItem(me.X, me.Y, 1, 1, ItemID.Gel, 10, false, 0, true, false);
             }
             #endregion
 
+            #region imma tell on u O.o
+            if (GetKey(Keys.I, KeyState.Down))
+            {
+                Point me = Main.player[Main.myPlayer].Center.ToPoint();
+                Item.NewItem(me.X, me.Y, 1, 1, ItemID.Gel, 10, false, 0, true, false);
+            }
+            #endregion
 
             #region spawn custom npcs
-                if (Main.keyState.IsKeyDown(Keys.U) && !spawnedPizzaNPC)
+            if (GetKey(Keys.U, KeyState.Down))
             {
                 NPC.NewNPC((int)p.Center.X, (int)p.Center.Y - 75, NpcDef.ByName["PizzaNPC", Info.InternalName].Type);
-
-                spawnedPizzaNPC = true;
             }
             #endregion
 
+            prevKeyState = Main.keyState;
         }
     }
 }

@@ -14,13 +14,14 @@ namespace Prism.API.Defs
         where TBehaviour : EntityBehaviour<TEntity>
     {
         /// <summary>
-        /// Gets the internal name used to reference this entity from any mod in Prism which uses it.
+        /// Gets the internal name used to reference this entity from within any Prism mod.
         /// </summary>
         public string InternalName
         {
             get;
             internal set;
         }
+
         /// <summary>
         /// Gets Information about the mod to which this entity belongs.
         /// </summary>
@@ -29,8 +30,9 @@ namespace Prism.API.Defs
             get;
             internal set;
         }
+
         /// <summary>
-        /// Gets the type of entity [need to elaborate on this...]
+        /// Gets the internal type index of this entity.
         /// </summary>
         public int Type
         {
@@ -39,7 +41,11 @@ namespace Prism.API.Defs
         }
 
         /// <summary>
-        /// Gets or sets the name of the entity which will show up in-game (e.g. on item in inventory, on NPC mouse hover, etc).
+        /// Gets or sets the name of the entity which will show up in-game. <line>
+        /// aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</line>
+        /// <para></para>
+        /// E.g.: An item's name in inventory, an NPC's name displayed on mouse hover, an NPC's name displayed in player death messages, etc.
+        /// Note: Although there exists one way to see a Projectile's name (in player death messages), they don't have a display name property in the vanilla game
         /// </summary>
         public virtual string DisplayName
         {

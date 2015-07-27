@@ -15,7 +15,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets NpcDefs by their type number.
         /// </summary>
-        public struct ByTypeGetter
+        public struct ByTypeEnumerator
         {
             public NpcDef this[int type]
             {
@@ -28,7 +28,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets NpcDefs by their internal name (and optionally by their mod's internal name).
         /// </summary>
-        public struct ByNameGetter
+        public struct ByNameEnumerator
         {
             public NpcDef this[string npcInternalName, string modInternalName = null]
             {
@@ -45,21 +45,21 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets NpcDefs by their type number.
         /// </summary>
-        public static ByTypeGetter ByType
+        public static ByTypeEnumerator ByType
         {
             get
             {
-                return new ByTypeGetter();
+                return new ByTypeEnumerator();
             }
         }
         /// <summary>
         /// Gets NpcDefs by their internal name (and optionally by their mod's internal name).
         /// </summary>
-        public static ByNameGetter ByName
+        public static ByNameEnumerator ByName
         {
             get
             {
-                return new ByNameGetter();
+                return new ByNameEnumerator();
             }
         }
 
@@ -83,7 +83,7 @@ namespace Prism.API.Defs
         internal int BossHeadTextureIndex;
 
         /// <summary>
-        /// Gets or sets the damage this NPC inflicts.
+        /// Gets or sets the amount of damage this NPC inflicts.
         /// </summary>
         /// <remarks>NPC.damage</remarks>
         public virtual int Damage
@@ -296,7 +296,7 @@ namespace Prism.API.Defs
             set;
         }
         /// <summary>
-        /// Gets or sets whether or not this NPC gets a damage boost in Expert mode.
+        /// Gets or sets whether or not this NPC gets a stat boost in Expert mode.
         /// </summary>
         /// <remarks>NPCID.Sets.NeedsExpertScaling[Type]</remarks>
         public virtual bool NeedsExpertScaling
@@ -323,7 +323,7 @@ namespace Prism.API.Defs
             set;
         }
         /// <summary>
-        /// Gets or sets whether this NPCs spawning is saved and loaded with the world file (Used for Celestial Towers).
+        /// Gets or sets whether this NPCs state is saved and loaded with the world file (Used for Celestial Towers).
         /// </summary>
         /// <remarks>NPCID.Sets.SavesAndLoads[Type]</remarks>
         public virtual bool SavesAndLoads
@@ -341,7 +341,7 @@ namespace Prism.API.Defs
             set;
         }
         /// <summary>
-        /// Gets or sets whether this NPC technically counts as a boss (either probably to display on the map or to play boss music, or something like that).
+        /// Gets or sets whether this NPC technically counts as a boss (probably either to display on the map, to play boss music, to show "x has awakened!" message, or something like that...).
         /// </summary>
         /// <remarks>NPCID.Sets.TechnicallyABoss[Type]</remarks>
         public virtual bool IsTechnicallyABoss
@@ -432,7 +432,7 @@ namespace Prism.API.Defs
         }
 
         /// <summary>
-        /// Gets or sets the NPC's texture.
+        /// Gets or sets the NPC's texture function.
         /// </summary>
         public virtual Func<Texture2D> GetTexture
         {
