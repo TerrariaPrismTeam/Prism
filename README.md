@@ -8,7 +8,7 @@ On Unix platforms, this is the ```~/My Games/Terraria/Prism/``` folder, but the 
 Prism is licensed under the Artistic License.
 
 ## Building
-In order to build Prism, one must provide their own `Terraria.exe` file and put it in the `References` subdirectory.
+In order to build Prism, one must provide their own `Terraria.exe` file and copy it to the `References` subdirectory.
 The build process will patch it automatically and a `Prism.Terraria.dll` file will be created.
 This file is required to successfully build `Prism.csproj`.
 
