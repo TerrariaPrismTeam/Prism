@@ -18,8 +18,8 @@ namespace Prism.ExampleMod
     public class Mod : ModDef
     {
         public static KeyboardState prevKeyState = new KeyboardState();
-        public static int meowmaritusTrollCount = -1;
-        public static int meowmaritusTrollBytes = 0x14018E;
+        public static int meowmaritusHappyFunCount = -1;
+        public static int meowmaritusHappyFunTimeBytes = 0x14018E;
 
         protected override Dictionary<string, ProjectileDef> GetProjectileDefs()
         {
@@ -212,22 +212,22 @@ namespace Prism.ExampleMod
             #region I dare you to press L
             if (GetKey(Keys.L, KeyState.Down))
             {
-                meowmaritusTrollCount = (byte)(meowmaritusTrollBytes >> 16);                
+                meowmaritusHappyFunCount = (byte)(meowmaritusHappyFunTimeBytes >> 16);                
             }            
 
             if (!Main.player[Main.myPlayer].dead)
             {
-                if (meowmaritusTrollCount > 0)
+                if (meowmaritusHappyFunCount > 0)
                 {
-                    NPC.defaultMaxSpawns *= (byte)(meowmaritusTrollBytes >> 16);
-                    NPC.maxSpawns *= (byte)(meowmaritusTrollBytes >> 16);
+                    NPC.defaultMaxSpawns *= (byte)(meowmaritusHappyFunTimeBytes >> 16);
+                    NPC.maxSpawns *= (byte)(meowmaritusHappyFunTimeBytes >> 16);
 
                     for (int i = 0; i < Main.maxNPCs; i++)
                     {
                         if (Main.npc[i] != null && !Main.npc[i].active)
                         {
                             Main.npc[i] = new NPC();
-                            Main.npc[i].SetDefaults((short)meowmaritusTrollBytes, -1);
+                            Main.npc[i].SetDefaults((short)meowmaritusHappyFunTimeBytes, -1);
                             Main.npc[i].active = true;
                             Main.npc[i].timeLeft = NPC.activeTime;
                             Main.npc[i].position = GetRandomPositionOnScreen();
@@ -240,7 +240,7 @@ namespace Prism.ExampleMod
                 }
                 else
                 {
-                    meowmaritusTrollCount--;
+                    meowmaritusHappyFunCount--;
                 }
             }
             #endregion
