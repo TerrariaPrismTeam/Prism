@@ -118,6 +118,14 @@ namespace Prism.API
         /// </returns>
         protected abstract Dictionary<string, ProjectileDef> GetProjectileDefs();
 
+        T GetResourceInternal<T>(Func<Stream> getStream)
+        {
+            if (ResourceLoader.ResourceReaders.ContainsKey(typeof(T)))
+                return (T)ResourceLoader.ResourceReaders[typeof(T)].ReadResource(getStream());
+
+            throw new InvalidOperationException("No resource reader found for type " + typeof(T) + ".");
+        }
+
         /// <summary>
         /// Contains resources loaded by the mod.
         /// </summary>
@@ -131,10 +139,23 @@ namespace Prism.API
             if (!resources.ContainsKey(path))
                 throw new FileNotFoundException("Resource '" + path + "' not found.");
 
-            if (ResourceLoader.ResourceReaders.ContainsKey(typeof(T)))
-                return (T)ResourceLoader.ResourceReaders[typeof(T)].ReadResource(resources[path]);
+            return GetResourceInternal<T>(() => resources[path]);
+        }
+        /// <summary>
+        /// Contains resources embedded in the mod's assembly.
+        /// </summary>
+        /// <typeparam name="T">The type of resource.</typeparam>
+        /// <param name="path">The path to the resource.</param>
+        /// <param name="containing">The assembly that contains the embedded resource. Leave it to null for the calling assembly.</param>
+        /// <returns>The resource</returns>
+        public T GetEmbeddedResource<T>(string path, Assembly containing = null)
+        {
+            var c = containing ?? Assembly.GetCallingAssembly();
 
-            throw new InvalidOperationException("No resource reader found for type " + typeof(T) + ".");
+            if (Array.IndexOf(c.GetManifestResourceNames(), path) == -1)
+                throw new FileNotFoundException("Embedded resource '" + path + "' not found.");
+
+            return GetResourceInternal<T>(() => c.GetManifestResourceStream(path));
         }
 
         /// <summary>

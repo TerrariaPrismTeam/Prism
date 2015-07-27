@@ -33,8 +33,8 @@ namespace Prism.Mods.Resources
         {
             RegisterReader(new Texture2DResourceReader  ());
             RegisterReader(new SoundEffectResourceReader());
-            RegisterReader(new StringResourceReader());
-            RegisterReader(new JsonDataResourceReader());
+            RegisterReader(new StringResourceReader     ());
+            RegisterReader(new JsonDataResourceReader   ());
         }
         internal static IEnumerable<LoaderError> Load(ModDef mod)
         {

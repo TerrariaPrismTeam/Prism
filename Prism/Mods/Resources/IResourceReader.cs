@@ -34,7 +34,7 @@ namespace Prism.Mods.Resources
             }
         }
 
-        public object ReadResource(Stream resourceStream)
+        public object ReadResource        (Stream  resourceStream)
         {
             var origPos = resourceStream.Position;
 
@@ -47,8 +47,7 @@ namespace Prism.Mods.Resources
             return r;
         }
 
-        protected abstract T ReadTypedResource(Stream resourceStream);
-
+        protected abstract T ReadTypedResource        (Stream  resourceStream);
 
         protected virtual void Dispose(bool disposing)
         {
@@ -75,5 +74,6 @@ namespace Prism.Mods.Resources
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
     }
 }
