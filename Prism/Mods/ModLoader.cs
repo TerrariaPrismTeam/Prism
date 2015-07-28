@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -9,7 +8,6 @@ using Prism.API;
 using Prism.Mods.Defs;
 using Prism.Mods.Hooks;
 using Prism.Mods.Resources;
-using Prism.Util;
 using System.Windows.Forms;
 
 namespace Prism.Mods
@@ -19,6 +17,8 @@ namespace Prism.Mods
     /// </summary>
     static class ModLoader
     {
+        internal static string DebugModDir = null;
+
         internal static List<LoaderError> errors = new List<LoaderError>();
         static List<string> circRefList = new List<string>();
 
@@ -132,7 +132,7 @@ namespace Prism.Mods
         internal static ModDef LoadMod(string path)
         {
             var info_n = ModInfoFromModPath(path);
-            if (!info_n.HasValue)
+            if (!info_n.HasValue) // does not exist (or is a debugged mod)
                 return null;
 
             var info = info_n.Value;
@@ -183,7 +183,12 @@ namespace Prism.Mods
 
             ResourceLoader.Setup();
 
-            foreach (string s in Directory.EnumerateDirectories(PrismApi.ModDirectory))
+            var dirs = Directory.EnumerateDirectories(PrismApi.ModDirectory);
+
+            // The mod .dll in the DebugModDir should be one in the output directory of the Visual Studio mod project.
+            // Because the VS debugger knows which .dll it should use (and has a .pdb file), Edit & Continue and other
+            // hackery should be automatically activated.
+            foreach (string s in DebugModDir == null ? dirs : new[] { DebugModDir }.Concat(dirs))
             {
                 var d = LoadMod(s);
 

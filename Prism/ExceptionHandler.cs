@@ -14,7 +14,7 @@ namespace Prism
         /// </summary>
         public static bool DetailedExceptions = false;
 
-        static int GetHResult(Exception e)
+        internal static int GetHResult(Exception e)
         {
             try
             {
@@ -63,15 +63,19 @@ namespace Prism
                 MessageBox.Show("An exception has occured:\n" + e, e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        public static void HandleFatal(Exception e, bool exitImmediately = true)
+        public static int HandleFatal(Exception e, bool exitImmediately = true)
         {
             if (Debugger.IsAttached)
                 throw new RethrownException(e); // signal to the debugger instead of displaying the error message, for convenience
 
             MessageBox.Show("A fatal error occured:\n" + e, e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
+            var hr = GetHResult(e);
+
             if (exitImmediately)
-                Environment.Exit(GetHResult(e));
+                Environment.Exit(hr);
+
+            return hr;
         }
     }
 }

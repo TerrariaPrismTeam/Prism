@@ -142,6 +142,7 @@
     <Compile Include="RethrownException.cs" />
     <Compile Include="TerrariaLauncher.cs" />
     <Compile Include="TMain.cs" />
+    <Compile Include="Util\CommandLineArgs.cs" />
     <Compile Include="Util\IndexGetter.cs" />
     <Compile Include="Util\LinqExt.cs" />
     <Compile Include="Util\ReadOnlyDictionary.cs" />
