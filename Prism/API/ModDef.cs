@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -59,6 +59,16 @@ namespace Prism.API
         /// </summary>
         /// <remarks>The key of the dictionary is the projectile's internal name (without mod internal name).</remarks>
         public Dictionary<string, ProjectileDef> ProjectileDefs
+        {
+            get;
+            internal set;
+        }
+                
+        /// <summary>
+        /// Gets the mod's tile definitions.
+        /// </summary>
+        /// <remarks>The key of the dictionary is the tile's internal name (without mod internal name).</remarks>
+        public Dictionary<string, TileDef> TileDefs
         {
             get;
             internal set;
