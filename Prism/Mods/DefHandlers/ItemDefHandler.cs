@@ -54,14 +54,12 @@ namespace Prism.Mods.DefHandlers
                         if (b != null)
                             h.behaviours.Add(b);
                     }
-
-                    item.BHandler = h;
                 }
             }
             else
                 item.RealSetDefaults(type, noMatCheck);
 
-            //TODO: add global hooks here (and check for null)
+            h.behaviours.AddRange(ModData.mods.Values.Select(m => m.CreateGlobalItemBInternally()).Where(b => b != null));
 
             if (h != null)
             {

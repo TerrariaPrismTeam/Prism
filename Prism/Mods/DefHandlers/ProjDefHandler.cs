@@ -51,14 +51,12 @@ namespace Prism.Mods.DefHandlers
                         if (b != null)
                             h.behaviours.Add(b);
                     }
-
-                    p.BHandler = h;
                 }
             }
             else
                 p.RealSetDefaults(type);
 
-            //TODO: add global hooks here (and check for null)
+            h.behaviours.AddRange(ModData.mods.Values.Select(m => m.CreateGlobalProjBInternally()).Where(b => b != null));
 
             if (h != null)
             {

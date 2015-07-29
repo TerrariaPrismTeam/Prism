@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Prism.Mods;
 using Prism.Mods.Hooks;
@@ -103,6 +104,7 @@ namespace Prism.API
         [Hook]
         public virtual void PostUpdate() { }
 
+        //TODO: move these somewhere else? (it might get crowded with these soon)
         /// <summary>
         /// Gets all item definitions created by the mod.
         /// </summary>
@@ -146,6 +148,19 @@ namespace Prism.API
         protected virtual IEnumerable<RecipeDef> GetRecipeDefs()
         {
             return Empty<RecipeDef>.Array;
+        }
+
+        protected virtual ItemBehaviour       CreateGlobalItemBehaviour      ()
+        {
+            return null;
+        }
+        protected virtual NpcBehaviour        CreateGlobalNpcBehaviour       ()
+        {
+            return null;
+        }
+        protected virtual ProjectileBehaviour CreateGlobalProjectileBehaviour()
+        {
+            return null;
         }
 
         T GetResourceInternal<T>(Func<Stream> getStream)
@@ -251,6 +266,19 @@ namespace Prism.API
         internal IEnumerable<RecipeDef> GetRecipeDefsInternally()
         {
             return GetRecipeDefs();
+        }
+
+        internal virtual ItemBehaviour CreateGlobalItemBInternally      ()
+        {
+            return CreateGlobalItemBehaviour      ();
+        }
+        internal virtual NpcBehaviour CreateGlobalNpcBInternally        ()
+        {
+            return CreateGlobalNpcBehaviour       ();
+        }
+        internal virtual ProjectileBehaviour CreateGlobalProjBInternally()
+        {
+            return CreateGlobalProjectileBehaviour();
         }
     }
 }
