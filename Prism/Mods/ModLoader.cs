@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Windows.Forms;
 using LitJson;
 using Prism.API;
-using Prism.Defs.Handlers;
 using Prism.Mods.Hooks;
 using Prism.Mods.Resources;
-using System.Windows.Forms;
 
 namespace Prism.Mods
 {

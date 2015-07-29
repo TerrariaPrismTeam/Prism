@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.API.Behaviours;
 using Prism.Mods;
-using Prism.Defs.Handlers;
+using Prism.Mods.DefHandlers;
+using Prism.Util;
 using Terraria;
 
 namespace Prism.API.Defs
@@ -21,7 +21,7 @@ namespace Prism.API.Defs
             {
                 get
                 {
-                    return Handler.ProjectileDef.DefsByType[type];
+                    return Handler.ProjDef.DefsByType[type];
                 }
             }
         }
@@ -35,7 +35,7 @@ namespace Prism.API.Defs
                 get
                 {
                     if (String.IsNullOrEmpty(modInternalName) || modInternalName == PrismApi.VanillaString || modInternalName == PrismApi.TerrariaString)
-                        return Handler.ProjectileDef.VanillaDefsByName[projectileInternalName];
+                        return Handler.ProjDef.VanillaDefsByName[projectileInternalName];
 
                     return ModData.ModsFromInternalName[modInternalName].ProjectileDefs[projectileInternalName];
                 }
@@ -106,7 +106,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }                                                 
+        }
         /// <summary>
         /// Gets or sets the scale at which the projectile's sprite is rendered (1.0f = normal scale).
         /// </summary>
@@ -115,7 +115,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }        
+        }
         /// <summary>
         /// Gets or sets the AI style of this projectile.
         /// </summary>
@@ -252,18 +252,17 @@ namespace Prism.API.Defs
             get;
             set;
         }
-        
-        public ProjectileDef() { }
 
         public ProjectileDef(
             #region arguments
+            string displayName,
             Func<ProjectileBehaviour> newBehaviour = null,
             int damage = 0,
             int width = 16,
-            int height = 16,           
-            int alpha = 0,            
+            int height = 16,
+            int alpha = 0,
             int frameCount = 1,
-            float scale = 1f,                        
+            float scale = 1f,
             ProjectileAiStyle aiStyle = ProjectileAiStyle.None,
 
             int trailCacheLength = 0,
@@ -272,19 +271,29 @@ namespace Prism.API.Defs
             #endregion
             )
         {
-            CreateBehaviour = newBehaviour ?? (() => null);
+            DisplayName = displayName;
+            CreateBehaviour = newBehaviour ?? Empty<ProjectileBehaviour>.Func;
 
             Damage = damage;
             Width = width;
             Height = height;
-            Alpha = alpha;                        
+            Alpha = alpha;
             TotalFrameCount = frameCount;
             Scale = scale;
             AiStyle = aiStyle;
 
             TrailCacheLength = trailCacheLength;
 
-            GetTexture         = getTex         ?? (() => null);
+            GetTexture = getTex ?? Empty<Texture2D>.Func;
+        }
+
+        public static implicit operator ProjectileRef(ProjectileDef  def)
+        {
+            return new ProjectileRef(def.InternalName, def.Mod.InternalName);
+        }
+        public static explicit operator ProjectileDef(ProjectileRef @ref)
+        {
+            return @ref.Resolve();
         }
     }
 }

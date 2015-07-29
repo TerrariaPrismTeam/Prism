@@ -7,7 +7,7 @@ using Prism.API.Defs;
 using Prism.Mods;
 using Prism.Mods.Hooks;
 using Prism.Mods.Resources;
-using Prism.API.Behaviours;
+using Prism.Util;
 
 namespace Prism.API
 {
@@ -27,7 +27,6 @@ namespace Prism.API
             get;
             internal set;
         }
-
         /// <summary>
         /// Gets the <see cref="System.Reflection.Assembly"/> that defines this mod.
         /// </summary>
@@ -37,53 +36,20 @@ namespace Prism.API
             internal set;
         }
 
-        internal EntityByTypeIndexer EntityDefDictsByType
-        {
-            get
-            {
-                return new EntityByTypeIndexer(this);
-            }
-        }
-
-        //I'm so sorry for making this :<
-        internal struct EntityByTypeIndexer
-        {
-            public ModDef ParentMod;
-
-            public EntityByTypeIndexer(ModDef mod)
-            {
-                ParentMod = mod;
-            }
-
-            public object this[Type type]
-            {
-                get
-                {
-                    var defs = (type == typeof(ItemDef)       ? (object)ParentMod.ItemDefs
-                             : (type == typeof(NpcDef)        ? (object)ParentMod.NpcDefs
-                             : (type == typeof(ProjectileDef) ? (object)ParentMod.ProjectileDefs
-                             : null)));
-                    if (defs == null)
-                        throw new ArgumentException("Type '" + type.Name + "' is not that of an entity def.", "type");
-                    return defs;
-                }
-            }
-        }
-
         /// <summary>
         /// Gets the mod's item definitions.
         /// </summary>
         /// <remarks>The key of the dictionary is the item's internal name (without mod internal name).</remarks>
-        public Dictionary<string, ItemDef> ItemDefs
+        public Dictionary<string, ItemDef      > ItemDefs
         {
             get;
             internal set;
-        }        
+        }
         /// <summary>
         /// Gets the mod's NPC definitions.
         /// </summary>
         /// <remarks>The key of the dictionary is the NPC's internal name (without mod internal name).</remarks>
-        public Dictionary<string, NpcDef> NpcDefs
+        public Dictionary<string, NpcDef       > NpcDefs
         {
             get;
             internal set;
@@ -99,6 +65,15 @@ namespace Prism.API
         }
 
         /// <summary>
+        /// Gets the mod's recipe definitions.
+        /// </summary>
+        public IEnumerable<RecipeDef> RecipeDefs
+        {
+            get;
+            internal set;
+        }
+
+        /// <summary>
         /// WARNING: Do not place anything in the ModDef constructor, because the mod is not completely loaded yet (eg. Assembly is null).
         /// Use OnLoad to initialize fields, etc. instead.
         /// </summary>
@@ -107,6 +82,7 @@ namespace Prism.API
         /// <summary>
         /// Called as soon as the mod is loaded.
         /// </summary>
+        //! do not mark as a hook, because this method is called before hooks are created.
         public virtual void OnLoad  () { }
 
         /// <summary>
@@ -134,7 +110,10 @@ namespace Prism.API
         /// A dictionary containing all item definitions.
         /// The key of each key/value pair is the internal name of the item.
         /// </returns>
-        protected abstract Dictionary<string, ItemDef> GetItemDefs();
+        protected virtual Dictionary<string, ItemDef> GetItemDefs()
+        {
+            return Empty<string, ItemDef      >.Dictionary;
+        }
         /// <summary>
         /// Gets all NPC definitions created by the mod.
         /// </summary>
@@ -142,7 +121,10 @@ namespace Prism.API
         /// A dictionary containing all NPC definitions.
         /// The key of each key/value pair is the internal name of the NPC.
         /// </returns>
-        protected abstract Dictionary<string, NpcDef> GetNpcDefs();
+        protected virtual Dictionary<string, NpcDef       > GetNpcDefs       ()
+        {
+            return Empty<string, NpcDef       >.Dictionary;
+        }
         /// <summary>
         /// Gets all projectile definitions created by the mod.
         /// </summary>
@@ -150,8 +132,22 @@ namespace Prism.API
         /// A dictionary containing all projectile definitions.
         /// The key of each key/value pair is the internal name of the projectile.
         /// </returns>
-        protected abstract Dictionary<string, ProjectileDef> GetProjectileDefs();
-        
+        protected virtual Dictionary<string, ProjectileDef> GetProjectileDefs()
+        {
+            return Empty<string, ProjectileDef>.Dictionary;
+        }
+
+        /// <summary>
+        /// Gets all recipe definitions created by the mod.
+        /// </summary>
+        /// <returns>
+        /// A collection containing all recipe definitions.
+        /// </returns>
+        protected virtual IEnumerable<RecipeDef> GetRecipeDefs()
+        {
+            return Empty<RecipeDef>.Array;
+        }
+
         T GetResourceInternal<T>(Func<Stream> getStream)
         {
             if (ResourceLoader.ResourceReaders.ContainsKey(typeof(T)))
@@ -204,28 +200,37 @@ namespace Prism.API
         }
 
         /// <summary>
-        /// Gets the item defs by calling the protected version of <see cref="GetItemDefs"/>.
+        /// Gets the item defs by calling the protected version of <see cref="GetItemDefs" />.
         /// </summary>
         /// <returns><see cref="GetItemDefs"/></returns>
-        internal Dictionary<string, ItemDef> GetItemDefsInternally()
+        internal Dictionary<string, ItemDef      > GetItemDefsInternally()
         {
             return GetItemDefs();
         }
         /// <summary>
-        /// Gets the NPC defs by calling the protected version of <see cref="GetNpcDefs"/>.
+        /// Gets the NPC defs by calling the protected version of <see cref="GetNpcDefs" />.
         /// </summary>
         /// <returns><see cref="GetNpcDefs"/></returns>
-        internal Dictionary<string, NpcDef> GetNpcDefsInternally()
+        internal Dictionary<string, NpcDef       > GetNpcDefsInternally ()
         {
             return GetNpcDefs();
         }
         /// <summary>
-        /// Gets the projectile defs by calling the protected version of <see cref="GetProjectileDefs"/>.
+        /// Gets the projectile defs by calling the protected version of <see cref="GetProjectileDefs" />.
         /// </summary>
         /// <returns><see cref="GetProjectileDefs"/></returns>
-        internal Dictionary<string, ProjectileDef> GetProjectileDefsInternally()
+        internal Dictionary<string, ProjectileDef> GetProjDefsInternally()
         {
             return GetProjectileDefs();
+        }
+
+        /// <summary>
+        /// Gets the recipe defs by calling the protected version of <see cref="GetRecipeDefsInternally" />.
+        /// </summary>
+        /// <returns></returns>
+        internal IEnumerable<RecipeDef> GetRecipeDefsInternally()
+        {
+            return GetRecipeDefs();
         }
     }
 }

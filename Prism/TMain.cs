@@ -5,16 +5,15 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.Debugging;
+using Prism.Mods.DefHandlers;
 using Prism.Mods;
-using Prism.Defs.Handlers;
 using Prism.Mods.Hooks;
-using Prism.Util;
 using Terraria;
 
 namespace Prism
 {
     public sealed class TMain : Main
-    {        
+    {
         internal static Texture2D WhitePixel;
 
         static bool justDrawCrashed = false;
@@ -42,7 +41,7 @@ namespace Prism
         {
             Item.OnSetDefaults += ItemDefHandler.OnSetDefaults;
             NPC .OnSetDefaults += NpcDefHandler .OnSetDefaults;
-            Projectile.OnSetDefaults += ProjectileDefHandler.OnSetDefaults;
+            Projectile.OnSetDefaults += ProjDefHandler.OnSetDefaults;
 
             base.Initialize(); // terraria init and LoadContent happen here
 
@@ -73,20 +72,13 @@ namespace Prism
         /// <summary>
         /// For those hooks and stuff we just don't have yet...
         /// </summary>
-        protected void ApplyHotfixes()
+        void ApplyHotfixes()
         {
-            foreach (Player p in from plr in Main.player where plr.active = true select plr)
+            foreach (Player p in from plr in player where plr.active = true select plr)
             {
                 int prevLength = p.npcTypeNoAggro.Length;
                 if (prevLength < Handler.NpcDef.NextTypeIndex)
-                {
                     Array.Resize(ref p.npcTypeNoAggro, Handler.NpcDef.NextTypeIndex);
-
-                    for (int i = prevLength; i < p.npcTypeNoAggro.Length; i++)
-                    {
-                        p.npcTypeNoAggro[i] = false;
-                    }
-                }
             }
         }
 

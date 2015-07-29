@@ -4,9 +4,8 @@ using System.Linq;
 using Prism.API;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
+using Prism.Mods.DefHandlers;
 using Terraria;
-using Terraria.ID;
-using Prism.Defs.Handlers;
 
 namespace Prism.Mods
 {
@@ -16,8 +15,8 @@ namespace Prism.Mods
     static class EntityDefLoader
     {
         /// <summary>
-        /// Sets each entity def's <see cref="EntityDef{TBehaviour, TEntity}.InternalName"/> 
-        /// and <see cref="EntityDef{TBehaviour, TEntity}.Mod"/> fields to the def's key 
+        /// Sets each entity def's <see cref="EntityDef{TBehaviour, TEntity}.InternalName"/>
+        /// and <see cref="EntityDef{TBehaviour, TEntity}.Mod"/> fields to the def's key
         /// in the dictionary and this <see cref="ModDef"/>, respectively.
         /// </summary>
         /// <typeparam name="TEntityDef"></typeparam>
@@ -25,14 +24,14 @@ namespace Prism.Mods
         /// <param name="dict"></param>
         /// <returns></returns>
         static Dictionary<string, TEntityDef> SetEntityModDefs<TEntityDef, TBehaviour, TEntity>(ModDef def, Dictionary<string, TEntityDef> dict)
-            where TEntity : class
+            where TEntity    : class
             where TBehaviour : EntityBehaviour<TEntity>
             where TEntityDef : EntityDef<TBehaviour, TEntity>
         {
             foreach (var kvp in dict)
             {
-                kvp.Value.InternalName = kvp.Key;
-                kvp.Value.Mod = def.Info;
+                kvp.Value.InternalName = kvp.Key ;
+                kvp.Value.Mod          = def.Info;
             }
 
             return dict;
@@ -43,19 +42,22 @@ namespace Prism.Mods
         /// </summary>
         internal static void ResetEntityHandlers()
         {
-            Handler.ItemDef      .ResetAll();
-            Handler.NpcDef       .ResetAll();
-            Handler.ProjectileDef.ResetAll();
-        }
+            Handler.ItemDef.Reset();
+            Handler.NpcDef .Reset();
+            Handler.ProjDef.Reset();
 
+            Handler.RecipeDef.Reset();
+        }
         /// <summary>
         /// Sets up this EntityDefLoader for loading mods, creating/adding all of the vanilla content defs, etc.
         /// </summary>
         internal static void SetupEntityHandlers()
         {
-            Handler.ItemDef      .FillVanillaDefs();
-            Handler.NpcDef       .FillVanillaDefs();
-            Handler.ProjectileDef.FillVanillaDefs();
+            Handler.ItemDef.FillVanilla();
+            Handler.NpcDef .FillVanilla();
+            Handler.ProjDef.FillVanilla();
+
+            Handler.RecipeDef.FillVanilla();
         }
 
         /// <summary>
@@ -67,15 +69,17 @@ namespace Prism.Mods
         {
             var ret = new List<LoaderError>();
 
-            mod.ItemDefs       = SetEntityModDefs<ItemDef       , ItemBehaviour       , Item      >(mod, mod.GetItemDefsInternally       ());
-            
-            mod.NpcDefs        = SetEntityModDefs<NpcDef        , NpcBehaviour        , NPC       >(mod, mod.GetNpcDefsInternally       ());
+            mod.ItemDefs       = SetEntityModDefs<ItemDef      , ItemBehaviour      , Item      >(mod, mod.GetItemDefsInternally());
+            mod.NpcDefs        = SetEntityModDefs<NpcDef       , NpcBehaviour       , NPC       >(mod, mod.GetNpcDefsInternally ());
+            mod.ProjectileDefs = SetEntityModDefs<ProjectileDef, ProjectileBehaviour, Projectile>(mod, mod.GetProjDefsInternally());
 
-            mod.ProjectileDefs = SetEntityModDefs<ProjectileDef , ProjectileBehaviour , Projectile>(mod, mod.GetProjectileDefsInternally());
-            ret.AddRange(Handler.ItemDef      .LoadAll(mod.ItemDefs      ));
-            ret.AddRange(Handler.NpcDef       .LoadAll(mod.NpcDefs       ));
-            
-            ret.AddRange(Handler.ProjectileDef.LoadAll(mod.ProjectileDefs));
+            mod.RecipeDefs = RecipeDefHandler.SetRecipeModDefs(mod, mod.GetRecipeDefsInternally());
+
+            ret.AddRange(Handler.ItemDef.Load(mod.ItemDefs      ));
+            ret.AddRange(Handler.NpcDef .Load(mod.NpcDefs       ));
+            ret.AddRange(Handler.ProjDef.Load(mod.ProjectileDefs));
+
+            ret.AddRange(Handler.RecipeDef.Load(mod.RecipeDefs));
 
             return ret;
         }

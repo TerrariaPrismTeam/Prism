@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Prism.API;
 
 namespace Prism.Mods
 {
@@ -163,6 +164,18 @@ namespace Prism.Mods
         public static bool operator !=(ModInfo a, ModInfo b)
         {
             return !a.Equals(b);
+        }
+
+        /// <summary>
+        /// Gets the <see cref="ModDef" /> of the mod info.
+        /// </summary>
+        /// <returns>The mod definition of the mod. Null if the ModInfo is vanilla or not found.</returns>
+        public ModDef GetDefinition()
+        {
+            if (this == PrismApi.VanillaInfo || !ModData.mods.ContainsKey(this))
+                return null;
+
+            return ModData.Mods[this];
         }
     }
 }

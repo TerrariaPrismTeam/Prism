@@ -5,7 +5,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.API.Behaviours;
 using Prism.Mods;
-using Prism.Defs.Handlers;
+using Prism.Mods.DefHandlers;
+using Prism.Util;
 using Terraria;
 
 namespace Prism.API.Defs
@@ -440,8 +441,6 @@ namespace Prism.API.Defs
             set;
         }
 
-        public NpcDef() : this("?NpcName?") { }
-
         public NpcDef(
             #region arguments
             string displayName,
@@ -501,7 +500,7 @@ namespace Prism.API.Defs
             )
         {
             DisplayName = displayName;
-            CreateBehaviour = newBehaviour ?? (() => null);
+            CreateBehaviour = newBehaviour ?? Empty<NpcBehaviour>.Func;
 
             Damage = damage;
             Width = width;
@@ -548,10 +547,19 @@ namespace Prism.API.Defs
 
             MagicAuraColour = magicAuraColour;
 
-            BuffImmunities = buffImmunities ?? new List<int>(0);
+            BuffImmunities = buffImmunities ?? Empty<int>.List;
 
-            GetTexture         = getTex         ?? (() => null);
-            GetBossHeadTexture = getBossHeadTex ?? (() => null);
+            GetTexture         = getTex         ?? Empty<Texture2D>.Func;
+            GetBossHeadTexture = getBossHeadTex ?? Empty<Texture2D>.Func;
+        }
+
+        public static implicit operator NpcRef(NpcDef  def)
+        {
+            return new NpcRef(def.InternalName, def.Mod.InternalName);
+        }
+        public static explicit operator NpcDef(NpcRef @ref)
+        {
+            return @ref.Resolve();
         }
     }
 }

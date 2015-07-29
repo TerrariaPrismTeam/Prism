@@ -12,7 +12,7 @@ namespace Prism
         /// <summary>
         /// Set to true in order to get full stack traces in a message box
         /// </summary>
-        public static bool DetailedExceptions = false;
+        public static bool DetailedExceptions = Debugger.IsAttached;
 
         internal static int GetHResult(Exception e)
         {

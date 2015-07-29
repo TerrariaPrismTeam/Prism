@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using LitJson;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Prism.API;
 using Prism.API.Defs;
+using Prism.Util;
 using Terraria;
 using Terraria.ID;
-using Prism.Mods;
-using LitJson;
-using Prism.Defs.Handlers;
 
 namespace Prism.ExampleMod
 {
@@ -21,17 +19,7 @@ namespace Prism.ExampleMod
         public static int meowmaritusHappyFunCount = -1;
         public static int meowmaritusHappyFunTimeBytes = 0x14018E;
 
-        protected override Dictionary<string, ProjectileDef> GetProjectileDefs()
-        {
-            return new Dictionary<string, ProjectileDef>
-            {
-                { "PizzaProjectile", new ProjectileDef(
-
-                ) }
-            };
-        }
-
-        protected override Dictionary<string, ItemDef> GetItemDefs()
+        protected override Dictionary<string, ItemDef      > GetItemDefs      ()
         {
             return new Dictionary<string, ItemDef>
             {
@@ -125,11 +113,10 @@ namespace Prism.ExampleMod
                 } }
             };
         }
-        protected override Dictionary<string, NpcDef > GetNpcDefs ()
+        protected override Dictionary<string, NpcDef       > GetNpcDefs       ()
         {
             return new Dictionary<string, NpcDef>
             {
-
                 { "PizzaNPC", new NpcDef("Pizza NPC", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizza.png"),
                     lifeMax: 10000,
                     frameCount: 1,
@@ -145,44 +132,70 @@ namespace Prism.ExampleMod
                     ) }
             };
         }
-        
-        public override void OnLoad()
+        protected override Dictionary<string, ProjectileDef> GetProjectileDefs()
         {
-            ExceptionHandler.DetailedExceptions = true;
-
-            Recipes.Create(ItemDef.ByName["Pizza", Info.InternalName], 8,
-                ItemDef.ByType[ItemID.Gel], 30);
-
-            Recipes.Create(ItemDef.ByName["Ant", Info.InternalName], 1,
-                ItemDef.ByName["Pizza", Info.InternalName], 1,
-                ItemDef.ByType[ItemID.Gel], 20);
-
-            Recipes.Create(ItemDef.ByName["Pizzant", Info.InternalName], 1,
-                ItemDef.ByName["Pizza", Info.InternalName], 1,
-                ItemDef.ByName["Ant", Info.InternalName], 1,
-                ItemDef.ByType[ItemID.Gel], 4,
-                RecipeRequires.Tile, TileID.WorkBenches); // You clearly need a workbench to stab pizza with an ant mandible.
-
-            Recipes.Create(ItemDef.ByName["Pizzantzioli", Info.InternalName], 1,
-                ItemDef.ByName["Pizza", Info.InternalName], 3,
-                ItemDef.ByName["Pizzant", Info.InternalName], 1,
-                ItemDef.ByType[ItemID.Gel], 4,
-                RecipeRequires.Tile, TileID.Dirt); // Collect ants from your nearest ant hill.
+            return new Dictionary<string, ProjectileDef>
+            {
+                { "PizzaProjectile", new ProjectileDef("Pizza", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizza.png")
+                    ) }
+            };
         }
 
+        protected override IEnumerable<RecipeDef> GetRecipeDefs()
+        {
+            return new[]
+            {
+                new RecipeDef(
+                    new ItemRef("Pizza", Info.InternalName), 8,
+                    new RecipeItems
+                    {
+                        { new ItemRef(ItemID.Gel), 30 }
+                    }
+                ),
+                new RecipeDef(
+                    new ItemRef("Ant", Info.InternalName), 1,
+                    new RecipeItems
+                    {
+                        { new ItemRef("Pizza", Info.InternalName),  1 },
+                        { new ItemRef(ItemID.Gel                ), 20 }
+                    }
+                ),
+                new RecipeDef(
+                    new ItemRef("Pizzant", Info.InternalName), 1,
+                    new RecipeItems
+                    {
+                        { new ItemRef("Pizza", Info.InternalName), 1 },
+                        { new ItemRef("Ant"  , Info.InternalName), 1 },
+                        { new ItemRef(ItemID.Gel                ), 4 }
+                    },
+                    new[] { TileID.TinkerersWorkbench }
+                ),
+                new RecipeDef(
+                    new ItemRef("Pizzantzioli", Info.InternalName), 1,
+                    new RecipeItems
+                    {
+                        { new ItemRef("Pizza"  , Info.InternalName), 3 },
+                        { new ItemRef("Pizzant", Info.InternalName), 1 },
+                        { new ItemRef(ItemID.Gel                  ), 4 }
+                    },
+                    new[] { TileID.Dirt }
+                )
+            };
+        }
+
+        //TODO: put this somewhere in Prism
         public static bool GetKey(Keys k)
         {
             return Main.keyState.IsKeyDown(k);
         }
-
         public static bool GetKey(Keys k, KeyState onEnterKeyState)
         {
-            return (onEnterKeyState == Main.keyState[k] && Main.keyState[k] != prevKeyState[k]);
+            return onEnterKeyState == Main.keyState[k] && Main.keyState[k] != prevKeyState[k];
         }
 
         public static Vector2 GetRandomPositionOnScreen()
         {
-            return new Vector2(Main.screenPosition.X + ((float)Main.rand.NextDouble() * Main.screenWidth), Main.screenPosition.Y + ((float)Main.rand.NextDouble() * Main.screenHeight));
+            return new Vector2(Main.screenPosition.X + (float)Main.rand.NextDouble() * Main.screenWidth, Main.screenPosition.Y + (float)Main.rand.NextDouble() * Main.screenHeight);
         }
 
         public override void PostUpdate()
@@ -211,8 +224,8 @@ namespace Prism.ExampleMod
             #region I dare you to press L
             if (GetKey(Keys.L, KeyState.Down))
             {
-                meowmaritusHappyFunCount = (byte)(meowmaritusHappyFunTimeBytes >> 16);                
-            }            
+                meowmaritusHappyFunCount = (byte)(meowmaritusHappyFunTimeBytes >> 16);
+            }
 
             if (!Main.player[Main.myPlayer].dead)
             {
@@ -238,7 +251,7 @@ namespace Prism.ExampleMod
                     }
                 }
             }
-            #endregion            
+            #endregion
 
             #region spawn custom npcs
             if (GetKey(Keys.N, KeyState.Down))
@@ -248,13 +261,13 @@ namespace Prism.ExampleMod
                     if (Main.npc[i] != null && !Main.npc[i].active)
                     {
                         Main.npc[i] = new NPC();
-                        Handler.NpcDef.CopyDefToEntity(NpcDef.ByName["PizzaNPC", Info.InternalName], Main.npc[i]);
+                        Main.npc[i].SetDefaults(NpcDef.ByName["PizzaNPC", Info.InternalName].Type);
                         Main.npc[i].active = true;
                         Main.npc[i].timeLeft = NPC.activeTime;
                         Main.npc[i].position = GetRandomPositionOnScreen();
 
                         break;
-                    }                                      
+                    }
                 }
             }
             #endregion

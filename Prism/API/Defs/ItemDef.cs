@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LitJson;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.API.Behaviours;
 using Prism.Mods;
-using Prism.Defs.Handlers;
+using Prism.Mods.DefHandlers;
+using Prism.Util;
 using Terraria;
-using LitJson;
 
 namespace Prism.API.Defs
 {
@@ -62,15 +63,6 @@ namespace Prism.API.Defs
             {
                 return new ByNameIndexer();
             }
-        }
-
-        /// <summary>
-        /// Gets or sets the list of all recipes that make this item.
-        /// </summary>
-        public List<Recipe> Recipes
-        {
-            get;
-            set;
         }
 
         /// <summary>
@@ -540,9 +532,6 @@ namespace Prism.API.Defs
             set;
         }
 
-        //Don't use this constructor to create modded items pls thx
-        public ItemDef() : this("?ItemName?") { }        
-
         public ItemDef(
             #region arguments
             string displayName,
@@ -611,10 +600,10 @@ namespace Prism.API.Defs
             #endregion
             )
         {
-            Recipes = new List<Recipe>();
             DisplayName = displayName;
-            GetTexture = getTex ?? (() => null);
-            CreateBehaviour = newBehaviour ?? (() => null);
+
+            GetTexture      = getTex       ?? Empty<Texture2D    >.Func;
+            CreateBehaviour = newBehaviour ?? Empty<ItemBehaviour>.Func;
 
             Damage = damage;
             UseAnimation = useAnimation;
@@ -681,11 +670,10 @@ namespace Prism.API.Defs
             ItemArmourData armour = default(ItemArmourData),
             Func<ItemBehaviour> newBehaviour = null)
         {
-            Recipes = new List<Recipe>();
             DisplayName = displayName;
-            GetTexture = getTex ?? (() => null);
+            GetTexture = getTex ?? Empty<Texture2D>.Func;
             ArmourData = armour;
-            CreateBehaviour = newBehaviour ?? (() => null);
+            CreateBehaviour = newBehaviour ?? Empty<ItemBehaviour>.Func;
 
             Damage = (int)json["damage"];
             UseAnimation = (int)json["useAnimation"];
@@ -788,7 +776,7 @@ namespace Prism.API.Defs
             {
                 HoldStyle = default(ItemHoldStyle);
             }
-            
+
             if (json.Has("damageType"))
             {
                 JsonData damageType = json["damageType"];
@@ -805,7 +793,7 @@ namespace Prism.API.Defs
             {
                 DamageType = default(ItemDamageType);
             }
-            
+
             if (json.Has("value"))
             {
                 JsonData value = json["value"];
@@ -822,7 +810,7 @@ namespace Prism.API.Defs
             {
                 Value = default(CoinValue);
             }
-            
+
             if (json.Has("description"))
             {
                 JsonData description = json["description"];
@@ -832,7 +820,7 @@ namespace Prism.API.Defs
                     (bool)description["vanity"],
                     (bool)description["hideAmmo"]);
             }
-            
+
             if (json.Has("buff"))
             {
                 JsonData buff = json["buff"];
@@ -844,7 +832,7 @@ namespace Prism.API.Defs
             {
                 Buff = default(BuffDef);
             }
-            
+
             if (json.Has("useAmmo"))
             {
                 JsonData useAmmo = json["useAmmo"];
@@ -870,7 +858,7 @@ namespace Prism.API.Defs
             {
                 UsedAmmo = null;
             }
-            
+
             if (json.Has("shoot"))
             {
                 JsonData shoot = json["shoot"];
@@ -882,6 +870,15 @@ namespace Prism.API.Defs
             UseSound = json.Has("useSound") ? (int)json["useSound"] : 1;
             CreateTile = json.Has("createTile") ? (int)json["createTile"] : -1;
             CreateWall = json.Has("createWall") ? (int)json["createWall"] : -1;
+        }
+
+        public static implicit operator ItemRef(ItemDef  def)
+        {
+            return new ItemRef(def.InternalName, def.Mod.InternalName);
+        }
+        public static explicit operator ItemDef(ItemRef @ref)
+        {
+            return @ref.Resolve();
         }
     }
 }
