@@ -106,6 +106,7 @@
     <Compile Include="LinqExt.cs" />
     <Compile Include="MemberResolver.cs" />
     <Compile Include="MemberResolverExtensions.cs" />
+    <Compile Include="Patcher\PlayerPatcher.cs" />
     <Compile Include="Patcher\ProjectilePatcher.cs" />
     <Compile Include="Patcher\ItemPatcher.cs" />
     <Compile Include="Patcher\NpcPatcher.cs" />
