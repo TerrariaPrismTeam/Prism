@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using LitJson;
 using Prism.API;
-using Prism.Mods.Defs;
+using Prism.Defs.Handlers;
 using Prism.Mods.Hooks;
 using Prism.Mods.Resources;
 using System.Windows.Forms;

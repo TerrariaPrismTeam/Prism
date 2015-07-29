@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.API.Behaviours;
 using Prism.Mods;
-using Prism.Mods.Defs;
+using Prism.Defs.Handlers;
 using Terraria;
 
 namespace Prism.API.Defs
@@ -15,27 +15,27 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets NpcDefs by their type number.
         /// </summary>
-        public struct ByTypeEnumerator
+        public struct ByTypeIndexer
         {
             public NpcDef this[int type]
             {
                 get
                 {
-                    return NpcDefHandler.DefFromType[type];
+                    return Handler.NpcDef.DefsByType[type];
                 }
             }
         }
         /// <summary>
         /// Gets NpcDefs by their internal name (and optionally by their mod's internal name).
         /// </summary>
-        public struct ByNameEnumerator
+        public struct ByNameIndexer
         {
             public NpcDef this[string npcInternalName, string modInternalName = null]
             {
                 get
                 {
                     if (String.IsNullOrEmpty(modInternalName) || modInternalName == PrismApi.VanillaString || modInternalName == PrismApi.TerrariaString)
-                        return NpcDefHandler.VanillaDefFromName[npcInternalName];
+                        return Handler.NpcDef.VanillaDefsByName[npcInternalName];
 
                     return ModData.ModsFromInternalName[modInternalName].NpcDefs[npcInternalName];
                 }
@@ -45,38 +45,21 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets NpcDefs by their type number.
         /// </summary>
-        public static ByTypeEnumerator ByType
+        public static ByTypeIndexer ByType
         {
             get
             {
-                return new ByTypeEnumerator();
+                return new ByTypeIndexer();
             }
         }
         /// <summary>
         /// Gets NpcDefs by their internal name (and optionally by their mod's internal name).
         /// </summary>
-        public static ByNameEnumerator ByName
+        public static ByNameIndexer ByName
         {
             get
             {
-                return new ByNameEnumerator();
-            }
-        }
-
-        // stupid red and his stupid netids
-        int setNetID = 0;
-        /// <summary>
-        /// Gets this NPC's NetID.
-        /// </summary>
-        public int NetID
-        {
-            get
-            {
-                return setNetID == 0 ? Type : setNetID;
-            }
-            internal set
-            {
-                setNetID = value;
+                return new ByNameIndexer();
             }
         }
 
@@ -432,6 +415,15 @@ namespace Prism.API.Defs
         }
 
         /// <summary>
+        /// Gets or sets whether this NPC is excluded from radar counts.
+        /// </summary>
+        public virtual bool HasAntiRadar
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Gets or sets the NPC's texture function.
         /// </summary>
         public virtual Func<Texture2D> GetTexture
@@ -447,6 +439,8 @@ namespace Prism.API.Defs
             get;
             set;
         }
+
+        public NpcDef() : this("?NpcName?") { }
 
         public NpcDef(
             #region arguments
@@ -487,6 +481,7 @@ namespace Prism.API.Defs
             bool skeleton = false,
             bool? technicallyABoss = null,
             bool townCritter = false,
+            bool hasAntiRadar = false,
 
             float scale = 1f,
             float knockbackResist = 1f,
@@ -541,6 +536,7 @@ namespace Prism.API.Defs
             SavesAndLoads = savesAndLoads;
             IsSkeleton = skeleton;
             IsTechnicallyABoss = technicallyABoss ?? boss;
+            HasAntiRadar = hasAntiRadar;
 
             Scale = scale;
             KnockbackResistance = knockbackResist;

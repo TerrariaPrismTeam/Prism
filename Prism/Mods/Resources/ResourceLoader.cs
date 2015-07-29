@@ -31,7 +31,7 @@ namespace Prism.Mods.Resources
 
         internal static void Setup()
         {
-            RegisterReader(new Texture2DResourceReader  ());
+            RegisterReader(new Texture2DResourceReader());
             RegisterReader(new SoundEffectResourceReader());
             RegisterReader(new StringResourceReader     ());
             RegisterReader(new JsonDataResourceReader   ());

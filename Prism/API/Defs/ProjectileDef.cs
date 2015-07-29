@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.API.Behaviours;
 using Prism.Mods;
-using Prism.Mods.Defs;
+using Prism.Defs.Handlers;
 using Terraria;
 
 namespace Prism.API.Defs
@@ -15,27 +15,27 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets ProjectileDefs by their type number.
         /// </summary>
-        public struct ByTypeGetter
+        public struct ByTypeIndexer
         {
             public ProjectileDef this[int type]
             {
                 get
                 {
-                    return ProjectileDefHandler.DefFromType[type];
+                    return Handler.ProjectileDef.DefsByType[type];
                 }
             }
         }
         /// <summary>
         /// Gets ProjectileDefs by their internal name (and optionally by their mod's internal name).
         /// </summary>
-        public struct ByNameGetter
+        public struct ByNameIndexer
         {
             public ProjectileDef this[string projectileInternalName, string modInternalName = null]
             {
                 get
                 {
                     if (String.IsNullOrEmpty(modInternalName) || modInternalName == PrismApi.VanillaString || modInternalName == PrismApi.TerrariaString)
-                        return ProjectileDefHandler.VanillaDefFromName[projectileInternalName];
+                        return Handler.ProjectileDef.VanillaDefsByName[projectileInternalName];
 
                     return ModData.ModsFromInternalName[modInternalName].ProjectileDefs[projectileInternalName];
                 }
@@ -45,21 +45,21 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets ProjectileDefs by their type number.
         /// </summary>
-        public static ByTypeGetter ByType
+        public static ByTypeIndexer ByType
         {
             get
             {
-                return new ByTypeGetter();
+                return new ByTypeIndexer();
             }
         }
         /// <summary>
         /// Gets ProjectileDefs by their internal name (and optionally by their mod's internal name).
         /// </summary>
-        public static ByNameGetter ByName
+        public static ByNameIndexer ByName
         {
             get
             {
-                return new ByNameGetter();
+                return new ByNameIndexer();
             }
         }
 
@@ -75,7 +75,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets the type of damage this projectile inflicts.
         /// </summary>
-        public virtual DamageType DamageType
+        public virtual ProjectileDamageType DamageType
         {
             get;
             set;
@@ -253,6 +253,7 @@ namespace Prism.API.Defs
             set;
         }
         
+        public ProjectileDef() { }
 
         public ProjectileDef(
             #region arguments

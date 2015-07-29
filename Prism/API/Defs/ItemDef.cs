@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.API.Behaviours;
 using Prism.Mods;
-using Prism.Mods.Defs;
+using Prism.Defs.Handlers;
 using Terraria;
 using LitJson;
 
@@ -16,27 +16,27 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets ItemDefs by their type number.
         /// </summary>
-        public struct ByTypeEnumerator
+        public struct ByTypeIndexer
         {
             public ItemDef this[int type]
             {
                 get
                 {
-                    return ItemDefHandler.DefFromType[type];
+                    return Handler.ItemDef.DefsByType[type];
                 }
             }
         }
         /// <summary>
         /// Gets ItemDefs by their internal name (and optionally by their mod's internal name).
         /// </summary>
-        public struct ByNameEnumerator
+        public struct ByNameIndexer
         {
             public ItemDef this[string itemInternalName, string modInternalName = null]
             {
                 get
                 {
                     if (String.IsNullOrEmpty(modInternalName) || modInternalName == PrismApi.VanillaString || modInternalName == PrismApi.TerrariaString)
-                        return ItemDefHandler.VanillaDefFromName[itemInternalName];
+                        return Handler.ItemDef.VanillaDefsByName[itemInternalName];
 
                     return ModData.ModsFromInternalName[modInternalName].ItemDefs[itemInternalName];
                 }
@@ -46,44 +46,31 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets ItemDefs by their type number.
         /// </summary>
-        public static ByTypeEnumerator ByType
+        public static ByTypeIndexer ByType
         {
             get
             {
-                return new ByTypeEnumerator();
+                return new ByTypeIndexer();
             }
         }
         /// <summary>
         /// Gets ItemDefs by their internal name (and optionally by their mod's internal name).
         /// </summary>
-        public static ByNameEnumerator ByName
+        public static ByNameIndexer ByName
         {
             get
             {
-                return new ByNameEnumerator();
+                return new ByNameIndexer();
             }
         }
 
         /// <summary>
-        /// List of all recipes that make this item.
+        /// Gets or sets the list of all recipes that make this item.
         /// </summary>
-        public List<Recipe> Recipes = new List<Recipe>();
-
-        // stupid red and his stupid netids
-        int setNetID = 0;
-        /// <summary>
-        /// Gets this item's NetID.
-        /// </summary>
-        public int NetID
+        public List<Recipe> Recipes
         {
-            get
-            {
-                return setNetID == 0 ? Type : setNetID;
-            }
-            internal set
-            {
-                setNetID = value;
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -449,7 +436,7 @@ namespace Prism.API.Defs
         /// Gets or sets the type of damage this item does.
         /// </summary>
         /// <remarks>Item.melee, Item.ranged, Item.magic, Item.thrown, Item.</remarks>
-        public virtual DamageType DamageType
+        public virtual ItemDamageType DamageType
         {
             get;
             set;
@@ -553,6 +540,9 @@ namespace Prism.API.Defs
             set;
         }
 
+        //Don't use this constructor to create modded items pls thx
+        public ItemDef() : this("?ItemName?") { }        
+
         public ItemDef(
             #region arguments
             string displayName,
@@ -605,7 +595,7 @@ namespace Prism.API.Defs
             ItemRarity rare = ItemRarity.White,
             ItemUseStyle useStyle = ItemUseStyle.None,
             ItemHoldStyle holdStyle = ItemHoldStyle.Default,
-            DamageType damageType = DamageType.None,
+            ItemDamageType damageType = ItemDamageType.None,
 
             CoinValue value = default(CoinValue),
             ItemDescription description = default(ItemDescription),
@@ -621,6 +611,7 @@ namespace Prism.API.Defs
             #endregion
             )
         {
+            Recipes = new List<Recipe>();
             DisplayName = displayName;
             GetTexture = getTex ?? (() => null);
             CreateBehaviour = newBehaviour ?? (() => null);
@@ -690,6 +681,7 @@ namespace Prism.API.Defs
             ItemArmourData armour = default(ItemArmourData),
             Func<ItemBehaviour> newBehaviour = null)
         {
+            Recipes = new List<Recipe>();
             DisplayName = displayName;
             GetTexture = getTex ?? (() => null);
             ArmourData = armour;
@@ -802,16 +794,16 @@ namespace Prism.API.Defs
                 JsonData damageType = json["damageType"];
                 if (damageType.IsString)
                 {
-                    DamageType = (DamageType)Enum.Parse(typeof(DamageType), (string)damageType);
+                    DamageType = (ItemDamageType)Enum.Parse(typeof(ItemDamageType), (string)damageType);
                 }
                 else
                 {
-                    DamageType = (DamageType)(int)damageType;
+                    DamageType = (ItemDamageType)(int)damageType;
                 }
             }
             else
             {
-                DamageType = default(DamageType);
+                DamageType = default(ItemDamageType);
             }
             
             if (json.Has("value"))

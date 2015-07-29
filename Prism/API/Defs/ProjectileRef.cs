@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Prism.API.Behaviours;
 using Prism.Mods;
-using Prism.Mods.Defs;
+using Prism.Defs.Handlers;
 using Terraria;
 using Terraria.ID;
 
@@ -12,7 +12,7 @@ namespace Prism.API.Defs
     public class ProjectileRef : EntityRef<NpcDef, NpcBehaviour, NPC>
     {
         public ProjectileRef(int resourceId)
-            : base(ProjectileDefHandler.DefFromType.ContainsKey(resourceId) ? ProjectileDefHandler.DefFromType[resourceId].InternalName : String.Empty)
+            : base(Handler.ProjectileDef.DefsByType.ContainsKey(resourceId) ? Handler.ProjectileDef.DefsByType[resourceId].InternalName : String.Empty)
         {
             if (resourceId >= NPCID.Count)
                 throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla NPC type or netID.");
@@ -27,10 +27,10 @@ namespace Prism.API.Defs
         {
             if (IsVanillaRef)
             {
-                if (!NpcDefHandler.VanillaDefFromName.ContainsKey(ResourceName))
+                if (!Handler.NpcDef.VanillaDefsByName.ContainsKey(ResourceName))
                     throw new InvalidOperationException("Vanilla NPC reference '" + ResourceName + "' is not found.");
 
-                return NpcDefHandler.VanillaDefFromName[ResourceName];
+                return Handler.NpcDef.VanillaDefsByName[ResourceName];
             }
 
             if (!ModData.Mods.Keys.Any(mi => mi.InternalName == ModName))

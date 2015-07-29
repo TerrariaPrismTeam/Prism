@@ -5,7 +5,20 @@ using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Prism.API.Defs
-{    
+{
+    /// <summary>
+    /// Damage types for items.
+    /// </summary>
+    public enum ItemDamageType
+    {
+        None,
+        Melee,
+        Ranged,
+        Magic,
+        Summon,
+        Thrown
+    }
+
     public enum ItemUseStyle
     {
         None,
@@ -40,13 +53,17 @@ namespace Prism.API.Defs
     public enum ItemRarity
     {
         /// <summary>
-        /// Rarity of quest items.
-        /// </summary>
-        Amber = -3, // Item.questItem
-        /// <summary>
         /// Rarity of items only obtainable in Expert Mode.
+        /// <para/>Note: Automatically flags this item as an expert item, adding the "Expert" label onto its tooltip.
         /// </summary>
-        Rainbow = -2, // Item.expert (not expertOnly)
+        /// <remarks>Automatically enables Item.expert but Item.expert can be enabled without setting rainbow rarity.</remarks>
+        Rainbow = -12,
+        /// <summary>
+        /// Rarity of quest items.
+        /// Unlike <see cref="ItemRarity.Rainbow"/>, this does not automatically flag the item as a quest item.
+        /// </summary>
+        /// <remarks>Completely separate from Item.questItem</remarks>
+        Amber = -11,        
         Gray = -1,
         White = 0,
         Blue = 1,
@@ -176,6 +193,7 @@ namespace Prism.API.Defs
         /// </summary>
         /// <remarks>Item.toolTip</remarks>
         public string Description;
+
         /// <summary>
         /// Gets or sets the item's extra description (funny quote, reference, etc).
         /// </summary>
@@ -187,6 +205,20 @@ namespace Prism.API.Defs
         /// </summary>
         /// <remarks>Item.vanity</remarks>
         public bool ShowVanity;
+
+        /// <summary>
+        /// Gets or sets whether this item is labeled with the "Expert" tag in its tool-tip.
+        /// <para/>Note: Enabling this will also make the item display with a rainbow name, regardless of its rarity (it doesn't affect its existing rarity value).
+        /// </summary>
+        /// <remarks>Item.expert</remarks>
+        public bool ShowExpert;
+
+        /// <summary>
+        /// Gets or sets whether this item is labeled with the "Quest Item" tag in its tool-tip (does not effect rarity/text color).
+        /// </summary>
+        /// <remarks>Item.questItem</remarks>
+        public bool ShowQuestItem;
+
         /// <summary>
         /// Gets or sets whether this item is labeled as "Ammo" in its tool-tip.
         /// </summary>
@@ -199,13 +231,17 @@ namespace Prism.API.Defs
         /// <param name="desc"><see cref="ItemDescription.Description"/></param>
         /// <param name="extraDesc"><see cref="ItemDescription.ExtraDescription"/></param>
         /// <param name="vanity"><see cref="ItemDescription.ShowVanity"/></param>
+        /// <param name="expert"><see cref="ItemDescription.ShowExpert"/></param>
+        /// <param name="quest"><see cref="ItemDescription.ShowQuestItem"/></param>
         /// <param name="hideAmmo"><see cref="ItemDescription.HideAmmoFlag"/></param>
-        public ItemDescription(string desc, string extraDesc = null, bool vanity = false, bool hideAmmo = false)
+        public ItemDescription(string desc, string extraDesc = null, bool vanity = false, bool expert = false, bool quest = false, bool hideAmmo = false)
         {
-            Description = desc ?? String.Empty;
+            Description      = desc      ?? String.Empty;
             ExtraDescription = extraDesc ?? String.Empty;
-            ShowVanity = vanity;
-            HideAmmoFlag = hideAmmo;
+            ShowVanity       = vanity;
+            ShowExpert       = expert;
+            ShowQuestItem    = quest;
+            HideAmmoFlag     = hideAmmo;
         }
 
         public bool Equals(ItemDescription other)

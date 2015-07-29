@@ -6,8 +6,9 @@ using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Terraria;
 using Terraria.ID;
+using Prism.Defs.Handlers;
 
-namespace Prism.Mods.Defs
+namespace Prism.Mods
 {
     /// <summary>
     /// Controls the loading of entities.
@@ -15,15 +16,15 @@ namespace Prism.Mods.Defs
     static class EntityDefLoader
     {
         /// <summary>
-        /// Sets the read-only properties of the entity definitions contained within the dictionary specified,
-        /// setting their <see cref="EntityDef.InternalName"/> properties as well as assuring that their <see cref="EntityDef.Mod"/> properties
-        /// point to the specified <see cref="ModDef"/>.
+        /// Sets each entity def's <see cref="EntityDef{TBehaviour, TEntity}.InternalName"/> 
+        /// and <see cref="EntityDef{TBehaviour, TEntity}.Mod"/> fields to the def's key 
+        /// in the dictionary and this <see cref="ModDef"/>, respectively.
         /// </summary>
         /// <typeparam name="TEntityDef"></typeparam>
         /// <param name="def"></param>
         /// <param name="dict"></param>
         /// <returns></returns>
-        static Dictionary<string, TEntityDef> SetChildReadonlyProperties<TEntityDef, TBehaviour, TEntity>(ModDef def, Dictionary<string, TEntityDef> dict)
+        static Dictionary<string, TEntityDef> SetEntityModDefs<TEntityDef, TBehaviour, TEntity>(ModDef def, Dictionary<string, TEntityDef> dict)
             where TEntity : class
             where TBehaviour : EntityBehaviour<TEntity>
             where TEntityDef : EntityDef<TBehaviour, TEntity>
@@ -42,8 +43,9 @@ namespace Prism.Mods.Defs
         /// </summary>
         internal static void ResetEntityHandlers()
         {
-            ItemDefHandler.Reset();
-            NpcDefHandler .Reset();
+            Handler.ItemDef      .ResetAll();
+            Handler.NpcDef       .ResetAll();
+            Handler.ProjectileDef.ResetAll();
         }
 
         /// <summary>
@@ -51,8 +53,9 @@ namespace Prism.Mods.Defs
         /// </summary>
         internal static void SetupEntityHandlers()
         {
-            ItemDefHandler.FillVanilla();
-            NpcDefHandler .FillVanilla();
+            Handler.ItemDef      .FillVanillaDefs();
+            Handler.NpcDef       .FillVanillaDefs();
+            Handler.ProjectileDef.FillVanillaDefs();
         }
 
         /// <summary>
@@ -64,11 +67,15 @@ namespace Prism.Mods.Defs
         {
             var ret = new List<LoaderError>();
 
-            mod.ItemDefs = SetChildReadonlyProperties<ItemDef, ItemBehaviour, Item>(mod, mod.GetItemDefsInternally());
-            ret.AddRange(ItemDefHandler.Load(mod.ItemDefs));
+            mod.ItemDefs       = SetEntityModDefs<ItemDef       , ItemBehaviour       , Item      >(mod, mod.GetItemDefsInternally       ());
+            
+            mod.NpcDefs        = SetEntityModDefs<NpcDef        , NpcBehaviour        , NPC       >(mod, mod.GetNpcDefsInternally       ());
 
-            mod.NpcDefs  = SetChildReadonlyProperties<NpcDef , NpcBehaviour , NPC >(mod, mod.GetNpcDefsInternally ());
-            ret.AddRange(NpcDefHandler .Load(mod.NpcDefs ));
+            mod.ProjectileDefs = SetEntityModDefs<ProjectileDef , ProjectileBehaviour , Projectile>(mod, mod.GetProjectileDefsInternally());
+            ret.AddRange(Handler.ItemDef      .LoadAll(mod.ItemDefs      ));
+            ret.AddRange(Handler.NpcDef       .LoadAll(mod.NpcDefs       ));
+            
+            ret.AddRange(Handler.ProjectileDef.LoadAll(mod.ProjectileDefs));
 
             return ret;
         }

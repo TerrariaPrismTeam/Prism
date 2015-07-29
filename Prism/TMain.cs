@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.Debugging;
 using Prism.Mods;
-using Prism.Mods.Defs;
+using Prism.Defs.Handlers;
 using Prism.Mods.Hooks;
 using Prism.Util;
 using Terraria;
@@ -70,10 +70,32 @@ namespace Prism
             base.UnloadContent();
         }
 
+        /// <summary>
+        /// For those hooks and stuff we just don't have yet...
+        /// </summary>
+        protected void ApplyHotfixes()
+        {
+            foreach (Player p in from plr in Main.player where plr.active = true select plr)
+            {
+                int prevLength = p.npcTypeNoAggro.Length;
+                if (prevLength < Handler.NpcDef.NextTypeIndex)
+                {
+                    Array.Resize(ref p.npcTypeNoAggro, Handler.NpcDef.NextTypeIndex);
+
+                    for (int i = prevLength; i < p.npcTypeNoAggro.Length; i++)
+                    {
+                        p.npcTypeNoAggro[i] = false;
+                    }
+                }
+            }
+        }
+
         protected override void Update(GameTime gt)
         {
             try
             {
+                ApplyHotfixes();
+
                 base.Update(gt);
 
                 HookManager.ModDef.PostUpdate();

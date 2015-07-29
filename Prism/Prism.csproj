@@ -49,16 +49,10 @@
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework.Xact, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
-    <Reference Condition="'$(OS)' == 'Windows_NT'" Include="WindowsBase" />
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="PresentationCore" />
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
-    <Reference Condition="'$(OS)' != 'Windows_NT'" Include="FNA, Version=0.0.0.1, Culture=neutral, PublicKeyToken=null">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\FNA.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Condition="'$(OS)' != 'Windows_NT'" Include="WindowsBase, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\WindowsBase.dll</HintPath>
@@ -101,6 +95,7 @@
     <Compile Include="API\Defs\EntityDef.cs" />
     <Compile Include="API\Defs\EntityRef.cs" />
     <Compile Include="API\Defs\EntityDefStructs.cs" />
+    <Compile Include="API\Defs\EntityDefExtensions.cs" />
     <Compile Include="API\Defs\ProjectileDef.cs" />
     <Compile Include="API\Defs\ProjectileDefStructs.cs" />
     <Compile Include="API\Defs\NpcDefStructs.cs" />
@@ -110,16 +105,21 @@
     <Compile Include="API\Defs\ProjectileRef.cs" />
     <Compile Include="API\Defs\NpcRef.cs" />
     <Compile Include="API\Defs\ItemRef.cs" />
+    <Compile Include="Util\SafeDictionaryIndexer.cs" />
+    <Compile Include="Vanilla\EntityConstData.cs" />
+    <Compile Include="Vanilla\MiscValues.cs" />
     <Compile Include="API\ModDef.cs" />
     <Compile Include="Debugging\TraceDrawer.cs" />
     <Compile Include="Mods\Behaviours\EntityBHandler.cs" />
     <Compile Include="Mods\Behaviours\ItemBHandler.cs" />
     <Compile Include="Mods\Behaviours\ProjectileBHandler.cs" />
     <Compile Include="Mods\Behaviours\NpcBHandler.cs" />
-    <Compile Include="Mods\Defs\EntityDefLoader.cs" />
-    <Compile Include="Mods\Defs\ProjectileDefHandler.cs" />
-    <Compile Include="Mods\Defs\NpcDefHandler.cs" />
-    <Compile Include="Mods\Defs\ItemDefHandler.cs" />
+    <Compile Include="API\Defs\Handlers\ProjectileDefHandler.cs" />
+    <Compile Include="API\Defs\Handlers\NpcDefHandler.cs" />
+    <Compile Include="API\Defs\Handlers\ItemDefHandler.cs" />
+    <Compile Include="API\Defs\Handlers\Handler.cs" />
+    <Compile Include="API\Defs\Handlers\EntityDefHandler.cs" />
+    <Compile Include="Mods\EntityDefLoader.cs" />
     <Compile Include="Mods\Hooks\Attributes.cs" />
     <Compile Include="Mods\Hooks\HookContainer.cs" />
     <Compile Include="Mods\Hooks\HookManager.cs" />
@@ -146,6 +146,7 @@
     <Compile Include="Util\IndexGetter.cs" />
     <Compile Include="Util\LinqExt.cs" />
     <Compile Include="Util\ReadOnlyDictionary.cs" />
+    <Compile Include="Vanilla\Data.cs" />
     <Compile Include="_LitJson\IJsonWrapper.cs" />
     <Compile Include="_LitJson\JsonData.cs" />
     <Compile Include="_LitJson\JsonException.cs" />

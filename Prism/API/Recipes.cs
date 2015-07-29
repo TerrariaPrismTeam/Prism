@@ -122,7 +122,7 @@ namespace Prism.API
 
         internal static void AddVanillaRecipeReferences()
         {
-            for (int i=0; i<Recipe.numRecipes; i++)
+            for (int i = 0; i < Recipe.numRecipes; i++)
             {
                 ItemDef.ByType[Main.recipe[i].createItem.type].Recipes.Add(Main.recipe[i]);
             }

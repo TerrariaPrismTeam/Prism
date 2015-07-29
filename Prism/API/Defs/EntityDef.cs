@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Prism.API.Behaviours;
 using Prism.Mods;
+using Prism.Defs.Handlers;
 
 namespace Prism.API.Defs
 {
@@ -40,11 +41,28 @@ namespace Prism.API.Defs
             internal set;
         }
 
+        // stupid red and his stupid netids
+        int setNetID = 0;
         /// <summary>
-        /// Gets or sets the name of the entity which will show up in-game. <line>
-        /// aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</line>
-        /// <para></para>
+        /// Gets this item's NetID.
+        /// </summary>
+        public int NetID
+        {
+            get
+            {
+                return setNetID == 0 ? Type : setNetID;
+            }
+            internal set
+            {
+                setNetID = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the name of the entity which will show up in-game.
+        /// <para/>
         /// E.g.: An item's name in inventory, an NPC's name displayed on mouse hover, an NPC's name displayed in player death messages, etc.
+        /// <para/>
         /// Note: Although there exists one way to see a Projectile's name (in player death messages), they don't have a display name property in the vanilla game
         /// </summary>
         public virtual string DisplayName
@@ -60,6 +78,6 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        }    
     }
 }

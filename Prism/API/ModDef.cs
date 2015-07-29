@@ -7,6 +7,7 @@ using Prism.API.Defs;
 using Prism.Mods;
 using Prism.Mods.Hooks;
 using Prism.Mods.Resources;
+using Prism.API.Behaviours;
 
 namespace Prism.API
 {
@@ -36,6 +37,39 @@ namespace Prism.API
             internal set;
         }
 
+        internal EntityByTypeIndexer EntityDefDictsByType
+        {
+            get
+            {
+                return new EntityByTypeIndexer(this);
+            }
+        }
+
+        //I'm so sorry for making this :<
+        internal struct EntityByTypeIndexer
+        {
+            public ModDef ParentMod;
+
+            public EntityByTypeIndexer(ModDef mod)
+            {
+                ParentMod = mod;
+            }
+
+            public object this[Type type]
+            {
+                get
+                {
+                    var defs = (type == typeof(ItemDef)       ? (object)ParentMod.ItemDefs
+                             : (type == typeof(NpcDef)        ? (object)ParentMod.NpcDefs
+                             : (type == typeof(ProjectileDef) ? (object)ParentMod.ProjectileDefs
+                             : null)));
+                    if (defs == null)
+                        throw new ArgumentException("Type '" + type.Name + "' is not that of an entity def.", "type");
+                    return defs;
+                }
+            }
+        }
+
         /// <summary>
         /// Gets the mod's item definitions.
         /// </summary>
@@ -44,7 +78,7 @@ namespace Prism.API
         {
             get;
             internal set;
-        }
+        }        
         /// <summary>
         /// Gets the mod's NPC definitions.
         /// </summary>
@@ -117,7 +151,7 @@ namespace Prism.API
         /// The key of each key/value pair is the internal name of the projectile.
         /// </returns>
         protected abstract Dictionary<string, ProjectileDef> GetProjectileDefs();
-
+        
         T GetResourceInternal<T>(Func<Stream> getStream)
         {
             if (ResourceLoader.ResourceReaders.ContainsKey(typeof(T)))
@@ -127,7 +161,7 @@ namespace Prism.API
         }
 
         /// <summary>
-        /// Contains resources loaded by the mod.
+        /// Gets the specified resource loaded by the mod.
         /// </summary>
         /// <typeparam name="T">The type of resource.</typeparam>
         /// <param name="path">The path to the resource.</param>
@@ -142,7 +176,7 @@ namespace Prism.API
             return GetResourceInternal<T>(() => resources[path]);
         }
         /// <summary>
-        /// Contains resources embedded in the mod's assembly.
+        /// Returns the specified resource embedded in the mod's assembly.
         /// </summary>
         /// <typeparam name="T">The type of resource.</typeparam>
         /// <param name="path">The path to the resource.</param>

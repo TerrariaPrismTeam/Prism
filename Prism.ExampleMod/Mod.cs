@@ -11,7 +11,7 @@ using Terraria;
 using Terraria.ID;
 using Prism.Mods;
 using LitJson;
-
+using Prism.Defs.Handlers;
 
 namespace Prism.ExampleMod
 {
@@ -83,7 +83,7 @@ namespace Prism.ExampleMod
                 */
                 { "Pizzant", new ItemDef("Pizzant", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizzant.png"),
                     description: new ItemDescription("The chaotic forces of italian spices and insects and bread.", "", false, true),
-                    damageType: DamageType.Melee,
+                    damageType: ItemDamageType.Melee,
                     autoReuse: true,
                     useTime: 12,
                     reuseDelay: 0,
@@ -105,7 +105,7 @@ namespace Prism.ExampleMod
                 { "Pizzantzioli", new ItemDef("Pizzantzioli") {
                     Description = new ItemDescription("The forces of ants and pizza come together as one.", "The name is Italian for 'KICKING ASS'! YEAH! BROFISSSSST!!1!", false, true),
                     GetTexture = () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizzantzioli.png"),
-                    DamageType = DamageType.Melee,
+                    DamageType = ItemDamageType.Melee,
                     AutoReuse = true,
                     UseTime = 20,
                     ReuseDelay = 0,
@@ -141,8 +141,7 @@ namespace Prism.ExampleMod
                     noTileCollide: true,
                     color: Color.White,
                     value: new NpcValue((CoinValue)0),
-                    aiStyle: NpcAiStyle.Plantera,
-                    alwaysDraw: true
+                    aiStyle: NpcAiStyle.FlyingHead
                     ) }
             };
         }
@@ -217,7 +216,7 @@ namespace Prism.ExampleMod
 
             if (!Main.player[Main.myPlayer].dead)
             {
-                if (meowmaritusHappyFunCount > 0)
+                if (meowmaritusHappyFunCount-- > 0)
                 {
                     NPC.defaultMaxSpawns *= (byte)(meowmaritusHappyFunTimeBytes >> 16);
                     NPC.maxSpawns *= (byte)(meowmaritusHappyFunTimeBytes >> 16);
@@ -238,17 +237,25 @@ namespace Prism.ExampleMod
                         }
                     }
                 }
-                else
-                {
-                    meowmaritusHappyFunCount--;
-                }
             }
-            #endregion
+            #endregion            
 
             #region spawn custom npcs
-            if (GetKey(Keys.U, KeyState.Down))
+            if (GetKey(Keys.N, KeyState.Down))
             {
-                NPC.SpawnOnPlayer(Main.myPlayer, NpcDef.ByName["PizzaNPC", Info.InternalName].Type);
+                for (int i = 0; i < Main.maxNPCs; i++)
+                {
+                    if (Main.npc[i] != null && !Main.npc[i].active)
+                    {
+                        Main.npc[i] = new NPC();
+                        Handler.NpcDef.CopyDefToEntity(NpcDef.ByName["PizzaNPC", Info.InternalName], Main.npc[i]);
+                        Main.npc[i].active = true;
+                        Main.npc[i].timeLeft = NPC.activeTime;
+                        Main.npc[i].position = GetRandomPositionOnScreen();
+
+                        break;
+                    }                                      
+                }
             }
             #endregion
 
