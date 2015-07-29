@@ -7,7 +7,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Prism.API;
 using Prism.API.Defs;
-using Prism.Util;
 using Terraria;
 using Terraria.ID;
 
@@ -24,53 +23,13 @@ namespace Prism.ExampleMod
             return new Dictionary<string, ItemDef>
             {
                 // Pizza done with JSON method using an external resource
-                { "Pizza", new ItemDef("Pizza", GetResource<JsonData>("Resources\\Items\\Pizza.json"),
-                    getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizza.png")) },
-                /* Pizza done with pure code method
-                { "Pizza", new ItemDef("Pizza", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizza.png"),
-                    description: new ItemDescription("LOTZA SPA-pizza. It's pizza.", "'MMmmmmmmm'", false, true),
-                    useTime: 15,
-                    reuseDelay: 0,
-                    useAnimation: 15,
-                    consumable: true,
-                    maxStack: 999,
-                    rare: ItemRarity.Lime,
-                    useSound: 2,
-                    useStyle: ItemUseStyle.Eat,
-                    holdStyle: ItemHoldStyle.HeldLightSource,
-                    healLife: 400,
-                    useTurn: true,
-                    value: new CoinValue(50, 10, 2),
-                    buff: new BuffDef(BuffID.WellFed, 60 * 60 * 30)
-                    ) },
-                */
+                { "Pizza", new ItemDef("Pizza", GetResource<JsonData>("Resources/Items/Pizza.json"),
+                    () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png")) },
                 // Ant done with JSON method using an embedded resource
-                { "Ant", new ItemDef("Ant", GetResource<JsonData>("Resources\\Items\\Ant.json"),
-                    getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Ant.png")) },
-                /* Ant done with pure code method
-                { "Ant", new ItemDef("Ant", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Ant.png"),
-                    description: new ItemDescription("By ants, for ants.", "'B-but...ants aren't this big!'", false, true),
-                    damageType: DamageType.Melee,
-                    autoReuse: true,
-                    useTime: 6,
-                    reuseDelay: 6,
-                    useAnimation: 6,
-                    maxStack: 1,
-                    rare: ItemRarity.LightPurple,
-                    useSound: 1,
-                    damage: 60,
-                    knockback: 4f,
-                    width: 30,
-                    height: 30,
-                    useTurn: true,
-                    useStyle: ItemUseStyle.Stab,
-                    holdStyle: ItemHoldStyle.Default,
-                    value: new CoinValue(0, 40, 8, 25),
-                    scale: 1.1f
-                    ) },
-                */
-                { "Pizzant", new ItemDef("Pizzant", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizzant.png"),
-                    description: new ItemDescription("The chaotic forces of italian spices and insects and bread.", "", false, true),
+                { "Ant", new ItemDef("Ant", GetEmbeddedResource<JsonData>("Resources/Items/Ant.json"),
+                    () => GetEmbeddedResource<Texture2D>("Resources/Textures/Items/Ant.png")) },
+                { "Pizzant", new ItemDef("Pizzant", () => GetResource<Texture2D>("Resources/Textures/Items/Pizzant.png"),
+                    description: new ItemDescription("The chaotic forces of italian spices and insects and bread.", expert: true),
                     damageType: ItemDamageType.Melee,
                     autoReuse: true,
                     useTime: 12,
@@ -89,10 +48,10 @@ namespace Prism.ExampleMod
                     value: new CoinValue(1, 34, 1, 67),
                     scale: 1.1f
                 ) },
-                //The *not fucking terrible* way to make a new item def in code (you can actually see the XmlDoc's of the fields this way and also it's not ugly camel-case):
+                //The *not fucking terrible* way to make a new item def in code (you can actually see the XmlDoc's of the fields this way and also it's not ugly camelCase):
                 { "Pizzantzioli", new ItemDef("Pizzantzioli") {
-                    Description = new ItemDescription("The forces of ants and pizza come together as one.", "The name is Italian for 'KICKING ASS'! YEAH! BROFISSSSST!!1!", false, true),
-                    GetTexture = () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizzantzioli.png"),
+                    Description = new ItemDescription("The forces of ants and pizza come together as one.", "The name is Italian for 'KICKING ASS'! YEAH! BROFISSSSST!!1!", expert: true),
+                    GetTexture = () => GetResource<Texture2D>("Resources/Textures/Items/Pizzantzioli.png"),
                     DamageType = ItemDamageType.Melee,
                     AutoReuse = true,
                     UseTime = 20,
@@ -117,7 +76,7 @@ namespace Prism.ExampleMod
         {
             return new Dictionary<string, NpcDef>
             {
-                { "PizzaNPC", new NpcDef("Pizza NPC", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizza.png"),
+                { "PizzaNPC", new NpcDef("Pizza NPC", getTex: () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"),
                     lifeMax: 10000,
                     frameCount: 1,
                     damage: 1,
@@ -136,7 +95,7 @@ namespace Prism.ExampleMod
         {
             return new Dictionary<string, ProjectileDef>
             {
-                { "PizzaProjectile", new ProjectileDef("Pizza", getTex: () => GetResource<Texture2D>("Resources\\Textures\\Items\\Pizza.png")
+                { "PizzaProjectile", new ProjectileDef("Pizza", getTex: () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png")
                     ) }
             };
         }

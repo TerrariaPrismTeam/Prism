@@ -258,9 +258,13 @@ namespace Prism.Mods.DefHandlers
         {
             return new NpcDef(Lang.npcName(npc.netID, true));
         }
-        protected override string InternalNameOfEntity(NPC entity)
+        protected override string InternalNameOfEntity(NPC npc)
         {
-            return entity.name;
+            return npc.name;
+        }
+        protected override int NonNetIDTypeOfEntity(NPC npc)
+        {
+            return npc.type;
         }
 
         protected override void LoadSetProperties(NpcDef def)

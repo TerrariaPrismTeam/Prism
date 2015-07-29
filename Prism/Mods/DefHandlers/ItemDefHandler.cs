@@ -344,6 +344,10 @@ namespace Prism.Mods.DefHandlers
         {
             return item.name;
         }
+        protected override int NonNetIDTypeOfEntity(Item item)
+        {
+            return item.type;
+        }
 
         protected override void LoadSetProperties(ItemDef def)
         {

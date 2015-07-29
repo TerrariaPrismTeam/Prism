@@ -4,6 +4,7 @@ using System.Linq;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Terraria;
+using Terraria.ID;
 
 namespace Prism.Mods.DefHandlers
 {
@@ -20,7 +21,7 @@ namespace Prism.Mods.DefHandlers
         /// </summary>
         internal int NextTypeIndex;
 
-        public Dictionary<int   , TEntityDef> DefsByType = new Dictionary<int, TEntityDef>();
+        public Dictionary<int   , TEntityDef> DefsByType        = new Dictionary<int   , TEntityDef>();
         public Dictionary<string, TEntityDef> VanillaDefsByName = new Dictionary<string, TEntityDef>();
 
         protected abstract int MinVanillaID
@@ -50,6 +51,7 @@ namespace Prism.Mods.DefHandlers
 
         protected abstract TEntityDef CreateEmptyDefWithDisplayName(TEntity entity);
         protected abstract string InternalNameOfEntity(TEntity entity);
+        protected abstract int NonNetIDTypeOfEntity(TEntity entity);
 
         protected virtual void PostFillVanilla() { }
 
@@ -63,10 +65,20 @@ namespace Prism.Mods.DefHandlers
                 TEntity entity = GetVanillaEntityFromID(id);
                 TEntityDef def = CreateEmptyDefWithDisplayName(entity);
 
-                CopyEntityToDef(entity, def);
                 def.InternalName = InternalNameOfEntity(entity);
+                if (String.IsNullOrEmpty(def.InternalName))
+                    continue;
+
+                CopyEntityToDef(entity, def);
 
                 DefsByType.Add(id, def);
+
+                // item names are being annoying
+                if (typeof(TEntity) == typeof(Item) && ItemID.Sets.Deprecated[NonNetIDTypeOfEntity(entity)])
+                    def.InternalName = "_" + def.InternalName;
+                else if (VanillaDefsByName.ContainsKey(def.InternalName))
+                    def.InternalName += id;
+
                 VanillaDefsByName.Add(def.InternalName, def);
             }
 
@@ -75,6 +87,8 @@ namespace Prism.Mods.DefHandlers
 
         internal void Reset()
         {
+            ExtendVanillaArrays(-1);
+
             NextTypeIndex = MaxVanillaID;
 
             DefsByType.Clear();

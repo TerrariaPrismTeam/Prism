@@ -9,13 +9,6 @@ using LitJson;
 
 namespace Prism.Mods.Resources
 {
-    class JsonDataResourceReader : ResourceReader<JsonData>
-    {
-        protected override JsonData ReadTypedResource(Stream resourceStream)
-        {
-            return JsonMapper.ToObject(new StreamReader(resourceStream));
-        }
-    }
     class Texture2DResourceReader : ResourceReader<Texture2D>
     {
         protected override Texture2D ReadTypedResource(Stream resourceStream)
@@ -45,6 +38,13 @@ namespace Prism.Mods.Resources
                     return sr.ReadToEnd();
                 }
             }
+        }
+    }
+    class JsonDataResourceReader : ResourceReader<JsonData>
+    {
+        protected override JsonData ReadTypedResource(Stream resourceStream)
+        {
+            return JsonMapper.ToObject((string)ResourceLoader.ResourceReaders[typeof(string)].ReadResource(resourceStream));
         }
     }
 }

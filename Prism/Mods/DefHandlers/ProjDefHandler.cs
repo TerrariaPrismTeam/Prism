@@ -76,9 +76,9 @@ namespace Prism.Mods.DefHandlers
         {
             int newLen = amt > 0 ? Main.projectileTexture.Length + amt : ProjectileID.Count;
             if (!Main.dedServ)
-            {
                 Array.Resize(ref Main.projectileTexture             , newLen);
-            }
+
+            Array.Resize(ref Main.projectileLoaded                  , newLen);
             Array.Resize(ref Main.projFrames                        , newLen);
             Array.Resize(ref Main.projHook                          , newLen);
             Array.Resize(ref Main.projHostile                       , newLen);
@@ -186,6 +186,10 @@ namespace Prism.Mods.DefHandlers
         protected override string InternalNameOfEntity(Projectile proj)
         {
             return proj.name;
+        }
+        protected override int NonNetIDTypeOfEntity(Projectile proj)
+        {
+            return proj.type;
         }
 
         protected override void LoadSetProperties(ProjectileDef def)

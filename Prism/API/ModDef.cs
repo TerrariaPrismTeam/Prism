@@ -110,7 +110,7 @@ namespace Prism.API
         /// A dictionary containing all item definitions.
         /// The key of each key/value pair is the internal name of the item.
         /// </returns>
-        protected virtual Dictionary<string, ItemDef> GetItemDefs()
+        protected virtual Dictionary<string, ItemDef      > GetItemDefs      ()
         {
             return Empty<string, ItemDef      >.Dictionary;
         }
@@ -182,10 +182,30 @@ namespace Prism.API
         {
             var c = containing ?? Assembly.GetCallingAssembly();
 
-            if (Array.IndexOf(c.GetManifestResourceNames(), path) == -1)
-                throw new FileNotFoundException("Embedded resource '" + path + "' not found.");
+            var asmNamePfix = c.GetName().Name + ".";
+            var path_ = ResourceLoader.NormalizeResourceFilePath(path, asmNamePfix);
 
-            return GetResourceInternal<T>(() => c.GetManifestResourceStream(path));
+            var fromFilePath  = Path.GetDirectoryName(path ).Replace('/', '.').Replace('\\', '.') + "." + Path.GetFileName(path );
+            var fromFilePath_ = Path.GetDirectoryName(path_).Replace('/', '.').Replace('\\', '.') + "." + Path.GetFileName(path_);
+
+            var tries = new[]
+            {
+                path,
+                asmNamePfix + path,
+                fromFilePath,
+                asmNamePfix + fromFilePath,
+
+                path_,
+                asmNamePfix + path_,
+                fromFilePath_,
+                asmNamePfix + fromFilePath_
+            };
+
+            for (int i = 0; i < tries.Length; i++)
+                if (Array.IndexOf(c.GetManifestResourceNames(), path) != -1)
+                    return GetResourceInternal<T>(() => c.GetManifestResourceStream(tries[i])); // passing 'i' directly here is ok, because the function is called before GetResourceInternal returns (and i increases)
+
+            throw new FileNotFoundException("Embedded resource '" + path + "' not found.");
         }
 
         /// <summary>

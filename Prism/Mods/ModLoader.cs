@@ -114,8 +114,12 @@ namespace Prism.Mods
                 return null;
             }
 
-            mod.Assembly = asm;
-            mod.Info = info;
+            mod.Assembly = asm ;
+            mod.Info     = info;
+
+            // required by the entity def loader
+            ModData.mods                .Add(mod.Info             , mod);
+            ModData.modsFromInternalName.Add(mod.Info.InternalName, mod);
 
             errors.AddRange(ResourceLoader .Load(mod));
             errors.AddRange(EntityDefLoader.Load(mod));
@@ -191,10 +195,17 @@ namespace Prism.Mods
             {
                 var d = LoadMod(s);
 
+                if (d == null)
+                {
+                    var i = ModData.mods.Last().Key;
+
+                    ModData.mods                .Remove(i);
+                    ModData.modsFromInternalName.Remove(i.InternalName);
+                }
                 if (d != null)
                 {
-                    ModData.mods                .Add(d.Info             , d);
-                    ModData.modsFromInternalName.Add(d.Info.InternalName, d);
+                    //ModData.mods                .Add(d.Info             , d);
+                    //ModData.modsFromInternalName.Add(d.Info.InternalName, d);
 
                     try
                     {
@@ -206,9 +217,7 @@ namespace Prism.Mods
 
                         // Temporary until we have a proper way to see loader errors
                         if (ExceptionHandler.DetailedExceptions)
-                        {
                             MessageBox.Show("An exception has occured:\n" + e, e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
                     }
                 }
             }
