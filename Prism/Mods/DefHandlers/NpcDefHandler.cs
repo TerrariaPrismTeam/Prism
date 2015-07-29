@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
-using Prism.Mods;
 using Prism.Mods.Behaviours;
 using Terraria;
 using Terraria.ID;
@@ -14,18 +13,11 @@ namespace Prism.Mods.DefHandlers
     {
         const int VanillaBossHeadCount = 31;
 
-        protected override int MinVanillaID
+        protected override Type IDContainerType
         {
             get
             {
-                return -65;
-            }
-        }
-        protected override int MaxVanillaID
-        {
-            get
-            {
-                return NPCID.Count;
+                return typeof(NPCID);
             }
         }
 
@@ -256,11 +248,7 @@ namespace Prism.Mods.DefHandlers
         {
             return new NpcDef(Lang.npcName(npc.netID, true));
         }
-        protected override string InternalNameOfEntity(NPC npc)
-        {
-            return npc.name;
-        }
-        protected override int NonNetIDTypeOfEntity(NPC npc)
+        protected override int GetRegularType(NPC npc)
         {
             return npc.type;
         }

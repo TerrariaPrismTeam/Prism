@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Terraria;
@@ -24,11 +25,66 @@ namespace Prism.Mods.DefHandlers
         public Dictionary<int   , TEntityDef> DefsByType        = new Dictionary<int   , TEntityDef>();
         public Dictionary<string, TEntityDef> VanillaDefsByName = new Dictionary<string, TEntityDef>();
 
-        protected abstract int MinVanillaID
+        int?
+            minVanillaId = null,
+            maxVanillaId = null;
+        FieldInfo[] idFields = null;
+        int[] idValues = null;
+        string[] idNames = null;
+
+        internal FieldInfo[] IDFields
         {
-            get;
+            get
+            {
+                if (idFields == null)
+                    idFields = IDContainerType.GetFields(BindingFlags.Public | BindingFlags.Static).Where(f => f.FieldType.IsPrimitive && f.FieldType != typeof(bool) && f.Name != "Count").ToArray();
+
+                return idFields;
+            }
         }
-        protected abstract int MaxVanillaID
+        internal int[] IDValues
+        {
+            get
+            {
+                if (idValues == null)
+                    idValues = IDFields.Select(f => (int)f.GetValue(null)).ToArray();
+
+                return idValues;
+            }
+        }
+        internal string[] IDNames
+        {
+            get
+            {
+                if (idNames == null)
+                    idNames = IDFields.Select(f => f.Name).ToArray();
+
+                return idNames;
+            }
+        }
+
+        protected int MinVanillaID
+        {
+            get
+            {
+                if (minVanillaId == null)
+                    minVanillaId = IDFields.Select(f => (int)f.GetValue(null)).Min();
+
+                return minVanillaId.Value;
+            }
+        }
+        protected int MaxVanillaID
+        {
+            get
+            {
+                if (maxVanillaId == null)
+                    maxVanillaId = IDFields.Select(f => (int)f.GetValue(null)).Max();
+
+                return maxVanillaId.Value;
+            }
+        }
+
+        protected abstract Type IDContainerType
         {
             get;
         }
@@ -50,8 +106,7 @@ namespace Prism.Mods.DefHandlers
         protected abstract void LoadSetProperties(TEntityDef def);
 
         protected abstract TEntityDef CreateEmptyDefWithDisplayName(TEntity entity);
-        protected abstract string InternalNameOfEntity(TEntity entity);
-        protected abstract int NonNetIDTypeOfEntity(TEntity entity);
+        protected abstract int GetRegularType(TEntity entity);
 
         protected virtual void PostFillVanilla() { }
 
@@ -65,20 +120,13 @@ namespace Prism.Mods.DefHandlers
                 TEntity entity = GetVanillaEntityFromID(id);
                 TEntityDef def = CreateEmptyDefWithDisplayName(entity);
 
-                def.InternalName = InternalNameOfEntity(entity);
+                def.InternalName = IDNames[Array.IndexOf(IDValues, GetRegularType(entity))];
                 if (String.IsNullOrEmpty(def.InternalName))
                     continue;
 
                 CopyEntityToDef(entity, def);
 
                 DefsByType.Add(id, def);
-
-                // item names are being annoying
-                if (typeof(TEntity) == typeof(Item) && ItemID.Sets.Deprecated[NonNetIDTypeOfEntity(entity)])
-                    def.InternalName = "_" + def.InternalName;
-                else if (VanillaDefsByName.ContainsKey(def.InternalName))
-                    def.InternalName += id;
-
                 VanillaDefsByName.Add(def.InternalName, def);
             }
 

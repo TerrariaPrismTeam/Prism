@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Prism.API;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
-using Prism.Mods;
 using Prism.Mods.Behaviours;
 using Terraria;
 using Terraria.ID;
@@ -13,18 +11,11 @@ namespace Prism.Mods.DefHandlers
 {
     sealed class ItemDefHandler : EntityDefHandler<ItemDef, ItemBehaviour, Item>
     {
-        protected override int MinVanillaID
+        protected override Type IDContainerType
         {
             get
             {
-                return -24;
-            }
-        }
-        protected override int MaxVanillaID
-        {
-            get
-            {
-                return ItemID.Count;
+                return typeof(ItemID);
             }
         }
 
@@ -338,11 +329,7 @@ namespace Prism.Mods.DefHandlers
         {
             return new ItemDef(Lang.itemName(item.netID, true));
         }
-        protected override string InternalNameOfEntity(Item item)
-        {
-            return item.name;
-        }
-        protected override int NonNetIDTypeOfEntity(Item item)
+        protected override int GetRegularType(Item item)
         {
             return item.type;
         }

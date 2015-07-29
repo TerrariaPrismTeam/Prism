@@ -11,18 +11,11 @@ namespace Prism.Mods.DefHandlers
 {
     sealed class ProjDefHandler : EntityDefHandler<ProjectileDef, ProjectileBehaviour, Projectile>
     {
-        protected override int MinVanillaID
+        protected override Type IDContainerType
         {
             get
             {
-                return 0;
-            }
-        }
-        protected override int MaxVanillaID
-        {
-            get
-            {
-                return ProjectileID.Count;
+                return typeof(ProjectileID);
             }
         }
 
@@ -181,11 +174,7 @@ namespace Prism.Mods.DefHandlers
         {
             return new ProjectileDef(proj.name);
         }
-        protected override string InternalNameOfEntity(Projectile proj)
-        {
-            return proj.name;
-        }
-        protected override int NonNetIDTypeOfEntity(Projectile proj)
+        protected override int GetRegularType(Projectile proj)
         {
             return proj.type;
         }
