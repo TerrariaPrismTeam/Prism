@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 
 namespace Prism.Injector.Patcher
 {
@@ -46,6 +47,36 @@ namespace Prism.Injector.Patcher
             c.PrimaryAssembly.MainModule.Types.Add(ret);
 
             return ret;
+        }
+        public static Instruction FindInstructionSeq(MethodBody body, OpCode[] instrs)
+        {
+            for (int i = 0; i < body.Instructions.Count - instrs.Length; i++)
+            {
+                for (int j = 0; j < instrs.Length; j++)
+                {
+                    if (body.Instructions[i + j].OpCode.Code != instrs[j].Code)
+                        goto next_try;
+                }
+
+                return body.Instructions[i];
+            next_try:
+                ;
+            }
+
+            return null;
+        }
+        public static void RemoveInstructions(ILProcessor p, Instruction first, int count)
+        {
+            var cur = first;
+            for (int i = 0; i < count; i++)
+            {
+                if (cur == null)
+                    break;
+
+                var n = cur.Next;
+                p.Remove(cur);
+                cur = n;
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using LitJson;
 using Microsoft.Xna.Framework;
@@ -213,19 +214,9 @@ namespace Prism.ExampleMod
             #region spawn custom npcs
             if (GetKey(Keys.N, KeyState.Down))
             {
-                for (int i = 0; i < Main.maxNPCs; i++)
-                {
-                    if (Main.npc[i] != null && !Main.npc[i].active)
-                    {
-                        Main.npc[i] = new NPC();
-                        Main.npc[i].SetDefaults(NpcDef.ByName["PizzaNPC", Info.InternalName].Type);
-                        Main.npc[i].active = true;
-                        Main.npc[i].timeLeft = NPC.activeTime;
-                        Main.npc[i].position = GetRandomPositionOnScreen();
+                var pt = GetRandomPositionOnScreen().ToPoint();
 
-                        break;
-                    }
-                }
+                NPC.NewNPC(pt.X, pt.Y, NpcDef.ByName["PizzaNPC", Info.InternalName].Type);
             }
             #endregion
 

@@ -38,6 +38,8 @@ namespace Prism.Mods.DefHandlers
 
                     Handler.NpcDef.CopyDefToEntity(d, n);
 
+                    n.life = n.lifeMax; //! BEEP BOOP
+
                     if (scaleOverride > -1f)
                         n.scale = scaleOverride;
 
