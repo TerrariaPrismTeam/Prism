@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Prism.API.Behaviours;
 using Prism.Mods;
-using Prism.Defs.Handlers;
+using Prism.Mods.DefHandlers;
 using Terraria;
 using Terraria.ID;
 

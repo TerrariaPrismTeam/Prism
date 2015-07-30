@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.API.Behaviours;
 using Prism.Mods;
-using Prism.Defs.Handlers;
+using Prism.Mods.DefHandlers;
 using Terraria;
 using LitJson;
 
@@ -935,6 +935,14 @@ namespace Prism.API.Defs {
             //if (json.Has("tileMerge"))
             //    ResolverQueue.Add(new TileMergeResolver(modBase, TileDef.byType[tileID], tileID, jsonData4));
 
+        }
+        
+        public static implicit operator TileRef(TileDef def) {
+            return new TileRef(def.InternalName, def.Mod.InternalName);
+        }
+        
+        public static explicit operator TileDef(TileRef @ref) {
+            return @ref.Resolve();
         }
 
     }
