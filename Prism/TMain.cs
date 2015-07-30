@@ -74,7 +74,7 @@ namespace Prism
         /// </summary>
         void ApplyHotfixes()
         {
-            foreach (Player p in from plr in player where plr.active = true select plr)
+            foreach (Player p in from plr in player where plr.active == true select plr)
             {
                 int prevLength = p.npcTypeNoAggro.Length;
                 if (prevLength < Handler.NpcDef.NextTypeIndex)
