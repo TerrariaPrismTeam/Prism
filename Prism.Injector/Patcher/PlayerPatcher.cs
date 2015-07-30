@@ -14,76 +14,47 @@ namespace Prism.Injector.Patcher
         static TypeSystem ts;
         static TypeDefinition player_t;
 
-        // This is a massive hack for a bug in Player.cs. It removes the ID checks from player loading, so that invalid items are removed instead of resulting in the character being declared invalid.
-        // If this gets fixed in the original, this code should be removed.
+        // Removes the ID checks from player loading, so that invalid items
+        // are removed instead of resulting in the character being declared
+        // invalid. If this gets fixed in the original, this code should be
+        // removed.
         static void RemoveBuggyPlayerLoading()
         {
+            OpCode[] seqToRemove =
+            {
+                    OpCodes.Ldloc_S,
+                    OpCodes.Ldc_I4,
+                    OpCodes.Blt_S,
+                    OpCodes.Ldloc_1,
+                    OpCodes.Ldfld,
+                    OpCodes.Ldloc_S,
+                    OpCodes.Ldelem_Ref,
+                    OpCodes.Ldc_I4_0,
+                    OpCodes.Callvirt,
+                    OpCodes.Br_S,
+            };
+
             var loadPlayerBody = player_t.GetMethod("LoadPlayer", MethodFlags.Public | MethodFlags.Static, ts.String, ts.Boolean).Body;
             var processor = loadPlayerBody.GetILProcessor();
             int count = 0;
 
-            //TODO: clean this up
             while (true)
             {
-                bool found = false;
-                foreach (var i in loadPlayerBody.Instructions)
+                var firstInstr = CecilHelper.FindInstructionSeq(loadPlayerBody, seqToRemove);
+                if (firstInstr != null)
                 {
-                    if (i.OpCode != OpCodes.Ldloc_S)
-                        continue;
-                    var t = i.Next;
-                    if (t.OpCode != OpCodes.Callvirt)
-                        continue;
-                    t = t.Next;
-                    var start = t;
-                    if (t.OpCode != OpCodes.Stloc_S)
-                        continue;
-                    t = t.Next;
-                    if (t.OpCode != OpCodes.Ldloc_S)
-                        continue;
-                    t = t.Next;
-                    if (t.OpCode != OpCodes.Ldc_I4)
-                        continue;
-                    t = t.Next;
-                    if (t.OpCode != OpCodes.Blt_S)
-                        continue;
-                    t = t.Next;
-                    if (t.OpCode != OpCodes.Ldloc_1)
-                        continue;
-                    t = t.Next;
-                    if (t.OpCode != OpCodes.Ldfld)
-                        continue;
-                    t = t.Next;
-                    if (t.OpCode != OpCodes.Ldloc_S)
-                        continue;
-                    t = t.Next;
-                    if (t.OpCode != OpCodes.Ldelem_Ref)
-                        continue;
-                    t = t.Next;
-                    if (t.OpCode != OpCodes.Ldc_I4_0)
-                        continue;
-                    t = t.Next;
-                    if (t.OpCode != OpCodes.Callvirt)
-                        continue;
-                    t = t.Next;
-                    if (t.OpCode != OpCodes.Br_S)
-                        continue;
-                    t = t.Next;
-                    var end = t;
-                    if (t.OpCode != OpCodes.Ldloc_1)
-                        continue;
                     count++;
-                    while (start.Next != end)
-                    {
-                        processor.Remove(start.Next);
-                    }
-                    found = true;
-                    break;  // Since iterating through is no longer valid, we break and let the loop start again.
+                    CecilHelper.RemoveInstructions(processor, firstInstr, seqToRemove.Length);
                 }
-                if (!found)
+                else
                 {
-                    if (count != 6)
+                    if (count == 0)
                     {
-                        Console.WriteLine("Count is " + count.ToString() + " instead of 6; Terraria.Player.LoadPlayer() logic may have changed.");
+                        Console.WriteLine("RemoveBuggyPlayerLoading() could not find the target instruction sequence; Terraria.Player.LoadPlayer() may have been fixed, and this hack can be removed.");
+                    }
+                    else if (count != 6)
+                    {
+                        Console.WriteLine("RemoveBuggyPlayerLoading() removed " + count.ToString() + " instances of the target instruction sequence instead of 6; Terraria.Player.LoadPlayer() logic may have changed, and this hack may be superflous/hamrful!");
                     }
                     break;
                 }
