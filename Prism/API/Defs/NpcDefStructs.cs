@@ -96,7 +96,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = Color.White;
+        }
 
         public TownNpcConfig()
         {

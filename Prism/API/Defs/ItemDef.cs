@@ -424,7 +424,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = ItemHoldStyle.Default;
+        }
 
         /// <summary>
         /// Gets or sets the type of damage this item does.
