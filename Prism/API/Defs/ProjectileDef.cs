@@ -25,6 +25,7 @@ namespace Prism.API.Defs
                 }
             }
         }
+
         /// <summary>
         /// Gets ProjectileDefs by their internal name (and optionally by their mod's internal name).
         /// </summary>
@@ -52,6 +53,7 @@ namespace Prism.API.Defs
                 return new ByTypeIndexer();
             }
         }
+
         /// <summary>
         /// Gets ProjectileDefs by their internal name (and optionally by their mod's internal name).
         /// </summary>
@@ -71,7 +73,8 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = 0;
+
         /// <summary>
         /// Gets or sets the type of damage this projectile inflicts.
         /// </summary>
@@ -79,7 +82,8 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = ProjectileDamageType.None;
+
         /// <summary>
         /// Gets or sets the width of this projectile.
         /// </summary>
@@ -88,7 +92,8 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = 16;
+
         /// <summary>
         /// Gets or sets the height of this projectile.
         /// </summary>
@@ -97,7 +102,8 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = 16;
+
         /// <summary>
         /// Gets or sets the opacity at which the projectile's sprite is rendered (0 = fully opaque, 255 = fully transparent).
         /// </summary>
@@ -106,7 +112,8 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = 0;
+
         /// <summary>
         /// Gets or sets the scale at which the projectile's sprite is rendered (1.0f = normal scale).
         /// </summary>
@@ -115,7 +122,8 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = 1.0f;
+
         /// <summary>
         /// Gets or sets the AI style of this projectile.
         /// </summary>
@@ -123,7 +131,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = ProjectileAiStyle.None;
 
         /// <summary>
         /// NeedsSummary
@@ -133,7 +141,8 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = 10;
+
         /// <summary>
         /// Gets or sets the total number of animation frames in this projectile's sprite.
         /// </summary>
@@ -142,7 +151,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = 1;
 
         /// <summary>
         /// NeedsSummary
@@ -152,7 +161,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = false;
 
         /// <summary>
         /// Gets or sets whether this projectile functions as a grappling hook.
@@ -162,7 +171,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = false;
 
         /// <summary>
         /// Gets or sets whether this projectile is hostile.
@@ -172,7 +181,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = false;
 
         /// <summary>
         /// Gets or sets whether this projectile is a pet.
@@ -182,7 +191,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = false;
 
         /// <summary>
         /// Gets or sets whether this projectile homes in on its target.
@@ -192,7 +201,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = false;
 
         /// <summary>
         /// Gets or sets whether this projectile is a light pet.
@@ -202,7 +211,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = false;
 
         /// <summary>
         /// Gets or sets whether this projectile is a minion that can be sacrificed upon spawning another one.
@@ -212,7 +221,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = false;
 
         /// <summary>
         /// NeedsSummary
@@ -222,7 +231,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = false;
 
         /// <summary>
         /// Gets or sets whether this projectile is used for Stardust Dragons.
@@ -232,7 +241,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = false;
 
         /// <summary>
         /// NeedsDescription
@@ -242,7 +251,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = TrailingMode.None;
 
         /// <summary>
         /// Gets or sets the projectile's texture.
@@ -251,46 +260,13 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
-
-        public ProjectileDef(
-            #region arguments
-            string displayName,
-            Func<ProjectileBehaviour> newBehaviour = null,
-            int damage = 0,
-            int width = 16,
-            int height = 16,
-            int alpha = 0,
-            int frameCount = 1,
-            float scale = 1f,
-            ProjectileAiStyle aiStyle = ProjectileAiStyle.None,
-
-            int trailCacheLength = 0,
-
-            Func<Texture2D> getTex         = null
-            #endregion
-            )
-        {
-            DisplayName = displayName;
-            CreateBehaviour = newBehaviour ?? Empty<ProjectileBehaviour>.Func;
-
-            Damage = damage;
-            Width = width;
-            Height = height;
-            Alpha = alpha;
-            TotalFrameCount = frameCount;
-            Scale = scale;
-            AiStyle = aiStyle;
-
-            TrailCacheLength = trailCacheLength;
-
-            GetTexture = getTex ?? Empty<Texture2D>.Func;
-        }
+        } = null;   
 
         public static implicit operator ProjectileRef(ProjectileDef  def)
         {
             return new ProjectileRef(def.InternalName, def.Mod.InternalName);
         }
+
         public static explicit operator ProjectileDef(ProjectileRef @ref)
         {
             return @ref.Resolve();

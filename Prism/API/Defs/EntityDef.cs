@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Prism.API.Behaviours;
 using Prism.Mods;
+using Prism.Util;
 
 namespace Prism.API.Defs
 {
@@ -20,7 +21,8 @@ namespace Prism.API.Defs
         {
             get;
             internal set;
-        }
+        } = string.Empty;
+
         /// <summary>
         /// Gets Information about the mod to which this entity belongs.
         /// </summary>
@@ -39,7 +41,7 @@ namespace Prism.API.Defs
             get;
             internal set;
         }
-        // stupid red and his stupid netids
+
         int setNetID = 0;
         /// <summary>
         /// Gets this item's NetID.
@@ -67,7 +69,8 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = string.Empty;
+
         /// <summary>
         /// Gets or sets the parameterless constructor that instantiates the matching EntityBehaviour class of the EntityRef.
         /// </summary>
@@ -75,7 +78,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = Empty<TBehaviour>.Func;
 
         public override string ToString()
         {

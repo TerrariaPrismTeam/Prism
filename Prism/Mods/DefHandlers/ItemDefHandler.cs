@@ -50,10 +50,10 @@ namespace Prism.Mods.DefHandlers
             else
                 item.RealSetDefaults(type, noMatCheck);
 
-            h.behaviours.AddRange(ModData.mods.Values.Select(m => m.CreateGlobalItemBInternally()).Where(b => b != null));
-
             if (h != null)
             {
+                h.behaviours.AddRange(ModData.mods.Values.Select(m => m.CreateGlobalItemBInternally()).Where(b => b != null));
+
                 h.Create();
                 item.BHandler = h;
 
@@ -121,7 +121,7 @@ namespace Prism.Mods.DefHandlers
             def.Defense            = item.defense;
             def.CritChanceModifier = item.crit;
             def.PickaxePower       = item.pick;
-            def.AxePower           = item.axe * 5; // again, red, why did you do this?
+            def.AxePower           = item.axe * 5;
             def.HammerPower        = item.hammer;
             def.LifeHeal           = item.healLife;
             def.ManaHeal           = item.healMana;
@@ -140,17 +140,12 @@ namespace Prism.Mods.DefHandlers
             def.Rarity             = (ItemRarity)item.rare;
             def.UseStyle           = (ItemUseStyle)item.useStyle;
             def.HoldStyle          = (ItemHoldStyle)item.holdStyle;
-            def.DamageType         = item.melee
-                                        ? ItemDamageType.Melee
-                                        : item.ranged
-                                            ? ItemDamageType.Ranged
-                                            : item.magic
-                                                ? ItemDamageType.Magic
-                                                : item.summon
-                                                    ? ItemDamageType.Summon
-                                                    : item.thrown
-                                                        ? ItemDamageType.Thrown
-                                                        : ItemDamageType.None;
+            def.DamageType         = item.melee  ? ItemDamageType.Melee
+                                   : item.ranged ? ItemDamageType.Ranged
+                                   : item.magic  ? ItemDamageType.Magic
+                                   : item.summon ? ItemDamageType.Summon
+                                   : item.thrown ? ItemDamageType.Thrown
+                                        : ItemDamageType.None;
 
             def.Value = new CoinValue(item.value);
             def.Description = new ItemDescription(item.toolTip, item.toolTip2, item.vanity, item.expert, item.questItem, item.notAmmo);
@@ -325,16 +320,12 @@ namespace Prism.Mods.DefHandlers
             return ret;
         }
 
-        protected override ItemDef CreateEmptyDefWithDisplayName(Item item)
-        {
-            return new ItemDef(Lang.itemName(item.netID, true));
-        }
         protected override int GetRegularType(Item item)
         {
             return item.type;
         }
 
-        protected override void LoadSetProperties(ItemDef def)
+        protected override void CopySetProperties(ItemDef def)
         {
             Main.itemName[def.Type] = def.DisplayName;
 
@@ -347,6 +338,11 @@ namespace Prism.Mods.DefHandlers
             ItemID.Sets.NeverShiny              [def.Type] = def.NeverShiny              ;
             ItemID.Sets.ExtractinatorMode       [def.Type] = def.ExtractinatorMode       ;
             ItemID.Sets.StaffMinionSlotsRequired[def.Type] = def.RequiredStaffMinionSlots;
+        }
+
+        protected override int GetNetType(Item item)
+        {
+            return item.netID;
         }
     }
 }

@@ -40,7 +40,7 @@ namespace Prism
         protected override void Initialize()
         {
             Item.OnSetDefaults += ItemDefHandler.OnSetDefaults;
-            NPC .OnSetDefaults += NpcDefHandler .OnSetDefaults;
+            NPC.OnSetDefaults += NpcDefHandler .OnSetDefaults;
             Projectile.OnSetDefaults += ProjDefHandler.OnSetDefaults;
 
             base.Initialize(); // terraria init and LoadContent happen here

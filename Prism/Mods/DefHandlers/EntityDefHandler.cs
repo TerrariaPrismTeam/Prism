@@ -15,7 +15,7 @@ namespace Prism.Mods.DefHandlers
     abstract class EntityDefHandler<TEntityDef, TBehaviour, TEntity>
         where TEntity : class
         where TBehaviour : EntityBehaviour<TEntity>
-        where TEntityDef : EntityDef<TBehaviour, TEntity>
+        where TEntityDef : EntityDef<TBehaviour, TEntity>, new()
     {
         /// <summary>
         /// The entity type index to which the next entity added will be assigned;
@@ -47,7 +47,7 @@ namespace Prism.Mods.DefHandlers
             get
             {
                 if (idValues == null)
-                    idValues = IDFields.Select(f => (int)f.GetValue(null)).ToArray();
+                    idValues = IDFields.Select(f => (int)Convert.ChangeType(f.GetValue(null), typeof(int))).ToArray();
 
                 return idValues;
             }
@@ -68,7 +68,7 @@ namespace Prism.Mods.DefHandlers
             get
             {
                 if (minVanillaId == null)
-                    minVanillaId = IDFields.Select(f => (int)f.GetValue(null)).Min();
+                    minVanillaId = IDFields.Select(f => (int)Convert.ChangeType(f.GetValue(null), typeof(int))).Min();
 
                 return minVanillaId.Value;
             }
@@ -78,9 +78,9 @@ namespace Prism.Mods.DefHandlers
             get
             {
                 if (maxVanillaId == null)
-                    maxVanillaId = IDFields.Select(f => (int)f.GetValue(null)).Max();
+                    maxVanillaId = IDFields.Select(f => (int)Convert.ChangeType(f.GetValue(null), typeof(int))).Max();
 
-                return maxVanillaId.Value;
+                return maxVanillaId.Value + 1; //It's exclusive, bitch
             }
         }
 
@@ -103,10 +103,10 @@ namespace Prism.Mods.DefHandlers
 
         protected abstract List<LoaderError> CheckTextures(TEntityDef def);
         protected abstract List<LoaderError> LoadTextures (TEntityDef def);
-        protected abstract void LoadSetProperties(TEntityDef def);
+        protected abstract void CopySetProperties(TEntityDef def);
 
-        protected abstract TEntityDef CreateEmptyDefWithDisplayName(TEntity entity);
         protected abstract int GetRegularType(TEntity entity);
+        protected abstract int GetNetType(TEntity entity);
 
         protected virtual void PostFillVanilla() { }
 
@@ -118,16 +118,16 @@ namespace Prism.Mods.DefHandlers
                     continue;
 
                 TEntity entity = GetVanillaEntityFromID(id);
-                TEntityDef def = CreateEmptyDefWithDisplayName(entity);
-
-                def.InternalName = IDNames[Array.IndexOf(IDValues, GetRegularType(entity))];
-                if (String.IsNullOrEmpty(def.InternalName))
-                    continue;
+                TEntityDef def = new TEntityDef();                
 
                 CopyEntityToDef(entity, def);
 
+                def.InternalName = IDNames[Array.IndexOf(IDValues, GetNetType(entity))];
+                if (String.IsNullOrEmpty(def.InternalName))
+                    continue;
+
                 DefsByType.Add(id, def);
-                VanillaDefsByName.Add(def.InternalName, def);
+
             }
 
             PostFillVanilla();
@@ -174,7 +174,7 @@ namespace Prism.Mods.DefHandlers
                     }
                 }
 
-                LoadSetProperties(def);
+                CopySetProperties(def);
                 DefsByType.Add(NextTypeIndex++, def);
             }
 
