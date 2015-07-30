@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
-using Prism.Mods;
 using Prism.Mods.Behaviours;
 using Terraria;
 using Terraria.ID;
@@ -14,18 +13,11 @@ namespace Prism.Mods.DefHandlers
     {
         const int VanillaBossHeadCount = 31;
 
-        protected override int MinVanillaID
+        protected override Type IDContainerType
         {
             get
             {
-                return -65;
-            }
-        }
-        protected override int MaxVanillaID
-        {
-            get
-            {
-                return NPCID.Count;
+                return typeof(NPCID);
             }
         }
 
@@ -46,6 +38,8 @@ namespace Prism.Mods.DefHandlers
 
                     Handler.NpcDef.CopyDefToEntity(d, n);
 
+                    n.life = n.lifeMax; //! BEEP BOOP
+
                     if (scaleOverride > -1f)
                         n.scale = scaleOverride;
 
@@ -57,17 +51,15 @@ namespace Prism.Mods.DefHandlers
                         if (b != null)
                             h.behaviours.Add(b);
                     }
-
-                    n.BHandler = h;
                 }
             }
             else
                 n.RealSetDefaults(type, scaleOverride);
 
-            //TODO: add global hooks here (and check for null)
-
             if (h != null)
             {
+                h.behaviours.AddRange(ModData.mods.Values.Select(m => m.CreateGlobalNpcBInternally()).Where(b => b != null));
+
                 h.Create();
                 n.BHandler = h;
 
@@ -121,6 +113,10 @@ namespace Prism.Mods.DefHandlers
             entity.netDefaults(id);
             return entity;
         }
+        protected override NpcDef NewDefFromVanilla(NPC npc)
+        {
+            return new NpcDef(Lang.npcName(npc.netID, true), getTexture: () => Main.npcTexture[npc.type]);
+        }
 
         protected override void CopyEntityToDef(NPC npc, NpcDef def)
         {
@@ -156,27 +152,28 @@ namespace Prism.Mods.DefHandlers
                 if (npc.buffImmune[i])
                     def.BuffImmunities.Add(i);
 
-            def.DisplayName     = Main.npcName      [def.Type];
-            def.TotalFrameCount = Main.npcFrameCount[def.Type];
+            def.DisplayName                         = Main.npcName                     [def.Type];
+            def.FrameCount                          = Main.npcFrameCount               [def.Type];
 
-            def.AttackAverageChance    = NPCID.Sets.AttackAverageChance   [def.Type];
-            def.AttackFrameCount       = NPCID.Sets.AttackFrameCount      [def.Type];
-            def.AttackTime             = NPCID.Sets.AttackTime            [def.Type];
-            def.AttackType             = NPCID.Sets.AttackType            [def.Type];
-            def.DangerDetectRange      = NPCID.Sets.DangerDetectRange     [def.Type];
-            def.ExtraFramesCount       = NPCID.Sets.ExtraFramesCount      [def.Type];
-            def.FaceEmote              = NPCID.Sets.FaceEmote             [def.Type];
-            def.PrettySafe             = NPCID.Sets.PrettySafe            [def.Type];
-            def.TrailCacheLength       = NPCID.Sets.TrailCacheLength      [def.Type];
-            def.ExcludedFromDeathTally = NPCID.Sets.ExcludedFromDeathTally[def.Type];
-            def.IsAllowedInMP          = NPCID.Sets.MPAllowedEnemies      [def.Type];
-            def.MustAlwaysDraw         = NPCID.Sets.MustAlwaysDraw        [def.Type];
-            def.NeedsExpertScaling     = NPCID.Sets.NeedsExpertScaling    [def.Type];
-            def.IsProjectileNPC        = NPCID.Sets.ProjectileNPC         [def.Type];
-            def.SavesAndLoads          = NPCID.Sets.SavesAndLoads         [def.Type];
-            def.IsTechnicallyABoss     = NPCID.Sets.TechnicallyABoss      [def.Type];
-            def.IsTownCritter          = NPCID.Sets.TownCritter           [def.Type];
-            def.MagicAuraColour        = NPCID.Sets.MagicAuraColor        [def.Type];
+            def.TownConfig.AverageAttackChance      = NPCID.Sets.AttackAverageChance   [def.Type];
+            def.TownConfig.AttackFrameCount         = NPCID.Sets.AttackFrameCount      [def.Type];
+            def.TownConfig.AttackTime               = NPCID.Sets.AttackTime            [def.Type];
+            def.TownConfig.AttackType               = (TownNpcAttackType)NPCID.Sets.AttackType[def.Type];
+            def.TownConfig.DangerDetectRadius       = NPCID.Sets.DangerDetectRange     [def.Type];
+            def.TownConfig.ExtraFramesCount         = NPCID.Sets.ExtraFramesCount      [def.Type];
+            def.TownConfig.ChatIcon                 = (ChatBubbleIconIndex)
+                                                        NPCID.Sets.FaceEmote           [def.Type];
+            def.TownConfig.SafetyRadius             = NPCID.Sets.PrettySafe            [def.Type];
+            def.TownConfig.MagicAuraColour          = NPCID.Sets.MagicAuraColor        [def.Type];
+            def.TrailCacheLength                    = NPCID.Sets.TrailCacheLength      [def.Type];
+            def.ExcludedFromDeathTally              = NPCID.Sets.ExcludedFromDeathTally[def.Type];
+            def.IsSummonableBoss                    = NPCID.Sets.MPAllowedEnemies      [def.Type];
+            def.MustAlwaysDraw                      = NPCID.Sets.MustAlwaysDraw        [def.Type];
+            def.NeedsExpertScaling                  = NPCID.Sets.NeedsExpertScaling    [def.Type];
+            def.IsProjectileNPC                     = NPCID.Sets.ProjectileNPC         [def.Type];
+            def.SavesAndLoads                       = NPCID.Sets.SavesAndLoads         [def.Type];
+            def.IsTechnicallyABoss                  = NPCID.Sets.TechnicallyABoss      [def.Type];
+            def.IsTownCritter                       = NPCID.Sets.TownCritter           [def.Type];
         }
         protected override void CopyDefToEntity(NpcDef def, NPC npc)
         {
@@ -200,7 +197,7 @@ namespace Prism.Mods.DefHandlers
             npc.knockBackResist = def.KnockbackResistance;
             npc.npcSlots        = def.NpcSlots;
             npc.color           = def.Colour;
-            npc.dontCountMe     = def.HasAntiRadar;
+            npc.dontCountMe     = def.NotOnRadar;
             npc.value           = Main.rand.Next(def.Value.Min.Value, def.Value.Max.Value); // close enough
             npc.aiStyle         = (int)def.AiStyle;
 
@@ -254,38 +251,34 @@ namespace Prism.Mods.DefHandlers
             return ret;
         }
 
-        protected override NpcDef CreateEmptyDefWithDisplayName(NPC npc)
+        protected override int GetRegularType(NPC npc)
         {
-            return new NpcDef(Lang.npcName(npc.netID, true));
-        }
-        protected override string InternalNameOfEntity(NPC entity)
-        {
-            return entity.name;
+            return npc.type;
         }
 
-        protected override void LoadSetProperties(NpcDef def)
+        protected override void CopySetProperties(NpcDef def)
         {
-            Main.npcName      [def.Type] = def.DisplayName    ;
-            Main.npcFrameCount[def.Type] = def.TotalFrameCount;
+            Main.npcName                     [def.Type] = def.DisplayName    ;
+            Main.npcFrameCount               [def.Type] = def.FrameCount;
 
-            NPCID.Sets.AttackAverageChance   [def.Type] = def.AttackAverageChance   ;
-            NPCID.Sets.AttackFrameCount      [def.Type] = def.AttackFrameCount      ;
-            NPCID.Sets.AttackTime            [def.Type] = def.AttackTime            ;
-            NPCID.Sets.AttackType            [def.Type] = def.AttackType            ;
-            NPCID.Sets.DangerDetectRange     [def.Type] = def.DangerDetectRange     ;
-            NPCID.Sets.ExtraFramesCount      [def.Type] = def.ExtraFramesCount      ;
-            NPCID.Sets.FaceEmote             [def.Type] = def.FaceEmote             ;
-            NPCID.Sets.PrettySafe            [def.Type] = def.PrettySafe            ;
-            NPCID.Sets.TrailCacheLength      [def.Type] = def.TrailCacheLength      ;
+            NPCID.Sets.AttackAverageChance   [def.Type] = def.TownConfig.AverageAttackChance;
+            NPCID.Sets.AttackFrameCount      [def.Type] = def.TownConfig.AttackFrameCount;
+            NPCID.Sets.AttackTime            [def.Type] = def.TownConfig.AttackTime;
+            NPCID.Sets.AttackType            [def.Type] = (int)def.TownConfig.AttackType;
+            NPCID.Sets.DangerDetectRange     [def.Type] = def.TownConfig.DangerDetectRadius;
+            NPCID.Sets.ExtraFramesCount      [def.Type] = def.TownConfig.ExtraFramesCount;
+            NPCID.Sets.FaceEmote             [def.Type] = (int)def.TownConfig.ChatIcon;
+            NPCID.Sets.PrettySafe            [def.Type] = def.TownConfig.SafetyRadius;
+            NPCID.Sets.TrailCacheLength      [def.Type] = def.TrailCacheLength;
             NPCID.Sets.ExcludedFromDeathTally[def.Type] = def.ExcludedFromDeathTally;
-            NPCID.Sets.MPAllowedEnemies      [def.Type] = def.IsAllowedInMP         ;
-            NPCID.Sets.MustAlwaysDraw        [def.Type] = def.MustAlwaysDraw        ;
-            NPCID.Sets.NeedsExpertScaling    [def.Type] = def.NeedsExpertScaling    ;
-            NPCID.Sets.ProjectileNPC         [def.Type] = def.IsProjectileNPC       ;
-            NPCID.Sets.SavesAndLoads         [def.Type] = def.SavesAndLoads         ;
-            NPCID.Sets.TechnicallyABoss      [def.Type] = def.IsTechnicallyABoss    ;
-            NPCID.Sets.TownCritter           [def.Type] = def.IsTownCritter         ;
-            NPCID.Sets.MagicAuraColor        [def.Type] = def.MagicAuraColour       ;
+            NPCID.Sets.MPAllowedEnemies      [def.Type] = def.IsSummonableBoss;
+            NPCID.Sets.MustAlwaysDraw        [def.Type] = def.MustAlwaysDraw;
+            NPCID.Sets.NeedsExpertScaling    [def.Type] = def.NeedsExpertScaling;
+            NPCID.Sets.ProjectileNPC         [def.Type] = def.IsProjectileNPC;
+            NPCID.Sets.SavesAndLoads         [def.Type] = def.SavesAndLoads;
+            NPCID.Sets.TechnicallyABoss      [def.Type] = def.IsTechnicallyABoss;
+            NPCID.Sets.TownCritter           [def.Type] = def.IsTownCritter;
+            NPCID.Sets.MagicAuraColor        [def.Type] = def.TownConfig.MagicAuraColour;
 
             if (def.IsSkeleton && !NPCID.Sets.Skeletons.Contains(def.Type))
                 NPCID.Sets.Skeletons.Add(def.Type);

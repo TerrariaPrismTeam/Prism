@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Prism.API;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
-using Prism.Mods;
 using Prism.Mods.Behaviours;
 using Terraria;
 using Terraria.ID;
@@ -13,18 +11,11 @@ namespace Prism.Mods.DefHandlers
 {
     sealed class ItemDefHandler : EntityDefHandler<ItemDef, ItemBehaviour, Item>
     {
-        protected override int MinVanillaID
+        protected override Type IDContainerType
         {
             get
             {
-                return -24;
-            }
-        }
-        protected override int MaxVanillaID
-        {
-            get
-            {
-                return ItemID.Count;
+                return typeof(ItemID);
             }
         }
 
@@ -54,17 +45,15 @@ namespace Prism.Mods.DefHandlers
                         if (b != null)
                             h.behaviours.Add(b);
                     }
-
-                    item.BHandler = h;
                 }
             }
             else
                 item.RealSetDefaults(type, noMatCheck);
 
-            //TODO: add global hooks here (and check for null)
-
             if (h != null)
             {
+                h.behaviours.AddRange(ModData.mods.Values.Select(m => m.CreateGlobalItemBInternally()).Where(b => b != null));
+
                 h.Create();
                 item.BHandler = h;
 
@@ -112,6 +101,10 @@ namespace Prism.Mods.DefHandlers
             i.netDefaults(id);
             return i;
         }
+        protected override ItemDef NewDefFromVanilla(Item item)
+        {
+            return new ItemDef(Lang.itemName(item.netID, true), getTexture: () => Main.itemTexture[item.type]);
+        }
 
         protected override void CopyEntityToDef(Item item, ItemDef def)
         {
@@ -132,7 +125,7 @@ namespace Prism.Mods.DefHandlers
             def.Defense            = item.defense;
             def.CritChanceModifier = item.crit;
             def.PickaxePower       = item.pick;
-            def.AxePower           = item.axe * 5; // again, red, why did you do this?
+            def.AxePower           = item.axe * 5;
             def.HammerPower        = item.hammer;
             def.LifeHeal           = item.healLife;
             def.ManaHeal           = item.healMana;
@@ -151,21 +144,16 @@ namespace Prism.Mods.DefHandlers
             def.Rarity             = (ItemRarity)item.rare;
             def.UseStyle           = (ItemUseStyle)item.useStyle;
             def.HoldStyle          = (ItemHoldStyle)item.holdStyle;
-            def.DamageType         = item.melee
-                                        ? ItemDamageType.Melee
-                                        : item.ranged
-                                            ? ItemDamageType.Ranged
-                                            : item.magic
-                                                ? ItemDamageType.Magic
-                                                : item.summon
-                                                    ? ItemDamageType.Summon
-                                                    : item.thrown
-                                                        ? ItemDamageType.Thrown
-                                                        : ItemDamageType.None;
+            def.DamageType         = item.melee  ? ItemDamageType.Melee
+                                   : item.ranged ? ItemDamageType.Ranged
+                                   : item.magic  ? ItemDamageType.Magic
+                                   : item.summon ? ItemDamageType.Summon
+                                   : item.thrown ? ItemDamageType.Thrown
+                                        : ItemDamageType.None;
 
             def.Value = new CoinValue(item.value);
             def.Description = new ItemDescription(item.toolTip, item.toolTip2, item.vanity, item.expert, item.questItem, item.notAmmo);
-            def.Buff = new BuffDef(item.buffType, item.buffTime);
+            def.Buff = new AppliedBuff(item.buffType, item.buffTime);
             def.UsedAmmo = (item.useAmmo != 0) ? new ItemRef(item.useAmmo) : null;
             def.ShootProjectile = item.shoot;
             def.AmmoType = item.ammo;
@@ -336,16 +324,12 @@ namespace Prism.Mods.DefHandlers
             return ret;
         }
 
-        protected override ItemDef CreateEmptyDefWithDisplayName(Item item)
+        protected override int GetRegularType(Item item)
         {
-            return new ItemDef(Lang.itemName(item.netID, true));
-        }
-        protected override string InternalNameOfEntity(Item item)
-        {
-            return item.name;
+            return item.type;
         }
 
-        protected override void LoadSetProperties(ItemDef def)
+        protected override void CopySetProperties(ItemDef def)
         {
             Main.itemName[def.Type] = def.DisplayName;
 

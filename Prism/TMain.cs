@@ -40,7 +40,7 @@ namespace Prism
         protected override void Initialize()
         {
             Item.OnSetDefaults += ItemDefHandler.OnSetDefaults;
-            NPC .OnSetDefaults += NpcDefHandler .OnSetDefaults;
+            NPC.OnSetDefaults += NpcDefHandler .OnSetDefaults;
             Projectile.OnSetDefaults += ProjDefHandler.OnSetDefaults;
 
             base.Initialize(); // terraria init and LoadContent happen here
@@ -74,7 +74,7 @@ namespace Prism
         /// </summary>
         void ApplyHotfixes()
         {
-            foreach (Player p in from plr in player where plr.active = true select plr)
+            foreach (Player p in from plr in player where plr.active == true select plr)
             {
                 int prevLength = p.npcTypeNoAggro.Length;
                 if (prevLength < Handler.NpcDef.NextTypeIndex)

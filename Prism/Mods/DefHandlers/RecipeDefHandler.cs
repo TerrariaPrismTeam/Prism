@@ -12,33 +12,17 @@ namespace Prism.Mods.DefHandlers
     sealed class RecipeDefHandler
     {
         internal List<RecipeDef> recipes = new List<RecipeDef>(Recipe.maxRecipes);
-        readonly int DefMaxRecipes = Recipe.maxRecipes;
+        static int
+            DefMaxRecipes = Recipe.maxRecipes,
+            DefNumRecipes = -1;
 
-        internal void Reset()
+        internal static IEnumerable<RecipeDef> SetRecipeModDefs(ModDef mod, IEnumerable<RecipeDef> defs)
         {
-            recipes.Clear();
-
-            Recipe.maxRecipes = DefMaxRecipes;
-            Recipe.numRecipes = 0;
-            Recipe.SetupRecipes();
-        }
-
-        internal void FillVanilla()
-        {
-            for (int i = 0; i < Main.recipe.Length; i++)
+            return defs.Select(d =>
             {
-                var r = Main.recipe[i];
-
-                //TODO: add ItemGroups & TileGroups when they're defined & implemented
-                recipes.Add(new RecipeDef(
-                    new ItemRef(r.createItem.netID),
-                    r.createItem.stack,
-                    r.requiredItem.Select(it => new KeyValuePair<ItemRef, int>(new ItemRef(it.netID), it.stack)).ToDictionary(),
-                    r.requiredTile.Cast<ushort>().ToArray(),
-                    (r.needWater ? RecipeLiquids.Water : 0) |
-                    (r.needLava  ? RecipeLiquids.Lava  : 0) |
-                    (r.needHoney ? RecipeLiquids.Honey : 0)));
-            }
+                d.Mod = mod.Info;
+                return d;
+            });
         }
 
         static void CopyDefToVanilla(RecipeDef def, Recipe r)
@@ -79,13 +63,52 @@ namespace Prism.Mods.DefHandlers
             //TODO: set any* to true when TileGroups are defined & implemented
         }
 
-        internal static IEnumerable<RecipeDef> SetRecipeModDefs(ModDef mod, IEnumerable<RecipeDef> defs)
+        static void ExtendVanillaArrays(int amt = 1)
         {
-            return defs.Select(d =>
+            int newLen = amt > 0 ? Recipe.numRecipes + amt : DefMaxRecipes;
+
+            // vanilla allocates 2000 elements, but only 1806 are used, so only resize when needed
+            if (newLen < Recipe.maxRecipes && amt > 0)
+                return;
+
+            Recipe.maxRecipes = newLen;
+
+            Array.Resize(ref Main.recipe          , newLen);
+            Array.Resize(ref Main.availableRecipe , newLen);
+            Array.Resize(ref Main.availableRecipeY, newLen);
+        }
+
+        internal void Reset()
+        {
+            recipes.Clear();
+
+            Recipe.maxRecipes = DefMaxRecipes;
+
+            ExtendVanillaArrays(-1);
+
+            Recipe.numRecipes = 0;
+            Recipe.SetupRecipes();
+            DefNumRecipes = Recipe.numRecipes;
+        }
+
+        internal void FillVanilla()
+        {
+            for (int i = 0; i < Recipe.numRecipes; i++)
             {
-                d.Mod = mod.Info;
-                return d;
-            });
+                var r = Main.recipe[i];
+
+                //TODO: add ItemGroups & TileGroups when they're defined & implemented
+                recipes.Add(new RecipeDef(
+                    new ItemRef(r.createItem.netID),
+                    r.createItem.stack,
+                    r.requiredItem.TakeWhile(it => it.type != 0).Select(it => new KeyValuePair<ItemRef, int>(new ItemRef(it.netID), it.stack)).ToDictionary(),
+                    r.requiredTile.TakeWhile(t => t >= 0).Select(t => (ushort)t).ToArray(),
+                    (r.needWater ? RecipeLiquids.Water : 0) |
+                    (r.needLava  ? RecipeLiquids.Lava  : 0) |
+                    (r.needHoney ? RecipeLiquids.Honey : 0)));
+            }
+
+            DefNumRecipes = Recipe.numRecipes;
         }
 
         internal List<LoaderError> Load(IEnumerable<RecipeDef> defs)
@@ -99,7 +122,7 @@ namespace Prism.Mods.DefHandlers
             if (recipes.Count + c > recipes.Capacity)
                 recipes.Capacity += c;
 
-            Recipe.maxRecipes += c;
+            ExtendVanillaArrays(c);
 
             Recipe.newRecipe = new Recipe(); // just to make sure
 

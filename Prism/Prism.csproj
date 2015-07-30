@@ -101,7 +101,6 @@
     <Compile Include="API\Defs\EntityDef.cs" />
     <Compile Include="API\Defs\EntityRef.cs" />
     <Compile Include="API\Defs\EntityDefStructs.cs" />
-    <Compile Include="API\Defs\EntityDefExtensions.cs" />
     <Compile Include="API\Defs\ProjectileDef.cs" />
     <Compile Include="API\Defs\ProjectileDefStructs.cs" />
     <Compile Include="API\Defs\NpcDefStructs.cs" />

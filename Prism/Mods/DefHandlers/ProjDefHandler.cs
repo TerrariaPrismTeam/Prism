@@ -11,18 +11,11 @@ namespace Prism.Mods.DefHandlers
 {
     sealed class ProjDefHandler : EntityDefHandler<ProjectileDef, ProjectileBehaviour, Projectile>
     {
-        protected override int MinVanillaID
+        protected override Type IDContainerType
         {
             get
             {
-                return 0;
-            }
-        }
-        protected override int MaxVanillaID
-        {
-            get
-            {
-                return ProjectileID.Count;
+                return typeof(ProjectileID);
             }
         }
 
@@ -51,17 +44,15 @@ namespace Prism.Mods.DefHandlers
                         if (b != null)
                             h.behaviours.Add(b);
                     }
-
-                    p.BHandler = h;
                 }
             }
             else
                 p.RealSetDefaults(type);
 
-            //TODO: add global hooks here (and check for null)
-
             if (h != null)
             {
+                h.behaviours.AddRange(ModData.mods.Values.Select(m => m.CreateGlobalProjBInternally()).Where(b => b != null));
+
                 h.Create();
                 p.BHandler = h;
 
@@ -76,9 +67,9 @@ namespace Prism.Mods.DefHandlers
         {
             int newLen = amt > 0 ? Main.projectileTexture.Length + amt : ProjectileID.Count;
             if (!Main.dedServ)
-            {
                 Array.Resize(ref Main.projectileTexture             , newLen);
-            }
+
+            Array.Resize(ref Main.projectileLoaded                  , newLen);
             Array.Resize(ref Main.projFrames                        , newLen);
             Array.Resize(ref Main.projHook                          , newLen);
             Array.Resize(ref Main.projHostile                       , newLen);
@@ -98,6 +89,10 @@ namespace Prism.Mods.DefHandlers
             Projectile proj = new Projectile();
             proj.SetDefaults(id);
             return proj;
+        }
+        protected override ProjectileDef NewDefFromVanilla(Projectile proj)
+        {
+            return new ProjectileDef(proj.name, getTexture: () => Main.projectileTexture[proj.type]);
         }
 
         protected override void CopyEntityToDef(Projectile proj, ProjectileDef def)
@@ -179,16 +174,12 @@ namespace Prism.Mods.DefHandlers
             return ret;
         }
 
-        protected override ProjectileDef CreateEmptyDefWithDisplayName(Projectile proj)
+        protected override int GetRegularType(Projectile proj)
         {
-            return new ProjectileDef(proj.name);
-        }
-        protected override string InternalNameOfEntity(Projectile proj)
-        {
-            return proj.name;
+            return proj.type;
         }
 
-        protected override void LoadSetProperties(ProjectileDef def)
+        protected override void CopySetProperties(ProjectileDef def)
         {
             Main.projFrames [def.Type] = def.TotalFrameCount;
             Main.projHook   [def.Type] = def.IsHook         ;

@@ -75,7 +75,7 @@ namespace Prism.API.Defs
             set;
         }
         /// <summary>
-        /// Gets or sets the use animation of this item.
+        /// Gets or sets the length of this item's use animation.
         /// </summary>
         /// <remarks>Item.useAnimation</remarks>
         public virtual int UseAnimation
@@ -110,6 +110,7 @@ namespace Prism.API.Defs
             get;
             set;
         }
+        //TODO: move this to EntityDef?
         /// <summary>
         /// Gets or sets the width of this item once it is freed as drop in the game world.
         /// </summary>
@@ -362,7 +363,7 @@ namespace Prism.API.Defs
             set;
         }
         /// <summary>
-        /// Gets or sets whether the item can blink or not.
+        /// Gets or sets whether the item can shine or not.
         /// </summary>
         public virtual bool NeverShiny
         {
@@ -371,7 +372,8 @@ namespace Prism.API.Defs
         }
 
         /// <summary>
-        /// Gets or sets whether the extractinator can do something with the item.
+        /// Gets or sets what the extractinator can use this item to produce.
+        /// <remarks>TODO: Make an enum for the types?</remarks>
         /// </summary>
         public virtual int ExtractinatorMode
         {
@@ -396,7 +398,6 @@ namespace Prism.API.Defs
             get;
             set;
         }
-
         /// <summary>
         /// Gets or sets the base rarity of this item.
         /// </summary>
@@ -423,7 +424,8 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }
+        } = ItemHoldStyle.Default;
+
         /// <summary>
         /// Gets or sets the type of damage this item does.
         /// </summary>
@@ -433,7 +435,6 @@ namespace Prism.API.Defs
             get;
             set;
         }
-
         /// <summary>
         /// Gets or sets this item's value in coins (PPGGSSCC).
         /// </summary>
@@ -462,7 +463,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets the buff this item grants to the player.
         /// </summary>
-        public virtual BuffDef Buff
+        public virtual AppliedBuff Buff
         {
             get;
             set;
@@ -532,149 +533,33 @@ namespace Prism.API.Defs
             set;
         }
 
-        public ItemDef(
-            #region arguments
-            string displayName,
-            Func<Texture2D> getTex = null,
-            Func<ItemBehaviour> newBehaviour = null,
-
-            int damage = 0,
-            int useAnimation = 0,
-            int useTime = 0,
-            int reuseDelay = 0,
-            int mana = 0,
-            int width = 16,
-            int height = 16,
-            int maxStack = 1,
-            int placeStyle = 0,
-            int alpha = 0,
-            int defense = 0,
-            int crit = 4,
-            int pick = 0,
-            int axe = 0,
-            int hammer = 0,
-            int healLife = 0,
-            int healMana = 0,
-
-            float shootSpeed = 0f,
-            float knockback = 0f,
-            float scale = 1f,
-
-            bool noMelee = false,
-            bool consumable = false,
-            bool useTurn = false,
-            bool autoReuse = false,
-            bool noUseGraphic = false,
-            bool accessory = false,
-            bool expertOnly = false,
-            bool channel = false,
-
-            bool soul = false,
-            bool strangePlant = false,
-            bool bullet = false,
-            bool pulses = false,
-            bool noGravity = false,
-            bool nebulaPickup = false,
-            bool neverShiny = false,
-
-            int extractinatorMode = 0,
-            int staffMinionSlotsRequired = 0,
-
-            Color colour = default(Color),
-            ItemRarity rare = ItemRarity.White,
-            ItemUseStyle useStyle = ItemUseStyle.None,
-            ItemHoldStyle holdStyle = ItemHoldStyle.Default,
-            ItemDamageType damageType = ItemDamageType.None,
-
-            CoinValue value = default(CoinValue),
-            ItemDescription description = default(ItemDescription),
-            ItemArmourData armour = default(ItemArmourData),
-            BuffDef buff = default(BuffDef),
-
-            ItemRef useAmmo = null,
-            int shoot = 0,
-            int ammo = 0,
-            int useSound = 1,
-            int createTile = -1,
-            int createWall = -1
-            #endregion
-            )
+        public ItemDef(string displayName, Func<ItemBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null)
+            : base(displayName, newBehaviour)
         {
-            DisplayName = displayName;
+            GetTexture = getTexture ?? Empty<Texture2D>.Func;
 
-            GetTexture      = getTex       ?? Empty<Texture2D    >.Func;
-            CreateBehaviour = newBehaviour ?? Empty<ItemBehaviour>.Func;
+            Width = Height = 16;
+            MaxStack = 1;
 
-            Damage = damage;
-            UseAnimation = useAnimation;
-            UseTime = useTime;
-            ReuseDelay = reuseDelay;
-            ManaConsumption = mana;
-            Width = width;
-            Height = height;
-            MaxStack = maxStack;
-            PlacementStyle = placeStyle;
-            Alpha = alpha;
-            Defense = defense;
-            CritChanceModifier = crit;
-            PickaxePower = pick;
-            AxePower = axe;
-            HammerPower = hammer;
-            ManaHeal = healMana;
-            LifeHeal = healLife;
+            Scale = 1f;
 
-            ShootVelocity = shootSpeed;
-            Knockback = knockback;
-            Scale = scale;
+            ExtractinatorMode = -1;
 
-            NoMelee = noMelee;
-            IsConsumable = consumable;
-            TurnPlayerOnUse = useTurn;
-            AutoReuse = autoReuse;
-            HideUseGraphic = noUseGraphic;
-            IsAccessory = accessory;
-            IsExpertModeOnly = expertOnly;
-            IsChanneled = channel;
+            Colour = Color.White;
 
-            IsSoul = soul;
-            IsStrangePlant = strangePlant;
-            ExtractinatorMode = extractinatorMode;
-            IsBullet = bullet;
-            Pulses = pulses;
-            NoGravity = noGravity;
-            IsNebulaPickup = nebulaPickup;
-            NeverShiny = neverShiny;
-            RequiredStaffMinionSlots = staffMinionSlotsRequired;
-
-            Colour = colour;
-            Rarity = rare;
-            UseStyle = useStyle;
-            HoldStyle = holdStyle;
-            DamageType = damageType;
-
-            Value = value;
-            Description = description;
-            ArmourData = armour;
-            Buff = buff;
-
-            UsedAmmo = useAmmo;
-            ShootProjectile = shoot;
-            AmmoType = ammo;
-            UseSound = useSound;
-            CreateTile = createTile;
-            CreateWall = createWall;
+            CreateTile = CreateWall = -1;
         }
 
         public ItemDef(string displayName, JsonData json,
-            Func<Texture2D> getTex = null,
-            ItemArmourData armour = default(ItemArmourData),
+            Func<Texture2D> getTexture = null,
+            ItemArmourData armour = default(ItemArmourData), //TODO: support this in JSON
             Func<ItemBehaviour> newBehaviour = null)
+            : this(displayName, newBehaviour)
         {
-            DisplayName = displayName;
-            GetTexture = getTex ?? Empty<Texture2D>.Func;
+            GetTexture = getTexture ?? Empty<Texture2D>.Func;
             ArmourData = armour;
-            CreateBehaviour = newBehaviour ?? Empty<ItemBehaviour>.Func;
 
+            //TODO: check if the fields exist
             Damage = (int)json["damage"];
             UseAnimation = (int)json["useAnimation"];
             UseTime = (int)json["useTime"];
@@ -721,26 +606,19 @@ namespace Prism.API.Defs
                 JsonData colour = json["colour"];
                 Colour = new Color((int)colour[0], (int)colour[1], (int)colour[2]);
             }
-            else
-            {
-                Colour = default(Color);
-            }
 
             if (json.Has("rare"))
             {
                 JsonData rare = json["rare"];
                 if (rare.IsString)
                 {
+                    //TODO: use error handling, exceptions shouldn't be thrown from a constructor
                     Rarity = (ItemRarity)Enum.Parse(typeof(ItemRarity), (string)rare);
                 }
                 else
                 {
                     Rarity = (ItemRarity)(int)rare;
                 }
-            }
-            else
-            {
-                Rarity = default(ItemRarity);
             }
 
             if (json.Has("useStyle"))
@@ -755,10 +633,6 @@ namespace Prism.API.Defs
                     UseStyle = (ItemUseStyle)(int)useStyle;
                 }
             }
-            else
-            {
-                UseStyle = default(ItemUseStyle);
-            }
 
             if (json.Has("holdStyle"))
             {
@@ -771,10 +645,6 @@ namespace Prism.API.Defs
                 {
                     HoldStyle = (ItemHoldStyle)(int)holdStyle;
                 }
-            }
-            else
-            {
-                HoldStyle = default(ItemHoldStyle);
             }
 
             if (json.Has("damageType"))
@@ -789,10 +659,6 @@ namespace Prism.API.Defs
                     DamageType = (ItemDamageType)(int)damageType;
                 }
             }
-            else
-            {
-                DamageType = default(ItemDamageType);
-            }
 
             if (json.Has("value"))
             {
@@ -805,10 +671,6 @@ namespace Prism.API.Defs
                 {
                     Value = (CoinValue)(int)value;
                 }
-            }
-            else
-            {
-                Value = default(CoinValue);
             }
 
             if (json.Has("description"))
@@ -825,12 +687,8 @@ namespace Prism.API.Defs
             {
                 JsonData buff = json["buff"];
                 JsonData type = buff["type"];
-                // TODO Add string compatibility with BuffRef
-                Buff = new BuffDef((int)type, (int)buff["duration"]);
-            }
-            else
-            {
-                Buff = default(BuffDef);
+                //TODO: Add string compatibility with BuffRef
+                Buff = new AppliedBuff((int)type, (int)buff["duration"]);
             }
 
             if (json.Has("useAmmo"))
@@ -853,10 +711,6 @@ namespace Prism.API.Defs
                 {
                     UsedAmmo = new ItemRef((int)useAmmo);
                 }
-            }
-            else
-            {
-                UsedAmmo = null;
             }
 
             if (json.Has("shoot"))

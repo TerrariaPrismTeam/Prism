@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Linq;
 
 namespace Prism.API.Defs
-{    
+{
     /// <summary>
     /// Utility for Item.value stuff.
     /// </summary>
@@ -206,7 +206,7 @@ namespace Prism.API.Defs
         }
     }
 
-    public struct BuffDef : IEquatable<BuffDef>
+    public struct AppliedBuff : IEquatable<AppliedBuff>
     {
         //TODO: use BuffRef... later
         /// <summary>
@@ -221,17 +221,17 @@ namespace Prism.API.Defs
         public int Duration;
 
         /// <summary>
-        /// Constructs a new <see cref="BuffDef"/> structure.
+        /// Constructs a new <see cref="AppliedBuff"/> structure.
         /// </summary>
-        /// <param name="type"><see cref="BuffDef.Type"/></param>
-        /// <param name="duration"><see cref="BuffDef.Duration"/></param>
-        public BuffDef(int type, int duration)
+        /// <param name="type"><see cref="AppliedBuff.Type"/></param>
+        /// <param name="duration"><see cref="AppliedBuff.Duration"/></param>
+        public AppliedBuff(int type, int duration)
         {
             Type = type;
             Duration = duration;
         }
 
-        public bool Equals(BuffDef other)
+        public bool Equals(AppliedBuff other)
         {
             return Type == other.Type && Duration == other.Duration;
         }
@@ -240,8 +240,8 @@ namespace Prism.API.Defs
         {
             if (ReferenceEquals(obj, null))
                 return false;
-            if (obj is BuffDef)
-                return Equals((BuffDef)obj);
+            if (obj is AppliedBuff)
+                return Equals((AppliedBuff)obj);
 
             return false;
         }
@@ -254,11 +254,11 @@ namespace Prism.API.Defs
             return "{" + Type + ", Duration=" + Duration + "}";
         }
 
-        public static bool operator ==(BuffDef a, BuffDef b)
+        public static bool operator ==(AppliedBuff a, AppliedBuff b)
         {
             return  a.Equals(b);
         }
-        public static bool operator !=(BuffDef a, BuffDef b)
+        public static bool operator !=(AppliedBuff a, AppliedBuff b)
         {
             return !a.Equals(b);
         }

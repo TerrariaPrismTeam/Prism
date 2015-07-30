@@ -136,81 +136,10 @@ namespace Prism.API.Defs
             set;
         }
 
-        //Fucking Red pl0x
         /// <summary>
-        /// Gets or sets the average attack chance of this enemy (1/2x chance (e.g. set this to 2.5 for 20% chance; 1/2(2.5) = 1/5 = 20%))
-        /// </summary>
-        /// <remarks>NPCID.Sets.AttackAverageChance[Type]</remarks>
-        public virtual int AttackAverageChance
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// NeedsSummary
-        /// </summary>
-        /// <remarks>NPCID.Sets.AttackFrameCount[Type]</remarks>
-        public virtual int AttackFrameCount
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// NeedsSummary
-        /// </summary>
-        /// <remarks>NPCID.Sets.AttackTime[Type]</remarks>
-        public virtual int AttackTime
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// NeedsSummary
-        /// </summary>
-        /// <remarks>NPCID.Sets.AttackType[Type]</remarks>
-        public virtual int AttackType
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// Gets or sets this NPC's danger detection range (for town NPCs).
-        /// </summary>
-        /// <remarks>NPCID.Sets.DangerDetectRange[Type]</remarks>
-        public virtual int DangerDetectRange
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// Gets or sets the amount of extra animation frames this enemy has.
-        /// </summary>
-        /// <remarks>NPCID.Sets.ExtraFramesCount[Type]</remarks>
-        public virtual int ExtraFramesCount
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// Gets or sets whether this NPC chats with other NPCs with emotes.
-        /// </summary>
-        /// <remarks>NPCID.Sets.FaceEmote[Type]</remarks>
-        public virtual int FaceEmote
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// Gets or sets whether this NPC is "pretty safe", or poses little to no threat to the player.
-        /// </summary>
-        /// <remarks>NPCID.Sets.PrettySafe[Type]</remarks>
-        public virtual int PrettySafe
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// NeedsSummary
+        /// Gets or sets the default length of this NPC's trail cache. The cache can be accessed with <see cref="NPC.oldPos" /> (a <see cref="Vector2" />[])
+        /// <para />Note: The trail cache is resized only when <see cref="NPC.RealSetDefaults(int, float)" />
+        /// is called, so after that point the array can be resized if you wish.
         /// </summary>
         /// <remarks>NPCID.Sets.TrailCacheLength[Type]</remarks>
         public virtual int TrailCacheLength
@@ -219,10 +148,10 @@ namespace Prism.API.Defs
             set;
         }
         /// <summary>
-        /// Gets or sets the total number of animation frames in this NPC's sprite.
+        /// Gets or sets the number of standard animation frames in this NPC's sprite.
         /// </summary>
         /// <remarks>Main.npcFrameCount[Type]</remarks>
-        public virtual int TotalFrameCount
+        public virtual int FrameCount
         {
             get;
             set;
@@ -245,7 +174,9 @@ namespace Prism.API.Defs
             set;
         }
         /// <summary>
-        /// Gets or sets whether the NPC is a boss or not.
+        /// Gets or sets whether the NPC is a boss or not. This is for traditional bosses.
+        /// <para/>For other things which are technically bosses (have a map icon etc) but aren't really
+        /// traditional boss fights (e.g. Celestial Towers), <see cref="IsTechnicallyABoss"/> should be used in that case.
         /// </summary>
         public virtual bool IsBoss
         {
@@ -260,12 +191,21 @@ namespace Prism.API.Defs
             get;
             set;
         }
+        /// <summary>
+        /// Gets or sets whether this NPC is excluded from radar counts ("x enemies nearby").
+        /// </summary>
+        public virtual bool NotOnRadar
+        {
+            get;
+            set;
+        }
 
         /// <summary>
-        /// NeedsSummary
+        /// Gets or sets whether this is a summonable boss. The game uses this to check if the enemy/boss someone is spawning in multiplayer is legitimate or if they're just hacking, ignoring netmessages trying to summon anything which doesn't have this property set to true.
+        /// <para/>Note: "Summonable" refers to bosses which are summoned with the message "&lt;boss&gt; has awoken!".
         /// </summary>
         /// <remarks>NPCID.Sets.MPAllowedEnemies[Type]</remarks>
-        public virtual bool IsAllowedInMP
+        public virtual bool IsSummonableBoss
         {
             get;
             set;
@@ -280,7 +220,8 @@ namespace Prism.API.Defs
             set;
         }
         /// <summary>
-        /// Gets or sets whether or not this NPC gets a stat boost in Expert mode.
+        /// Gets or sets whether or not this NPC receives an extra stat boost in Expert mode.
+        /// Only used by a few weaker NPCs to make them less lame in Expert Mode (and on Moon Lord).
         /// </summary>
         /// <remarks>NPCID.Sets.NeedsExpertScaling[Type]</remarks>
         public virtual bool NeedsExpertScaling
@@ -289,7 +230,8 @@ namespace Prism.API.Defs
             set;
         }
         /// <summary>
-        /// Gets or sets whether this NPC is used as a projectile that can be destroyed using a weapon.
+        /// Gets or sets whether this NPC is used as a projectile that can be damaged with a weapon until dissipating.
+        /// <para/>Example: Moon Lord's ice attacks.
         /// </summary>
         /// <remarks>NPCID.Sets.ProjectileNPC[Type]</remarks>
         public virtual bool IsProjectileNPC
@@ -298,7 +240,7 @@ namespace Prism.API.Defs
             set;
         }
         /// <summary>
-        /// Gets or sets whether this NPC is excluded from death tallies (for banners, etc).
+        /// Gets or sets whether this NPC is excluded from death tallies (used for Mini Star Cell, etc)
         /// </summary>
         /// <remarks>NPCID.Sets.ExcludedFromDeathTally[Type]</remarks>
         public virtual bool ExcludedFromDeathTally
@@ -307,7 +249,7 @@ namespace Prism.API.Defs
             set;
         }
         /// <summary>
-        /// Gets or sets whether this NPCs state is saved and loaded with the world file (Used for Celestial Towers).
+        /// Gets or sets whether this NPC's presence in the world is saved into the world file. (Used for Celestial Towers).
         /// </summary>
         /// <remarks>NPCID.Sets.SavesAndLoads[Type]</remarks>
         public virtual bool SavesAndLoads
@@ -317,6 +259,7 @@ namespace Prism.API.Defs
         }
         /// <summary>
         /// Gets or sets whether this NPC is a skeleton.
+        /// Skeleton Merchant will be friendly toward any NPC in this list.
         /// </summary>
         /// <remarks>NPCID.Sets.Skeletons, List, Add type if skeleton?</remarks>
         public virtual bool IsSkeleton
@@ -325,7 +268,7 @@ namespace Prism.API.Defs
             set;
         }
         /// <summary>
-        /// Gets or sets whether this NPC technically counts as a boss (probably either to display on the map, to play boss music, to show "x has awakened!" message, or something like that...).
+        /// Gets or sets whether this NPC technically counts as a boss (blocks summoning of some bosses while in the world, etc).
         /// </summary>
         /// <remarks>NPCID.Sets.TechnicallyABoss[Type]</remarks>
         public virtual bool IsTechnicallyABoss
@@ -395,16 +338,6 @@ namespace Prism.API.Defs
             set;
         }
 
-        /// <summary>
-        /// Gets or sets the color of this NPC's magic aura (if it has one).
-        /// </summary>
-        /// <remarks>NPCID.Sets.MagicAuraColor[Type]</remarks>
-        public virtual Color MagicAuraColour
-        {
-            get;
-            set;
-        }
-
         //TODO: use BuffRef... later
         /// <summary>
         /// Gets or sets the list of buff IDs this NPC is immune to.
@@ -414,11 +347,10 @@ namespace Prism.API.Defs
             get;
             set;
         }
-
         /// <summary>
-        /// Gets or sets whether this NPC is excluded from radar counts.
+        /// Gets or sets the NPC's town NPC config.
         /// </summary>
-        public virtual bool HasAntiRadar
+        public virtual TownNpcConfig TownConfig
         {
             get;
             set;
@@ -441,123 +373,32 @@ namespace Prism.API.Defs
             set;
         }
 
-        public NpcDef(
-            #region arguments
-            string displayName,
-            Func<NpcBehaviour> newBehaviour = null,
-
-            int damage = 0,
-            int width = 16,
-            int height = 16,
-            int defense = 0,
-            int alpha = 0,
-            int lifeMax = 1,
-            int soundHit = 1,
-            int soundKilled = 1,
-
-            int attackAverageChance = 1,
-            int attackFrameCount = 0,
-            int attackTime = 0,
-            int attackType = 0,
-            int dangerDetectRange = 0,
-            int extraFramesCount = 0,
-            int faceEmote = 0,
-            int prettySafe = 0,
-            int trailCacheLength = 0,
-            int frameCount = 1,
-
-            bool noTileCollide = false,
-            bool noGravity = false,
-            bool boss = false,
-            bool townNpc = false,
-
-            bool allowedInMP = true,
-            bool alwaysDraw = false,
-            bool needsExpertScaling = true,
-            bool projectileNpc = false,
-            bool excludedFromDeathTally = true,
-            bool savesAndLoads = false,
-            bool skeleton = false,
-            bool? technicallyABoss = null,
-            bool townCritter = false,
-            bool hasAntiRadar = false,
-
-            float scale = 1f,
-            float knockbackResist = 1f,
-            float npcSlots = 1f,
-
-            Color color = default(Color),
-            NpcValue value = default(NpcValue),
-            NpcAiStyle aiStyle = NpcAiStyle.None,
-
-            Color magicAuraColour = default(Color),
-
-            List<int> buffImmunities = null,
-
-            Func<Texture2D> getTex         = null,
-            Func<Texture2D> getBossHeadTex = null
-            #endregion
-            )
+        public NpcDef(string displayName, Func<NpcBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null)
+            : base(displayName, newBehaviour)
         {
-            DisplayName = displayName;
-            CreateBehaviour = newBehaviour ?? Empty<NpcBehaviour>.Func;
+            Width = Height = 16;
+            MaxLife = 1;
+            SoundOnHit = SoundOnDeath = 1;
 
-            Damage = damage;
-            Width = width;
-            Height = height;
-            Defense = defense;
-            Alpha = alpha;
-            MaxLife = lifeMax;
-            SoundOnHit = soundHit;
-            SoundOnDeath = soundKilled;
+            TrailCacheLength = 10;
+            FrameCount = 1;
 
-            AttackAverageChance = attackAverageChance;
-            AttackFrameCount = attackFrameCount;
-            AttackTime = attackTime;
-            AttackType = attackType;
-            DangerDetectRange = dangerDetectRange;
-            ExtraFramesCount = extraFramesCount;
-            FaceEmote = faceEmote;
-            PrettySafe = prettySafe;
-            TrailCacheLength = trailCacheLength;
-            TotalFrameCount = frameCount;
+            Scale = KnockbackResistance = NpcSlots = 1f;
 
-            IgnoreTileCollision = noTileCollide;
-            IgnoreGravity = noGravity;
-            IsBoss = boss;
-            IsTownNpc = townNpc;
+            Colour = Color.White;
 
-            IsAllowedInMP = allowedInMP;
-            MustAlwaysDraw = alwaysDraw;
-            NeedsExpertScaling = needsExpertScaling;
-            IsProjectileNPC = projectileNpc;
-            ExcludedFromDeathTally = excludedFromDeathTally;
-            SavesAndLoads = savesAndLoads;
-            IsSkeleton = skeleton;
-            IsTechnicallyABoss = technicallyABoss ?? boss;
-            HasAntiRadar = hasAntiRadar;
+            BuffImmunities = Empty<int>.List;
 
-            Scale = scale;
-            KnockbackResistance = knockbackResist;
-            NpcSlots = npcSlots;
+            TownConfig = new TownNpcConfig();
 
-            Colour = color;
-            Value = value;
-            AiStyle = aiStyle;
-
-            MagicAuraColour = magicAuraColour;
-
-            BuffImmunities = buffImmunities ?? Empty<int>.List;
-
-            GetTexture         = getTex         ?? Empty<Texture2D>.Func;
-            GetBossHeadTexture = getBossHeadTex ?? Empty<Texture2D>.Func;
+            GetTexture = getTexture ?? Empty<Texture2D>.Func;
         }
 
         public static implicit operator NpcRef(NpcDef  def)
         {
             return new NpcRef(def.InternalName, def.Mod.InternalName);
         }
-        public static explicit operator NpcDef(NpcRef @ref)
+        public static explicit operator NpcDef(NpcRef @ref /*Apparently we switched Prism over to Java, everyone*/)
         {
             return @ref.Resolve();
         }

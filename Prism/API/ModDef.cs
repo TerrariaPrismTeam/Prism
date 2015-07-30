@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Prism.Mods;
 using Prism.Mods.Hooks;
@@ -113,6 +114,7 @@ namespace Prism.API
         [Hook]
         public virtual void PostUpdate() { }
 
+        //TODO: move these somewhere else? (it might get crowded with these soon)
         /// <summary>
         /// Gets all item definitions created by the mod.
         /// </summary>
@@ -120,7 +122,7 @@ namespace Prism.API
         /// A dictionary containing all item definitions.
         /// The key of each key/value pair is the internal name of the item.
         /// </returns>
-        protected virtual Dictionary<string, ItemDef> GetItemDefs()
+        protected virtual Dictionary<string, ItemDef      > GetItemDefs      ()
         {
             return Empty<string, ItemDef      >.Dictionary;
         }
@@ -158,6 +160,19 @@ namespace Prism.API
             return Empty<RecipeDef>.Array;
         }
 
+        protected virtual ItemBehaviour       CreateGlobalItemBehaviour      ()
+        {
+            return null;
+        }
+        protected virtual NpcBehaviour        CreateGlobalNpcBehaviour       ()
+        {
+            return null;
+        }
+        protected virtual ProjectileBehaviour CreateGlobalProjectileBehaviour()
+        {
+            return null;
+        }
+
         T GetResourceInternal<T>(Func<Stream> getStream)
         {
             if (ResourceLoader.ResourceReaders.ContainsKey(typeof(T)))
@@ -192,10 +207,30 @@ namespace Prism.API
         {
             var c = containing ?? Assembly.GetCallingAssembly();
 
-            if (Array.IndexOf(c.GetManifestResourceNames(), path) == -1)
-                throw new FileNotFoundException("Embedded resource '" + path + "' not found.");
+            var asmNamePfix = c.GetName().Name + ".";
+            var path_ = ResourceLoader.NormalizeResourceFilePath(path, asmNamePfix);
 
-            return GetResourceInternal<T>(() => c.GetManifestResourceStream(path));
+            var fromFilePath  = Path.GetDirectoryName(path ).Replace('/', '.').Replace('\\', '.') + "." + Path.GetFileName(path );
+            var fromFilePath_ = Path.GetDirectoryName(path_).Replace('/', '.').Replace('\\', '.') + "." + Path.GetFileName(path_);
+
+            var tries = new[]
+            {
+                path,
+                asmNamePfix + path,
+                fromFilePath,
+                asmNamePfix + fromFilePath,
+
+                path_,
+                asmNamePfix + path_,
+                fromFilePath_,
+                asmNamePfix + fromFilePath_
+            };
+
+            for (int i = 0; i < tries.Length; i++)
+                if (Array.IndexOf(c.GetManifestResourceNames(), tries[i]) != -1)
+                    return GetResourceInternal<T>(() => c.GetManifestResourceStream(tries[i])); // passing 'i' directly here is ok, because the function is called before GetResourceInternal returns (and i increases)
+
+            throw new FileNotFoundException("Embedded resource '" + path + "' not found.");
         }
 
         /// <summary>
@@ -241,6 +276,19 @@ namespace Prism.API
         internal IEnumerable<RecipeDef> GetRecipeDefsInternally()
         {
             return GetRecipeDefs();
+        }
+
+        internal virtual ItemBehaviour CreateGlobalItemBInternally      ()
+        {
+            return CreateGlobalItemBehaviour      ();
+        }
+        internal virtual NpcBehaviour CreateGlobalNpcBInternally        ()
+        {
+            return CreateGlobalNpcBehaviour       ();
+        }
+        internal virtual ProjectileBehaviour CreateGlobalProjBInternally()
+        {
+            return CreateGlobalProjectileBehaviour();
         }
     }
 }

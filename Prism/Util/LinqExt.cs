@@ -30,7 +30,7 @@ namespace Prism.Util
 
         public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> dict)
         {
-            var ret = new Dictionary<TKey, TValue>(dict.Count());
+            var ret = new Dictionary<TKey, TValue>();
 
             foreach (var kvp in dict)
                 ret.Add(kvp.Key, kvp.Value);

@@ -34,9 +34,9 @@ namespace Prism.API.Defs
             }
 
             if (!ModData.Mods.Keys.Any(mi => mi.InternalName == ModName))
-                throw new InvalidOperationException("NPC reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the mod is not loaded.");
+                throw new InvalidOperationException("Projectile reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the mod is not loaded.");
             if (!ModData.Mods.First(mi => mi.Key.InternalName == ModName).Value.ItemDefs.ContainsKey(ResourceName))
-                throw new InvalidOperationException("NPC reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the NPC is not loaded.");
+                throw new InvalidOperationException("Projectile reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the Projectile is not loaded.");
 
             return ProjectileDef.ByName[ResourceName, ModName];
         }
