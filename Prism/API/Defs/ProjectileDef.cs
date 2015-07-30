@@ -25,7 +25,6 @@ namespace Prism.API.Defs
                 }
             }
         }
-
         /// <summary>
         /// Gets ProjectileDefs by their internal name (and optionally by their mod's internal name).
         /// </summary>
@@ -53,7 +52,6 @@ namespace Prism.API.Defs
                 return new ByTypeIndexer();
             }
         }
-
         /// <summary>
         /// Gets ProjectileDefs by their internal name (and optionally by their mod's internal name).
         /// </summary>
@@ -73,17 +71,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 0;
-
-        /// <summary>
-        /// Gets or sets the type of damage this projectile inflicts.
-        /// </summary>
-        public virtual ProjectileDamageType DamageType
-        {
-            get;
-            set;
-        } = ProjectileDamageType.None;
-
+        }
         /// <summary>
         /// Gets or sets the width of this projectile.
         /// </summary>
@@ -92,8 +80,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 16;
-
+        }
         /// <summary>
         /// Gets or sets the height of this projectile.
         /// </summary>
@@ -102,8 +89,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 16;
-
+        }
         /// <summary>
         /// Gets or sets the opacity at which the projectile's sprite is rendered (0 = fully opaque, 255 = fully transparent).
         /// </summary>
@@ -112,26 +98,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 0;
-
-        /// <summary>
-        /// Gets or sets the scale at which the projectile's sprite is rendered (1.0f = normal scale).
-        /// </summary>
-        /// <remarks>Projectile.scale</remarks>
-        public virtual float Scale
-        {
-            get;
-            set;
-        } = 1.0f;
-
-        /// <summary>
-        /// Gets or sets the AI style of this projectile.
-        /// </summary>
-        public virtual ProjectileAiStyle AiStyle
-        {
-            get;
-            set;
-        } = ProjectileAiStyle.None;
+        }
 
         /// <summary>
         /// NeedsSummary
@@ -141,8 +108,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 10;
-
+        }
         /// <summary>
         /// Gets or sets the total number of animation frames in this projectile's sprite.
         /// </summary>
@@ -151,7 +117,17 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 1;
+        }
+
+        /// <summary>
+        /// Gets or sets the scale at which the projectile's sprite is rendered (1.0f = normal scale).
+        /// </summary>
+        /// <remarks>Projectile.scale</remarks>
+        public virtual float Scale
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// NeedsSummary
@@ -161,8 +137,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether this projectile functions as a grappling hook.
         /// </summary>
@@ -171,8 +146,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether this projectile is hostile.
         /// </summary>
@@ -181,8 +155,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether this projectile is a pet.
         /// </summary>
@@ -191,8 +164,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether this projectile homes in on its target.
         /// </summary>
@@ -201,8 +173,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether this projectile is a light pet.
         /// </summary>
@@ -211,8 +182,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether this projectile is a minion that can be sacrificed upon spawning another one.
         /// </summary>
@@ -221,8 +191,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// NeedsSummary
         /// </summary>
@@ -231,8 +200,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether this projectile is used for Stardust Dragons.
         /// </summary>
@@ -241,8 +209,24 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
+        }
 
+        /// <summary>
+        /// Gets or sets the type of damage this projectile inflicts.
+        /// </summary>
+        public virtual ProjectileDamageType DamageType
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets the AI style of this projectile.
+        /// </summary>
+        public virtual ProjectileAiStyle AiStyle
+        {
+            get;
+            set;
+        }
         /// <summary>
         /// NeedsDescription
         /// </summary>
@@ -251,7 +235,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = TrailingMode.None;
+        }
 
         /// <summary>
         /// Gets or sets the projectile's texture.
@@ -260,13 +244,27 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = null;   
+        }
+
+        public ProjectileDef(string displayName, Func<ProjectileBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null)
+            : base(displayName, newBehaviour)
+        {
+            Width = Height = 16;
+
+            Scale = 1f;
+
+            TrailCacheLength = 10;
+            TotalFrameCount = 1;
+
+            TrailingMode = TrailingMode.None;
+
+            GetTexture = getTexture ?? Empty<Texture2D>.Func;
+        }
 
         public static implicit operator ProjectileRef(ProjectileDef  def)
         {
             return new ProjectileRef(def.InternalName, def.Mod.InternalName);
         }
-
         public static explicit operator ProjectileDef(ProjectileRef @ref)
         {
             return @ref.Resolve();

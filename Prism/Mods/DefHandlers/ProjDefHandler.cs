@@ -47,7 +47,7 @@ namespace Prism.Mods.DefHandlers
                 }
             }
             else
-                p.RealSetDefaults(type);            
+                p.RealSetDefaults(type);
 
             if (h != null)
             {
@@ -89,6 +89,10 @@ namespace Prism.Mods.DefHandlers
             Projectile proj = new Projectile();
             proj.SetDefaults(id);
             return proj;
+        }
+        protected override ProjectileDef NewDefFromVanilla(Projectile proj)
+        {
+            return new ProjectileDef(proj.name, getTexture: () => Main.projectileTexture[proj.type]);
         }
 
         protected override void CopyEntityToDef(Projectile proj, ProjectileDef def)
@@ -190,11 +194,6 @@ namespace Prism.Mods.DefHandlers
             ProjectileID.Sets.StardustDragon       [def.Type] = def.IsStartustDragon     ;
             ProjectileID.Sets.TrailCacheLength     [def.Type] = def.TrailCacheLength     ;
             ProjectileID.Sets.TrailingMode         [def.Type] = (int)def.TrailingMode    ;
-        }
-
-        protected override int GetNetType(Projectile entity)
-        {
-            return GetRegularType(entity);
         }
     }
 }

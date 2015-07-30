@@ -53,7 +53,7 @@ namespace Prism.Mods.DefHandlers
             }
             else
                 n.RealSetDefaults(type, scaleOverride);
-                       
+
             if (h != null)
             {
                 h.behaviours.AddRange(ModData.mods.Values.Select(m => m.CreateGlobalNpcBInternally()).Where(b => b != null));
@@ -111,6 +111,10 @@ namespace Prism.Mods.DefHandlers
             entity.netDefaults(id);
             return entity;
         }
+        protected override NpcDef NewDefFromVanilla(NPC npc)
+        {
+            return new NpcDef(Lang.npcName(npc.netID, true), getTexture: () => Main.npcTexture[npc.type]);
+        }
 
         protected override void CopyEntityToDef(NPC npc, NpcDef def)
         {
@@ -167,7 +171,7 @@ namespace Prism.Mods.DefHandlers
             def.IsProjectileNPC                     = NPCID.Sets.ProjectileNPC         [def.Type];
             def.SavesAndLoads                       = NPCID.Sets.SavesAndLoads         [def.Type];
             def.IsTechnicallyABoss                  = NPCID.Sets.TechnicallyABoss      [def.Type];
-            def.IsTownCritter                       = NPCID.Sets.TownCritter           [def.Type];            
+            def.IsTownCritter                       = NPCID.Sets.TownCritter           [def.Type];
         }
         protected override void CopyDefToEntity(NpcDef def, NPC npc)
         {
@@ -191,7 +195,7 @@ namespace Prism.Mods.DefHandlers
             npc.knockBackResist = def.KnockbackResistance;
             npc.npcSlots        = def.NpcSlots;
             npc.color           = def.Colour;
-            npc.dontCountMe     = def.HasAntiRadar;
+            npc.dontCountMe     = def.NotOnRadar;
             npc.value           = Main.rand.Next(def.Value.Min.Value, def.Value.Max.Value); // close enough
             npc.aiStyle         = (int)def.AiStyle;
 
@@ -276,11 +280,6 @@ namespace Prism.Mods.DefHandlers
 
             if (def.IsSkeleton && !NPCID.Sets.Skeletons.Contains(def.Type))
                 NPCID.Sets.Skeletons.Add(def.Type);
-        }
-
-        protected override int GetNetType(NPC npc)
-        {
-            return npc.netID;
         }
     }
 }

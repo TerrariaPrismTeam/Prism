@@ -21,7 +21,7 @@ namespace Prism.API.Defs
         {
             get;
             internal set;
-        } = string.Empty;
+        }
 
         /// <summary>
         /// Gets Information about the mod to which this entity belongs.
@@ -69,7 +69,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = string.Empty;
+        }
 
         /// <summary>
         /// Gets or sets the parameterless constructor that instantiates the matching EntityBehaviour class of the EntityRef.
@@ -78,7 +78,15 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = Empty<TBehaviour>.Func;
+        }
+
+        protected EntityDef(string displayName, Func<TBehaviour> newBehaviour = null)
+        {
+            InternalName = String.Empty;
+
+            DisplayName = displayName;
+            CreateBehaviour = newBehaviour ?? Empty<TBehaviour>.Func;
+        }
 
         public override string ToString()
         {

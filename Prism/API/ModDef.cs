@@ -217,7 +217,7 @@ namespace Prism.API
             };
 
             for (int i = 0; i < tries.Length; i++)
-                if (Array.IndexOf(c.GetManifestResourceNames(), path) != -1)
+                if (Array.IndexOf(c.GetManifestResourceNames(), tries[i]) != -1)
                     return GetResourceInternal<T>(() => c.GetManifestResourceStream(tries[i])); // passing 'i' directly here is ok, because the function is called before GetResourceInternal returns (and i increases)
 
             throw new FileNotFoundException("Embedded resource '" + path + "' not found.");

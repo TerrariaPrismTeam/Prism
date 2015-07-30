@@ -53,7 +53,6 @@ namespace Prism.API.Defs
                 return new ByTypeIndexer();
             }
         }
-
         /// <summary>
         /// Gets NpcDefs by their internal name (and optionally by their mod's internal name).
         /// </summary>
@@ -75,8 +74,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 0;
-
+        }
         /// <summary>
         /// Gets or sets the width of this NPC.
         /// </summary>
@@ -85,8 +83,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 16;
-
+        }
         /// <summary>
         /// Gets or sets the height of this NPC.
         /// </summary>
@@ -95,8 +92,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 16;
-
+        }
         /// <summary>
         /// Gets or sets the defense of this NPC.
         /// </summary>
@@ -106,7 +102,6 @@ namespace Prism.API.Defs
             get;
             set;
         }
-
         /// <summary>
         /// Gets or sets the opacity at which the NPC's sprite is rendered (0 = fully opaque, 255 = fully transparent).
         /// </summary>
@@ -115,8 +110,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 0;
-
+        }
         /// <summary>
         /// Gets or sets the maximum life of this NPC.
         /// </summary>
@@ -124,8 +118,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 1;
-
+        }
         /// <summary>
         /// Gets or sets the ID of the sound effect this NPC plays upon getting hurt.
         /// </summary>
@@ -133,8 +126,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 1;
-
+        }
         /// <summary>
         /// Gets or sets the ID of the sound effect this NPC plays upon dying.
         /// </summary>
@@ -142,11 +134,11 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 1;                               
+        }
 
         /// <summary>
-        /// Gets or sets the default length of this NPC's trail cache. The cache can be accessed with <see cref="NPC.oldPos"/> (a <see cref="Vector2"/>[])
-        /// <para/>Note: The trail cache is resized only when <see cref="NPC.RealSetDefaults(int, float)"/> 
+        /// Gets or sets the default length of this NPC's trail cache. The cache can be accessed with <see cref="NPC.oldPos" /> (a <see cref="Vector2" />[])
+        /// <para />Note: The trail cache is resized only when <see cref="NPC.RealSetDefaults(int, float)" />
         /// is called, so after that point the array can be resized if you wish.
         /// </summary>
         /// <remarks>NPCID.Sets.TrailCacheLength[Type]</remarks>
@@ -154,8 +146,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 10;
-
+        }
         /// <summary>
         /// Gets or sets the number of standard animation frames in this NPC's sprite.
         /// </summary>
@@ -164,7 +155,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 1;
+        }
 
         /// <summary>
         /// Gets or sets whether or not this NPC ignores tile collision.
@@ -173,8 +164,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether or not this NPC ignores gravity.
         /// </summary>
@@ -182,19 +172,17 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether the NPC is a boss or not. This is for traditional bosses.
-        /// <para/>For other things which are technically bosses (have a map icon etc) but aren't really 
+        /// <para/>For other things which are technically bosses (have a map icon etc) but aren't really
         /// traditional boss fights (e.g. Celestial Towers), <see cref="IsTechnicallyABoss"/> should be used in that case.
         /// </summary>
         public virtual bool IsBoss
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether the NPC is a town npc.
         /// </summary>
@@ -202,19 +190,26 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
+        }
+        /// <summary>
+        /// Gets or sets whether this NPC is excluded from radar counts ("x enemies nearby").
+        /// </summary>
+        public virtual bool NotOnRadar
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Gets or sets whether this is a summonable boss. The game uses this to check if the enemy/boss someone is spawning in multiplayer is legitimate or if they're just hacking, ignoring netmessages trying to summon anything which doesn't have this property set to true.
-        /// <para/>Note: "Summonable" refers to bosses which are summoned with the message "Boss has awakened!".
+        /// <para/>Note: "Summonable" refers to bosses which are summoned with the message "&lt;boss&gt; has awoken!".
         /// </summary>
         /// <remarks>NPCID.Sets.MPAllowedEnemies[Type]</remarks>
         public virtual bool IsSummonableBoss
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether this NPC gets drawn when offscreen (Wall of Flesh).
         /// </summary>
@@ -223,8 +218,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether or not this NPC receives an extra stat boost in Expert mode.
         /// Only used by a few weaker NPCs to make them less lame in Expert Mode (and on Moon Lord).
@@ -234,8 +228,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether this NPC is used as a projectile that can be damaged with a weapon until dissipating.
         /// <para/>Example: Moon Lord's ice attacks.
@@ -245,8 +238,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether this NPC is excluded from death tallies (used for Mini Star Cell, etc)
         /// </summary>
@@ -255,8 +247,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether this NPC's presence in the world is saved into the world file. (Used for Celestial Towers).
         /// </summary>
@@ -265,10 +256,9 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
-        /// Gets or sets whether this NPC is a skeleton. 
+        /// Gets or sets whether this NPC is a skeleton.
         /// Skeleton Merchant will be friendly toward any NPC in this list.
         /// </summary>
         /// <remarks>NPCID.Sets.Skeletons, List, Add type if skeleton?</remarks>
@@ -277,7 +267,6 @@ namespace Prism.API.Defs
             get;
             set;
         }
-
         /// <summary>
         /// Gets or sets whether this NPC technically counts as a boss (blocks summoning of some bosses while in the world, etc).
         /// </summary>
@@ -286,8 +275,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether this NPC is a friendly town critter.
         /// </summary>
@@ -296,7 +284,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
+        }
 
         /// <summary>
         /// Gets or sets the scale at which the NPC's sprite is rendered (1.0f = normal scale).
@@ -306,8 +294,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 1.0f;
-
+        }
         /// <summary>
         /// Gets or sets this NPC's resistance to knockback.
         /// </summary>
@@ -315,8 +302,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 1.0f;
-
+        }
         /// <summary>
         /// Gets or sets the amount of NPC slots this NPC takes up, which go toward the active NPC count limit.
         /// </summary>
@@ -324,7 +310,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 1.0f;
+        }
 
         /// <summary>
         /// Gets or sets the color to which the NPC's sprite is tinted (<see cref="Color.White"/> = no tinting applied).
@@ -334,8 +320,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = Color.White;
-
+        }
         /// <summary>
         /// Gets or sets the value of this NPC (used for coin drops, biome keys, etc)
         /// </summary>
@@ -343,8 +328,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = NpcValue.Zero;
-
+        }
         /// <summary>
         /// Gets or sets the AI style of this NPC.
         /// </summary>
@@ -352,7 +336,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = NpcAiStyle.None;    
+        }
 
         //TODO: use BuffRef... later
         /// <summary>
@@ -362,9 +346,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = Empty<int>.List;
-
-
+        }
         /// <summary>
         /// Gets or sets the NPC's town NPC config.
         /// </summary>
@@ -372,16 +354,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = default(TownNpcConfig);
-
-        /// <summary>
-        /// Gets or sets whether this NPC is excluded from radar counts ("x enemies nearby").
-        /// </summary>
-        public virtual bool HasAntiRadar
-        {
-            get;
-            set;
-        } = false;
+        }
 
         /// <summary>
         /// Gets or sets the NPC's texture function.
@@ -390,8 +363,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = Empty<Texture2D>.Func;
-
+        }
         /// <summary>
         /// Gets or sets the NPC's boss head texture function.
         /// </summary>
@@ -399,18 +371,33 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = null;
+        }
 
-        public NpcDef()
+        public NpcDef(string displayName, Func<NpcBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null)
+            : base(displayName, newBehaviour)
         {
+            Width = Height = 16;
+            MaxLife = 1;
+            SoundOnHit = SoundOnDeath = 1;
+
+            TrailCacheLength = 10;
+            FrameCount = 1;
+
+            Scale = KnockbackResistance = NpcSlots = 1f;
+
+            Colour = Color.White;
+
+            BuffImmunities = Empty<int>.List;
+
             TownConfig = new TownNpcConfig();
+
+            GetTexture = getTexture ?? Empty<Texture2D>.Func;
         }
 
         public static implicit operator NpcRef(NpcDef  def)
         {
             return new NpcRef(def.InternalName, def.Mod.InternalName);
         }
-
         public static explicit operator NpcDef(NpcRef @ref /*Apparently we switched Prism over to Java, everyone*/)
         {
             return @ref.Resolve();

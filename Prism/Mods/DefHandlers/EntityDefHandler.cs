@@ -5,7 +5,6 @@ using System.Reflection;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Terraria;
-using Terraria.ID;
 
 namespace Prism.Mods.DefHandlers
 {
@@ -15,7 +14,7 @@ namespace Prism.Mods.DefHandlers
     abstract class EntityDefHandler<TEntityDef, TBehaviour, TEntity>
         where TEntity : class
         where TBehaviour : EntityBehaviour<TEntity>
-        where TEntityDef : EntityDef<TBehaviour, TEntity>, new()
+        where TEntityDef : EntityDef<TBehaviour, TEntity>//, new()
     {
         /// <summary>
         /// The entity type index to which the next entity added will be assigned;
@@ -25,9 +24,7 @@ namespace Prism.Mods.DefHandlers
         public Dictionary<int   , TEntityDef> DefsByType        = new Dictionary<int   , TEntityDef>();
         public Dictionary<string, TEntityDef> VanillaDefsByName = new Dictionary<string, TEntityDef>();
 
-        int?
-            minVanillaId = null,
-            maxVanillaId = null;
+        int? minVanillaId = null, maxVanillaId = null;
         FieldInfo[] idFields = null;
         int[] idValues = null;
         string[] idNames = null;
@@ -78,9 +75,9 @@ namespace Prism.Mods.DefHandlers
             get
             {
                 if (maxVanillaId == null)
-                    maxVanillaId = IDFields.Select(f => (int)Convert.ChangeType(f.GetValue(null), typeof(int))).Max();
+                    maxVanillaId = (int)Convert.ChangeType(IDContainerType.GetField("Count", BindingFlags.Public | BindingFlags.Static).GetValue(null), typeof(int));
 
-                return maxVanillaId.Value + 1; //It's exclusive, bitch
+                return maxVanillaId.Value;
             }
         }
 
@@ -97,6 +94,7 @@ namespace Prism.Mods.DefHandlers
         protected abstract void ExtendVanillaArrays(int amt = 1);
 
         protected abstract TEntity GetVanillaEntityFromID(int id);
+        protected abstract TEntityDef NewDefFromVanilla(TEntity entity);
 
         protected abstract void CopyEntityToDef(TEntity entity, TEntityDef def);
         protected abstract void CopyDefToEntity(TEntityDef def, TEntity entity);
@@ -106,7 +104,6 @@ namespace Prism.Mods.DefHandlers
         protected abstract void CopySetProperties(TEntityDef def);
 
         protected abstract int GetRegularType(TEntity entity);
-        protected abstract int GetNetType(TEntity entity);
 
         protected virtual void PostFillVanilla() { }
 
@@ -118,16 +115,17 @@ namespace Prism.Mods.DefHandlers
                     continue;
 
                 TEntity entity = GetVanillaEntityFromID(id);
-                TEntityDef def = new TEntityDef();                
+                TEntityDef def = NewDefFromVanilla(entity);
 
                 CopyEntityToDef(entity, def);
 
-                def.InternalName = IDNames[Array.IndexOf(IDValues, GetNetType(entity))];
-                if (String.IsNullOrEmpty(def.InternalName))
+                var index = Array.IndexOf(IDValues, id);
+                if (index == -1)
                     continue;
+                def.InternalName = IDNames[index];
 
                 DefsByType.Add(id, def);
-
+                VanillaDefsByName.Add(def.InternalName, def);
             }
 
             PostFillVanilla();

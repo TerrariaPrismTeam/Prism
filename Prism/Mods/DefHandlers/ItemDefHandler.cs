@@ -101,6 +101,10 @@ namespace Prism.Mods.DefHandlers
             i.netDefaults(id);
             return i;
         }
+        protected override ItemDef NewDefFromVanilla(Item item)
+        {
+            return new ItemDef(Lang.itemName(item.netID, true), getTexture: () => Main.itemTexture[item.type]);
+        }
 
         protected override void CopyEntityToDef(Item item, ItemDef def)
         {
@@ -149,7 +153,7 @@ namespace Prism.Mods.DefHandlers
 
             def.Value = new CoinValue(item.value);
             def.Description = new ItemDescription(item.toolTip, item.toolTip2, item.vanity, item.expert, item.questItem, item.notAmmo);
-            def.Buff = new BuffDef(item.buffType, item.buffTime);
+            def.Buff = new AppliedBuff(item.buffType, item.buffTime);
             def.UsedAmmo = (item.useAmmo != 0) ? new ItemRef(item.useAmmo) : null;
             def.ShootProjectile = item.shoot;
             def.AmmoType = item.ammo;
@@ -338,11 +342,6 @@ namespace Prism.Mods.DefHandlers
             ItemID.Sets.NeverShiny              [def.Type] = def.NeverShiny              ;
             ItemID.Sets.ExtractinatorMode       [def.Type] = def.ExtractinatorMode       ;
             ItemID.Sets.StaffMinionSlotsRequired[def.Type] = def.RequiredStaffMinionSlots;
-        }
-
-        protected override int GetNetType(Item item)
-        {
-            return item.netID;
         }
     }
 }

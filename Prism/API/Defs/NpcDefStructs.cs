@@ -1,8 +1,8 @@
-﻿using Microsoft.Xna.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Microsoft.Xna.Framework;
 
 namespace Prism.API.Defs
 {
@@ -19,8 +19,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = -1;
-
+        }
         /// <summary>
         /// Gets or sets the length of the town NPC's attack animation (in frames).
         /// </summary>
@@ -29,8 +28,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = -1;
-
+        }
         /// <summary>
         /// Gets or sets the general type of attack the town NPC uses to defend itself against dangers.
         /// </summary>
@@ -39,8 +37,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = TownNpcAttackType.None;
-
+        }
         /// <summary>
         /// Gets or sets the town NPC's danger detection radius.
         /// </summary>
@@ -49,8 +46,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = -1;
-
+        }
         /// <summary>
         /// Gets or sets the amount of "extra" animation frames the town NPC has.
         /// <para/>Used for the new animations added for town NPCs in 1.3, such as sitting.
@@ -60,8 +56,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = -1;
-
+        }
         //Fucking Red pl0x
         /// <summary>
         /// Gets or sets the average attack chance of the town NPC (1/2x chance (e.g. set this to 2.5 for 20% chance; 1/2(2.5) = 1/5 = 20%))
@@ -71,8 +66,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = -1;
-
+        }
         /// <summary>
         /// Gets or sets the index of the icon other town NPCs use to refer to this NPC while conversing with each other.
         /// <para/>Note: currently hardcoded for vanilla NPCs only.
@@ -82,8 +76,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = ChatBubbleIconIndex.None;
-
+        }
         /// <summary>
         /// Gets or sets radius of safety around the town in tiles* (-1 = no safety provided)
         /// <para/>
@@ -94,8 +87,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = -1;
-
+        }
         /// <summary>
         /// Gets or sets the color of the NPC's magic aura (used for Clothier, Wizard, Truffle, and Dryad).
         /// </summary>
@@ -122,24 +114,24 @@ namespace Prism.API.Defs
 
     public enum TownNpcAttackType
     {
-        None = -1,
+        None   = -1,
         /// <summary>
         /// Used by: Demolitionist (Grenades), Merchant (Throwing Knives), Goblin Tinkerer (Spiky Balls), Mechanic (Wrenches), Nurse (Syringes), Angler (Frost Daggerfish), Skeleton Merchant (Bones), Party Girl (Happy Grenades), Santa Claus (Snowballs)
         /// </summary>
         Thrown = 0,
         /// <summary>
-        /// Used by: Arms Dealer (Flintlock Pistol/Minishark), Guide (Wooden Bow), Witch Doctor (Blowgun), Steampunker (Clockwork Assault Rifle), 
+        /// Used by: Arms Dealer (Flintlock Pistol/Minishark), Guide (Wooden Bow), Witch Doctor (Blowgun), Steampunker (Clockwork Assault Rifle),
         /// Pirate (?), Cyborg (Rocket Launcher), Traveling Merchant (Flintlock Pistol/Pulse Bow), Painter (Paintball Gun)
         /// </summary>
         Ranged = 1,
         /// <summary>
         /// Used by: Clothier (magic skulls), Wizard (fireballs), Truffle (spores), Dryad (ward)
         /// </summary>
-        Magic = 2,
+        Magic  = 2,
         /// <summary>
         /// Used by: Dye Trader (Exotic Scimitar), Tax Collector (Sassy Cane), Stylist (Stylish Scissors)
         /// </summary>
-        Melee = 3
+        Melee  = 3
     }
 
     //TODO: OVERRIDE THE HARDCODED VALUE RANGES AND USE MAX FIELD.
@@ -157,7 +149,6 @@ namespace Prism.API.Defs
         {
 
         }
-
         public NpcValue(CoinValue minValue, CoinValue maxValue)
         {
             Min = minValue;
@@ -173,17 +164,18 @@ namespace Prism.API.Defs
 
             return false;
         }
-
         public override int GetHashCode()
         {
             return Min.GetHashCode() | Max.GetHashCode();
         }
-
         public override string ToString()
         {
             return ToString(CultureInfo.InvariantCulture);
         }
-
+        public string ToString(IFormatProvider provider)
+        {
+            return "[" + Min.ToString(provider) + " ~ " + Max.ToString(provider) + "]";
+        }
         public bool Equals(NpcValue other)
         {
             return Min == other.Min && Max == other.Max;
@@ -193,15 +185,9 @@ namespace Prism.API.Defs
         {
             return a.Equals(b);
         }
-
         public static bool operator !=(NpcValue a, NpcValue b)
         {
             return !a.Equals(b);
-        }
-
-        public string ToString(IFormatProvider provider)
-        {
-            return "[" + Min.ToString(provider) + " ~ " + Max.ToString(provider) + "]";
         }
     }
 
@@ -437,7 +423,7 @@ namespace Prism.API.Defs
         /// </summary>
         FlyingFish = 44,
         /// <summary>
-            /// Jumps towards player every few seconds, shoots lasers.        
+            /// Jumps towards player every few seconds, shoots lasers.
             /// <para/><b>Used By: </b>Golem
             /// <para/><b>Note:    </b>Automatically spawns 1x Golem Head, 2x Golem Fist
         /// </summary>
@@ -713,132 +699,132 @@ namespace Prism.API.Defs
 
     public enum ChatBubbleIconIndex
     {
-        None                                        = -1,
-        Icon_Heart                                  = 0,
-        Icon_Irritated                              = 1,
-        Icon_SweatDrop                              = 2,
-        Icon_Exclamation                            = 3,
-        Weather_Rain                                = 4,
-        Weather_Lightning                           = 5,
-        Weather_Rainbow                             = 6,
-        Icon_GoldRing                               = 7,
-        Icon_GreenSkull                             = 8,
-        Icon_SmokeySkull                            = 9,
-        Icon_Ellipsis                               = 10,
-        Icon_Denied                                 = 11,
-        Critter_Bee                                 = 12,
-        Critter_Slime                               = 13,
-        Tree                                        = 14,
-        Face_Grin                                   = 15,
-        Face_Frown                                  = 16,
-        Icon_MusicNote                              = 17,
-        Event_BloodMoon                             = 18,
-        Event_SolarEclipse                          = 19,
-        Event_PumpkinMoon                           = 20,
-        Event_FrostMoon                             = 21,
-        Biome_FloatingIsland                        = 22,
-        Biome_Forest                                = 23,
-        Biome_Jungle                                = 24,
-        Biome_Crimson                               = 25,
-        Biome_Corruption                            = 26,
-        Biome_Hallow                                = 27,
-        Biome_Desert                                = 28,
-        Biome_Ocean                                 = 29,
-        Biome_Underground                           = 30,
-        Biome_Hell                                  = 31,
-        Biome_Snow                                  = 32,
-        RPS_Scissors_F                              = 33,
-        RPS_Rock_F                                  = 34,
-        RPS_Paper_F                                 = 35,
-        RPS_Scissors                                = 36,
-        RPS_Rock                                    = 37,
-        RPS_Paper                                   = 38,
-        Boss_EyeOfCthulhu                           = 39,
-        Boss_EaterOfWorlds                          = 40,
-        Boss_BrainOfCthulhu                         = 41,
-        Boss_QueenBee                               = 42,
-        Boss_Skeletron                              = 43,
-        Boss_WallOfFlesh                            = 44,
-        Boss_TheDestroyer                           = 45,
-        Boss_SkeletronPrime                         = 46,
-        Boss_Retinazor                              = 47,
-        Boss_Plantera                               = 48,
-        Boss_Golem                                  = 49,
-        Boss_DukeFishron                            = 50,
-        Boss_SlimeKing                              = 51,
-        Boss_LunaticCultist                         = 52,
-        Boss_MoonLord                               = 53,
-        PumpkinMoon_MourningWood                    = 54,
-        PumpkinMoon_Pumpking                        = 55,
-        FrostMoon_Everscream                        = 56,
-        FrostMoon_IceQueen                          = 57,
-        FrostMoon_SantaNK1                          = 58,
-        PirateInvasion_FlyingDutchman               = 59,
-        MartianMadness_Saucer                       = 60,
-        SolarEclipse_Eyez0r                         = 61,
-        Critter_Bunny                               = 62,
-        Critter_Butterfly                           = 63, //?
-        Enemy_GoblinSummoner                        = 64,
-        PirateInvasion_PirateDeadeye                = 65,
-        FrostLegion_SnowBalla                       = 66,
-        Enemy_Spider                                = 67,
-        Critter_Bird                                = 68,
-        Critter_Mouse                               = 69,
-        Critter_Goldfish                            = 70,
-        Enemy_Martian                               = 71,
-        Enemy_Skull                                 = 72,
-        Item_HealthPotion                           = 73,
-        Item_ManaPotion                             = 74,
-        Item_Soup                                   = 75,
-        Item_Fish                                   = 76,
-        Item_Drink                                  = 77,
-        Item_Sword                                  = 78,
-        Item_FishingRod                             = 79,
-        Item_BugNet                                 = 80,
-        Item_Dynamite                               = 81,
-        Item_Minishark                              = 82,
-        Item_Gear                                   = 83,
-        Item_Gravestone                             = 84,
-        Item_Gold                                   = 85,
-        Item_DiamondRing                            = 86,
-        QuestionMark                                = 87,
-        Lips                                        = 88,
-        Action_Sleep                                = 89,
-        Item_Pickaxe                                = 90,
-        Action_Run                                  = 91,
-        Action_Kick                                 = 92,
-        PvPSwordIcon                                = 93,
-        Face_Cry                                    = 94,
-        Weather_Sunny                               = 95,
-        Weather_StormCloud                          = 96,
-        Weather_Tornado                             = 97,
-        Weather_Saucer                              = 98,
-        Fireball                                    = 99,
-        Flame                                       = 100,
-        NPC_Merchant                                = 101,
-        NPC_Nurse                                   = 102,
-        NPC_ArmsDealer                              = 103,
-        NPC_Dryad                                   = 104,
-        NPC_Guide                                   = 105,
-        NPC_OldMan                                  = 106,
-        NPC_Demolitionist                           = 107,
-        NPC_Clothier                                = 108,
-        NPC_GoblinTinkerer                          = 109,
-        NPC_Wizard                                  = 110,
-        NPC_Mechanic                                = 111,
-        NPC_SantaClaus                              = 112,
-        NPC_Truffle                                 = 113,
-        NPC_Steampunker                             = 114,
-        NPC_DyeTrader                               = 115,
-        NPC_PartyGirl                               = 116,
-        NPC_Cyborg                                  = 117,
-        NPC_Painter                                 = 118,
-        NPC_WitchDoctor                             = 119,
-        NPC_Pirate                                  = 120,
-        NPC_Stylist                                 = 121,
-        NPC_TravelingMerchant                       = 122,
-        NPC_Angler                                  = 123,
-        NPC_SkeletonMerchant                        = 124,
-        NPC_TaxCollector                            = 125
+        None                          = -1,
+        Icon_Heart                    = 0,
+        Icon_Irritated                = 1,
+        Icon_SweatDrop                = 2,
+        Icon_Exclamation              = 3,
+        Weather_Rain                  = 4,
+        Weather_Lightning             = 5,
+        Weather_Rainbow               = 6,
+        Icon_GoldRing                 = 7,
+        Icon_GreenSkull               = 8,
+        Icon_SmokeySkull              = 9,
+        Icon_Ellipsis                 = 10,
+        Icon_Denied                   = 11,
+        Critter_Bee                   = 12,
+        Critter_Slime                 = 13,
+        Tree                          = 14,
+        Face_Grin                     = 15,
+        Face_Frown                    = 16,
+        Icon_MusicNote                = 17,
+        Event_BloodMoon               = 18,
+        Event_SolarEclipse            = 19,
+        Event_PumpkinMoon             = 20,
+        Event_FrostMoon               = 21,
+        Biome_FloatingIsland          = 22,
+        Biome_Forest                  = 23,
+        Biome_Jungle                  = 24,
+        Biome_Crimson                 = 25,
+        Biome_Corruption              = 26,
+        Biome_Hallow                  = 27,
+        Biome_Desert                  = 28,
+        Biome_Ocean                   = 29,
+        Biome_Underground             = 30,
+        Biome_Hell                    = 31,
+        Biome_Snow                    = 32,
+        RPS_Scissors_F                = 33,
+        RPS_Rock_F                    = 34,
+        RPS_Paper_F                   = 35,
+        RPS_Scissors                  = 36,
+        RPS_Rock                      = 37,
+        RPS_Paper                     = 38,
+        Boss_EyeOfCthulhu             = 39,
+        Boss_EaterOfWorlds            = 40,
+        Boss_BrainOfCthulhu           = 41,
+        Boss_QueenBee                 = 42,
+        Boss_Skeletron                = 43,
+        Boss_WallOfFlesh              = 44,
+        Boss_TheDestroyer             = 45,
+        Boss_SkeletronPrime           = 46,
+        Boss_Retinazor                = 47,
+        Boss_Plantera                 = 48,
+        Boss_Golem                    = 49,
+        Boss_DukeFishron              = 50,
+        Boss_SlimeKing                = 51,
+        Boss_LunaticCultist           = 52,
+        Boss_MoonLord                 = 53,
+        PumpkinMoon_MourningWood      = 54,
+        PumpkinMoon_Pumpking          = 55,
+        FrostMoon_Everscream          = 56,
+        FrostMoon_IceQueen            = 57,
+        FrostMoon_SantaNK1            = 58,
+        PirateInvasion_FlyingDutchman = 59,
+        MartianMadness_Saucer         = 60,
+        SolarEclipse_Eyez0r           = 61,
+        Critter_Bunny                 = 62,
+        Critter_Butterfly             = 63, // a chat bubble showing a butterfly
+        Enemy_GoblinSummoner          = 64,
+        PirateInvasion_PirateDeadeye  = 65,
+        FrostLegion_SnowBalla         = 66,
+        Enemy_Spider                  = 67,
+        Critter_Bird                  = 68,
+        Critter_Mouse                 = 69,
+        Critter_Goldfish              = 70,
+        Enemy_Martian                 = 71,
+        Enemy_Skull                   = 72,
+        Item_HealthPotion             = 73,
+        Item_ManaPotion               = 74,
+        Item_Soup                     = 75,
+        Item_Fish                     = 76,
+        Item_Drink                    = 77,
+        Item_Sword                    = 78,
+        Item_FishingRod               = 79,
+        Item_BugNet                   = 80,
+        Item_Dynamite                 = 81,
+        Item_Minishark                = 82,
+        Item_Gear                     = 83,
+        Item_Gravestone               = 84,
+        Item_Gold                     = 85,
+        Item_DiamondRing              = 86,
+        QuestionMark                  = 87,
+        Lips                          = 88,
+        Action_Sleep                  = 89,
+        Item_Pickaxe                  = 90,
+        Action_Run                    = 91,
+        Action_Kick                   = 92,
+        PvPSwordIcon                  = 93,
+        Face_Cry                      = 94,
+        Weather_Sunny                 = 95,
+        Weather_StormCloud            = 96,
+        Weather_Tornado               = 97,
+        Weather_Saucer                = 98,
+        Fireball                      = 99,
+        Flame                         = 100,
+        NPC_Merchant                  = 101,
+        NPC_Nurse                     = 102,
+        NPC_ArmsDealer                = 103,
+        NPC_Dryad                     = 104,
+        NPC_Guide                     = 105,
+        NPC_OldMan                    = 106,
+        NPC_Demolitionist             = 107,
+        NPC_Clothier                  = 108,
+        NPC_GoblinTinkerer            = 109,
+        NPC_Wizard                    = 110,
+        NPC_Mechanic                  = 111,
+        NPC_SantaClaus                = 112,
+        NPC_Truffle                   = 113,
+        NPC_Steampunker               = 114,
+        NPC_DyeTrader                 = 115,
+        NPC_PartyGirl                 = 116,
+        NPC_Cyborg                    = 117,
+        NPC_Painter                   = 118,
+        NPC_WitchDoctor               = 119,
+        NPC_Pirate                    = 120,
+        NPC_Stylist                   = 121,
+        NPC_TravelingMerchant         = 122,
+        NPC_Angler                    = 123,
+        NPC_SkeletonMerchant          = 124,
+        NPC_TaxCollector              = 125
     }
 }

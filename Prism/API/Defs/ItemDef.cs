@@ -54,7 +54,6 @@ namespace Prism.API.Defs
                 return new ByTypeIndexer();
             }
         }
-
         /// <summary>
         /// Gets ItemDefs by their internal name (and optionally by their mod's internal name).
         /// </summary>
@@ -74,8 +73,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 0;
-
+        }
         /// <summary>
         /// Gets or sets the length of this item's use animation.
         /// </summary>
@@ -84,8 +82,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 0;
-
+        }
         /// <summary>
         /// Gets or sets the use time of this item (the amount of time, in frames, that it takes to use this item).
         /// </summary>
@@ -94,8 +91,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 0;
-
+        }
         /// <summary>
         /// Gets or sets the the amount of time, in frames, which you must wait in order to reuse this item.
         /// </summary>
@@ -104,8 +100,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 0;
-
+        }
         /// <summary>
         /// Gets or sets the amount of mana this item consumes upon use.
         /// </summary>
@@ -114,8 +109,8 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 0;
-
+        }
+        //TODO: move this to EntityDef?
         /// <summary>
         /// Gets or sets the width of this item once it is freed as drop in the game world.
         /// </summary>
@@ -124,8 +119,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 16;
-
+        }
         /// <summary>
         /// Gets or sets the height of this item once it is freed as drop in the game world.
         /// </summary>
@@ -134,8 +128,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 16;
-
+        }
         /// <summary>
         /// Gets or sets this item's max stack.
         /// </summary>
@@ -144,8 +137,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 1;
-
+        }
         /// <summary>
         /// Gets or sets the style in which this item places tiles.
         /// </summary>
@@ -154,8 +146,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 0;
-
+        }
         /// <summary>
         /// Gets or sets the opacity at which the item's sprite is rendered (0 = fully opaque, 255 = fully transparent).
         /// </summary>
@@ -164,8 +155,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 0;
-
+        }
         /// <summary>
         /// Gets or sets the defense which this item grants to the player while equipped.
         /// </summary>
@@ -174,9 +164,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 0;
-
-
+        }
         /// <summary>
         /// Gets or sets this item's critical strike chance modifier (in percent).
         /// </summary>
@@ -185,8 +173,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 0;
-
+        }
         /// <summary>
         /// Gets or sets this item's pickaxe power (in percent).
         /// </summary>
@@ -194,9 +181,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 0;
-
-
+        }
         /// <summary>
         /// Gets or sets this item's axe power (in percent). <!-- needs modification when loading -->
         /// </summary>
@@ -204,8 +189,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 0;
-
+        }
         /// <summary>
         /// Gets or sets this item's hammer power (in percent).
         /// </summary>
@@ -213,8 +197,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 0;
-
+        }
         /// <summary>
         /// Gets or sets the amount of health restored when the item is used.
         /// </summary>
@@ -222,8 +205,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 0;
-
+        }
         /// <summary>
         /// Gets or sets the amount of mana restored when the item is used.
         /// </summary>
@@ -231,7 +213,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 0;
+        }
 
         /// <summary>
         /// Gets or sets the velocity at which this item shoots projectiles (in pixels / game tick).
@@ -241,8 +223,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 0;
-
+        }
         /// <summary>
         /// Gets or sets the amount of knockback this item inflicts.
         /// </summary>
@@ -251,8 +232,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 0;
-
+        }
         /// <summary>
         /// Gets or sets the scale at which the item's sprite is rendered (1.0f = normal scale).
         /// </summary>
@@ -261,7 +241,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 1.0f;
+        }
 
         /// <summary>
         /// Gets or sets whether this item should ignore melee contact/damage with enemies.
@@ -271,8 +251,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether this item is consumed upon use.
         /// </summary>
@@ -281,8 +260,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether this item turns the player toward its direction upon use.
         /// </summary>
@@ -291,8 +269,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether this item automatically reuses itself while the mouse button is held down.
         /// </summary>
@@ -301,8 +278,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether this item's use graphic is hidden.
         /// </summary>
@@ -311,8 +287,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether this item can be equipped in players' accessory slots.
         /// </summary>
@@ -321,8 +296,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether this item can only be used in Expert Mode.
         /// </summary>
@@ -330,8 +304,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether the item is channeled, instead of used once or continuously used over and over again.
         /// </summary>
@@ -339,7 +312,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
+        }
 
         /// <summary>
         /// Gets or sets whether the item behaves as a soul.
@@ -348,8 +321,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether the item can be traded as a strange plant.
         /// </summary>
@@ -357,8 +329,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether the item is a bullet kind of ammo.
         /// </summary>
@@ -366,8 +337,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether the item pulses.
         /// </summary>
@@ -375,8 +345,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether the item is affected by gravity.
         /// </summary>
@@ -384,8 +353,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether... idk, really.
         /// </summary>
@@ -393,8 +361,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
-
+        }
         /// <summary>
         /// Gets or sets whether the item can shine or not.
         /// </summary>
@@ -402,18 +369,17 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = false;
+        }
 
         /// <summary>
-        /// Gets or sets what the extractinator can use this item to produce. 
+        /// Gets or sets what the extractinator can use this item to produce.
         /// <remarks>TODO: Make an enum for the types?</remarks>
         /// </summary>
         public virtual int ExtractinatorMode
         {
             get;
             set;
-        } = -1;
-
+        }
         /// <summary>
         /// Gets or sets the amount of minion slots required to use the item.
         /// </summary>
@@ -421,7 +387,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = 0;
+        }
 
         /// <summary>
         /// Gets or sets the color to which the item's sprite is tinted (<see cref="Color.White"/> = no tinting applied).
@@ -431,8 +397,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = Color.White;
-
+        }
         /// <summary>
         /// Gets or sets the base rarity of this item.
         /// </summary>
@@ -441,8 +406,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = ItemRarity.White;
-
+        }
         /// <summary>
         /// Gets or sets the use style of this item.
         /// </summary>
@@ -451,8 +415,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = ItemUseStyle.None;
-
+        }
         /// <summary>
         /// Gets or sets the style in which the player holds this item.
         /// </summary>
@@ -471,8 +434,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = ItemDamageType.None;
-
+        }
         /// <summary>
         /// Gets or sets this item's value in coins (PPGGSSCC).
         /// </summary>
@@ -481,8 +443,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = default(CoinValue);
-
+        }
         /// <summary>
         /// Gets or sets this item's description structure.
         /// </summary>
@@ -490,8 +451,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = default(ItemDescription);
-
+        }
         /// <summary>
         /// Gets or sets this item's armor type structure.
         /// </summary>
@@ -499,16 +459,15 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = default(ItemArmourData);
-
+        }
         /// <summary>
         /// Gets or sets the buff this item grants to the player.
         /// </summary>
-        public virtual BuffDef Buff
+        public virtual AppliedBuff Buff
         {
             get;
             set;
-        } = default(BuffDef);
+        }
 
         /// <summary>
         /// Gets or sets the ammo item the item consumes when used.
@@ -517,8 +476,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = null;
-
+        }
         //TODO: use references for these... later
         /// <summary>
         /// Gets or sets the projectile which this item shoots upon use.
@@ -528,8 +486,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = -1;
-
+        }
         /// <summary>
         /// Gets or sets the type of ammo this item acts as.
         /// </summary>
@@ -538,8 +495,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = -1;
-
+        }
         /// <summary>
         /// Gets or sets the use sound effect of this item.
         /// </summary>
@@ -548,8 +504,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = -1;
-
+        }
         /// <summary>
         /// Gets or sets the tile which this item places upon use.
         /// </summary>
@@ -558,8 +513,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = -1;
-
+        }
         /// <summary>
         /// Gets or sets the wall which this item places upon use.
         /// </summary>
@@ -568,7 +522,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = -1;
+        }
 
         /// <summary>
         /// Gets or sets the item's texture.
@@ -577,20 +531,35 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        } = null;
+        }
 
-        public ItemDef() { } //Needed for new()
+        public ItemDef(string displayName, Func<ItemBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null)
+            : base(displayName, newBehaviour)
+        {
+            GetTexture = getTexture ?? Empty<Texture2D>.Func;
+
+            Width = Height = 16;
+            MaxStack = 1;
+
+            Scale = 1f;
+
+            ExtractinatorMode = -1;
+
+            Colour = Color.White;
+
+            CreateTile = CreateWall = -1;
+        }
 
         public ItemDef(string displayName, JsonData json,
-            Func<Texture2D> getTex = null,
-            ItemArmourData armour = default(ItemArmourData),
+            Func<Texture2D> getTexture = null,
+            ItemArmourData armour = default(ItemArmourData), //TODO: support this in JSON
             Func<ItemBehaviour> newBehaviour = null)
+            : this(displayName, newBehaviour)
         {
-            DisplayName = displayName;
-            GetTexture = getTex ?? Empty<Texture2D>.Func;
+            GetTexture = getTexture ?? Empty<Texture2D>.Func;
             ArmourData = armour;
-            CreateBehaviour = newBehaviour ?? Empty<ItemBehaviour>.Func;
 
+            //TODO: check if the fields exist
             Damage = (int)json["damage"];
             UseAnimation = (int)json["useAnimation"];
             UseTime = (int)json["useTime"];
@@ -637,26 +606,19 @@ namespace Prism.API.Defs
                 JsonData colour = json["colour"];
                 Colour = new Color((int)colour[0], (int)colour[1], (int)colour[2]);
             }
-            else
-            {
-                Colour = default(Color);
-            }
 
             if (json.Has("rare"))
             {
                 JsonData rare = json["rare"];
                 if (rare.IsString)
                 {
+                    //TODO: use error handling, exceptions shouldn't be thrown from a constructor
                     Rarity = (ItemRarity)Enum.Parse(typeof(ItemRarity), (string)rare);
                 }
                 else
                 {
                     Rarity = (ItemRarity)(int)rare;
                 }
-            }
-            else
-            {
-                Rarity = default(ItemRarity);
             }
 
             if (json.Has("useStyle"))
@@ -671,10 +633,6 @@ namespace Prism.API.Defs
                     UseStyle = (ItemUseStyle)(int)useStyle;
                 }
             }
-            else
-            {
-                UseStyle = default(ItemUseStyle);
-            }
 
             if (json.Has("holdStyle"))
             {
@@ -687,10 +645,6 @@ namespace Prism.API.Defs
                 {
                     HoldStyle = (ItemHoldStyle)(int)holdStyle;
                 }
-            }
-            else
-            {
-                HoldStyle = default(ItemHoldStyle);
             }
 
             if (json.Has("damageType"))
@@ -705,10 +659,6 @@ namespace Prism.API.Defs
                     DamageType = (ItemDamageType)(int)damageType;
                 }
             }
-            else
-            {
-                DamageType = default(ItemDamageType);
-            }
 
             if (json.Has("value"))
             {
@@ -721,10 +671,6 @@ namespace Prism.API.Defs
                 {
                     Value = (CoinValue)(int)value;
                 }
-            }
-            else
-            {
-                Value = default(CoinValue);
             }
 
             if (json.Has("description"))
@@ -741,12 +687,8 @@ namespace Prism.API.Defs
             {
                 JsonData buff = json["buff"];
                 JsonData type = buff["type"];
-                // TODO Add string compatibility with BuffRef
-                Buff = new BuffDef((int)type, (int)buff["duration"]);
-            }
-            else
-            {
-                Buff = default(BuffDef);
+                //TODO: Add string compatibility with BuffRef
+                Buff = new AppliedBuff((int)type, (int)buff["duration"]);
             }
 
             if (json.Has("useAmmo"))
@@ -769,10 +711,6 @@ namespace Prism.API.Defs
                 {
                     UsedAmmo = new ItemRef((int)useAmmo);
                 }
-            }
-            else
-            {
-                UsedAmmo = null;
             }
 
             if (json.Has("shoot"))

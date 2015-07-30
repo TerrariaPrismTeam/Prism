@@ -26,12 +26,10 @@ namespace Prism.ExampleMod
                 { "Pizza", new ItemDef("Pizza", GetResource<JsonData>("Resources/Items/Pizza.json"),
                     () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png")) },
                 // Ant done with JSON method using an embedded resource
-                { "Ant", new ItemDef("Ant", GetResource<JsonData>("Resources/Items/Ant.json"), //Changed to reg resource so I can test other shit
-                    () => GetResource<Texture2D>("Resources/Textures/Items/Ant.png")) },       //^
-                { "Pizzant", new ItemDef() {                    
-                    DisplayName = "Pizzant",
-                    GetTexture = () => GetResource<Texture2D>("Resources/Textures/Items/Pizzant.png"),
-                    Description = new ItemDescription("The chaotic forces of italian spices and insects and bread.", expert: true),
+                { "Ant", new ItemDef("Ant", GetEmbeddedResource<JsonData>("Resources/Items/Ant.json"),
+                    () => GetEmbeddedResource<Texture2D>("Resources/Textures/Items/Ant.png")) },
+                { "Pizzant", new ItemDef("Pizzant", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizzant.png"))
+                {   Description = new ItemDescription("The chaotic forces of italian spices and insects and bread.", expert: true),
                     DamageType = ItemDamageType.Melee,
                     AutoReuse = true,
                     UseTime = 12,
@@ -50,11 +48,8 @@ namespace Prism.ExampleMod
                     Value = new CoinValue(1, 34, 1, 67),
                     Scale = 1.1f
                 } },
-                //The *not fucking terrible* way to make a new item def in code (you can actually see the XmlDoc's of the fields this way and also it's not ugly camelCase):
-                { "Pizzantzioli", new ItemDef() { 
-                    DisplayName = "Pizzantzioli",
-                    Description = new ItemDescription("The forces of ants and pizza come together as one.", "The name is Italian for 'KICKING ASS'! YEAH! BROFISSSSST!!1!", expert: true),
-                    GetTexture = () => GetResource<Texture2D>("Resources/Textures/Items/Pizzantzioli.png"),
+                { "Pizzantzioli", new ItemDef("Pizzantzioli", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizzantzioli.png"))
+                {   Description = new ItemDescription("The forces of ants and pizza come together as one.", "The name is Italian for 'KICKING ASS'! YEAH! BROFISSSSST!!1!", expert: true),
                     DamageType = ItemDamageType.Melee,
                     AutoReuse = true,
                     UseTime = 20,
@@ -79,10 +74,8 @@ namespace Prism.ExampleMod
         {
             return new Dictionary<string, NpcDef>
             {
-                { "PizzaNPC", new NpcDef() {
-                    DisplayName = "Pizza NPC",
-                    GetTexture = () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"),
-                    MaxLife = 10000,
+                { "PizzaNPC", new NpcDef("Pizza NPC", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                {   MaxLife = 10000,
                     FrameCount = 1,
                     Damage = 1,
                     Width = 128,
@@ -100,10 +93,8 @@ namespace Prism.ExampleMod
         {
             return new Dictionary<string, ProjectileDef>
             {
-                { "PizzaProjectile", new ProjectileDef() {
-                    DisplayName = "Flying Pizza!",
-                    GetTexture = () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png")
-                    } }
+                { "PizzaProjectile", new ProjectileDef("Flying Pizza!", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                }
             };
         }
 
