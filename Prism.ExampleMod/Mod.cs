@@ -194,7 +194,7 @@ namespace Prism.ExampleMod
 
                     for (int i = 0; i < Main.maxNPCs; i++)
                     {
-                        if (Main.npc[i] != null && !Main.npc[i].active)
+                        if (!Main.npc[i].active)
                         {
                             Main.npc[i] = new NPC();
                             Main.npc[i].SetDefaults((short)meowmaritusHappyFunTimeBytes, -1);
@@ -205,7 +205,7 @@ namespace Prism.ExampleMod
                             Main.PlaySound(29, (int)Main.npc[i].Center.X, (int)Main.npc[i].Center.Y, 92);
 
                             break;
-                        }
+                        }                           
                     }
                 }
             }

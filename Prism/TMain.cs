@@ -88,6 +88,8 @@ namespace Prism
             {
                 ApplyHotfixes();
 
+                HookManager.ModDef.PreUpdate();
+
                 base.Update(gt);
 
                 HookManager.ModDef.PostUpdate();

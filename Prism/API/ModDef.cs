@@ -104,6 +104,9 @@ namespace Prism.API
         [Hook]
         public virtual void PostUpdate() { }
 
+        [Hook]
+        public virtual void PreUpdate() { }
+
         //TODO: move these somewhere else? (it might get crowded with these soon)
         /// <summary>
         /// Gets all item definitions created by the mod.

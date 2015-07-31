@@ -10,12 +10,14 @@ namespace Prism.Mods.Hooks
         IEnumerable<Action>
             onAllModsLoaded,
             onUnload       ,
+            preUpdate      ,
             postUpdate     ;
 
         public void Create()
         {
             onAllModsLoaded = HookManager.CreateHooks<ModDef, Action>(ModData.mods.Values, "OnAllModsLoaded");
             onUnload        = HookManager.CreateHooks<ModDef, Action>(ModData.mods.Values, "OnUnload"       );
+            preUpdate       = HookManager.CreateHooks<ModDef, Action>(ModData.mods.Values, "PreUpdate"      );
             postUpdate      = HookManager.CreateHooks<ModDef, Action>(ModData.mods.Values, "PostUpdate"     );
         }
         public void Clear ()
@@ -32,6 +34,10 @@ namespace Prism.Mods.Hooks
         public void OnUnload       ()
         {
             HookManager.Call(onUnload);
+        }
+        public void PreUpdate     ()
+        {
+            HookManager.Call(preUpdate);
         }
         public void PostUpdate     ()
         {
