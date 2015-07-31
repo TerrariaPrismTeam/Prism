@@ -39,14 +39,16 @@ namespace Prism
 
         protected override void Initialize()
         {
-            Item.OnSetDefaults += ItemDefHandler.OnSetDefaults;
-            NPC.OnSetDefaults += NpcDefHandler .OnSetDefaults;
+            Item      .OnSetDefaults += ItemDefHandler.OnSetDefaults;
+            NPC       .OnSetDefaults += NpcDefHandler .OnSetDefaults;
             Projectile.OnSetDefaults += ProjDefHandler.OnSetDefaults;
 
             base.Initialize(); // terraria init and LoadContent happen here
 
             EntityDefLoader.SetupEntityHandlers();
             ModLoader.Load();
+
+            ApplyHotfixes();
 
             versionNumber += ", mods loaded: " + ModData.Mods.Count +
                 (ModLoader.errors.Count > 0 ? ", load errors: " + ModLoader.errors.Count : "");
@@ -86,8 +88,6 @@ namespace Prism
         {
             try
             {
-                ApplyHotfixes();
-
                 HookManager.ModDef.PreUpdate();
 
                 base.Update(gt);

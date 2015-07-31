@@ -9,6 +9,7 @@ using Terraria.ID;
 
 namespace Prism.Mods.DefHandlers
 {
+    //TODO: we might need to rethink this
     sealed class RecipeDefHandler
     {
         internal List<RecipeDef> recipes = new List<RecipeDef>(Recipe.maxRecipes);

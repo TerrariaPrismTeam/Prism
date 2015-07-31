@@ -64,12 +64,11 @@ namespace Prism.API
             get;
             internal set;
         }
-                
         /// <summary>
         /// Gets the mod's tile definitions.
         /// </summary>
         /// <remarks>The key of the dictionary is the tile's internal name (without mod internal name).</remarks>
-        public Dictionary<string, TileDef> TileDefs
+        public Dictionary<string, TileDef      > TileDefs
         {
             get;
             internal set;
@@ -109,15 +108,17 @@ namespace Prism.API
 
         //TODO: move this to a separate class containing game- or world-related hooks... later
         /// <summary>
+        /// A hook called at the beginning of the game's Update method.
+        /// </summary>
+        [Hook]
+        public virtual void PreUpdate () { }
+        /// <summary>
         /// A hook called at the end of the game's Update method.
         /// </summary>
         [Hook]
         public virtual void PostUpdate() { }
 
-        [Hook]
-        public virtual void PreUpdate() { }
-
-        //TODO: move these somewhere else? (it might get crowded with these soon)
+        //TODO: move these somewhere else? (it might get crowded with these ~~soon~~ it's already becoming quite annoying imo)
         /// <summary>
         /// Gets all item definitions created by the mod.
         /// </summary>
@@ -151,6 +152,17 @@ namespace Prism.API
         {
             return Empty<string, ProjectileDef>.Dictionary;
         }
+        /// <summary>
+        /// Gets all tile definitions created by the mod.
+        /// </summary>
+        /// <returns>
+        /// A dictionary containing all tile definitions.
+        /// The key of each key/value pair is the internal name of the tile.
+        /// </returns>
+        protected virtual Dictionary<string, TileDef      > GetTileDefs      ()
+        {
+            return Empty<string, TileDef>.Dictionary;
+        }
 
         /// <summary>
         /// Gets all recipe definitions created by the mod.
@@ -172,6 +184,10 @@ namespace Prism.API
             return null;
         }
         protected virtual ProjectileBehaviour CreateGlobalProjectileBehaviour()
+        {
+            return null;
+        }
+        protected virtual TileBehaviour       CreateGlobalTileBehaviour      ()
         {
             return null;
         }
@@ -271,6 +287,14 @@ namespace Prism.API
         {
             return GetProjectileDefs();
         }
+        /// <summary>
+        /// Gets the tile defs by calling the protected version of <see cref="GetTileDefs" />.
+        /// </summary>
+        /// <returns><see cref="GetProjectileDefs"/></returns>
+        internal Dictionary<string, TileDef      > GetTileDefsInternally()
+        {
+            return GetTileDefs();
+        }
 
         /// <summary>
         /// Gets the recipe defs by calling the protected version of <see cref="GetRecipeDefsInternally" />.
@@ -281,17 +305,21 @@ namespace Prism.API
             return GetRecipeDefs();
         }
 
-        internal virtual ItemBehaviour CreateGlobalItemBInternally      ()
+        internal virtual ItemBehaviour       CreateGlobalItemBInternally()
         {
             return CreateGlobalItemBehaviour      ();
         }
-        internal virtual NpcBehaviour CreateGlobalNpcBInternally        ()
+        internal virtual NpcBehaviour        CreateGlobalNpcBInternally ()
         {
             return CreateGlobalNpcBehaviour       ();
         }
         internal virtual ProjectileBehaviour CreateGlobalProjBInternally()
         {
             return CreateGlobalProjectileBehaviour();
+        }
+        internal virtual TileBehaviour       CreateGlobalTileBInternally()
+        {
+            return CreateGlobalTileBehaviour();
         }
     }
 }

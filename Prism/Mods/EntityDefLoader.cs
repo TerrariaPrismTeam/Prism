@@ -45,6 +45,7 @@ namespace Prism.Mods
             Handler.ItemDef.Reset();
             Handler.NpcDef .Reset();
             Handler.ProjDef.Reset();
+            Handler.TileDef.Reset();
 
             Handler.RecipeDef.Reset();
         }
@@ -56,6 +57,7 @@ namespace Prism.Mods
             Handler.ItemDef.FillVanilla();
             Handler.NpcDef .FillVanilla();
             Handler.ProjDef.FillVanilla();
+            Handler.TileDef.FillVanilla();
 
             Handler.RecipeDef.FillVanilla();
         }
@@ -72,12 +74,14 @@ namespace Prism.Mods
             mod.ItemDefs       = SetEntityModDefs<ItemDef      , ItemBehaviour      , Item      >(mod, mod.GetItemDefsInternally());
             mod.NpcDefs        = SetEntityModDefs<NpcDef       , NpcBehaviour       , NPC       >(mod, mod.GetNpcDefsInternally ());
             mod.ProjectileDefs = SetEntityModDefs<ProjectileDef, ProjectileBehaviour, Projectile>(mod, mod.GetProjDefsInternally());
+            mod.TileDefs       = SetEntityModDefs<TileDef      , TileBehaviour      , Tile      >(mod, mod.GetTileDefsInternally());
 
             mod.RecipeDefs = RecipeDefHandler.SetRecipeModDefs(mod, mod.GetRecipeDefsInternally());
 
             ret.AddRange(Handler.ItemDef.Load(mod.ItemDefs      ));
             ret.AddRange(Handler.NpcDef .Load(mod.NpcDefs       ));
             ret.AddRange(Handler.ProjDef.Load(mod.ProjectileDefs));
+            ret.AddRange(Handler.TileDef.Load(mod.TileDefs      ));
 
             ret.AddRange(Handler.RecipeDef.Load(mod.RecipeDefs));
 

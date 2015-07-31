@@ -1,7 +1,11 @@
-namespace Prism.API.Defs {
-    
-    public enum PlacementConditions {
-        
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Prism.API.Defs
+{
+    public enum PlacementConditions
+    {
         Air,
         FlatCeiling,
         FlatCeilingSolid,
@@ -11,7 +15,5 @@ namespace Prism.API.Defs {
         PlaceTouchingSolid,
         Side,
         Wall
-
     }
-
 }
