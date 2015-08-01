@@ -36,7 +36,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>PrismLogo_Giant_Gray.ico</ApplicationIcon>
+    <ApplicationIcon>..\res\Icons\PrismIcon_Misc.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
@@ -106,6 +106,7 @@
     <Compile Include="LinqExt.cs" />
     <Compile Include="MemberResolver.cs" />
     <Compile Include="MemberResolverExtensions.cs" />
+    <Compile Include="Patcher\MainPatcher.cs" />
     <Compile Include="Patcher\PlayerPatcher.cs" />
     <Compile Include="Patcher\ProjectilePatcher.cs" />
     <Compile Include="Patcher\ItemPatcher.cs" />
@@ -115,7 +116,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="PrismLogo_Giant_Gray.ico" />
+    <Content Include="..\res\Icons\PrismIcon_Misc.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

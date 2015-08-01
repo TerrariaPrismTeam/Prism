@@ -77,6 +77,6 @@ namespace Prism.Injector.Patcher
                 p.Remove(cur);
                 cur = n;
             }
-        }
+        }        
     }
 }

@@ -19,8 +19,8 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <OutputPath>..\Bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;LOADER_ERR_DLG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
@@ -29,7 +29,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\Bin\Release</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -42,7 +42,7 @@
     <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>PrismLogo_Giant.ico</ApplicationIcon>
+    <ApplicationIcon>..\res\Icons\PrismIcon_Main.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
@@ -85,6 +85,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
@@ -118,6 +119,11 @@
     <Compile Include="Mods\Behaviours\TileBHandler.cs" />
     <Compile Include="Mods\DefHandlers\RecipeDefHandler.cs" />
     <Compile Include="Mods\DefHandlers\TileDefHandler.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Util\Empty.cs" />
     <Compile Include="API\ModDef.cs" />
     <Compile Include="Debugging\TraceDrawer.cs" />
@@ -153,9 +159,22 @@
     <Compile Include="TerrariaLauncher.cs" />
     <Compile Include="TMain.cs" />
     <Compile Include="Util\CommandLineArgs.cs" />
+    <Compile Include="Util\HastebinHelper.cs" />
     <Compile Include="Util\IndexGetter.cs" />
     <Compile Include="Util\LinqExt.cs" />
     <Compile Include="Util\ReadOnlyDictionary.cs" />
+    <Compile Include="WinFormDialogs\ExceptionDialogForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WinFormDialogs\ExceptionDialogForm.Designer.cs">
+      <DependentUpon>ExceptionDialogForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormDialogs\HastebinResultDialogForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WinFormDialogs\HastebinResultDialogForm.Designer.cs">
+      <DependentUpon>HastebinResultDialogForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="_LitJson\IJsonWrapper.cs" />
     <Compile Include="_LitJson\JsonData.cs" />
     <Compile Include="_LitJson\JsonException.cs" />
@@ -167,7 +186,7 @@
     <Compile Include="_LitJson\ParserToken.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BuildFiles\Prism.TerrariaPatcher\Prism.TerrariaPatcher.csproj">
+    <ProjectReference Include="..\Patcher\Prism.TerrariaPatcher\Prism.TerrariaPatcher.csproj">
       <Project>{6b42eb0b-afa3-4449-acda-aa91c8a39dc0}</Project>
       <Name>Prism.TerrariaPatcher</Name>
     </ProjectReference>
@@ -186,11 +205,34 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="PrismLogo_Giant.ico" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinFormDialogs\ExceptionDialogForm.resx">
+      <DependentUpon>ExceptionDialogForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinFormDialogs\HastebinResultDialogForm.resx">
+      <DependentUpon>HastebinResultDialogForm.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\res\Icons\PrismIcon_Main.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-    <PostBuildEvent Condition="'$(OS)' == 'Windows_NT'">"$(SolutionDir)\Prism.ExampleMod.WinCopier\bin\Debug\Prism.ExampleMod.WinCopier.exe"</PostBuildEvent>
+  <PropertyGroup>
+    <PreBuildEvent Condition="'$(OS)' == 'Windows_NT'">rem this patches the Terraria assembly
+rem in order to build, one must provide their own .exe.
+rem this will create a patched terraria assembly, which is referenced by Prism.csproj.
+rem a shell script is used in unix environments.
+
+"$(SolutionDir)Patcher\Prism.TerrariaPatcher\bin\Debug\Prism.TerrariaPatcher.exe" "$(SolutionDir)References\Terraria.exe" "$(SolutionDir)References\Prism.Terraria.dll"</PreBuildEvent>
+    <PreBuildEvent Condition="'$(OS)' != 'Windows_NT'"># this patches the Terraria assembly
+# in order to build, one must provide their own .exe.
+# this will create a patched terraria assembly, which is referenced by Prism.csproj.
+# a batch script is used in windows environments.
+
+mono "$(SolutionDir)Patcher\Prism.TerrariaPatcher\bin\Debug\Prism.TerrariaPatcher.exe" "$(SolutionDir)References/Terraria.exe" "$(SolutionDir)References/Prism.Terraria.dll"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

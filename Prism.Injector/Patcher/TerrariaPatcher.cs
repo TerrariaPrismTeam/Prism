@@ -74,6 +74,7 @@ namespace Prism.Injector.Patcher
             NpcPatcher       .Patch();
             ProjectilePatcher.Patch();
             PlayerPatcher    .Patch();
+            MainPatcher      .Patch();
             // do other stuff here
 
             // Newtonsoft.Json.dll, Steamworks.NET.dll and Ionic.Zip.CF.dll are required to write the assembly (and FNA and WindowsBase on mono, too)
@@ -81,6 +82,6 @@ namespace Prism.Injector.Patcher
 
             r = null;
             c = null;
-        }
+        }        
     }
 }

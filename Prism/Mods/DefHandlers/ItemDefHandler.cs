@@ -108,61 +108,58 @@ namespace Prism.Mods.DefHandlers
 
         protected override void CopyEntityToDef(Item item, ItemDef def)
         {
-            def.InternalName       = item.name;
-            def.DisplayName        = Main.itemName[item.type];
-            def.Type               = item.type;
-            def.NetID              = item.netID;
-            def.Damage             = item.damage;
-            def.UseAnimation       = item.useAnimation;
-            def.UseTime            = item.useTime;
-            def.ReuseDelay         = item.reuseDelay;
-            def.ManaConsumption    = item.mana;
-            def.Width              = item.width;
-            def.Height             = item.height;
-            def.MaxStack           = item.maxStack;
-            def.PlacementStyle     = item.placeStyle;
-            def.Alpha              = item.alpha;
-            def.Defense            = item.defense;
-            def.CritChanceModifier = item.crit;
-            def.PickaxePower       = item.pick;
-            def.AxePower           = item.axe * 5;
-            def.HammerPower        = item.hammer;
-            def.LifeHeal           = item.healLife;
-            def.ManaHeal           = item.healMana;
-            def.ShootVelocity      = item.shootSpeed;
-            def.Knockback          = item.knockBack;
-            def.Scale              = item.scale;
-            def.NoMelee            = item.noMelee;
-            def.IsConsumable       = item.consumable;
-            def.TurnPlayerOnUse    = item.useTurn;
-            def.AutoReuse          = item.autoReuse;
-            def.HideUseGraphic     = item.noUseGraphic;
-            def.IsAccessory        = item.accessory;
-            def.IsExpertModeOnly   = item.expertOnly;
-            def.IsChanneled        = item.channel;
-            def.Colour             = item.color;
-            def.Rarity             = (ItemRarity)item.rare;
-            def.UseStyle           = (ItemUseStyle)item.useStyle;
-            def.HoldStyle          = (ItemHoldStyle)item.holdStyle;
-            def.DamageType         = item.melee  ? ItemDamageType.Melee
-                                   : item.ranged ? ItemDamageType.Ranged
-                                   : item.magic  ? ItemDamageType.Magic
-                                   : item.summon ? ItemDamageType.Summon
-                                   : item.thrown ? ItemDamageType.Thrown
-                                        : ItemDamageType.None;
-
-            def.Value = new CoinValue(item.value);
-            def.Description = new ItemDescription(item.toolTip, item.toolTip2, item.vanity, item.expert, item.questItem, item.notAmmo);
-            def.Buff = new AppliedBuff(item.buffType, item.buffTime);
-            def.UsedAmmo = (item.useAmmo != 0) ? new ItemRef(item.useAmmo) : null;
-            def.ShootProjectile = item.shoot;
-            def.AmmoType = item.ammo;
-            def.UseSound = item.useSound;
-            def.CreateTile = item.createTile;
-            def.CreateWall = item.createWall;
-            def.GetTexture = () => Main.itemTexture[item.type];
-
-            def.DisplayName = Main.itemName[def.Type];
+            def.InternalName        = item.name;
+            def.DisplayName         = Main.itemName[item.type];
+            def.Type                = item.type;
+            def.NetID               = item.netID;
+            def.Damage              = item.damage;
+            def.UseAnimation        = item.useAnimation;
+            def.UseTime             = item.useTime;
+            def.ReuseDelay          = item.reuseDelay;
+            def.ManaConsumption     = item.mana;
+            def.Width               = item.width;
+            def.Height              = item.height;
+            def.MaxStack            = item.maxStack;
+            def.PlacementStyle      = item.placeStyle;
+            def.Alpha               = item.alpha;
+            def.Defense             = item.defense;
+            def.CritChanceModifier  = item.crit;
+            def.PickaxePower        = item.pick;
+            def.AxePower            = item.axe * 5;
+            def.HammerPower         = item.hammer;
+            def.LifeHeal            = item.healLife;
+            def.ManaHeal            = item.healMana;
+            def.ShootVelocity       = item.shootSpeed;
+            def.Knockback           = item.knockBack;
+            def.Scale               = item.scale;
+            def.NoMelee             = item.noMelee;
+            def.IsConsumable        = item.consumable;
+            def.TurnPlayerOnUse     = item.useTurn;
+            def.AutoReuse           = item.autoReuse;
+            def.HideUseGraphic      = item.noUseGraphic;
+            def.IsAccessory         = item.accessory;
+            def.IsExpertModeOnly    = item.expertOnly;
+            def.IsChanneled         = item.channel;
+            def.Colour              = item.color;
+            def.Rarity              = (ItemRarity)item.rare;
+            def.UseStyle            = (ItemUseStyle)item.useStyle;
+            def.HoldStyle           = (ItemHoldStyle)item.holdStyle;
+            def.DamageType          = item.melee  ? ItemDamageType.Melee
+                                    : item.ranged ? ItemDamageType.Ranged
+                                    : item.magic  ? ItemDamageType.Magic
+                                    : item.summon ? ItemDamageType.Summon
+                                    : item.thrown ? ItemDamageType.Thrown
+                                         : ItemDamageType.None;
+            def.Value               = new CoinValue(item.value);
+            def.Description         = new ItemDescription(item.toolTip, item.toolTip2, item.vanity, item.expert, item.questItem, item.notAmmo);
+            def.Buff                = new AppliedBuff(item.buffType, item.buffTime);
+            def.UsedAmmo            = (item.useAmmo != 0) ? new ItemRef(item.useAmmo) : null;
+            def.ShootProjectile     = item.shoot;
+            def.AmmoType            = item.ammo;
+            def.UseSound            = item.useSound;
+            def.CreateTile          = item.createTile;
+            def.CreateWall          = item.createWall;
+            def.GetTexture          = () => Main.itemTexture[item.type];            
 
             def.IsSoul                   = ItemID.Sets.AnimatesAsSoul           [def.Type];
             def.IsStrangePlant           = ItemID.Sets.ExoticPlantsForDyeTrade  [def.Type];

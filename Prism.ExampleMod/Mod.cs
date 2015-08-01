@@ -75,18 +75,33 @@ namespace Prism.ExampleMod
         {
             return new Dictionary<string, NpcDef>
             {
-                { "PizzaNPC", new NpcDef("Pizza NPC", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
-                {   MaxLife = 10000,
+                { "PizzaNPC", new NpcDef("Possessed Pizza", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                {   MaxLife = 80,
                     FrameCount = 1,
-                    Damage = 1,
-                    Width = 128,
-                    Height = 128,
+                    Damage = 5,
+                    Width = 64,
+                    Height = 64,
                     Alpha = 0,
                     Scale = 1.0f,
                     IgnoreTileCollision = true,
                     Colour = Color.White,
                     Value = new NpcValue((CoinValue)0),
-                    AiStyle = NpcAiStyle.FlyingHead
+                    AiStyle = NpcAiStyle.FlyingWeapon                
+                } },
+                { "PizzaBoss", new NpcDef("Pizza God", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                {   MaxLife = 1000,
+                    FrameCount = 1,
+                    Damage = 5,
+                    Width = 64,
+                    Height = 64,
+                    Alpha = 0,
+                    Scale = 4.0f,
+                    IgnoreTileCollision = true,
+                    Colour = Color.White,
+                    Value = new NpcValue((CoinValue)0),
+                    AiStyle = NpcAiStyle.EyeOfCthulhu,
+                    IsBoss = true,
+                    IsSummonableBoss = true                   
                 } }
             };
         }
@@ -158,7 +173,7 @@ namespace Prism.ExampleMod
 
         public override void PostUpdate()
         {
-            if (Main.gameMenu || !Main.hasFocus)
+            if (Main.gameMenu || !Main.hasFocus || Main.chatMode)
                 return;
 
             var p = Main.player[Main.myPlayer];
@@ -217,6 +232,12 @@ namespace Prism.ExampleMod
                 var pt = GetRandomPositionOnScreen().ToPoint();
 
                 NPC.NewNPC(pt.X, pt.Y, NpcDef.ByName["PizzaNPC", Info.InternalName].Type);
+            }
+
+            if (GetKey(Keys.B, KeyState.Down))
+            {
+                NPC.SpawnOnPlayer(Main.myPlayer, NpcDef.ByName["PizzaBoss", Info.InternalName].Type);
+                Main.instance.newMusic = 25;
             }
             #endregion
 

@@ -96,7 +96,7 @@ namespace Prism
                         break;
                 }
         }
-
+        [STAThread]
         static int Main(string[] args)
         {
             try

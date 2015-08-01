@@ -26,6 +26,12 @@ namespace Prism
             VanillaString              = "Vanilla",
             TerrariaString             = "Terraria";
 
+        public readonly static string PrismForumThread = @"http://forums.terraria.org/index.php?threads/thread_name.####/";
+
+        internal readonly static string HelpErrorText = "Please report error messages you encounter to the Prism thread: " + PrismForumThread
+                                                    + "\nReporting these error messages makes it easier for us to determine the cause of the issue and release a fix for it. "
+                                                    +   "(just please remember to put the error message in a [spoiler] or upload it to a pastebin!)";
+
         public static string ModDirectory
         {
             get;

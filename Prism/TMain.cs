@@ -48,6 +48,10 @@ namespace Prism
             EntityDefLoader.SetupEntityHandlers();
             ModLoader.Load();
 
+#if LOADER_ERR_DLG
+            ModLoader.Debug_ShowAllErrors();
+#endif
+
             ApplyHotfixes();
 
             versionNumber += ", mods loaded: " + ModData.Mods.Count +
@@ -90,6 +94,8 @@ namespace Prism
             {
                 HookManager.ModDef.PreUpdate();
 
+                ApplyHotfixes(); //The array is initialized every time new Player() is called. Until we have like InitPlayer or something we just have to ghettohack it like this.
+
                 base.Update(gt);
 
                 HookManager.ModDef.PostUpdate();
@@ -101,6 +107,7 @@ namespace Prism
                 ExceptionHandler.Handle(e);
             }
         }
+
         protected override void Draw  (GameTime gt)
         {
             try

@@ -86,9 +86,9 @@ namespace Prism.Mods
         /// <returns>A string</returns>
         public override string ToString()
         {
-            return "An error occured when trying to load mod "
+            return "An error occured when trying to load mod '"
                 + (Mod.HasValue ? Mod.Value.InternalName : Path.GetFileName(ModPath))
-                + (Message == null ? String.Empty : ": " + Message)
+                + (Message == null ? String.Empty : "': " + Message)
                 + (Data == null ? String.Empty : ": {" + Data + "}") + ".";
         }
     }

@@ -5,10 +5,10 @@
   <PropertyGroup>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{6B42EB0B-AFA3-4449-ACDA-AA91C8A39DC0}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Prism.TerrariaPatcher</RootNamespace>
-    <AssemblyName>patcher</AssemblyName>
+    <AssemblyName>Prism.TerrariaPatcher</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -38,11 +38,13 @@
     <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>PrismLogo_Giant_Gray.ico</ApplicationIcon>
+    <ApplicationIcon>..\..\res\Icons\PrismIcon_Misc.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
-    <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework.Xact, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="WindowsBase" />
@@ -60,6 +62,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\References\Newtonsoft.Json.dll</HintPath>
@@ -70,6 +75,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -89,23 +95,9 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="PrismLogo_Giant_Gray.ico" />
+    <Content Include="..\..\res\Icons\PrismIcon_Misc.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent Condition="'$(OS)' == 'Windows_NT'">rem this patches the Terraria assembly
-rem in order to build, one must provide their own .exe.
-rem this will create a patched terraria assembly, which is referenced by Prism.csproj.
-rem a shell script is used in unix environments.
-
-"$(TargetPath)" "$(SolutionDir)References\Terraria.exe" "$(SolutionDir)References\Prism.Terraria.dll"</PostBuildEvent>
-    <PostBuildEvent Condition="'$(OS)' != 'Windows_NT'"># this patches the Terraria assembly
-# in order to build, one must provide their own .exe.
-# this will create a patched terraria assembly, which is referenced by Prism.csproj.
-# a batch script is used in windows environments.
-
-mono "$(TargetPath)" "$(SolutionDir)References/Terraria.exe" "$(SolutionDir)References/Prism.Terraria.dll"</PostBuildEvent>
-  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -8,6 +8,8 @@ using LitJson;
 using Prism.API;
 using Prism.Mods.Hooks;
 using Prism.Mods.Resources;
+using System.Text;
+using Prism.WinFormDialogs;
 
 namespace Prism.Mods
 {
@@ -20,6 +22,24 @@ namespace Prism.Mods
 
         internal static List<LoaderError> errors = new List<LoaderError>();
         static List<string> circRefList = new List<string>();
+
+        internal static void Debug_ShowAllErrors()
+        {
+#if LOADER_ERR_DLG
+            if (errors.Count > 0)
+            {
+                StringBuilder errorDump = new StringBuilder(string.Format("Encountered {0} errors while loading mods:\n\n\n", errors.Count));
+
+                for (int i = 0; i < errors.Count; i++)
+                {
+                    errorDump.AppendLine(string.Format("[{0} of {1}] ", i + 1, errors.Count) + errors[i].ToString());
+                }
+
+                var dialog = new ExceptionDialogForm(string.Format("{0} Error(s)", errors.Count), errorDump.ToString());
+                dialog.ShowDialog();
+            }
+#endif
+        }
 
         /// <summary>
         /// Loads and returns the mod info from the specified path and adds any errors encountered to the internal <see cref="errors"/> list.
@@ -193,32 +213,41 @@ namespace Prism.Mods
             // hackery should be automatically activated.
             foreach (string s in DebugModDir == null ? dirs : new[] { DebugModDir }.Concat(dirs))
             {
+                var prevModCount = ModData.mods.Count;
                 var d = LoadMod(s);
-
-                if (d == null)
+                var newModCount = ModData.mods.Count;
+                
+                if (newModCount > prevModCount) //Make sure a new mod was actually added to ModData.mods so we don't get a "Sequence is empty" error on ModData.mods.Last()
                 {
-                    var i = ModData.mods.Last().Key;
+                    if (d == null)
+                    {
+                        var i = ModData.mods.Last().Key;
 
-                    ModData.mods                .Remove(i);
-                    ModData.modsFromInternalName.Remove(i.InternalName);
+                        ModData.mods                .Remove(i);
+                        ModData.modsFromInternalName.Remove(i.InternalName);
+                    }
+                    if (d != null)
+                    {
+                        //ModData.mods                .Add(d.Info             , d);
+                        //ModData.modsFromInternalName.Add(d.Info.InternalName, d);
+
+                        try
+                        {
+                            d.OnLoad();
+                        }
+                        catch (Exception e)
+                        {
+                            errors.Add(new LoaderError(d.Info, "An exception occured in ModDef.OnLoad()", e));
+
+                            // Temporary until we have a proper way to see loader errors
+                            if (ExceptionHandler.DetailedExceptions)
+                                MessageBox.Show("An exception has occured:\n" + e, e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
                 }
-                if (d != null)
+                else
                 {
-                    //ModData.mods                .Add(d.Info             , d);
-                    //ModData.modsFromInternalName.Add(d.Info.InternalName, d);
-
-                    try
-                    {
-                        d.OnLoad();
-                    }
-                    catch (Exception e)
-                    {
-                        errors.Add(new LoaderError(d.Info, "An exception occured in ModDef.OnLoad()", e));
-
-                        // Temporary until we have a proper way to see loader errors
-                        if (ExceptionHandler.DetailedExceptions)
-                            MessageBox.Show("An exception has occured:\n" + e, e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    errors.Add(new LoaderError(s, string.Format("New entry was not added to ModData.mods while loading mod from path '{0}': Something went wrong in ModLoader.LoadMod()", s), ModData.mods));
                 }
             }
 
