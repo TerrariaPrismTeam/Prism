@@ -110,8 +110,8 @@
       <UserProperties manifest_1json__JSONSchema="" />
     </VisualStudio>
   </ProjectExtensions>
-  <PropertyGroup>
-    <PostBuildEvent>xcopy /e /i "$(ProjectDir)bin\Debug" "$(registry:HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders@Personal)\My Games\Terraria\Prism\Mods\$(ProjectName)"</PostBuildEvent>
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <PostBuildEvent>xcopy /e /i /z /y "$(ProjectDir)bin\Debug" "$(registry:HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders@Personal)\My Games\Terraria\Prism\Mods\$(ProjectName)"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

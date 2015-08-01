@@ -42,7 +42,7 @@
             this.buttonHastebin.Location = new System.Drawing.Point(708, 470);
             this.buttonHastebin.Name = "buttonHastebin";
             this.buttonHastebin.Size = new System.Drawing.Size(143, 23);
-            this.buttonHastebin.TabIndex = 1;
+            this.buttonHastebin.TabIndex = 2;
             this.buttonHastebin.Text = "Upload to Hastebin";
             this.buttonHastebin.UseVisualStyleBackColor = true;
             this.buttonHastebin.Click += new System.EventHandler(this.buttonHastebin_Click);
@@ -54,7 +54,7 @@
             this.buttonClose.Location = new System.Drawing.Point(857, 470);
             this.buttonClose.Name = "buttonClose";
             this.buttonClose.Size = new System.Drawing.Size(75, 23);
-            this.buttonClose.TabIndex = 2;
+            this.buttonClose.TabIndex = 1;
             this.buttonClose.Text = "OK";
             this.buttonClose.UseVisualStyleBackColor = true;
             // 
