@@ -9,6 +9,7 @@ using Prism.Mods;
 using Prism.Mods.Hooks;
 using Prism.Mods.Resources;
 using Prism.Util;
+using Terraria;
 
 namespace Prism.API
 {
@@ -117,6 +118,12 @@ namespace Prism.API
         /// </summary>
         [Hook]
         public virtual void PostUpdate() { }
+
+        /// <summary>
+        /// A hook called right after Main.UpdateMusic() assigns this.newMusic to Main.curMusic.
+        /// </summary>
+        [Hook]
+        public virtual void UpdateMusic() { }
 
         //TODO: move these somewhere else? (it might get crowded with these ~~soon~~ it's already becoming quite annoying imo)
         /// <summary>

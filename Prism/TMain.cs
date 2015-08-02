@@ -108,6 +108,11 @@ namespace Prism
             }
         }
 
+        public override void UpdateMusicHook()
+        {
+            HookManager.ModDef.UpdateMusic();
+        }
+
         protected override void Draw  (GameTime gt)
         {
             try

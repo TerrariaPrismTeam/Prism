@@ -238,11 +238,30 @@ namespace Prism.ExampleMod
             if (GetKey(Keys.B, KeyState.Down))
             {
                 NPC.SpawnOnPlayer(Main.myPlayer, NpcDef.ByName["PizzaBoss", Info.InternalName].Type);
-                Main.instance.newMusic = 25;
             }
             #endregion
 
             prevKeyState = Main.keyState;
+        }
+
+        public override void UpdateMusic()
+        {
+            if (Main.gameMenu || !Main.hasFocus)
+                return;
+
+            Rectangle screen = new Rectangle((int)Main.screenPosition.X, (int)Main.screenPosition.Y, Main.screenWidth, Main.screenHeight);
+            int pizzaBossType = NpcDef.ByName["PizzaBoss", Info.InternalName].Type;
+            for (int i = 0; i < 200; i++)
+            {
+                if (Main.npc[i].active && Main.npc[i].type == pizzaBossType)
+                {
+                    Rectangle npcRect = new Rectangle((int)(Main.npc[i].position.X + (float)(Main.npc[i].width / 2)) - 5000, (int)(Main.npc[i].position.Y + (float)(Main.npc[i].height / 2)) - 5000, 10000, 10000);
+                    if (screen.Intersects(npcRect))
+                    {
+                        Main.curMusic = 25;
+                    }
+                }
+            }
         }
     }
 }

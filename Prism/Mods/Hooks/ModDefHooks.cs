@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Prism.API;
+using Terraria;
 
 namespace Prism.Mods.Hooks
 {
@@ -11,7 +12,8 @@ namespace Prism.Mods.Hooks
             onAllModsLoaded,
             onUnload       ,
             preUpdate      ,
-            postUpdate     ;
+            postUpdate     ,
+            updateMusic    ;
 
         public void Create()
         {
@@ -19,12 +21,15 @@ namespace Prism.Mods.Hooks
             onUnload        = HookManager.CreateHooks<ModDef, Action>(ModData.mods.Values, "OnUnload"       );
             preUpdate       = HookManager.CreateHooks<ModDef, Action>(ModData.mods.Values, "PreUpdate"      );
             postUpdate      = HookManager.CreateHooks<ModDef, Action>(ModData.mods.Values, "PostUpdate"     );
+            updateMusic     = HookManager.CreateHooks<ModDef, Action>(ModData.mods.Values, "UpdateMusic"    );
         }
         public void Clear ()
         {
             onAllModsLoaded = null;
             onUnload        = null;
+            preUpdate       = null;
             postUpdate      = null;
+            updateMusic     = null;
         }
 
         public void OnAllModsLoaded()
@@ -35,13 +40,17 @@ namespace Prism.Mods.Hooks
         {
             HookManager.Call(onUnload);
         }
-        public void PreUpdate     ()
+        public void PreUpdate      ()
         {
             HookManager.Call(preUpdate);
         }
         public void PostUpdate     ()
         {
             HookManager.Call(postUpdate);
+        }
+        public void UpdateMusic    ()
+        {
+            HookManager.Call(updateMusic);
         }
     }
 }
