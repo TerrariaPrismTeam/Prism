@@ -62,9 +62,7 @@ namespace Prism.API.Defs
             {
                 return new ByNameIndexer();
             }
-        }
-
-        internal int BossHeadTextureIndex;
+        }        
 
         /// <summary>
         /// Gets or sets the amount of damage this NPC inflicts.
@@ -373,7 +371,7 @@ namespace Prism.API.Defs
             set;
         }
 
-        public NpcDef(string displayName, Func<NpcBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null)
+        public NpcDef(string displayName, Func<NpcBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null, Func<Texture2D> getBossHeadTexture = null)
             : base(displayName, newBehaviour)
         {
             Width = Height = 16;
@@ -392,6 +390,8 @@ namespace Prism.API.Defs
             TownConfig = new TownNpcConfig();
 
             GetTexture = getTexture ?? Empty<Texture2D>.Func;
+
+            GetBossHeadTexture = getBossHeadTexture ?? Empty<Texture2D>.Func;
         }
 
         public static implicit operator NpcRef(NpcDef  def)

@@ -72,13 +72,11 @@ namespace Prism.Mods.DefHandlers
 
         protected override void ExtendVanillaArrays(int amt = 1)
         {
-            int newLen     = amt > 0                  ? Main.npcName           .Length + amt : NPCID.Count;
-            int newBossLen = amt > 0 && !Main.dedServ ? Main.npcHeadBossTexture.Length + amt : VanillaBossHeadCount;
+            int newLen = NPCID.Count + (amt > 0 ? amt : 0);
 
             if (!Main.dedServ)
             {
                 Array.Resize(ref Main.npcTexture, newLen);
-                Array.Resize(ref Main.npcHeadBossTexture, newBossLen);
             }
 
             Array.Resize(ref Main.npcName                      , newLen);
@@ -86,11 +84,10 @@ namespace Prism.Mods.DefHandlers
             Array.Resize(ref Main.npcFrameCount                , newLen);
             Array.Resize(ref Main.npcCatchable                 , newLen);
             Array.Resize(ref NPC.killCount                     , newLen); //Hardcoded 540 in NPC.ResetKillCount();
-            Array.Resize(ref NPCID.Sets.AttackAverageChance    , newLen);
+            Array.Resize(ref NPCID.Sets.AttackAverageChance    , newLen);                
             Array.Resize(ref NPCID.Sets.AttackFrameCount       , newLen);
             Array.Resize(ref NPCID.Sets.AttackTime             , newLen);
-            Array.Resize(ref NPCID.Sets.AttackType             , newLen);
-            Array.Resize(ref NPCID.Sets.BossHeadTextures       , newLen);
+            Array.Resize(ref NPCID.Sets.AttackType             , newLen);            
             Array.Resize(ref NPCID.Sets.DangerDetectRange      , newLen);
             Array.Resize(ref NPCID.Sets.ExcludedFromDeathTally , newLen);
             Array.Resize(ref NPCID.Sets.ExtraFramesCount       , newLen);
@@ -105,6 +102,7 @@ namespace Prism.Mods.DefHandlers
             Array.Resize(ref NPCID.Sets.TechnicallyABoss       , newLen);
             Array.Resize(ref NPCID.Sets.TownCritter            , newLen);
             Array.Resize(ref NPCID.Sets.TrailCacheLength       , newLen);
+            Array.Resize(ref NPCID.Sets.BossHeadTextures       , newLen);
         }
 
         protected override NPC GetVanillaEntityFromID(int id)
@@ -145,7 +143,6 @@ namespace Prism.Mods.DefHandlers
             def.AiStyle             = (NpcAiStyle)npc.aiStyle;
             def.MaxLife             = npc.lifeMax;
             def.GetTexture          = () => Main.npcTexture[npc.type];
-            def.GetBossHeadTexture  = () => Main.npcHeadBossTexture[NPCID.Sets.BossHeadTextures[npc.type]];
 
             def.BuffImmunities.Clear();
             for (int i = 0; i < npc.buffImmune.Length; i++)
@@ -174,6 +171,13 @@ namespace Prism.Mods.DefHandlers
             def.SavesAndLoads                       = NPCID.Sets.SavesAndLoads         [def.Type];
             def.IsTechnicallyABoss                  = NPCID.Sets.TechnicallyABoss      [def.Type];
             def.IsTownCritter                       = NPCID.Sets.TownCritter           [def.Type];
+        }
+        public void RegisterBossHeadTexture(NpcDef npc)
+        {
+            NPCID.Sets.BossHeadTextures[npc.Type] = Main.npcHeadBossTexture.Length;
+            int newLen = Main.npcHeadBossTexture.Length + 1;
+            Array.Resize(ref Main.npcHeadBossTexture, newLen);
+            Main.npcHeadBossTexture[newLen - 1] = npc.GetBossHeadTexture();
         }
         protected override void CopyDefToEntity(NpcDef def, NPC npc)
         {
@@ -211,7 +215,7 @@ namespace Prism.Mods.DefHandlers
 
             if (def.GetTexture == null)
                 ret.Add(new LoaderError(def.Mod, "GetTexture of NpcDef " + def + " is null."));
-            if (def.IsTechnicallyABoss && def.GetBossHeadTexture == null)
+            if ((def.IsBoss || def.IsTechnicallyABoss) && def.GetBossHeadTexture == null)
                 ret.Add(new LoaderError(def.Mod, "GetBossHeadTexture of NpcDef " + def + " is null."));
 
             return ret;
@@ -230,23 +234,16 @@ namespace Prism.Mods.DefHandlers
             Main.npcTexture[def.Type] = def.GetTexture();
             Main.NPCLoaded[def.Type] = true;
 
-            if (def.IsTechnicallyABoss)
+            if (def.IsBoss || def.IsTechnicallyABoss)
             {
                 var bht = def.GetBossHeadTexture();
                 if (bht == null)
                     ret.Add(new LoaderError(def.Mod, "GetBossHeadTexture return value is null for NpcDef " + def + "."));
                 else
                 {
-                    // this shouldn't be -1, because new entries were allocated in ExtendArrays
-                    int firstNull = Array.IndexOf(Main.npcHeadBossTexture, null);
-                    Main.npcHeadBossTexture[firstNull] = def.GetBossHeadTexture();
-
-                    NPCID.Sets.BossHeadTextures[def.Type] = firstNull;
-                    def.BossHeadTextureIndex = firstNull;
+                    RegisterBossHeadTexture(def);
                 }
             }
-
-            //TODO: npc head textures, head-in-chat-bubble textures(?)
 
             return ret;
         }
@@ -258,7 +255,7 @@ namespace Prism.Mods.DefHandlers
 
         protected override void CopySetProperties(NpcDef def)
         {
-            Main.npcName                     [def.Type] = def.DisplayName    ;
+            Main.npcName                     [def.Type] = def.DisplayName;
             Main.npcFrameCount               [def.Type] = def.FrameCount;
 
             NPCID.Sets.AttackAverageChance   [def.Type] = def.TownConfig.AverageAttackChance;
@@ -279,6 +276,9 @@ namespace Prism.Mods.DefHandlers
             NPCID.Sets.TechnicallyABoss      [def.Type] = def.IsTechnicallyABoss;
             NPCID.Sets.TownCritter           [def.Type] = def.IsTownCritter;
             NPCID.Sets.MagicAuraColor        [def.Type] = def.TownConfig.MagicAuraColour;
+
+            NPCID.Sets.BossHeadTextures      [def.Type] = -1; //No more EoC heads on map for literally everything \o/
+                                                              //Note that these still get set later in LoadTextures()
 
             if (def.IsSkeleton && !NPCID.Sets.Skeletons.Contains(def.Type))
                 NPCID.Sets.Skeletons.Add(def.Type);

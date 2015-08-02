@@ -88,8 +88,9 @@ namespace Prism.ExampleMod
                     Value = new NpcValue((CoinValue)0),
                     AiStyle = NpcAiStyle.FlyingWeapon                
                 } },
-                { "PizzaBoss", new NpcDef("Pizza God", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
-                {   MaxLife = 1000,
+                { "PizzaBoss", new NpcDef("Pizza God", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"), () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                {   
+                    MaxLife = 1000,
                     FrameCount = 1,
                     Damage = 5,
                     Width = 64,
