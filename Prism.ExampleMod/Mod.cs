@@ -238,6 +238,7 @@ namespace Prism.ExampleMod
             if (GetKey(Keys.B, KeyState.Down))
             {
                 NPC.SpawnOnPlayer(Main.myPlayer, NpcDef.ByName["PizzaBoss", Info.InternalName].Type);
+
                 Main.instance.newMusic = 25;
             }
             #endregion

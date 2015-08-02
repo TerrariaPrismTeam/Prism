@@ -72,7 +72,7 @@ namespace Prism.Mods.DefHandlers
 
         protected override void ExtendVanillaArrays(int amt = 1)
         {
-            int newLen = amt > 0 ? Main.npcName.Length : NPCID.Count;
+            int newLen = amt > 0 ? Main.npcName.Length + amt : NPCID.Count;
 
             if (!Main.dedServ)
                 Array.Resize(ref Main.npcTexture, newLen);
