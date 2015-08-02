@@ -24,6 +24,7 @@ namespace Prism.Mods.Hooks
         {
             onAllModsLoaded = null;
             onUnload        = null;
+            preUpdate       = null;
             postUpdate      = null;
         }
 
