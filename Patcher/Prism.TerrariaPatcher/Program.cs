@@ -76,7 +76,10 @@ namespace Prism.TerrariaPatcher
                 if (File.Exists(TerrariaExecutable))
                 {
                     var result = MessageBox.Show("A 'Terraria.exe' file was found in the same folder as this patcher. Would you like to patch it now? If you choose not to patch that particular 'Terraria.exe' file you browse for the correct file.", "Terraria.exe detected.", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-                    return result == DialogResult.Yes;
+                    if (result == DialogResult.Yes)
+                        return true;
+                    if (result == DialogResult.Cancel)
+                        return false; //It's a Yes/No/Cancel box not a fucking Yes/No box quit fucking breaking things randomly
                 }
 
                 var fod = new OpenFileDialog()
