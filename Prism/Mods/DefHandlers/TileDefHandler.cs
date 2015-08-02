@@ -67,49 +67,48 @@ namespace Prism.Mods.DefHandlers
 
         protected override void ExtendVanillaArrays(int amt = 1)
         {
-            int newLen = TileID.Count + (amt > 0 ? amt : 0);
+            int newLen = amt > 0 ? Main.tileLighted.Length : TileID.Count;
 
             if (!Main.dedServ)
-                Array.Resize(ref Main.tileTexture           , newLen);
+                Array.Resize(ref Main.tileTexture, newLen);
 
-            Array.Resize(ref Main.tileLighted               , newLen);      
-            Array.Resize(ref Main.tileMergeDirt             , newLen);    
-            Array.Resize(ref Main.tileCut                   , newLen);          
-            Array.Resize(ref Main.tileAlch                  , newLen);         
-            Array.Resize(ref Main.tileShine                 , newLen);        
-            Array.Resize(ref Main.tileShine2                , newLen);       
-            Array.Resize(ref Main.tileStone                 , newLen);        
-            Array.Resize(ref Main.tileAxe                   , newLen);          
-            Array.Resize(ref Main.tileHammer                , newLen);       
-            Array.Resize(ref Main.tileWaterDeath            , newLen);   
-            Array.Resize(ref Main.tileLavaDeath             , newLen);    
-            Array.Resize(ref Main.tileTable                 , newLen);        
-            Array.Resize(ref Main.tileBlockLight            , newLen);   
-            Array.Resize(ref Main.tileNoSunLight            , newLen);   
-            Array.Resize(ref Main.tileDungeon               , newLen);      
-            Array.Resize(ref Main.tileSpelunker             , newLen);    
-            Array.Resize(ref Main.tileSolidTop              , newLen);     
-            Array.Resize(ref Main.tileSolid                 , newLen);        
-            Array.Resize(ref Main.tileBouncy                , newLen);       
-            Array.Resize(ref Main.tileValue                 , newLen);        
-            Array.Resize(ref Main.tileLargeFrames           , newLen);  
-            Array.Resize(ref Main.tileRope                  , newLen);         
-            Array.Resize(ref Main.tileBrick                 , newLen);        
-            Array.Resize(ref Main.tileMoss                  , newLen);         
-            Array.Resize(ref Main.tileNoAttach              , newLen);     
-            Array.Resize(ref Main.tileNoFail                , newLen);       
-            Array.Resize(ref Main.tileObsidianKill          , newLen); 
-            Array.Resize(ref Main.tileFrameImportant        , newLen);
-            Array.Resize(ref Main.tilePile                  , newLen);         
-            Array.Resize(ref Main.tileBlendAll              , newLen);     
-            Array.Resize(ref Main.tileGlowMask              , newLen);     
-            Array.Resize(ref Main.tileContainer             , newLen);    
-            Array.Resize(ref Main.tileSign                  , newLen);         
-            Array.Resize(ref Main.tileMerge                 , newLen);  
+            Array.Resize(ref Main.tileLighted       , newLen);
+            Array.Resize(ref Main.tileMergeDirt     , newLen);
+            Array.Resize(ref Main.tileCut           , newLen);
+            Array.Resize(ref Main.tileAlch          , newLen);
+            Array.Resize(ref Main.tileShine         , newLen);
+            Array.Resize(ref Main.tileShine2        , newLen);
+            Array.Resize(ref Main.tileStone         , newLen);
+            Array.Resize(ref Main.tileAxe           , newLen);
+            Array.Resize(ref Main.tileHammer        , newLen);
+            Array.Resize(ref Main.tileWaterDeath    , newLen);
+            Array.Resize(ref Main.tileLavaDeath     , newLen);
+            Array.Resize(ref Main.tileTable         , newLen);
+            Array.Resize(ref Main.tileBlockLight    , newLen);
+            Array.Resize(ref Main.tileNoSunLight    , newLen);
+            Array.Resize(ref Main.tileDungeon       , newLen);
+            Array.Resize(ref Main.tileSpelunker     , newLen);
+            Array.Resize(ref Main.tileSolidTop      , newLen);
+            Array.Resize(ref Main.tileSolid         , newLen);
+            Array.Resize(ref Main.tileBouncy        , newLen);
+            Array.Resize(ref Main.tileValue         , newLen);
+            Array.Resize(ref Main.tileLargeFrames   , newLen);
+            Array.Resize(ref Main.tileRope          , newLen);
+            Array.Resize(ref Main.tileBrick         , newLen);
+            Array.Resize(ref Main.tileMoss          , newLen);
+            Array.Resize(ref Main.tileNoAttach      , newLen);
+            Array.Resize(ref Main.tileNoFail        , newLen);
+            Array.Resize(ref Main.tileObsidianKill  , newLen);
+            Array.Resize(ref Main.tileFrameImportant, newLen);
+            Array.Resize(ref Main.tilePile          , newLen);
+            Array.Resize(ref Main.tileBlendAll      , newLen);
+            Array.Resize(ref Main.tileGlowMask      , newLen);
+            Array.Resize(ref Main.tileContainer     , newLen);
+            Array.Resize(ref Main.tileSign          , newLen);
+            Array.Resize(ref Main.tileMerge         , newLen);
+
             for (int i = 0; i < Main.tileMerge.Length; i++)
-            {
                 Array.Resize(ref Main.tileMerge[i], newLen);
-            }                
         }
 
         protected override Tile GetVanillaEntityFromID(int id)
@@ -201,7 +200,7 @@ namespace Prism.Mods.DefHandlers
         }
         protected override void CopyDefToEntity(TileDef def, Tile tile)
         {
-            
+            tile.type = (ushort)def.Type;
         }
 
         protected override List<LoaderError> CheckTextures(TileDef def)

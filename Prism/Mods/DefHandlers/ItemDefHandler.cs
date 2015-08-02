@@ -66,10 +66,10 @@ namespace Prism.Mods.DefHandlers
 
         protected override void ExtendVanillaArrays(int amt = 1)
         {
-            int newLen = ItemID.Count + (amt > 0 ? amt : 0);
+            int newLen = amt > 0 ? Main.itemAnimations.Length : ItemID.Count;
 
             if (!Main.dedServ)
-                Array.Resize(ref Main.itemTexture , newLen);
+                Array.Resize(ref Main.itemTexture, newLen);
 
             Array.Resize(ref Main.itemAnimations  , newLen);
             Array.Resize(ref Main.itemFlameLoaded , newLen);
@@ -159,7 +159,7 @@ namespace Prism.Mods.DefHandlers
             def.UseSound            = item.useSound;
             def.CreateTile          = item.createTile;
             def.CreateWall          = item.createWall;
-            def.GetTexture          = () => Main.itemTexture[item.type];            
+            def.GetTexture          = () => Main.itemTexture[item.type];
 
             def.IsSoul                   = ItemID.Sets.AnimatesAsSoul           [def.Type];
             def.IsStrangePlant           = ItemID.Sets.ExoticPlantsForDyeTrade  [def.Type];

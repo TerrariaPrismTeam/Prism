@@ -72,37 +72,35 @@ namespace Prism.Mods.DefHandlers
 
         protected override void ExtendVanillaArrays(int amt = 1)
         {
-            int newLen = NPCID.Count + (amt > 0 ? amt : 0);
+            int newLen = amt > 0 ? Main.npcName.Length : NPCID.Count;
 
             if (!Main.dedServ)
-            {
                 Array.Resize(ref Main.npcTexture, newLen);
-            }
 
-            Array.Resize(ref Main.npcName                      , newLen);
-            Array.Resize(ref Main.NPCLoaded                    , newLen);
-            Array.Resize(ref Main.npcFrameCount                , newLen);
-            Array.Resize(ref Main.npcCatchable                 , newLen);
-            Array.Resize(ref NPC.killCount                     , newLen); //Hardcoded 540 in NPC.ResetKillCount();
-            Array.Resize(ref NPCID.Sets.AttackAverageChance    , newLen);                
-            Array.Resize(ref NPCID.Sets.AttackFrameCount       , newLen);
-            Array.Resize(ref NPCID.Sets.AttackTime             , newLen);
-            Array.Resize(ref NPCID.Sets.AttackType             , newLen);            
-            Array.Resize(ref NPCID.Sets.DangerDetectRange      , newLen);
-            Array.Resize(ref NPCID.Sets.ExcludedFromDeathTally , newLen);
-            Array.Resize(ref NPCID.Sets.ExtraFramesCount       , newLen);
-            Array.Resize(ref NPCID.Sets.FaceEmote              , newLen);
-            Array.Resize(ref NPCID.Sets.MagicAuraColor         , newLen);
-            Array.Resize(ref NPCID.Sets.MPAllowedEnemies       , newLen);
-            Array.Resize(ref NPCID.Sets.MustAlwaysDraw         , newLen);
-            Array.Resize(ref NPCID.Sets.NeedsExpertScaling     , newLen);
-            Array.Resize(ref NPCID.Sets.PrettySafe             , newLen);
-            Array.Resize(ref NPCID.Sets.ProjectileNPC          , newLen);
-            Array.Resize(ref NPCID.Sets.SavesAndLoads          , newLen);
-            Array.Resize(ref NPCID.Sets.TechnicallyABoss       , newLen);
-            Array.Resize(ref NPCID.Sets.TownCritter            , newLen);
-            Array.Resize(ref NPCID.Sets.TrailCacheLength       , newLen);
-            Array.Resize(ref NPCID.Sets.BossHeadTextures       , newLen);
+            Array.Resize(ref Main.npcName                     , newLen);
+            Array.Resize(ref Main.NPCLoaded                   , newLen);
+            Array.Resize(ref Main.npcFrameCount               , newLen);
+            Array.Resize(ref Main.npcCatchable                , newLen);
+            Array.Resize(ref NPC.killCount                    , newLen); //Hardcoded 540 in NPC.ResetKillCount();
+            Array.Resize(ref NPCID.Sets.AttackAverageChance   , newLen);
+            Array.Resize(ref NPCID.Sets.AttackFrameCount      , newLen);
+            Array.Resize(ref NPCID.Sets.AttackTime            , newLen);
+            Array.Resize(ref NPCID.Sets.AttackType            , newLen);
+            Array.Resize(ref NPCID.Sets.DangerDetectRange     , newLen);
+            Array.Resize(ref NPCID.Sets.ExcludedFromDeathTally, newLen);
+            Array.Resize(ref NPCID.Sets.ExtraFramesCount      , newLen);
+            Array.Resize(ref NPCID.Sets.FaceEmote             , newLen);
+            Array.Resize(ref NPCID.Sets.MagicAuraColor        , newLen);
+            Array.Resize(ref NPCID.Sets.MPAllowedEnemies      , newLen);
+            Array.Resize(ref NPCID.Sets.MustAlwaysDraw        , newLen);
+            Array.Resize(ref NPCID.Sets.NeedsExpertScaling    , newLen);
+            Array.Resize(ref NPCID.Sets.PrettySafe            , newLen);
+            Array.Resize(ref NPCID.Sets.ProjectileNPC         , newLen);
+            Array.Resize(ref NPCID.Sets.SavesAndLoads         , newLen);
+            Array.Resize(ref NPCID.Sets.TechnicallyABoss      , newLen);
+            Array.Resize(ref NPCID.Sets.TownCritter           , newLen);
+            Array.Resize(ref NPCID.Sets.TrailCacheLength      , newLen);
+            Array.Resize(ref NPCID.Sets.BossHeadTextures      , newLen);
         }
 
         protected override NPC GetVanillaEntityFromID(int id)
