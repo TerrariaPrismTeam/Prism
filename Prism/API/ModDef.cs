@@ -120,7 +120,7 @@ namespace Prism.API
         public virtual void PostUpdate() { }
 
         /// <summary>
-        /// A hook called right before Main.UpdateMusic() assigns this.newMusic to Main.curMusic.
+        /// A hook called right after Main.UpdateMusic() assigns this.newMusic to Main.curMusic.
         /// </summary>
         [Hook]
         public virtual void UpdateMusic() { }
