@@ -67,10 +67,7 @@ namespace Prism.Mods.DefHandlers
 
         protected override void ExtendVanillaArrays(int amt = 1)
         {
-            int newLen = amt > 0 ? Main.itemAnimations.Length + amt : ItemID.Count;
-
-            if (!Main.dedServ)
-                Array.Resize(ref Main.itemTexture, newLen);
+            int newLen = amt > 0 ? Main.tileMerge.Length + amt : TileID.Count;
 
             Array.Resize(ref Main.tileLighted               , newLen);      
             Array.Resize(ref Main.tileMergeDirt             , newLen);    
@@ -105,7 +102,11 @@ namespace Prism.Mods.DefHandlers
             Array.Resize(ref Main.tileGlowMask              , newLen);     
             Array.Resize(ref Main.tileContainer             , newLen);    
             Array.Resize(ref Main.tileSign                  , newLen);         
-            Array.Resize(ref Main.tileMerge                 , newLen);                  
+            Array.Resize(ref Main.tileMerge                 , newLen);  
+            for (int i = 0; i < Main.tileMerge.Length; i++)
+            {
+                Array.Resize(ref Main.tileMerge[i], newLen);
+            }                
         }
 
         protected override Tile GetVanillaEntityFromID(int id)

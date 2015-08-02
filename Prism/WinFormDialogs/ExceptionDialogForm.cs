@@ -41,5 +41,10 @@ namespace Prism.WinFormDialogs
         {
             Process.Start(e.LinkText);
         }
+
+        private void richTextBox1_ContentsResized(object sender, ContentsResizedEventArgs e)
+        {
+            
+        }
     }
 }
