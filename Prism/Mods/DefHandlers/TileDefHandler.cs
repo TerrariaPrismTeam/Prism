@@ -67,7 +67,10 @@ namespace Prism.Mods.DefHandlers
 
         protected override void ExtendVanillaArrays(int amt = 1)
         {
-            int newLen = amt > 0 ? Main.tileMerge.Length + amt : TileID.Count;
+            int newLen = TileID.Count + (amt > 0 ? amt : 0);
+
+            if (!Main.dedServ)
+                Array.Resize(ref Main.tileTexture           , newLen);
 
             Array.Resize(ref Main.tileLighted               , newLen);      
             Array.Resize(ref Main.tileMergeDirt             , newLen);    

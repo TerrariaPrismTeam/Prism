@@ -66,10 +66,10 @@ namespace Prism.Mods.DefHandlers
 
         protected override void ExtendVanillaArrays(int amt = 1)
         {
-            int newLen = amt > 0 ? Main.itemAnimations.Length + amt : ItemID.Count;
+            int newLen = ItemID.Count + (amt > 0 ? amt : 0);
 
             if (!Main.dedServ)
-                Array.Resize(ref Main.itemTexture, newLen);
+                Array.Resize(ref Main.itemTexture , newLen);
 
             Array.Resize(ref Main.itemAnimations  , newLen);
             Array.Resize(ref Main.itemFlameLoaded , newLen);

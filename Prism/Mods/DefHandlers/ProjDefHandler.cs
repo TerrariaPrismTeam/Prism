@@ -65,7 +65,8 @@ namespace Prism.Mods.DefHandlers
 
         protected override void ExtendVanillaArrays(int amt = 1)
         {
-            int newLen = amt > 0 ? Main.projectileTexture.Length + amt : ProjectileID.Count;
+            int newLen = ProjectileID.Count + (amt > 0 ? amt : 0);
+
             if (!Main.dedServ)
                 Array.Resize(ref Main.projectileTexture             , newLen);
 
