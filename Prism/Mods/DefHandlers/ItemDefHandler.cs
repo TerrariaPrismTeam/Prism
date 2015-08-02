@@ -154,10 +154,10 @@ namespace Prism.Mods.DefHandlers
             def.Description         = new ItemDescription(item.toolTip, item.toolTip2, item.vanity, item.expert, item.questItem, item.notAmmo);
             def.Buff                = new AppliedBuff(item.buffType, item.buffTime);
             def.UsedAmmo            = (item.useAmmo != 0) ? new ItemRef(item.useAmmo) : null;
-            def.ShootProjectile     = item.shoot;
-            def.AmmoType            = item.ammo;
+            def.ShootProjectile     = new ProjectileRef(item.shoot);
+            def.AmmoType            = new ItemRef(item.ammo);
             def.UseSound            = item.useSound;
-            def.CreateTile          = item.createTile;
+            def.CreateTile          = new TileRef(item.createTile);
             def.CreateWall          = item.createWall;
             def.GetTexture          = () => Main.itemTexture[item.type];
 
@@ -224,10 +224,10 @@ namespace Prism.Mods.DefHandlers
             item.expert       = def.Description.ShowExpert;
             item.buffTime     = def.Buff.Duration;
             item.buffType     = def.Buff.Type;
-            item.shoot        = def.ShootProjectile;
-            item.ammo         = def.AmmoType;
+            item.shoot        = def.ShootProjectile.Resolve().Type;
+            item.ammo         = def.AmmoType.Resolve().NetID;
             item.useSound     = def.UseSound;
-            item.createTile   = def.CreateTile;
+            item.createTile   = def.CreateTile.Resolve().Type;
             item.createWall   = def.CreateWall;
 
             if (def.UsedAmmo != null)

@@ -80,7 +80,6 @@ namespace Prism.API.Defs
             set;
         }
 
-
         /// <summary>
         /// Gets or sets this tile's housing configuration.
         /// </summary>
@@ -89,7 +88,6 @@ namespace Prism.API.Defs
             get;
             set;
         }
-
         /// <summary>
         /// Gets or sets this tile's mining configuration.
         /// </summary>
@@ -98,7 +96,6 @@ namespace Prism.API.Defs
             get;
             set;
         }
-
         /// <summary>
         /// Gets or sets this tile's placement configuration.
         /// </summary>
@@ -107,7 +104,6 @@ namespace Prism.API.Defs
             get;
             set;
         }
-
         /// <summary>
         /// Gets or sets this tile's lighting configuration.
         /// </summary>
@@ -116,8 +112,6 @@ namespace Prism.API.Defs
             get;
             set;
         }
-
-
         /// <summary>
         /// Gets or sets this tile's lighting configuration.
         /// </summary>
@@ -126,7 +120,6 @@ namespace Prism.API.Defs
             get;
             set;
         }
-        
 
         /// <summary>
         /// Gets or sets whether or not a tile has collision.
@@ -144,9 +137,6 @@ namespace Prism.API.Defs
             get;
             set;
         }
-        
-        
-        
         /// <summary>
         /// Gets or sets whether or not this tile acts as a storage container
         /// </summary>
@@ -163,7 +153,6 @@ namespace Prism.API.Defs
             get;
             set;
         }
-        
         /// <summary>
         /// Gets or sets whether or not this tile should be considered part of the dungeon.
         /// </summary>
@@ -188,16 +177,6 @@ namespace Prism.API.Defs
             get;
             set;
         }
-
-        /// <summary>
-        /// The tile position within this tile the player should respawn at.
-        /// </summary>
-        public virtual Point SpawnAt
-        {
-            get;
-            set;
-        }
-
         /// <summary>
         /// Gets or sets whether or not this tile can be sloped
         /// </summary>
@@ -222,8 +201,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }               
-        
+        }
         /// <summary>
         /// Gets or sets whether or not this tile should behave similarly to a platform
         /// </summary>
@@ -232,7 +210,6 @@ namespace Prism.API.Defs
             get;
             set;
         }
-
         /// <summary>
         /// Gets or sets whether or not this tile should behave similarly to a pile
         /// </summary>
@@ -272,8 +249,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }        
-        
+        }
         /// <summary>
         /// Gets or sets whether or not this tile should be considered sand. (does not grant gravity to the tile)
         /// </summary>
@@ -297,7 +273,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }                
+        }
 
         /// <summary>
         /// The color the tile uses on the map.
@@ -315,7 +291,7 @@ namespace Prism.API.Defs
         {
             get;
             set;
-        }        
+        }
 
         public TileDef(string displayName, Func<TileBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null)
             : base(displayName, newBehaviour)
@@ -447,9 +423,6 @@ namespace Prism.API.Defs
             TileDungeon = (bool)json["tileDungeon"];
             Spawn = (bool)json["spawn"];
             ExplosionResistant = (bool)json["explosionResistant"];
-
-            if (json.Has("spawnAt") && json["spawnAt"].IsArray && json["spawnAt"].Count >= 2 && json["spawnAt"][0].IsInt && json["spawnAt"][1].IsInt)
-                SpawnAt = new Point((int)json["spawnAt"][0], (int)json["spawnAt"][1]);
 
             //TODO: AdjTile Resolver
 

@@ -482,7 +482,7 @@ namespace Prism.API.Defs
         /// Gets or sets the projectile which this item shoots upon use.
         /// </summary>
         /// <remarks>Item.shoot</remarks>
-        public virtual int ShootProjectile
+        public virtual ProjectileRef ShootProjectile
         {
             get;
             set;
@@ -491,7 +491,7 @@ namespace Prism.API.Defs
         /// Gets or sets the type of ammo this item acts as.
         /// </summary>
         /// <remarks>Item.ammo</remarks>
-        public virtual int AmmoType
+        public virtual ItemRef AmmoType
         {
             get;
             set;
@@ -509,7 +509,7 @@ namespace Prism.API.Defs
         /// Gets or sets the tile which this item places upon use.
         /// </summary>
         /// <remarks>Item.createTile</remarks>
-        public virtual int CreateTile
+        public virtual TileRef CreateTile
         {
             get;
             set;
@@ -547,7 +547,7 @@ namespace Prism.API.Defs
 
             Colour = Color.White;
 
-            CreateTile = CreateWall = -1;
+            CreateWall = -1;
         }
 
         public ItemDef(string displayName, JsonData json,
@@ -560,6 +560,7 @@ namespace Prism.API.Defs
             ArmourData = armour;
 
             //TODO: check if the fields exist
+            //TODO: use error handling, exceptions shouldn't be thrown from a constructor
             Damage = (int)json["damage"];
             UseAnimation = (int)json["useAnimation"];
             UseTime = (int)json["useTime"];
@@ -608,69 +609,21 @@ namespace Prism.API.Defs
             }
 
             if (json.Has("rare"))
-            {
-                JsonData rare = json["rare"];
-                if (rare.IsString)
-                {
-                    //TODO: use error handling, exceptions shouldn't be thrown from a constructor
-                    Rarity = (ItemRarity)Enum.Parse(typeof(ItemRarity), (string)rare);
-                }
-                else
-                {
-                    Rarity = (ItemRarity)(int)rare;
-                }
-            }
-
+                Rarity = ModData.ParseAsEnum<ItemRarity>(json["rare"]);
             if (json.Has("useStyle"))
-            {
-                JsonData useStyle = json["useStyle"];
-                if (useStyle.IsString)
-                {
-                    UseStyle = (ItemUseStyle)Enum.Parse(typeof(ItemUseStyle), (string)useStyle);
-                }
-                else
-                {
-                    UseStyle = (ItemUseStyle)(int)useStyle;
-                }
-            }
-
+                UseStyle = ModData.ParseAsEnum<ItemUseStyle>(json["useStyle"]);
             if (json.Has("holdStyle"))
-            {
-                JsonData holdStyle = json["holdStyle"];
-                if (holdStyle.IsString)
-                {
-                    HoldStyle = (ItemHoldStyle)Enum.Parse(typeof(ItemHoldStyle), (string)holdStyle);
-                }
-                else
-                {
-                    HoldStyle = (ItemHoldStyle)(int)holdStyle;
-                }
-            }
-
+                HoldStyle = ModData.ParseAsEnum<ItemHoldStyle>(json["holdStyle"]);
             if (json.Has("damageType"))
-            {
-                JsonData damageType = json["damageType"];
-                if (damageType.IsString)
-                {
-                    DamageType = (ItemDamageType)Enum.Parse(typeof(ItemDamageType), (string)damageType);
-                }
-                else
-                {
-                    DamageType = (ItemDamageType)(int)damageType;
-                }
-            }
+                DamageType = ModData.ParseAsEnum<ItemDamageType>(json["damageType"]);
 
             if (json.Has("value"))
             {
                 JsonData value = json["value"];
                 if (value.IsArray)
-                {
                     Value = new CoinValue((int)value[0], (int)value[1], (int)value[2], (int)value[3]);
-                }
                 else
-                {
                     Value = (CoinValue)(int)value;
-                }
             }
 
             if (json.Has("description"))
@@ -692,37 +645,15 @@ namespace Prism.API.Defs
             }
 
             if (json.Has("useAmmo"))
-            {
-                JsonData useAmmo = json["useAmmo"];
-                if (useAmmo.IsString)
-                {
-                    string[] s = ((string)useAmmo).Split('.');
-
-                    if (s.Length < 2)
-                    {
-                        UsedAmmo = new ItemRef(s[0]);
-                    }
-                    else
-                    {
-                        UsedAmmo = new ItemRef(s[1], s[0]);
-                    }
-                }
-                else
-                {
-                    UsedAmmo = new ItemRef((int)useAmmo);
-                }
-            }
-
+                UsedAmmo = ModData.ParseItemRef(json["useAmmo"]);
             if (json.Has("shoot"))
-            {
-                JsonData shoot = json["shoot"];
-                // TODO Add string compatibility with ProjectileRef
-                ShootProjectile = (int)shoot;
-            }
+                ShootProjectile = ModData.ParseProjectileRef(json["shoot"]);
+            if (json.Has("ammo"))
+                AmmoType = ModData.ParseItemRef(json["ammo"]);
+            if (json.Has("createTile"))
+                CreateTile = ModData.ParseTileRef(json["createTile"]);
 
-            AmmoType = (int)json["ammo"];
             UseSound = json.Has("useSound") ? (int)json["useSound"] : 1;
-            CreateTile = json.Has("createTile") ? (int)json["createTile"] : -1;
             CreateWall = json.Has("createWall") ? (int)json["createWall"] : -1;
         }
 

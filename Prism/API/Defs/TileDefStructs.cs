@@ -56,7 +56,6 @@ namespace Prism.API.Defs
             get;
             set;
         }
-        
         /// <summary>
         /// Gets or sets whether the tile's spritesheet has frames along the X or Y axis.
         /// </summary>
@@ -134,7 +133,6 @@ namespace Prism.API.Defs
             get;
             set;
         }
-
         /// <summary>
         /// The chance of the sparkle. (Higher numbers == less chance)
         /// </summary>
@@ -143,7 +141,6 @@ namespace Prism.API.Defs
             get;
             set;
         }
-
         /// <summary>
         /// Gets or sets whether or not this tile should glow if the player has Spelunker.
         /// </summary>
@@ -152,7 +149,6 @@ namespace Prism.API.Defs
             get;
             set;
         }
-
         /// <summary>
         /// Gets or sets whether or not this tile should glow if the player has Dangersense.
         /// </summary>

@@ -179,10 +179,22 @@ namespace Prism.Mods
                     info.References[i].LoadAssembly();
             }
 
-            Assembly asm;
+            Assembly asm = null;
             try
             {
-                asm = Assembly.LoadFrom(path + Path.DirectorySeparatorChar + info.AssemblyFileName);
+                var curn = Assembly.GetExecutingAssembly().GetName();
+                var p = path + Path.DirectorySeparatorChar + info.AssemblyFileName;
+                var rasm = Assembly.ReflectionOnlyLoadFrom(p);
+
+                var refs = rasm.GetReferencedAssemblies();
+                var refn = refs.FirstOrDefault(an => an.Name == curn.Name);
+
+                if (refn == null)
+                    errors.Add(new LoaderError(info, "Mod does not reference Prism."));
+                else if (!refn.Equals(curn))
+                    errors.Add(new LoaderError(info, "Mod does not reference Prism the right version, the targeted version is '" + refn.Version + "', but the current is '" + curn.Version + "'."));
+                else
+                    asm = Assembly.LoadFrom(p);
             }
             catch (Exception e)
             {
@@ -216,7 +228,7 @@ namespace Prism.Mods
                 var prevModCount = ModData.mods.Count;
                 var d = LoadMod(s);
                 var newModCount = ModData.mods.Count;
-                
+
                 if (newModCount > prevModCount) //Make sure a new mod was actually added to ModData.mods so we don't get a "Sequence is empty" error on ModData.mods.Last()
                 {
                     if (d == null)
@@ -246,9 +258,7 @@ namespace Prism.Mods
                     }
                 }
                 else
-                {
-                    errors.Add(new LoaderError(s, string.Format("New entry was not added to ModData.mods while loading mod from path '{0}': Something went wrong in ModLoader.LoadMod()", s), ModData.mods));
-                }
+                    errors.Add(new LoaderError(s, String.Format("New entry was not added to ModData.mods while loading mod from path '{0}': Something went wrong in ModLoader.LoadMod()", s), ModData.mods));
             }
 
             HookManager.Create();
