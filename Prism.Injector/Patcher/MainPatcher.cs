@@ -56,6 +56,35 @@ namespace Prism.Injector.Patcher
             }
         }
 
+        static void RemoveVanillaNpcDrawLimitation()
+        {
+            OpCode[] seqToRemove =
+            {
+                // original code:
+
+                // ldsfld class Terraria.NPC[] Terraria.Main::npc
+                // ldloc.2
+                // ldelem.ref
+                // ldfld int32 Terraria.NPC::'type'
+                // ldc.i4 540
+                // bge <end-of-if-body>
+
+                // in 1.3.0.7, this starts at address 0x006f
+
+                OpCodes.Ldsfld,
+                OpCodes.Ldloc_2,
+                OpCodes.Ldelem_Ref,
+                OpCodes.Ldfld,
+                OpCodes.Ldc_I4,
+                OpCodes.Bge
+            };
+
+            var drawNpcs = main_t.GetMethod("DrawNPCs", MethodFlags.Instance | MethodFlags.Public, ts.Boolean);
+
+            var firstInstr = CecilHelper.FindInstructionSeq(drawNpcs.Body, seqToRemove);
+            CecilHelper.RemoveInstructions(drawNpcs.Body.GetILProcessor(), firstInstr, seqToRemove.Length);
+        }
+
         internal static void Patch()
         {
             c = TerrariaPatcher.c;
@@ -65,6 +94,7 @@ namespace Prism.Injector.Patcher
             main_t = r.GetType("Terraria.Main");
 
             RemoveNetModeCheckFromChat();
+            RemoveVanillaNpcDrawLimitation();
         }
     }
 }
