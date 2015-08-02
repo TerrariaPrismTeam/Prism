@@ -85,6 +85,52 @@ namespace Prism.Injector.Patcher
             CecilHelper.RemoveInstructions(drawNpcs.Body.GetILProcessor(), firstInstr, seqToRemove.Length);
         }
 
+        static void InsertMusicHook()
+        {
+            // First, add the UpdateMusicHook() function that TMain will override.
+            var updateMusicHook = new MethodDefinition("UpdateMusicHook", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, ts.Void);
+            var proc = updateMusicHook.Body.GetILProcessor();
+            proc.Emit(OpCodes.Ret);
+            main_t.Methods.Add(updateMusicHook);
+
+            // Then add a hook to call it.
+            OpCode[] searchSeq = new OpCode[]
+            {
+                OpCodes.Ldarg_0,    // IL_0e31: ldarg.0
+                OpCodes.Ldfld,      // IL_0e32: ldfld int32 Terraria.Main::newMusic
+                OpCodes.Stsfld      // IL_0e37: stsfld int32 Terraria.Main::curMusic
+            };
+
+            var updateMusic = main_t.GetMethod("UpdateMusic").Body;
+
+            proc = updateMusic.GetILProcessor();
+
+            var firstInstr = CecilHelper.FindInstructionSeq(updateMusic, searchSeq);
+
+            if (firstInstr == null)
+            {
+                Console.WriteLine("Mainpatcher.InsertMusicHook() was unable to locate the instruction sequence that indicates curMusic being set to newMusic. Terraria.Main.UpdateMusic() has probably changed and this hook needs to be modified accordingly.");
+            }
+            else
+            {
+                var musicHook = main_t.GetMethod("UpdateMusicHook");
+                var lastInstr = firstInstr;
+                for (int i = 1; i < searchSeq.Length; i++)
+                {
+                    lastInstr = lastInstr.Next;
+                }
+                var call_hook = new[]
+                {
+                    Instruction.Create(OpCodes.Ldarg_0),
+                    Instruction.Create(OpCodes.Callvirt, musicHook)
+                };
+                for (int i = call_hook.Length - 1; i >= 0; i--)
+                {
+                    proc.InsertAfter(lastInstr, call_hook[i]);
+                }
+            }
+        }
+
         internal static void Patch()
         {
             c = TerrariaPatcher.c;
@@ -95,6 +141,7 @@ namespace Prism.Injector.Patcher
 
             RemoveNetModeCheckFromChat();
             RemoveVanillaNpcDrawLimitation();
+            InsertMusicHook();
         }
     }
 }
