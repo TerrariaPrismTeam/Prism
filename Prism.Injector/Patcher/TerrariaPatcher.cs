@@ -82,6 +82,6 @@ namespace Prism.Injector.Patcher
 
             r = null;
             c = null;
-        }        
+        }
     }
 }

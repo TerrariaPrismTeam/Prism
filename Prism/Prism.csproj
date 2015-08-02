@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="$(SolutionDir)\BuildFiles\Prism.Build.props" Condition="Exists('$(SolutionDir)\BuildFiles\Prism.Build.props')" />
+  <Import Project="$(SolutionDir)\Patcher\Prism.Build.props" Condition="Exists('$(SolutionDir)\Patcher\Prism.Build.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -232,7 +232,7 @@ rem a shell script is used in unix environments.
 # this will create a patched terraria assembly, which is referenced by Prism.csproj.
 # a batch script is used in windows environments.
 
-mono "$(SolutionDir)Patcher\Prism.TerrariaPatcher\bin\Debug\Prism.TerrariaPatcher.exe" "$(SolutionDir)References/Terraria.exe" "$(SolutionDir)References/Prism.Terraria.dll"</PreBuildEvent>
+mono "$(SolutionDir)Patcher/Prism.TerrariaPatcher/bin/Debug/Prism.TerrariaPatcher.exe" "$(SolutionDir)References/Terraria.exe" "$(SolutionDir)References/Prism.Terraria.dll"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
