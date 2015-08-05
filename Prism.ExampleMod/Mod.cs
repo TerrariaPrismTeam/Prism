@@ -20,8 +20,8 @@ namespace Prism.ExampleMod
         public static int meowmaritusHappyFunCount = -1;
         public static int meowmaritusHappyFunTimeBytes = 0x14018E;
 
-        public static Dictionary<int, int> TestItems = new Dictionary<int, int>();
-        public static Dictionary<int, int> TestNpcs = new Dictionary<int, int>();
+        public static Dictionary<int, int> TestItems  = new Dictionary<int, int>();
+        public static Dictionary<int, int> TestNpcs   = new Dictionary<int, int>();
         public static Dictionary<int, int> TestBosses = new Dictionary<int, int>();
 
         public static bool[] prevNpcActive;
@@ -140,6 +140,7 @@ namespace Prism.ExampleMod
                 }
             };
         }
+
         protected override IEnumerable<RecipeDef> GetRecipeDefs()
         {
             return new[]
@@ -244,7 +245,7 @@ namespace Prism.ExampleMod
             }
         }
 
-        public override void PostUpdate()
+        public override void PostUpdate ()
         {
             if (Main.gameMenu || !Main.hasFocus || Main.chatMode || DV.IsOpen)
                 return;

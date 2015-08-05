@@ -24,7 +24,7 @@ namespace Prism.Mods.DefHandlers
         {
             ProjectileBHandler h = null; // will be set to <non-null> only if a behaviour handler will be attached
 
-            p.RealSetDefaults(0);
+            p.RealSetDefaults(type);
 
             if (Handler.ProjDef.DefsByType.ContainsKey(type))
             {
@@ -44,9 +44,9 @@ namespace Prism.Mods.DefHandlers
                     if (b != null)
                         h.behaviours.Add(b);
                 }
+
+                p.active = true;
             }
-            else
-                p.RealSetDefaults(type);
 
             var bs = ModData.mods.Values.Select(m => m.CreateGlobalProjBInternally()).Where(b => b != null);
 
