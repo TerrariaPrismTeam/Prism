@@ -6,7 +6,7 @@ using System.Linq;
 namespace Prism.API.Defs
 {
     /// <summary>
-    /// Utility for Item.value stuff.
+    /// Utility for coin value stuff: enemy drops, selling, buying, etc etc
     /// </summary>
     public struct CoinValue : IEquatable<CoinValue>, IEquatable<int>, IConvertible
     {

@@ -286,9 +286,16 @@ namespace Prism.Debugging
                     continue;
                 }
                 var val = this[f.Name].UpdateValue(origVal, null, x => postChange(f, x));
-                if (!origVal.GetType().IsArray && val.GetType() != origVal.GetType())
+                if (!origVal.GetType().IsArray && val.GetType() != origVal.GetType() && val is IConvertible && origVal is IConvertible)
                     val = Convert.ChangeType(val, origVal.GetType());
-                f.SetValue(obj, val);
+                try
+                {
+                    f.SetValue(obj, val);
+                }
+                catch
+                {
+                    //asdf
+                }
             }
 
             return obj;
@@ -317,28 +324,17 @@ namespace Prism.Debugging
             {
                 object[] arr = null;
                 //asdfasdfasdfasdfasdfasdfasdf
-                if (dbgVal is bool[])
-                    arr = Array.ConvertAll((bool[])dbgVal, x => (object)x);
-                else if (dbgVal is byte[])
-                    arr = Array.ConvertAll((byte[])dbgVal, x => (object)x);
-                else if (dbgVal is sbyte[])
-                    arr = Array.ConvertAll((sbyte[])dbgVal, x => (object)x);
-                else if (dbgVal is ushort[])
-                    arr = Array.ConvertAll((ushort[])dbgVal, x => (object)x);
-                else if (dbgVal is short[])
-                    arr = Array.ConvertAll((short[])dbgVal, x => (object)x);
-                else if (dbgVal is uint[])
-                    arr = Array.ConvertAll((uint[])dbgVal, x => (object)x);
-                else if (dbgVal is int[])
-                    arr = Array.ConvertAll((int[])dbgVal, x => (object)x);
-                else if (dbgVal is ulong[])
-                    arr = Array.ConvertAll((ulong[])dbgVal, x => (object)x);
-                else if (dbgVal is long[])
-                    arr = Array.ConvertAll((long[])dbgVal, x => (object)x);
-                else if (dbgVal is float[])
-                    arr = Array.ConvertAll((float[])dbgVal, x => (object)x);
-                else if (dbgVal is double[])
-                    arr = Array.ConvertAll((double[])dbgVal, x => (object)x);
+                if      (dbgVal is   bool[]) arr = Array.ConvertAll((  bool[])dbgVal, x => (object)x);
+                else if (dbgVal is   byte[]) arr = Array.ConvertAll((  byte[])dbgVal, x => (object)x);
+                else if (dbgVal is  sbyte[]) arr = Array.ConvertAll(( sbyte[])dbgVal, x => (object)x);
+                else if (dbgVal is ushort[]) arr = Array.ConvertAll((ushort[])dbgVal, x => (object)x);
+                else if (dbgVal is  short[]) arr = Array.ConvertAll(( short[])dbgVal, x => (object)x);
+                else if (dbgVal is   uint[]) arr = Array.ConvertAll((  uint[])dbgVal, x => (object)x);
+                else if (dbgVal is    int[]) arr = Array.ConvertAll((   int[])dbgVal, x => (object)x);
+                else if (dbgVal is  ulong[]) arr = Array.ConvertAll(( ulong[])dbgVal, x => (object)x);
+                else if (dbgVal is   long[]) arr = Array.ConvertAll((  long[])dbgVal, x => (object)x);
+                else if (dbgVal is  float[]) arr = Array.ConvertAll(( float[])dbgVal, x => (object)x);
+                else if (dbgVal is double[]) arr = Array.ConvertAll((double[])dbgVal, x => (object)x);
                 else if (dbgVal is object[])
                     arr = (object[])dbgVal;
 
@@ -346,30 +342,26 @@ namespace Prism.Debugging
                     for (int i = 0; i < arr.Length; i++)
                         arr[i] = this["[" + i + "]"].UpdateValue(arr[i]);
 
-                if (dbgVal is bool[])
-                    dbgVal = Array.ConvertAll(arr, x => (bool)x);
-                else if (dbgVal is byte[])
-                    dbgVal = Array.ConvertAll(arr, x => (byte)x);
-                else if (dbgVal is sbyte[])
-                    dbgVal = Array.ConvertAll(arr, x => (sbyte)x);
-                else if (dbgVal is ushort[])
-                    dbgVal = Array.ConvertAll(arr, x => (ushort)x);
-                else if (dbgVal is short[])
-                    dbgVal = Array.ConvertAll(arr, x => (short)x);
-                else if (dbgVal is uint[])
-                    dbgVal = Array.ConvertAll(arr, x => (uint)x);
-                else if (dbgVal is int[])
-                    dbgVal = Array.ConvertAll(arr, x => (int)x);
-                else if (dbgVal is ulong[])
-                    dbgVal = Array.ConvertAll(arr, x => (ulong)x);
-                else if (dbgVal is long[])
-                    dbgVal = Array.ConvertAll(arr, x => (long)x);
-                else if (dbgVal is float[])
-                    dbgVal = Array.ConvertAll(arr, x => (float)x);
-                else if (dbgVal is double[])
-                    dbgVal = Array.ConvertAll(arr, x => (double)x);
-                else if (dbgVal is object[])
-                    dbgVal = arr;
+                try
+                {
+                    if      (dbgVal is   bool[]) dbgVal = Array.ConvertAll(arr, x => (  bool)x);
+                    else if (dbgVal is   byte[]) dbgVal = Array.ConvertAll(arr, x => (  byte)x);
+                    else if (dbgVal is  sbyte[]) dbgVal = Array.ConvertAll(arr, x => ( sbyte)x);
+                    else if (dbgVal is ushort[]) dbgVal = Array.ConvertAll(arr, x => (ushort)x);
+                    else if (dbgVal is  short[]) dbgVal = Array.ConvertAll(arr, x => ( short)x);
+                    else if (dbgVal is   uint[]) dbgVal = Array.ConvertAll(arr, x => (  uint)x);
+                    else if (dbgVal is    int[]) dbgVal = Array.ConvertAll(arr, x => (   int)x);
+                    else if (dbgVal is  ulong[]) dbgVal = Array.ConvertAll(arr, x => ( ulong)x);
+                    else if (dbgVal is   long[]) dbgVal = Array.ConvertAll(arr, x => (  long)x);
+                    else if (dbgVal is  float[]) dbgVal = Array.ConvertAll(arr, x => ( float)x);
+                    else if (dbgVal is double[]) dbgVal = Array.ConvertAll(arr, x => (double)x);
+                    else if (dbgVal is object[])
+                        dbgVal = arr;
+                }
+                catch
+                {
+                    //asdfasdfasdfasdfasdf
+                }
 
                 DebugValue = dbgVal;
                 return dbgVal;
@@ -413,30 +405,21 @@ namespace Prism.Debugging
                 baseAdjustAmt = 1d;
             double modAdj = (DebugMenu.DbgModMult * Convert.ToDouble(baseAdjustAmt) * adjustDir);
 
-            if (t == typeof(byte))
-                dbgVal = (byte)DebugNodeHelper.ModifyValue<byte>((byte)dbgVal, modAdj);
-            else if (t == typeof(sbyte))
-                dbgVal = (sbyte)DebugNodeHelper.ModifyValue<sbyte>((sbyte)dbgVal, modAdj);
-            else if (t == typeof(ushort))
-                dbgVal = (ushort)DebugNodeHelper.ModifyValue<ushort>((ushort)dbgVal, modAdj);
-            else if (t == typeof(short))
-                dbgVal = (short)DebugNodeHelper.ModifyValue<short>((short)dbgVal, modAdj);
-            else if (t == typeof(uint))
-                dbgVal = (uint)DebugNodeHelper.ModifyValue<uint>((uint)dbgVal, modAdj);
-            else if (t == typeof(int))
-                dbgVal = (int)DebugNodeHelper.ModifyValue<int>((int)dbgVal, modAdj);
-            else if (t == typeof(ulong))
-                dbgVal = (ulong)DebugNodeHelper.ModifyValue<ulong>((ulong)dbgVal, modAdj);
-            else if (t == typeof(long))
-                dbgVal = (long)DebugNodeHelper.ModifyValue<long>((long)dbgVal, modAdj);
-            else if (t == typeof(float))
-                dbgVal = (float)DebugNodeHelper.ModifyValue<float>((float)dbgVal, modAdj);
-            else if (t == typeof(double))
-                dbgVal = (double)DebugNodeHelper.ModifyValue<double>((double)dbgVal, modAdj);
+            if      (t == typeof(  byte)) dbgVal = (  byte)DebugNodeHelper.ModifyValue<  byte>((  byte)dbgVal, modAdj);
+            else if (t == typeof( sbyte)) dbgVal = ( sbyte)DebugNodeHelper.ModifyValue< sbyte>(( sbyte)dbgVal, modAdj);
+            else if (t == typeof(ushort)) dbgVal = (ushort)DebugNodeHelper.ModifyValue<ushort>((ushort)dbgVal, modAdj);
+            else if (t == typeof( short)) dbgVal = ( short)DebugNodeHelper.ModifyValue< short>(( short)dbgVal, modAdj);
+            else if (t == typeof(  uint)) dbgVal = (  uint)DebugNodeHelper.ModifyValue<  uint>((  uint)dbgVal, modAdj);
+            else if (t == typeof(   int)) dbgVal = (   int)DebugNodeHelper.ModifyValue<   int>((   int)dbgVal, modAdj);
+            else if (t == typeof( ulong)) dbgVal = ( ulong)DebugNodeHelper.ModifyValue< ulong>(( ulong)dbgVal, modAdj);
+            else if (t == typeof(  long)) dbgVal = (  long)DebugNodeHelper.ModifyValue<  long>((  long)dbgVal, modAdj);
+            else if (t == typeof( float)) dbgVal = ( float)DebugNodeHelper.ModifyValue< float>(( float)dbgVal, modAdj);
+            else if (t == typeof(double)) dbgVal = (double)DebugNodeHelper.ModifyValue<double>((double)dbgVal, modAdj);
             else
             {
                 dbgVal = Reflect(dbgVal, (x, y) =>
                 {
+                    //asdf
                 });
             }
 

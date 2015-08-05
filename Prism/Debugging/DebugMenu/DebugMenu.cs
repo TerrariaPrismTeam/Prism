@@ -13,28 +13,30 @@ namespace Prism.Debugging
 {
     public class DebugMenu
     {
+        internal static bool HasBeenOpened = false;
         public static bool IsOpen = false;
-        public static SpriteFont DebugFont;
-        public static int DebugSelection = 0;
-        public static KeyboardState prevKeyState = new KeyboardState();
+        internal static SpriteFont DebugFont;
+        internal static int DebugSelection = 0;
+        internal static KeyboardState prevKeyState = new KeyboardState();
         public static DebugMenuNode Node = new DebugMenuNode();
-        public static DebugMenuNode SelectedNode = new DebugMenuNode();
-        public static Ctrl Nav;
-        public static Dictionary<Ctrl, bool> NavDirInit;
-        public static Dictionary<Ctrl, float> NavDirTimer;
-        public static readonly float NavDirDurInit = 0.25f;
-        public static readonly float NavDirDurRepeat = 0.05f;
-        public static readonly Dictionary<Ctrl, Keys> NavDirKey = new Dictionary<Ctrl, Keys>()
+        internal static DebugMenuNode SelectedNode = new DebugMenuNode();
+        internal static Ctrl Nav;
+        internal static Dictionary<Ctrl, bool> NavDirInit;
+        internal static Dictionary<Ctrl, float> NavDirTimer;
+        internal static readonly float NavDirDurInit = 0.25f;
+        internal static readonly float NavDirDurRepeat = 0.05f;
+        internal static readonly Dictionary<Ctrl, Keys> NavDirKey = new Dictionary<Ctrl, Keys>()
         {
             { Ctrl.Up, Keys.I }, { Ctrl.Down, Keys.K }, { Ctrl.Left, Keys.J }, { Ctrl.Right, Keys.L }
         };
 
-        public static void Init()
+        private static void Init()
         {
-            DebugFont = DisgustingHacks.LoadResourceThroughContentManager<SpriteFont>("Prism.Debugging.Consolas20.xnb");
-
+            using (var dbgFont = new Util.RandTempContentFile<SpriteFont>("Prism.Resources.FakeContent.DebugFont.xnb"))
+            {
+                DebugFont = dbgFont.Load();
+            }
             Node = new DebugMenuNode("Prism Debug Menu");
-
             NavDirInit = new Dictionary<Ctrl, bool>();
             NavDirTimer = new Dictionary<Ctrl, float>();
             for (byte i = (byte)Ctrl.Up; i <= (byte)Ctrl.Right; i++)
@@ -77,7 +79,7 @@ namespace Prism.Debugging
             return onEnterKeyState == Main.keyState[k] && Main.keyState[k] != prevKeyState[k];
         }
 
-        public static void UpdateNav(GameTime gt)
+        private static void UpdateNav(GameTime gt)
         {
             Nav = Ctrl.None;
             UpdateNavDir(gt);
@@ -87,7 +89,7 @@ namespace Prism.Debugging
             Nav |= GetKey(Keys.LeftAlt         ) ? Ctrl.x100  : Ctrl.None;
         }
 
-        public static void UpdateNavDir(GameTime gt)
+        private static void UpdateNavDir(GameTime gt)
         {
             for (byte i = (byte)Ctrl.Up; i <= (byte)Ctrl.Right; i *= 2)
             {
@@ -129,9 +131,7 @@ namespace Prism.Debugging
         /// </summary>
         internal static void Update(GameTime gt)
         {
-            UpdateNav(gt);
-
-            if (GetKey(Keys.H, KeyState.Down))
+            if (!Main.gameMenu && (GetKey(Keys.LeftShift) || GetKey(Keys.RightShift)) && (GetKey(Keys.LeftAlt) || GetKey(Keys.RightAlt)) && GetKey(Keys.H, KeyState.Down))
             {
                 if (!IsOpen)
                 {
@@ -144,6 +144,23 @@ namespace Prism.Debugging
                     Main.PlaySound(11);
                 }
             }
+
+            if (!HasBeenOpened)
+            {
+                if (IsOpen)
+                {
+                    Init();
+                    Main.NewText("Debug menu initialized.", 0, 255, 255, true);
+                    Main.NewText("Press I/K to move the selection up/down.", 0, 255, 255, true);
+                    Main.NewText("Press J/L to adjust the selected entry.", 0, 255, 255, true);
+                    Main.NewText("Press U/O to expand/collapse nodes.", 0, 255, 255, true);
+                    Main.NewText("Hold Shift/Alt while moving the selection or adjusting the selected entry to multiply the action by 10x/100x", 0, 255, 255, true);
+                    HasBeenOpened = true;
+                }
+                else return;
+            }
+
+            UpdateNav(gt);            
 
             if (IsOpen)
             {
@@ -197,7 +214,7 @@ namespace Prism.Debugging
 
         internal static void DrawAll(SpriteBatch sb)
         {
-            if (Node.DebugValue == null)
+            if (Node.Count == 0 || !HasBeenOpened)
                 return;
 
             Viewport screen = sb.GraphicsDevice.Viewport;
