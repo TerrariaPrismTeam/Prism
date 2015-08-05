@@ -133,6 +133,7 @@ namespace Prism.Mods.DefHandlers
             def.HammerPower         = item.hammer;
             def.LifeHeal            = item.healLife;
             def.ManaHeal            = item.healMana;
+            def.BaitPower           = item.bait;
             def.ShootVelocity       = item.shootSpeed;
             def.Knockback           = item.knockBack;
             def.Scale               = item.scale;
@@ -297,6 +298,11 @@ namespace Prism.Mods.DefHandlers
             };
             #endregion
 
+            def.Dye = item.dye;
+            def.HairDye = item.hairDye;
+            def.MountType = item.mountType;
+            def.FishingPole = item.fishingPole;
+
             def.IsSoul                   = ItemID.Sets.AnimatesAsSoul           [def.Type];
             def.IsStrangePlant           = ItemID.Sets.ExoticPlantsForDyeTrade  [def.Type];
             def.IsBullet                 = ItemID.Sets.gunProj                  [def.Type];
@@ -329,6 +335,7 @@ namespace Prism.Mods.DefHandlers
             item.hammer       = def.HammerPower;
             item.healLife     = def.LifeHeal;
             item.healMana     = def.ManaHeal;
+            item.bait         = def.BaitPower;
             item.shootSpeed   = def.ShootVelocity;
             item.knockBack    = def.Knockback;
             item.scale        = def.Scale;
@@ -382,6 +389,11 @@ namespace Prism.Mods.DefHandlers
             item.shoeSlot    = (sbyte)def.AccessoryData.shoesId   ;
             item.waistSlot   = (sbyte)def.AccessoryData.waistId   ;
             item.wingSlot    = (sbyte)def.AccessoryData.wingsId   ;
+
+            item.dye = (byte)def.Dye;
+            item.hairDye = (short)def.HairDye;
+            item.mountType = def.MountType;
+            item.fishingPole = def.FishingPole;
         }
 
         static int CheckAndPush<T>(Func<T> getter, ref T[] array, ref bool[] loadedArray)

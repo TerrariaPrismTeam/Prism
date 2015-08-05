@@ -214,6 +214,14 @@ namespace Prism.API.Defs
             get;
             set;
         }
+        /// <summary>
+        /// Gets or sets the bait power the item has.
+        /// </summary>
+        public virtual int BaitPower
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Gets or sets the velocity at which this item shoots projectiles (in pixels / game tick).
@@ -536,6 +544,28 @@ namespace Prism.API.Defs
         /// Gets or sets the item's texture.
         /// </summary>
         public virtual Func<Texture2D> GetTexture
+        {
+            get;
+            set;
+        }
+
+        //TODO: add custom things for these... later
+        public virtual int Dye
+        {
+            get;
+            set;
+        }
+        public virtual int HairDye
+        {
+            get;
+            set;
+        }
+        public virtual int MountType
+        {
+            get;
+            set;
+        }
+        public virtual int FishingPole
         {
             get;
             set;

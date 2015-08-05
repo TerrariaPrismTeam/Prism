@@ -343,6 +343,14 @@ namespace Prism.API.Defs
             get;
             set;
         }
+        /// <summary>
+        /// Gets or sets the NPC's town NPC config.
+        /// </summary>
+        public virtual TownNpcConfig TownConfig
+        {
+            get;
+            set;
+        }
 
         //TODO: use BuffRef... later
         /// <summary>
@@ -354,9 +362,9 @@ namespace Prism.API.Defs
             set;
         }
         /// <summary>
-        /// Gets or sets the NPC's town NPC config.
+        /// Gets or sets the item that represents the caught NPC (when caught using a bug net. use 'null' to make the npc not catchable.)
         /// </summary>
-        public virtual TownNpcConfig TownConfig
+        public virtual ItemRef CaughtAsItem
         {
             get;
             set;
