@@ -32,11 +32,11 @@ namespace Prism.Injector.Patcher
         }
         static void Publicify()
         {
-            // make all types and members in the "Terraria" namespace public
+            // make all types and members in the "Terraria" and "Terraria.Map" namespace public
 
             foreach (TypeDefinition td in c.PrimaryAssembly.MainModule.Types)
             {
-                if (td.Namespace != "Terraria")
+                if (td.Namespace != "Terraria" && td.Namespace != "Terraria.Map")
                     continue;
 
                 PublicifyRec(td);

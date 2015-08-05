@@ -95,6 +95,7 @@ namespace Prism.Mods.DefHandlers
 
         protected abstract TEntity GetVanillaEntityFromID(int id);
         protected abstract TEntityDef NewDefFromVanilla(TEntity entity);
+        protected abstract string GetNameVanillaMethod(TEntity entity);
 
         protected abstract void CopyEntityToDef(TEntity entity, TEntityDef def);
         protected abstract void CopyDefToEntity(TEntityDef def, TEntity entity);
@@ -109,24 +110,43 @@ namespace Prism.Mods.DefHandlers
 
         internal void FillVanilla()
         {
-            for (int id = MinVanillaID; id < MaxVanillaID; id++)
+            int id = 0;
+
+            var def = NewDefFromVanilla(GetVanillaEntityFromID(id));
+            def.InternalName = String.Empty;
+
+            DefsByType.Add(id, def);
+            VanillaDefsByName.Add(String.Empty, def);
+
+            var byDisplayName = new Dictionary<string, TEntityDef>();
+
+            for (id = MinVanillaID; id < MaxVanillaID; id++)
             {
                 if (id == 0)
                     continue;
 
-                TEntity entity = GetVanillaEntityFromID(id);
-                TEntityDef def = NewDefFromVanilla(entity);
-
-                CopyEntityToDef(entity, def);
-
                 var index = Array.IndexOf(IDValues, id);
                 if (index == -1)
                     continue;
-                def.InternalName = IDNames[index];
+
+                var entity = GetVanillaEntityFromID(id);
+                def = NewDefFromVanilla(entity);
 
                 DefsByType.Add(id, def);
-                VanillaDefsByName.Add(def.InternalName, def);
+                VanillaDefsByName.Add(IDNames[index], def);
+
+                var n = GetNameVanillaMethod(entity);
+                if (!byDisplayName.ContainsKey(n) && !VanillaDefsByName.ContainsKey(n))
+                    byDisplayName.Add(n, def);
+
+                CopyEntityToDef(entity, def); // TEntityDef is a class -> dictionary entries are updated, too
+
+                def.InternalName = IDNames[index];
             }
+
+            foreach (var kvp in byDisplayName)
+                if (!VanillaDefsByName.ContainsKey(kvp.Key))
+                    VanillaDefsByName.Add(kvp.Key, kvp.Value);
 
             PostFillVanilla();
         }
@@ -177,6 +197,21 @@ namespace Prism.Mods.DefHandlers
             }
 
             return err;
+        }
+    }
+
+    // because I can
+    /// <summary>
+    /// <see cref="EntityDefHandler{TEntityDef, TBehaviour, TEntity}" /> helper class for <see cref="Entity" />s.
+    /// </summary>
+    abstract class TEntityDefHandler<TEntityDef, TBehaviour, TEntity> : EntityDefHandler<TEntityDef, TBehaviour, TEntity>
+        where TEntity : Entity
+        where TBehaviour : EntityBehaviour<TEntity>
+        where TEntityDef : EntityDef<TBehaviour, TEntity>//, new()
+    {
+        protected override string GetNameVanillaMethod(TEntity entity)
+        {
+            return entity.name;
         }
     }
 }

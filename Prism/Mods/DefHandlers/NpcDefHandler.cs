@@ -4,12 +4,13 @@ using System.Linq;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Prism.Mods.Behaviours;
+using Prism.Util;
 using Terraria;
 using Terraria.ID;
 
 namespace Prism.Mods.DefHandlers
 {
-    sealed class NpcDefHandler : EntityDefHandler<NpcDef, NpcBehaviour, NPC>
+    sealed class NpcDefHandler : TEntityDefHandler<NpcDef, NpcBehaviour, NPC>
     {
         const int VanillaBossHeadCount = 31;
 
@@ -23,42 +24,44 @@ namespace Prism.Mods.DefHandlers
 
         internal static void OnSetDefaults(NPC n, int type, float scaleOverride)
         {
-            NpcBHandler h = null;
+            NpcBHandler h = null; // will be set to <non-null> only if a behaviour handler will be attached
 
-            if (type >= NPCID.Count)
+            n.RealSetDefaults(0, scaleOverride);
+
+            if (Handler.NpcDef.DefsByType.ContainsKey(type))
             {
-                n.RealSetDefaults(0, scaleOverride);
+                var d = Handler.NpcDef.DefsByType[type];
 
-                if (Handler.NpcDef.DefsByType.ContainsKey(type))
+                n.type = n.netID = type;
+                n.width = n.height = 16;
+
+                Handler.NpcDef.CopyDefToEntity(d, n);
+
+                n.life = n.lifeMax; //! BEEP BOOP
+
+                if (scaleOverride > -1f)
+                    n.scale = scaleOverride;
+
+                if (d.CreateBehaviour != null)
                 {
-                    var d = Handler.NpcDef.DefsByType[type];
-
-                    n.type = n.netID = type;
-                    n.width = n.height = 16;
-
-                    Handler.NpcDef.CopyDefToEntity(d, n);
-
-                    n.life = n.lifeMax; //! BEEP BOOP
-
-                    if (scaleOverride > -1f)
-                        n.scale = scaleOverride;
-
                     h = new NpcBHandler();
-                    if (d.CreateBehaviour != null)
-                    {
-                        var b = d.CreateBehaviour();
 
-                        if (b != null)
-                            h.behaviours.Add(b);
-                    }
+                    var b = d.CreateBehaviour();
+
+                    if (b != null)
+                        h.behaviours.Add(b);
                 }
             }
             else
                 n.RealSetDefaults(type, scaleOverride);
 
+            var bs = ModData.mods.Values.Select(m => m.CreateGlobalNpcBInternally()).Where(b => b != null);
+            if (!bs.IsEmpty() && h == null)
+                h = new NpcBHandler();
+
             if (h != null)
             {
-                h.behaviours.AddRange(ModData.mods.Values.Select(m => m.CreateGlobalNpcBInternally()).Where(b => b != null));
+                h.behaviours.AddRange(bs);
 
                 h.Create();
                 n.BHandler = h;
@@ -116,7 +119,6 @@ namespace Prism.Mods.DefHandlers
 
         protected override void CopyEntityToDef(NPC npc, NpcDef def)
         {
-            def.InternalName        = npc.name;
             def.DisplayName         = npc.displayName;
             def.Type                = npc.type;
             def.NetID               = npc.netID;
@@ -136,8 +138,10 @@ namespace Prism.Mods.DefHandlers
             def.KnockbackResistance = npc.knockBackResist;
             def.NpcSlots            = npc.npcSlots;
             def.Colour              = npc.color;
-            def.Value               = new NpcValue(new CoinValue((int)(npc.value * 0.8f)),
-                                                                       new CoinValue((int)(npc.value * 1.2f)));
+
+            if (npc.type == 235)
+                Console.WriteLine("E->D 235 value: " + npc.value);
+            def.Value = new NpcValue(new CoinValue((int)npc.value));
             def.AiStyle             = (NpcAiStyle)npc.aiStyle;
             def.MaxLife             = npc.lifeMax;
             def.GetTexture          = () => Main.npcTexture[npc.type];
@@ -170,13 +174,6 @@ namespace Prism.Mods.DefHandlers
             def.IsTechnicallyABoss                  = NPCID.Sets.TechnicallyABoss      [def.Type];
             def.IsTownCritter                       = NPCID.Sets.TownCritter           [def.Type];
         }
-        public void RegisterBossHeadTexture(NpcDef npc)
-        {
-            NPCID.Sets.BossHeadTextures[npc.Type] = Main.npcHeadBossTexture.Length;
-            int newLen = Main.npcHeadBossTexture.Length + 1;
-            Array.Resize(ref Main.npcHeadBossTexture, newLen);
-            Main.npcHeadBossTexture[newLen - 1] = npc.GetBossHeadTexture();
-        }
         protected override void CopyDefToEntity(NpcDef def, NPC npc)
         {
             npc.name            = def.InternalName;
@@ -200,11 +197,19 @@ namespace Prism.Mods.DefHandlers
             npc.npcSlots        = def.NpcSlots;
             npc.color           = def.Colour;
             npc.dontCountMe     = def.NotOnRadar;
-            npc.value           = Main.rand.Next(def.Value.Min.Value, def.Value.Max.Value); // close enough
+            npc.value           = (def.Value.Min.Value + def.Value.Max.Value) / 2; //Main.rand.Next(def.Value.Min.Value, def.Value.Max.Value); // close enough
             npc.aiStyle         = (int)def.AiStyle;
 
             for (int i = 0; i < def.BuffImmunities.Count; i++)
                 npc.buffImmune[i] = true;
+        }
+
+        void RegisterBossHeadTexture(NpcDef npc)
+        {
+            NPCID.Sets.BossHeadTextures[npc.Type] = Main.npcHeadBossTexture.Length;
+            int newLen = Main.npcHeadBossTexture.Length + 1;
+            Array.Resize(ref Main.npcHeadBossTexture, newLen);
+            Main.npcHeadBossTexture[newLen - 1] = npc.GetBossHeadTexture();
         }
 
         protected override List<LoaderError> CheckTextures(NpcDef def)

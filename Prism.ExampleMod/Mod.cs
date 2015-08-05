@@ -45,7 +45,7 @@ namespace Prism.ExampleMod
             TestBosses = new Dictionary<int, int>()
             {
                 { NpcDef.ByName["PizzaBoss", Info.InternalName].Type, 1 },
-            };            
+            };
         }
 
         protected override Dictionary<string, ItemDef      > GetItemDefs      ()
@@ -104,9 +104,8 @@ namespace Prism.ExampleMod
         {
             return new Dictionary<string, NpcDef>
             {
-                { "PizzaNPC", new NpcDef("Possessed Pizza", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
-                {   MaxLife = 80,
-                    FrameCount = 1,
+                { "PizzaNPC", new NpcDef("Possessed Pizza", null, 80, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                {   FrameCount = 1,
                     Damage = 5,
                     Width = 64,
                     Height = 64,
@@ -115,12 +114,10 @@ namespace Prism.ExampleMod
                     IgnoreTileCollision = true,
                     Colour = Color.White,
                     Value = new NpcValue((CoinValue)0),
-                    AiStyle = NpcAiStyle.FlyingWeapon                
+                    AiStyle = NpcAiStyle.FlyingWeapon
                 } },
-                { "PizzaBoss", new NpcDef("Pizza God", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"), () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
-                {   
-                    MaxLife = 1000,
-                    FrameCount = 1,
+                { "PizzaBoss", new NpcDef("Pizza God", null, 1000, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"), () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                {   FrameCount = 1,
                     Damage = 5,
                     Width = 64,
                     Height = 64,
@@ -131,7 +128,7 @@ namespace Prism.ExampleMod
                     Value = new NpcValue((CoinValue)0),
                     AiStyle = NpcAiStyle.FlyingWeapon,
                     IsBoss = true,
-                    IsSummonableBoss = true                   
+                    IsSummonableBoss = true
                 } }
             };
         }
@@ -219,7 +216,7 @@ namespace Prism.ExampleMod
         public override void UpdateDebug()
         {
             for(int i = 0; i < Main.npc.Length; i++)
-            {         
+            {
                 if (Main.npc[i] != null && ((!prevNpcActive[i] && Main.npc[i].active) || DV.Node["NPCs"]["NPC_" + i].IsExpanded))
                 {
                     DV.Node["NPCs"]["NPC_" + i].DebugValue = Main.npc[i];
@@ -236,7 +233,7 @@ namespace Prism.ExampleMod
             }
 
             for(int i = 0; i < Main.player.Length; i++)
-            {         
+            {
                 if (Main.player[i] != null && ((!prevPlayerActive[i] && Main.player[i].active) || DV.Node["Players"]["Player_" + i].IsExpanded))
                 {
                     DV.Node["Players"]["Player_" + i].DebugValue = Main.player[i];
@@ -252,12 +249,12 @@ namespace Prism.ExampleMod
             if (Main.gameMenu || !Main.hasFocus || Main.chatMode || DV.IsOpen)
                 return;
 
-            var p = Main.player[Main.myPlayer];            
+            var p = Main.player[Main.myPlayer];
             Point me = p.Center.ToPoint();
 
             #region asdfasdfasdf
             if (GetKey(Keys.I, KeyState.Down))
-            {                               
+            {
                 foreach (var kvp in TestItems)
                 {
                     Item.NewItem(me.X, me.Y, 1, 1, kvp.Key, kvp.Value, false, 0, true, false);

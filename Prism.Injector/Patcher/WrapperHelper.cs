@@ -29,12 +29,15 @@ namespace Prism.Injector.Patcher
             }
         }
 
-        public static void ReplaceAllMethodRefs(CecilContext c, MethodReference tar, MethodReference @new)
+        public static void ReplaceAllMethodRefs(CecilContext c, MethodReference tar, MethodReference @new, bool leaveRecursive = true)
         {
             foreach (TypeDefinition t in c.PrimaryAssembly.MainModule.Types)
                 foreach (MethodDefinition m in t.Methods)
                 {
                     if (!m.HasBody) // abstract, runtime & external, etc
+                        continue;
+
+                    if (leaveRecursive && m == @new) // may have undesired consequences with recursive methods
                         continue;
 
                     foreach (Instruction i in m.Body.Instructions)

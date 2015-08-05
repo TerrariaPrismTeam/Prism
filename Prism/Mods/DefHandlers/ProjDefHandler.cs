@@ -4,12 +4,13 @@ using System.Linq;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Prism.Mods.Behaviours;
+using Prism.Util;
 using Terraria;
 using Terraria.ID;
 
 namespace Prism.Mods.DefHandlers
 {
-    sealed class ProjDefHandler : EntityDefHandler<ProjectileDef, ProjectileBehaviour, Projectile>
+    sealed class ProjDefHandler : TEntityDefHandler<ProjectileDef, ProjectileBehaviour, Projectile>
     {
         protected override Type IDContainerType
         {
@@ -21,37 +22,40 @@ namespace Prism.Mods.DefHandlers
 
         internal static void OnSetDefaults(Projectile p, int type)
         {
-            ProjectileBHandler h = null;
+            ProjectileBHandler h = null; // will be set to <non-null> only if a behaviour handler will be attached
 
-            if (type >= ProjectileID.Count)
+            p.RealSetDefaults(0);
+
+            if (Handler.ProjDef.DefsByType.ContainsKey(type))
             {
-                p.RealSetDefaults(0);
+                var d = Handler.ProjDef.DefsByType[type];
 
-                if (Handler.ProjDef.DefsByType.ContainsKey(type))
+                p.type = type;
+                p.width = p.height = 16;
+
+                Handler.ProjDef.CopyDefToEntity(d, p);
+
+                if (d.CreateBehaviour != null)
                 {
-                    var d = Handler.ProjDef.DefsByType[type];
-
-                    p.type = type;
-                    p.width = p.height = 16;
-
-                    Handler.ProjDef.CopyDefToEntity(d, p);
-
                     h = new ProjectileBHandler();
-                    if (d.CreateBehaviour != null)
-                    {
-                        var b = d.CreateBehaviour();
 
-                        if (b != null)
-                            h.behaviours.Add(b);
-                    }
+                    var b = d.CreateBehaviour();
+
+                    if (b != null)
+                        h.behaviours.Add(b);
                 }
             }
             else
                 p.RealSetDefaults(type);
 
+            var bs = ModData.mods.Values.Select(m => m.CreateGlobalProjBInternally()).Where(b => b != null);
+
+            if (!bs.IsEmpty() && h == null)
+                h = new ProjectileBHandler();
+
             if (h != null)
             {
-                h.behaviours.AddRange(ModData.mods.Values.Select(m => m.CreateGlobalProjBInternally()).Where(b => b != null));
+                h.behaviours.AddRange(bs);
 
                 h.Create();
                 p.BHandler = h;
@@ -98,7 +102,6 @@ namespace Prism.Mods.DefHandlers
 
         protected override void CopyEntityToDef(Projectile proj, ProjectileDef def)
         {
-            def.InternalName = proj.name  ;
             def.Type         = proj.type  ;
             def.Damage       = proj.damage;
             def.Width        = proj.width ;

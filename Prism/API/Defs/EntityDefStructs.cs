@@ -13,23 +13,24 @@ namespace Prism.API.Defs
         public const int
             BASE = 100,
 
-            COPPER_MULT = 1,
-            SILVER_MULT = BASE * COPPER_MULT,
-            GOLD_MULT = BASE * SILVER_MULT,
-            PLATINUM_MULT = BASE * GOLD_MULT,
+            COPPER_MULT   =                  1,
+            SILVER_MULT   = BASE * COPPER_MULT,
+            GOLD_MULT     = BASE * SILVER_MULT,
+            PLATINUM_MULT = BASE * GOLD_MULT  ,
 
-            COPPER_MAX = BASE * COPPER_MULT,
-            SILVER_MAX = BASE * SILVER_MULT,
-            GOLD_MAX = BASE * GOLD_MULT,
+            COPPER_MAX   = BASE * COPPER_MULT  ,
+            SILVER_MAX   = BASE * SILVER_MULT  ,
+            GOLD_MAX     = BASE * GOLD_MULT    ,
             PLATINUM_MAX = BASE * PLATINUM_MULT;
 
         public readonly static CoinValue Zero = new CoinValue(0, 0, 0, 0);
 
         // base 10 is annoying
-        public int Copper;
-        public int Silver;
-        public int Gold;
-        public int Platinum;
+        public int
+            Copper  ,
+            Silver  ,
+            Gold    ,
+            Platinum;
 
         /// <summary>
         /// Gets or sets the resulting value.
@@ -38,17 +39,17 @@ namespace Prism.API.Defs
         {
             get
             {
-                return (Copper % BASE) * COPPER_MULT
-                     + (Silver % BASE) * SILVER_MULT
-                     + (Gold % BASE) * GOLD_MULT
+                return (Copper   % BASE) * COPPER_MULT
+                     + (Silver   % BASE) * SILVER_MULT
+                     + (Gold     % BASE) * GOLD_MULT
                      + (Platinum % BASE) * PLATINUM_MULT;
             }
             set
             {
-                Copper = value % COPPER_MAX;
-                Silver = value % SILVER_MAX - Copper;
-                Gold = value % GOLD_MAX - Silver;
-                Platinum = value % PLATINUM_MAX - Gold;
+                Copper   = value % COPPER_MAX;
+                Silver   = value % SILVER_MAX   - Copper;
+                Gold     = value % GOLD_MAX     - Silver;
+                Platinum = value % PLATINUM_MAX - Gold  ;
             }
         }
 
@@ -61,10 +62,10 @@ namespace Prism.API.Defs
         }
         public CoinValue(int value)
         {
-            Copper = value % COPPER_MAX;
-            Silver = value % SILVER_MAX - Copper;
-            Gold = value % GOLD_MAX - Silver;
-            Platinum = value % PLATINUM_MAX - Gold;
+            Copper   =  value % COPPER_MAX                            ;
+            Silver   = (value % SILVER_MAX   - Copper) / SILVER_MULT  ;
+            Gold     = (value % GOLD_MAX     - Silver) / GOLD_MULT    ;
+            Platinum = (value % PLATINUM_MAX - Gold  ) / PLATINUM_MULT;
         }
 
         public override bool Equals(object obj)

@@ -609,13 +609,13 @@ namespace Prism.API.Defs
             }
 
             if (json.Has("rare"))
-                Rarity = ModData.ParseAsEnum<ItemRarity>(json["rare"]);
+                Rarity = json["rare"].ParseAsEnum<ItemRarity>();
             if (json.Has("useStyle"))
-                UseStyle = ModData.ParseAsEnum<ItemUseStyle>(json["useStyle"]);
+                UseStyle = json["useStyle"].ParseAsEnum<ItemUseStyle>();
             if (json.Has("holdStyle"))
-                HoldStyle = ModData.ParseAsEnum<ItemHoldStyle>(json["holdStyle"]);
+                HoldStyle = json["holdStyle"].ParseAsEnum<ItemHoldStyle>();
             if (json.Has("damageType"))
-                DamageType = ModData.ParseAsEnum<ItemDamageType>(json["damageType"]);
+                DamageType = json["damageType"].ParseAsEnum<ItemDamageType>();
 
             if (json.Has("value"))
             {
@@ -645,13 +645,13 @@ namespace Prism.API.Defs
             }
 
             if (json.Has("useAmmo"))
-                UsedAmmo = ModData.ParseItemRef(json["useAmmo"]);
+                UsedAmmo = json["useAmmo"].ParseItemRef();
             if (json.Has("shoot"))
-                ShootProjectile = ModData.ParseProjectileRef(json["shoot"]);
+                ShootProjectile = json["shoot"].ParseProjectileRef();
             if (json.Has("ammo"))
-                AmmoType = ModData.ParseItemRef(json["ammo"]);
+                AmmoType = json["ammo"].ParseItemRef();
             if (json.Has("createTile"))
-                CreateTile = ModData.ParseTileRef(json["createTile"]);
+                CreateTile = json["createTile"].ParseTileRef();
 
             UseSound = json.Has("useSound") ? (int)json["useSound"] : 1;
             CreateWall = json.Has("createWall") ? (int)json["createWall"] : -1;

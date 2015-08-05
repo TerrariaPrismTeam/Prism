@@ -12,7 +12,7 @@ namespace Prism.API.Defs
     public class ItemRef : EntityRef<ItemDef, ItemBehaviour, Item>
     {
         public ItemRef(int resourceId)
-            : base(Handler.ItemDef.DefsByType.ContainsKey(resourceId) ? Handler.ItemDef.DefsByType[resourceId].InternalName : String.Empty)
+            : base(resourceId, id => Handler.ItemDef.DefsByType.ContainsKey(id) ? Handler.ItemDef.DefsByType[id].InternalName : String.Empty)
         {
             if (resourceId >= ItemID.Count)
                 throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla Item type or netID.");
@@ -25,6 +25,9 @@ namespace Prism.API.Defs
 
         public override ItemDef Resolve()
         {
+            if (ResourceID.HasValue && Handler.ItemDef.DefsByType.ContainsKey(ResourceID.Value))
+                return Handler.ItemDef.DefsByType[ResourceID.Value];
+
             if (IsVanillaRef)
             {
                 if (!Handler.ItemDef.VanillaDefsByName.ContainsKey(ResourceName))

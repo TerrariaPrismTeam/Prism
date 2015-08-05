@@ -12,7 +12,7 @@ namespace Prism.API.Defs
     public class TileRef : EntityRef<TileDef, TileBehaviour, Tile>
     {
         public TileRef(int resourceId)
-            : base(Handler.TileDef.DefsByType.ContainsKey(resourceId) ? Handler.TileDef.DefsByType[resourceId].InternalName : String.Empty)
+            : base(resourceId, id => Handler.TileDef.DefsByType.ContainsKey(id) ? Handler.TileDef.DefsByType[id].InternalName : String.Empty)
         {
             if (resourceId >= TileID.Count)
                 throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla Tile type.");
@@ -25,6 +25,9 @@ namespace Prism.API.Defs
 
         public override TileDef Resolve()
         {
+            if (ResourceID.HasValue && Handler.TileDef.DefsByType.ContainsKey(ResourceID.Value))
+                return Handler.TileDef.DefsByType[ResourceID.Value];
+
             if (IsVanillaRef)
             {
                 if (!Handler.TileDef.VanillaDefsByName.ContainsKey(ResourceName))

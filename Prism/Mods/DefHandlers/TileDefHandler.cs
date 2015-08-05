@@ -5,10 +5,12 @@ using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Terraria;
 using Terraria.ID;
+using Terraria.Map;
 
 namespace Prism.Mods.DefHandlers
 {
     //TODO: we might have to retink this, because tiles aren't quite like the other defs (except for RecipeDef, which is even more different and can be redone, too)
+    //TODO: fill arrays in Terraria.Map.MapHelper
     sealed class TileDefHandler : EntityDefHandler<TileDef, TileBehaviour, Tile>
     {
         /*
@@ -119,10 +121,17 @@ namespace Prism.Mods.DefHandlers
                 type = (ushort)id
             };
         }
-
         protected override TileDef NewDefFromVanilla(Tile tile)
         {
-            return new TileDef(String.Empty, getTexture: () => Main.tileTexture[tile.type]);
+            return new TileDef(String.Empty, getTexture: () => Main.tileTexture[tile.type])
+            {
+                Type  = tile.type,
+                NetID = tile.type
+            };
+        }
+        protected override string GetNameVanillaMethod(Tile tile)
+        {
+            return Lang.mapLegend[MapHelper.TileToLookup(tile.type, 0)] ?? String.Empty; //! might return empty string (if arr entry is null or empty)
         }
 
         protected override void CopyEntityToDef(Tile tile, TileDef def)

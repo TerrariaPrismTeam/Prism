@@ -4,12 +4,13 @@ using System.Linq;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Prism.Mods.Behaviours;
+using Prism.Util;
 using Terraria;
 using Terraria.ID;
 
 namespace Prism.Mods.DefHandlers
 {
-    sealed class ItemDefHandler : EntityDefHandler<ItemDef, ItemBehaviour, Item>
+    sealed class ItemDefHandler : TEntityDefHandler<ItemDef, ItemBehaviour, Item>
     {
         protected override Type IDContainerType
         {
@@ -21,38 +22,41 @@ namespace Prism.Mods.DefHandlers
 
         internal static void OnSetDefaults(Item item, int type, bool noMatCheck)
         {
-            ItemBHandler h = null;
+            ItemBHandler h = null; // will be set to <non-null> only if a behaviour handler will be attached
 
-            if (type >= ItemID.Count)
+            item.RealSetDefaults(0, noMatCheck);
+
+            if (Handler.ItemDef.DefsByType.ContainsKey(type))
             {
-                item.RealSetDefaults(0, noMatCheck);
+                var d = Handler.ItemDef.DefsByType[type];
 
-                if (Handler.ItemDef.DefsByType.ContainsKey(type))
+                item.type = item.netID = type;
+                item.width = item.height = 16;
+                item.stack = item.maxStack = 1;
+
+                Handler.ItemDef.CopyDefToEntity(d, item);
+
+                if (d.CreateBehaviour != null)
                 {
-                    var def = Handler.ItemDef.DefsByType[type];
-
-                    item.type = item.netID = type;
-                    item.width = item.height = 16;
-                    item.stack = item.maxStack = 1;
-
-                    Handler.ItemDef.CopyDefToEntity(def, item);
-
                     h = new ItemBHandler();
-                    if (def.CreateBehaviour != null)
-                    {
-                        var b = def.CreateBehaviour();
 
-                        if (b != null)
-                            h.behaviours.Add(b);
-                    }
+                    var b = d.CreateBehaviour();
+
+                    if (b != null)
+                        h.behaviours.Add(b);
                 }
             }
             else
                 item.RealSetDefaults(type, noMatCheck);
 
+            var bs = ModData.mods.Values.Select(m => m.CreateGlobalItemBInternally()).Where(b => b != null);
+
+            if (!bs.IsEmpty() && h == null)
+                h = new ItemBHandler();
+
             if (h != null)
             {
-                h.behaviours.AddRange(ModData.mods.Values.Select(m => m.CreateGlobalItemBInternally()).Where(b => b != null));
+                h.behaviours.AddRange(bs);
 
                 h.Create();
                 item.BHandler = h;
@@ -108,7 +112,6 @@ namespace Prism.Mods.DefHandlers
 
         protected override void CopyEntityToDef(Item item, ItemDef def)
         {
-            def.InternalName        = item.name;
             def.DisplayName         = Main.itemName[item.type];
             def.Type                = item.type;
             def.NetID               = item.netID;
@@ -153,11 +156,12 @@ namespace Prism.Mods.DefHandlers
             def.Value               = new CoinValue(item.value);
             def.Description         = new ItemDescription(item.toolTip, item.toolTip2, item.vanity, item.expert, item.questItem, item.notAmmo);
             def.Buff                = new AppliedBuff(item.buffType, item.buffTime);
-            def.UsedAmmo            = (item.useAmmo != 0) ? new ItemRef(item.useAmmo) : null;
-            def.ShootProjectile     = new ProjectileRef(item.shoot);
-            def.AmmoType            = new ItemRef(item.ammo);
+
+            def.UsedAmmo            = item.useAmmo    ==  0 ? null : new ItemRef      (item.useAmmo   );
+            def.ShootProjectile     = item.shoot      ==  0 ? null : new ProjectileRef(item.shoot     );
+            def.AmmoType            = item.ammo       ==  0 ? null : new ItemRef      (item.ammo      );
             def.UseSound            = item.useSound;
-            def.CreateTile          = new TileRef(item.createTile);
+            def.CreateTile          = item.createTile == -1 ? null : new TileRef      (item.createTile);
             def.CreateWall          = item.createWall;
             def.GetTexture          = () => Main.itemTexture[item.type];
 
@@ -173,7 +177,7 @@ namespace Prism.Mods.DefHandlers
         }
         protected override void CopyDefToEntity(ItemDef def, Item item)
         {
-            item.name         = def.InternalName;
+            item.name         = def.DisplayName;
             item.type         = def.Type;
             item.netID        = def.NetID;
             item.damage       = def.Damage;
@@ -224,15 +228,12 @@ namespace Prism.Mods.DefHandlers
             item.expert       = def.Description.ShowExpert;
             item.buffTime     = def.Buff.Duration;
             item.buffType     = def.Buff.Type;
-            item.shoot        = def.ShootProjectile.Resolve().Type;
-            item.ammo         = def.AmmoType.Resolve().NetID;
+            item.shoot        = def.ShootProjectile == null ?  0 : def.ShootProjectile.Resolve().Type ;
+            item.ammo         = def.AmmoType        == null ?  0 : def.AmmoType       .Resolve().NetID;
             item.useSound     = def.UseSound;
-            item.createTile   = def.CreateTile.Resolve().Type;
+            item.createTile   = def.CreateTile      == null ? -1 : def.CreateTile     .Resolve().Type ;
             item.createWall   = def.CreateWall;
-
-            if (def.UsedAmmo != null)
-                item.useAmmo = def.UsedAmmo.Resolve().Type;
-
+            item.useAmmo      = def.UsedAmmo        == null ?  0 : def.UsedAmmo       .Resolve().Type ;
         }
 
         protected override List<LoaderError> CheckTextures(ItemDef def)

@@ -12,7 +12,7 @@ namespace Prism.API.Defs
     public class NpcRef : EntityRef<NpcDef, NpcBehaviour, NPC>
     {
         public NpcRef(int resourceId)
-            : base(Handler.NpcDef.DefsByType.ContainsKey(resourceId) ? Handler.NpcDef.DefsByType[resourceId].InternalName : String.Empty)
+            : base(resourceId, id => Handler.NpcDef.DefsByType.ContainsKey(id) ? Handler.NpcDef.DefsByType[id].InternalName : String.Empty)
         {
             if (resourceId >= NPCID.Count)
                 throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla NPC type or netID.");
@@ -25,6 +25,9 @@ namespace Prism.API.Defs
 
         public override NpcDef Resolve()
         {
+            if (ResourceID.HasValue && Handler.NpcDef.DefsByType.ContainsKey(ResourceID.Value))
+                return Handler.NpcDef.DefsByType[ResourceID.Value];
+
             if (IsVanillaRef)
             {
                 if (!Handler.NpcDef.VanillaDefsByName.ContainsKey(ResourceName))

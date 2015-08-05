@@ -1,22 +1,19 @@
-﻿using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
 using Terraria;
 
 namespace Prism.Debugging
 {
-    public class DisgustingHacks
+    public static class DisgustingHacks
     {
 #if DEV_BUILD
         /// <summary>
-        /// Very ghetto-ly loads an embedded asset through the provided <see cref="ContentManager"/> 
-        /// by saving it to a temp file, loading it with the content manager, then deleting the temp file.        
+        /// Very ghetto-ly loads an embedded asset through the provided <see cref="ContentManager"/>
+        /// by saving it to a temp file, loading it with the content manager, then deleting the temp file.
         /// </summary>
         /// <typeparam name="T">Type of content. Same as Content.Load&lt;T&gt;"/></typeparam>
         /// <param name="resourceName">Name of the manifest resource.</param>
@@ -27,41 +24,29 @@ namespace Prism.Debugging
         public static T LoadResourceThroughContentManager<T>(string resourceName)
         {
             var splitFileName = resourceName.Split('.');
-            var fakeContentPath = "";
-            var fakeSaveFileName = "";
+            var fakeSaveFileName = String.Empty;
+            var fakeContentPath = new StringBuilder();
 
+            for (int i = 0; i < splitFileName.Length - 1; i++)
+                fakeContentPath.Append((i != 0 ? "." : String.Empty) + splitFileName[i]);
 
-            for (int i = 0; i < splitFileName.Length; i++)
-            {
-                if (i == splitFileName.Length - 1)
-                    fakeSaveFileName = Path.Combine("Content", fakeContentPath + "." + splitFileName[i]);
-                else
-                    fakeContentPath += (i == 0 ? "." : "") + splitFileName[i];
-            }
-
-            var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName);
+            fakeSaveFileName = Path.Combine(Main.instance.Content.RootDirectory, fakeContentPath.ToString() + "." + splitFileName[splitFileName.Length - 1]);
 
             if (File.Exists(fakeSaveFileName))
-            {
                 File.Delete(fakeSaveFileName);
+
+            using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
+            using (var fileStream = File.OpenWrite(fakeSaveFileName))
+            {
+                resourceStream.CopyTo(fileStream);
             }
 
-            var fileStream = File.Create(fakeSaveFileName);
-
-            resourceStream.CopyTo(fileStream);
-
-            resourceStream.Close();
-            resourceStream.Dispose();
-
-            fileStream.Close();
-            fileStream.Dispose();
-
-            T result = Main.instance.Content.Load<T>(fakeContentPath);
+            T result = Main.instance.Content.Load<T>(fakeContentPath.ToString());
 
             File.Delete(fakeSaveFileName);
 
             return result;
-            
+
         }
 #endif
     }

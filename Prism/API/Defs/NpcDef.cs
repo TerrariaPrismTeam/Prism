@@ -62,7 +62,7 @@ namespace Prism.API.Defs
             {
                 return new ByNameIndexer();
             }
-        }        
+        }
 
         /// <summary>
         /// Gets or sets the amount of damage this NPC inflicts.
@@ -155,6 +155,8 @@ namespace Prism.API.Defs
             set;
         }
 
+        //TODO: add IsFriendly (player can deal damage to the NPC)
+        //TODO: add IsHostile (will deal damage to player)
         /// <summary>
         /// Gets or sets whether or not this NPC ignores tile collision.
         /// </summary>
@@ -371,11 +373,11 @@ namespace Prism.API.Defs
             set;
         }
 
-        public NpcDef(string displayName, Func<NpcBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null, Func<Texture2D> getBossHeadTexture = null)
+        public NpcDef(string displayName, Func<NpcBehaviour> newBehaviour = null, int lifeMax = 1, Func<Texture2D> getTexture = null, Func<Texture2D> getBossHeadTexture = null)
             : base(displayName, newBehaviour)
         {
             Width = Height = 16;
-            MaxLife = 1;
+            MaxLife = lifeMax;
             SoundOnHit = SoundOnDeath = 1;
 
             TrailCacheLength = 10;

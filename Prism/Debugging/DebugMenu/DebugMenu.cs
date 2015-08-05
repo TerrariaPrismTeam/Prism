@@ -1,17 +1,16 @@
-﻿#if DEV_BUILD 
-using LitJson;
+﻿
+#if DEV_BUILD
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using Terraria;
 
 namespace Prism.Debugging
-{       
+{
     public class DebugMenu
     {
         public static bool IsOpen = false;
@@ -24,12 +23,12 @@ namespace Prism.Debugging
         public static Dictionary<Ctrl, bool> NavDirInit;
         public static Dictionary<Ctrl, float> NavDirTimer;
         public static readonly float NavDirDurInit = 0.25f;
-        public static readonly float NavDirDurRepeat = 0.05f;        
+        public static readonly float NavDirDurRepeat = 0.05f;
         public static readonly Dictionary<Ctrl, Keys> NavDirKey = new Dictionary<Ctrl, Keys>()
         {
             { Ctrl.Up, Keys.I }, { Ctrl.Down, Keys.K }, { Ctrl.Left, Keys.J }, { Ctrl.Right, Keys.L }
         };
-       
+
         public static void Init()
         {
             DebugFont = DisgustingHacks.LoadResourceThroughContentManager<SpriteFont>("Prism.Debugging.Consolas20.xnb");
@@ -51,7 +50,7 @@ namespace Prism.Debugging
             {
                 return new Color((byte)Main.DiscoR, (byte)Main.DiscoG, (byte)Main.DiscoB);
             }
-        }        
+        }
 
         public static Rectangle DebugRect
         {
@@ -65,7 +64,7 @@ namespace Prism.Debugging
         {
             get
             {
-                return ((DebugMenu.Nav & Ctrl.x10) == Ctrl.x10 ? 10 : 1) * ((DebugMenu.Nav & Ctrl.x100) == Ctrl.x100 ? 100 : 1);
+                return ((Nav & Ctrl.x10) == Ctrl.x10 ? 10 : 1) * ((Nav & Ctrl.x100) == Ctrl.x100 ? 100 : 1);
             }
         }
 
@@ -89,20 +88,20 @@ namespace Prism.Debugging
         }
 
         public static void UpdateNavDir(GameTime gt)
-        {            
+        {
             for (byte i = (byte)Ctrl.Up; i <= (byte)Ctrl.Right; i *= 2)
             {
-                var tick = true;                    
+                var tick = true;
 
                 if (GetKey(NavDirKey[(Ctrl)i], KeyState.Down))
                 {
                     NavDirTimer[(Ctrl)i] = 0;
-                    NavDirInit[(Ctrl)i] = true;                    
+                    NavDirInit[(Ctrl)i] = true;
                 }
                 else if (GetKey(NavDirKey[(Ctrl)i]))
                 {
                     if (NavDirInit[(Ctrl)i] && NavDirTimer[(Ctrl)i] >= NavDirDurInit)
-                    {                            
+                    {
                         NavDirTimer[(Ctrl)i] = 0;
                         NavDirInit[(Ctrl)i] = false;
                     }
@@ -131,7 +130,7 @@ namespace Prism.Debugging
         internal static void Update(GameTime gt)
         {
             UpdateNav(gt);
-            
+
             if (GetKey(Keys.H, KeyState.Down))
             {
                 if (!IsOpen)
@@ -147,44 +146,38 @@ namespace Prism.Debugging
             }
 
             if (IsOpen)
-            {                
-                
+            {
+
 
                 if ((Nav & Ctrl.Up) == Ctrl.Up)
                 {
-                    DebugSelection -= DebugMenu.DbgModMult;
+                    DebugSelection -= DbgModMult;
                     Main.PlaySound(12);
                 }
 
                 if ((Nav & Ctrl.Down) == Ctrl.Down)
                 {
-                    DebugSelection += DebugMenu.DbgModMult;
+                    DebugSelection += DbgModMult;
                     Main.PlaySound(12);
                 }
 
-                if ((Nav & Ctrl.Enter) == Ctrl.Enter)
-                {
-                    if (SelectedNode.Count > 0)
+                if ((Nav & Ctrl.Enter) == Ctrl.Enter && SelectedNode.Count > 0)
+                    if (!SelectedNode.IsExpanded)
                     {
-                        if (!SelectedNode.IsExpanded)
+                        SelectedNode.Expand();
+                        Main.PlaySound(10);
+                    }
+                    else
+                    {
+                        foreach (var c in SelectedNode)
                         {
-                            SelectedNode.Expand();
-                            Main.PlaySound(10);
-                        }
-                        else
-                        {
-                            foreach (var c in SelectedNode)
-                            {
-                                DebugSelection = c.Value.VisibleIndex;
-                                Main.PlaySound(12);
-                                break;
-                            }
+                            DebugSelection = c.Value.VisibleIndex;
+                            Main.PlaySound(12);
+                            break;
                         }
                     }
-                }
 
                 if ((Nav & Ctrl.Back) == Ctrl.Back)
-                {
                     if (SelectedNode.Count > 0 && SelectedNode.IsExpanded)
                     {
                         SelectedNode.Collapse();
@@ -196,15 +189,17 @@ namespace Prism.Debugging
                         DebugSelection = SelectedNode.VisibleIndex;
                         Main.PlaySound(11);
                     }
-                }
 
-                DebugSelection = (int)MathHelper.Clamp(DebugSelection, 0, Node.RecursiveChildVisibleCount);                
+                DebugSelection = (int)MathHelper.Clamp(DebugSelection, 0, Node.RecursiveChildVisibleCount);
             }
             prevKeyState = Main.keyState;
         }
 
         internal static void DrawAll(SpriteBatch sb)
         {
+            if (Node.DebugValue == null)
+                return;
+
             Viewport screen = sb.GraphicsDevice.Viewport;
 
             try
@@ -218,7 +213,7 @@ namespace Prism.Debugging
 
             sb.Begin();
 
-            int count = Node.Draw(Main.spriteBatch, DebugFont, new Vector2(0, DebugRect.Height / 2));   
+            int count = Node.Draw(Main.spriteBatch, DebugFont, new Vector2(0, DebugRect.Height / 2));
 
             DebugSelection = (int)MathHelper.Clamp(DebugSelection, 0, count);
 
@@ -226,8 +221,6 @@ namespace Prism.Debugging
 
             sb.GraphicsDevice.Viewport = screen;
         }
-
-
     }
 }
 #endif

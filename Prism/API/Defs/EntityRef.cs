@@ -11,10 +11,19 @@ namespace Prism.API.Defs
         where TBehaviour : EntityBehaviour<TEntity>
         where TEntityDef : EntityDef<TBehaviour, TEntity>
     {
-        public string ResourceName
+        Lazy<string> resName;
+
+        public int? ResourceID
         {
             get;
             private set;
+        }
+        public string ResourceName
+        {
+            get
+            {
+                return resName.Value;
+            }
         }
         public string ModName
         {
@@ -38,10 +47,18 @@ namespace Prism.API.Defs
             }
         }
 
+        public EntityRef(int resourceId, Func<int, string> toResName)
+        {
+            ResourceID = resourceId;
+
+            resName = new Lazy<string>(() => resourceId == 0 ? String.Empty : toResName(resourceId));
+        }
         public EntityRef(string resourceName, string modName = null)
         {
-            ResourceName = resourceName;
-            ModName = modName; //== EntityDef.VanillaString || modName == EntityDef.TerrariaString ? null : modName;
+            resName = new Lazy<string>(() => resourceName);
+            // resName /* force */ .Value /* make it compile */.ElementAt(0);
+
+            ModName = String.IsNullOrEmpty(resourceName) || modName == PrismApi.VanillaString || modName == PrismApi.TerrariaString ? null : modName;
         }
 
         public abstract TEntityDef Resolve();
@@ -67,7 +84,7 @@ namespace Prism.API.Defs
         }
         public override string ToString()
         {
-            return "{" + Mod.InternalName + "." + ResourceName + "}";
+            return (ResourceID.HasValue ? ("#" + ResourceID.Value + " ") : String.Empty) + (String.IsNullOrEmpty(ResourceName) ? "<empty>" : ("{" + Mod.InternalName + "." + ResourceName + "}"));
         }
     }
 }

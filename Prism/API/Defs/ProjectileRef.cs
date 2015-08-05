@@ -12,7 +12,7 @@ namespace Prism.API.Defs
     public class ProjectileRef : EntityRef<ProjectileDef, ProjectileBehaviour, Projectile>
     {
         public ProjectileRef(int resourceId)
-            : base(Handler.ProjDef.DefsByType.ContainsKey(resourceId) ? Handler.ProjDef.DefsByType[resourceId].InternalName : String.Empty)
+            : base(resourceId, id => Handler.ProjDef.DefsByType.ContainsKey(id) ? Handler.ProjDef.DefsByType[id].InternalName : String.Empty)
         {
             if (resourceId >= ProjectileID.Count)
                 throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla Projectile type.");
@@ -25,6 +25,9 @@ namespace Prism.API.Defs
 
         public override ProjectileDef Resolve()
         {
+            if (ResourceID.HasValue && Handler.ProjDef.DefsByType.ContainsKey(ResourceID.Value))
+                return Handler.ProjDef.DefsByType[ResourceID.Value];
+
             if (IsVanillaRef)
             {
                 if (!Handler.ProjDef.VanillaDefsByName.ContainsKey(ResourceName))

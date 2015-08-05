@@ -1,11 +1,13 @@
-﻿#if DEV_BUILD
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿
+#if DEV_BUILD
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 
 namespace Prism.Debugging
@@ -15,27 +17,32 @@ namespace Prism.Debugging
     /// </summary>
     public class DebugMenuNode : IDictionary<string, DebugMenuNode>
     {
-        private int _recursiveChildCount = 0;
-        private int _recursiveChildVisibleCount = 0;   
-        
-        private static Dictionary<Type, List<FieldInfo>> ReflectedFields = new Dictionary<Type, List<FieldInfo>>();     
+        static Dictionary<Type, List<FieldInfo>> ReflectedFields = new Dictionary<Type, List<FieldInfo>>();
 
-        public DebugMenuNode() { }
+        int _recursiveChildCount = 0;
+        int _recursiveChildVisibleCount = 0;
 
-        public DebugMenuNode(string key) { Key = key; }
+        int visibleIndex = 0;
+        int height = 1;
+        int indent = 0;
 
-        private bool isSelected = false;
+        bool isSelected = false;
+        bool isExpanded = false;
 
-        public bool IsSelected
+        string key = "[NO_KEY]";
+
+        Color colour = Color.White;
+        Dictionary<string, DebugMenuNode> Children = new Dictionary<string, DebugMenuNode>();
+
+        public Color Colour = Color.White;
+
+        public DebugMenuNode()
         {
-            get
-            {
-                return isSelected;
-            }
-            set
-            {
-                isSelected = value;
-            }
+
+        }
+        public DebugMenuNode(string key)
+        {
+            Key = key;
         }
 
         public int RecursiveChildVisibleCount
@@ -53,7 +60,6 @@ namespace Prism.Debugging
                 _recursiveChildVisibleCount = value;
             }
         }
-
         public int RecursiveChildCount
         {
             get
@@ -69,26 +75,6 @@ namespace Prism.Debugging
                 _recursiveChildCount = value;
             }
         }
-
-        private void ModChildCountsInc(int amt = 1)
-        {
-            if (amt < 1) amt = 1;
-            RecursiveChildCount += amt;
-            if (IsExpanded)
-                RecursiveChildVisibleCount += amt;
-        }
-
-        private void ModChildCountsDec(int amt = 1)
-        {
-            if (amt < 1) amt = 1;
-            RecursiveChildCount -= amt;
-            if (IsExpanded)
-                RecursiveChildVisibleCount -= amt;
-        }
-
-        private int visibleIndex = 0;
-        private int height = 1;
-
         public int Height
         {
             get
@@ -104,17 +90,6 @@ namespace Prism.Debugging
                     Parent.Height += change;
             }
         }
-
-        private void FindChildVisibleIndeces()
-        {
-            int i = Height;
-            foreach (var entry in this)
-            {
-                entry.Value.VisibleIndex = VisibleIndex + i;
-                i += entry.Value.Height;
-            }
-        }
-
         public int VisibleIndex
         {
             get
@@ -127,7 +102,47 @@ namespace Prism.Debugging
             }
         }
 
-        private string key = "[NO_KEY]";
+        public bool IsSelected
+        {
+            get
+            {
+                return isSelected;
+            }
+            set
+            {
+                isSelected = value;
+            }
+        }
+        public bool IsExpanded
+        {
+            get
+            {
+                return isExpanded;
+            }
+            private set
+            {
+                isExpanded = value;
+            }
+        }
+        public bool IsVisible
+        {
+            get
+            {
+                return (Parent != null) ? Parent.isExpanded : true;
+            }
+        }
+
+        public int Indent
+        {
+            get
+            {
+                return indent;
+            }
+            private set
+            {
+                indent = value;
+            }
+        }
 
         public string Key
         {
@@ -141,30 +156,60 @@ namespace Prism.Debugging
             }
         }
 
-        public bool IsExpanded
+        public DebugMenuNode Parent
         {
-            get
+            get;
+            private set;
+        }
+
+        public object DebugValue
+        {
+            get;
+            set;
+        }
+
+        void ModChildCountsInc(int amt = 1)
+        {
+            if (amt < 1)
+                amt = 1;
+            RecursiveChildCount += amt;
+            if (IsExpanded)
+                RecursiveChildVisibleCount += amt;
+        }
+        void ModChildCountsDec(int amt = 1)
+        {
+            if (amt < 1)
+                amt = 1;
+            RecursiveChildCount -= amt;
+            if (IsExpanded)
+                RecursiveChildVisibleCount -= amt;
+        }
+
+        void FindChildVisibleIndeces()
+        {
+            int i = Height;
+            foreach (var entry in this)
             {
-                return isExpanded;
-            }
-            private set
-            {
-                isExpanded = value;
+                entry.Value.VisibleIndex = VisibleIndex + i;
+                i += entry.Value.Height;
             }
         }
 
-        private Color colour = Color.White;
-        private Dictionary<string, DebugMenuNode> Children = new Dictionary<string, DebugMenuNode>();
-
-        public bool IsVisible
+        void AdoptChild(string key)
         {
-            get
-            {
-                return (Parent != null) ? Parent.isExpanded : true;
-            }
-        }
+            this[key].Parent = this;
+            this[key].Key = key;
+            this[key].Colour = Colour;
+            this[key].Indent = this.Indent + 1;
 
-        private bool isExpanded = false;
+            ModChildCountsInc();
+        }
+        void DisownChild(int amt = 1)
+        {
+            if (amt < 1)
+                amt = 1;
+            ModChildCountsDec(amt);
+        }
 
         public void Expand(bool recursive = false)
         {
@@ -183,7 +228,6 @@ namespace Prism.Debugging
                 isExpanded = true;
             }
         }
-
         public void Collapse(bool recursive = false)
         {
             if (isExpanded)
@@ -200,22 +244,6 @@ namespace Prism.Debugging
             }
         }
 
-        private int indent = 0;
-
-        public int Indent
-        {
-            get { return indent; }
-            private set { indent = value; }
-        }
-
-        public DebugMenuNode Parent
-        {
-            get;
-            private set;
-        }
-
-        public Color Colour = Color.White;
-
         public void EnsureChild(string key)
         {
             if (!ContainsKey(key))
@@ -223,12 +251,6 @@ namespace Prism.Debugging
                 Add(key, new DebugMenuNode());
                 AdoptChild(key);
             }
-        }
-
-        public object DebugValue
-        {
-            get;
-            set;
         }
 
         public void EnsureReflectionFields(Type t)
@@ -243,7 +265,7 @@ namespace Prism.Debugging
                     if (!f.IsInitOnly && !f.IsLiteral)
                     {
                         list.Add(f);
-                    } 
+                    }
                 }
 
                 ReflectedFields.Add(t, list);
@@ -251,7 +273,7 @@ namespace Prism.Debugging
         }
 
         public object Reflect(object obj, Action<FieldInfo, object> postChange)
-        {            
+        {
             Type t = obj.GetType();
             EnsureReflectionFields(t);
 
@@ -263,7 +285,7 @@ namespace Prism.Debugging
                     this[f.Name].DebugValue = null;
                     continue;
                 }
-                var val = this[f.Name].UpdateValue(origVal, null, x => postChange(f, x)); 
+                var val = this[f.Name].UpdateValue(origVal, null, x => postChange(f, x));
                 if (!origVal.GetType().IsArray && val.GetType() != origVal.GetType())
                     val = Convert.ChangeType(val, origVal.GetType());
                 f.SetValue(obj, val);
@@ -282,7 +304,7 @@ namespace Prism.Debugging
             }
 
             return start + product;
-        }  
+        }
 
         public object UpdateValue(object dbgVal, object baseAdjustAmt = null, Action<object> postChange = null, bool adjustable = true)
         {
@@ -291,43 +313,64 @@ namespace Prism.Debugging
             if (dbgVal == null)
                 return dbgVal;
 
-            
             if (dbgVal.GetType().IsArray)
             {
                 object[] arr = null;
                 //asdfasdfasdfasdfasdfasdfasdf
-                if      (dbgVal is   bool[]) arr = Array.ConvertAll((  bool[])dbgVal, x => (object)x);
-                else if (dbgVal is   byte[]) arr = Array.ConvertAll((  byte[])dbgVal, x => (object)x);
-                else if (dbgVal is  sbyte[]) arr = Array.ConvertAll(( sbyte[])dbgVal, x => (object)x);
-                else if (dbgVal is ushort[]) arr = Array.ConvertAll((ushort[])dbgVal, x => (object)x);
-                else if (dbgVal is  short[]) arr = Array.ConvertAll(( short[])dbgVal, x => (object)x);
-                else if (dbgVal is   uint[]) arr = Array.ConvertAll((  uint[])dbgVal, x => (object)x);
-                else if (dbgVal is    int[]) arr = Array.ConvertAll((   int[])dbgVal, x => (object)x);
-                else if (dbgVal is  ulong[]) arr = Array.ConvertAll(( ulong[])dbgVal, x => (object)x);
-                else if (dbgVal is   long[]) arr = Array.ConvertAll((  long[])dbgVal, x => (object)x);
-                else if (dbgVal is  float[]) arr = Array.ConvertAll(( float[])dbgVal, x => (object)x);
-                else if (dbgVal is double[]) arr = Array.ConvertAll((double[])dbgVal, x => (object)x);
+                if (dbgVal is bool[])
+                    arr = Array.ConvertAll((bool[])dbgVal, x => (object)x);
+                else if (dbgVal is byte[])
+                    arr = Array.ConvertAll((byte[])dbgVal, x => (object)x);
+                else if (dbgVal is sbyte[])
+                    arr = Array.ConvertAll((sbyte[])dbgVal, x => (object)x);
+                else if (dbgVal is ushort[])
+                    arr = Array.ConvertAll((ushort[])dbgVal, x => (object)x);
+                else if (dbgVal is short[])
+                    arr = Array.ConvertAll((short[])dbgVal, x => (object)x);
+                else if (dbgVal is uint[])
+                    arr = Array.ConvertAll((uint[])dbgVal, x => (object)x);
+                else if (dbgVal is int[])
+                    arr = Array.ConvertAll((int[])dbgVal, x => (object)x);
+                else if (dbgVal is ulong[])
+                    arr = Array.ConvertAll((ulong[])dbgVal, x => (object)x);
+                else if (dbgVal is long[])
+                    arr = Array.ConvertAll((long[])dbgVal, x => (object)x);
+                else if (dbgVal is float[])
+                    arr = Array.ConvertAll((float[])dbgVal, x => (object)x);
+                else if (dbgVal is double[])
+                    arr = Array.ConvertAll((double[])dbgVal, x => (object)x);
                 else if (dbgVal is object[])
                     arr = (object[])dbgVal;
 
                 if (arr != null)
-                    for(int i = 0; i < arr.Length; i++)
+                    for (int i = 0; i < arr.Length; i++)
                         arr[i] = this["[" + i + "]"].UpdateValue(arr[i]);
-                               
-                if      (dbgVal is   bool[]) dbgVal = Array.ConvertAll(arr, x => (  bool)x);
-                else if (dbgVal is   byte[]) dbgVal = Array.ConvertAll(arr, x => (  byte)x);
-                else if (dbgVal is  sbyte[]) dbgVal = Array.ConvertAll(arr, x => ( sbyte)x);
-                else if (dbgVal is ushort[]) dbgVal = Array.ConvertAll(arr, x => (ushort)x);
-                else if (dbgVal is  short[]) dbgVal = Array.ConvertAll(arr, x => ( short)x);
-                else if (dbgVal is   uint[]) dbgVal = Array.ConvertAll(arr, x => (  uint)x);
-                else if (dbgVal is    int[]) dbgVal = Array.ConvertAll(arr, x => (   int)x);
-                else if (dbgVal is  ulong[]) dbgVal = Array.ConvertAll(arr, x => ( ulong)x);
-                else if (dbgVal is   long[]) dbgVal = Array.ConvertAll(arr, x => (  long)x);
-                else if (dbgVal is  float[]) dbgVal = Array.ConvertAll(arr, x => ( float)x);
-                else if (dbgVal is double[]) dbgVal = Array.ConvertAll(arr, x => (double)x);
+
+                if (dbgVal is bool[])
+                    dbgVal = Array.ConvertAll(arr, x => (bool)x);
+                else if (dbgVal is byte[])
+                    dbgVal = Array.ConvertAll(arr, x => (byte)x);
+                else if (dbgVal is sbyte[])
+                    dbgVal = Array.ConvertAll(arr, x => (sbyte)x);
+                else if (dbgVal is ushort[])
+                    dbgVal = Array.ConvertAll(arr, x => (ushort)x);
+                else if (dbgVal is short[])
+                    dbgVal = Array.ConvertAll(arr, x => (short)x);
+                else if (dbgVal is uint[])
+                    dbgVal = Array.ConvertAll(arr, x => (uint)x);
+                else if (dbgVal is int[])
+                    dbgVal = Array.ConvertAll(arr, x => (int)x);
+                else if (dbgVal is ulong[])
+                    dbgVal = Array.ConvertAll(arr, x => (ulong)x);
+                else if (dbgVal is long[])
+                    dbgVal = Array.ConvertAll(arr, x => (long)x);
+                else if (dbgVal is float[])
+                    dbgVal = Array.ConvertAll(arr, x => (float)x);
+                else if (dbgVal is double[])
+                    dbgVal = Array.ConvertAll(arr, x => (double)x);
                 else if (dbgVal is object[])
                     dbgVal = arr;
-                
+
                 DebugValue = dbgVal;
                 return dbgVal;
             }
@@ -351,10 +394,10 @@ namespace Prism.Debugging
                 DebugValue = dbgVal = (IEnumerable<object>)newList;
                 return dbgVal;
             }
-                                    
+
             int adjustDir = ((DebugMenu.Nav & Ctrl.Left) == Ctrl.Left && IsSelected) ? -1 : ((DebugMenu.Nav & Ctrl.Right) == Ctrl.Right && IsSelected) ? 1 : 0;
 
-            Type t = dbgVal.GetType();                
+            Type t = dbgVal.GetType();
 
             if (baseAdjustAmt != null && t != baseAdjustAmt.GetType())
                 throw new ArgumentException("baseAdjustAmt must either be null or a value of the same type as dbgVal", "baseAdjustAmt");
@@ -366,22 +409,35 @@ namespace Prism.Debugging
                 return dbgVal;
             }
 
-            if (baseAdjustAmt == null) baseAdjustAmt = 1d;
+            if (baseAdjustAmt == null)
+                baseAdjustAmt = 1d;
             double modAdj = (DebugMenu.DbgModMult * Convert.ToDouble(baseAdjustAmt) * adjustDir);
 
-                 if (t == typeof(  byte)) dbgVal = (  byte)DebugNodeHelper.ModifyValue<  byte>((  byte)dbgVal, modAdj);
-            else if (t == typeof( sbyte)) dbgVal = ( sbyte)DebugNodeHelper.ModifyValue< sbyte>(( sbyte)dbgVal, modAdj);
-            else if (t == typeof(ushort)) dbgVal = (ushort)DebugNodeHelper.ModifyValue<ushort>((ushort)dbgVal, modAdj);
-            else if (t == typeof( short)) dbgVal = ( short)DebugNodeHelper.ModifyValue< short>(( short)dbgVal, modAdj);
-            else if (t == typeof(  uint)) dbgVal = (  uint)DebugNodeHelper.ModifyValue<  uint>((  uint)dbgVal, modAdj);
-            else if (t == typeof(   int)) dbgVal = (   int)DebugNodeHelper.ModifyValue<   int>((   int)dbgVal, modAdj);
-            else if (t == typeof( ulong)) dbgVal = ( ulong)DebugNodeHelper.ModifyValue< ulong>(( ulong)dbgVal, modAdj);
-            else if (t == typeof(  long)) dbgVal = (  long)DebugNodeHelper.ModifyValue<  long>((  long)dbgVal, modAdj);
-            else if (t == typeof( float)) dbgVal = ( float)DebugNodeHelper.ModifyValue< float>(( float)dbgVal, modAdj);
-            else if (t == typeof(double)) dbgVal = (double)DebugNodeHelper.ModifyValue<double>((double)dbgVal, modAdj);
+            if (t == typeof(byte))
+                dbgVal = (byte)DebugNodeHelper.ModifyValue<byte>((byte)dbgVal, modAdj);
+            else if (t == typeof(sbyte))
+                dbgVal = (sbyte)DebugNodeHelper.ModifyValue<sbyte>((sbyte)dbgVal, modAdj);
+            else if (t == typeof(ushort))
+                dbgVal = (ushort)DebugNodeHelper.ModifyValue<ushort>((ushort)dbgVal, modAdj);
+            else if (t == typeof(short))
+                dbgVal = (short)DebugNodeHelper.ModifyValue<short>((short)dbgVal, modAdj);
+            else if (t == typeof(uint))
+                dbgVal = (uint)DebugNodeHelper.ModifyValue<uint>((uint)dbgVal, modAdj);
+            else if (t == typeof(int))
+                dbgVal = (int)DebugNodeHelper.ModifyValue<int>((int)dbgVal, modAdj);
+            else if (t == typeof(ulong))
+                dbgVal = (ulong)DebugNodeHelper.ModifyValue<ulong>((ulong)dbgVal, modAdj);
+            else if (t == typeof(long))
+                dbgVal = (long)DebugNodeHelper.ModifyValue<long>((long)dbgVal, modAdj);
+            else if (t == typeof(float))
+                dbgVal = (float)DebugNodeHelper.ModifyValue<float>((float)dbgVal, modAdj);
+            else if (t == typeof(double))
+                dbgVal = (double)DebugNodeHelper.ModifyValue<double>((double)dbgVal, modAdj);
             else
             {
-                dbgVal = Reflect(dbgVal, (x, y) => { });
+                dbgVal = Reflect(dbgVal, (x, y) =>
+                {
+                });
             }
 
             DebugValue = dbgVal;
@@ -403,42 +459,23 @@ namespace Prism.Debugging
             sb.DrawString(font, DrawText, startPos + new Vector2(0, (VisibleIndex * (font.LineSpacing / 2f)) - (DebugMenu.DebugSelection * font.LineSpacing / 2f)).Floor(), (IsSelected && DebugMenu.IsOpen ? DebugMenu.MainDiscoColor : Colour) * (DebugMenu.IsOpen || IsSelected ? 1.0f : 0.5f), 0, new Vector2(0, font.LineSpacing / 2).Floor(), 0.5f, SpriteEffects.None, 0);
 
             if (IsExpanded)
-            {
                 foreach (DebugMenuNode d in Values)
-                {
                     currentIndex = d.Draw(sb, font, startPos, ++currentIndex);
-                }
-            }    
-            
-            return currentIndex;        
+
+            return currentIndex;
         }
 
+        #region IDictionary stuff
         public bool ContainsKey(string key)
         {
             return ((IDictionary<string, DebugMenuNode>)Children).ContainsKey(key);
-        }
-
-        private void AdoptChild(string key)
-        {
-            this[key].Parent = this;
-            this[key].Key = key;
-            this[key].Colour = Colour;
-            this[key].Indent = this.Indent + 1;
-
-            ModChildCountsInc();
-        }
-
-        private void DisownChild(int amt = 1)
-        {
-            if (amt < 1) amt = 1;
-            ModChildCountsDec(amt);
         }
 
         public void Add(string key, DebugMenuNode value)
         {
             ((IDictionary<string, DebugMenuNode>)Children).Add(key, value);
 
-            AdoptChild(key);            
+            AdoptChild(key);
         }
 
         public bool Remove(string key)
@@ -557,6 +594,8 @@ namespace Prism.Debugging
                 ((IDictionary<string, DebugMenuNode>)Children)[key] = value;
             }
         }
+        #endregion
     }
 }
+
 #endif
