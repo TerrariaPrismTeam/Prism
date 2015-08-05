@@ -106,7 +106,7 @@ namespace Prism
 
 #if DEV_BUILD
                 if (!gameMenu && prevGameMenu)
-                    Main.NewText("Prism Dev Build Version " + PrismApi.Version.ToString() + ". Press Shift+Alt+H to open the Debug menu.", 0, 255, 255, true);
+                    Main.NewText("Prism DevBuild Version " + PrismApi.Version.ToString() + ". Press Shift+Alt+H to open the Debug menu (might freeze for a few seconds and/or take tons of RAM).", 0, 255, 255, true);
                 DebugMenu.Update(gt);
                 if (DebugMenu.HasBeenOpened)
                     HookManager.ModDef.UpdateDebug();
