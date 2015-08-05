@@ -538,6 +538,8 @@ namespace Prism.API.Defs
         {
             GetTexture = getTexture ?? Empty<Texture2D>.Func;
 
+            ArmourData = new ItemArmourData(null, null, null);
+
             Width = Height = 16;
             MaxStack = 1;
 

@@ -165,6 +165,42 @@ namespace Prism.Mods.DefHandlers
             def.CreateWall          = item.createWall;
             def.GetTexture          = () => Main.itemTexture[item.type];
 
+            def.ArmourData = new ItemArmourData(() =>
+            {
+                if (item.headSlot == -1)
+                    return null;
+
+                Main.instance.LoadArmorHead(item.headSlot);
+                return Main.armorHeadTexture[item.headSlot];
+            }, () =>
+            {
+                if (item.bodySlot == -1)
+                    return null;
+
+                Main.instance.LoadArmorBody(item.bodySlot);
+                return Main.armorBodyTexture[item.bodySlot];
+            }, () =>
+            {
+                if (item.legSlot == -1)
+                    return null;
+
+                Main.instance.LoadArmorLegs(item.legSlot);
+                return Main.armorLegTexture[item.legSlot];
+            }, () =>
+            {
+                if (item.bodySlot == -1)
+                    return null;
+
+                Main.instance.LoadArmorBody(item.bodySlot);
+                return Main.femaleBodyTexture[item.bodySlot];
+            })
+            {
+                femaleBodyId = item.bodySlot,
+                headId = item.headSlot,
+                legsId = item.legSlot,
+                maleBodyId = item.bodySlot
+            };
+
             def.IsSoul                   = ItemID.Sets.AnimatesAsSoul           [def.Type];
             def.IsStrangePlant           = ItemID.Sets.ExoticPlantsForDyeTrade  [def.Type];
             def.IsBullet                 = ItemID.Sets.gunProj                  [def.Type];
@@ -234,6 +270,10 @@ namespace Prism.Mods.DefHandlers
             item.createTile   = def.CreateTile      == null ? -1 : def.CreateTile     .Resolve().Type ;
             item.createWall   = def.CreateWall;
             item.useAmmo      = def.UsedAmmo        == null ?  0 : def.UsedAmmo       .Resolve().Type ;
+
+            item.headSlot = def.ArmourData.headId;
+            item.bodySlot = def.ArmourData.maleBodyId;
+            item.legSlot  = def.ArmourData.legsId;
         }
 
         protected override List<LoaderError> CheckTextures(ItemDef def)
@@ -264,9 +304,7 @@ namespace Prism.Mods.DefHandlers
             if (ad.Helmet != null)
             {
                 t = ad.Helmet();
-                if (t == null)
-                    ret.Add(new LoaderError(def.Mod, "ArmourData.Helmet return value is null for ItemDef " + def + "."));
-                else
+                if (t != null)
                 {
                     int id = Main.armorHeadTexture.Length;
                     Array.Resize(ref Main.armorHeadTexture, Main.armorHeadTexture.Length + 1);
@@ -279,13 +317,11 @@ namespace Prism.Mods.DefHandlers
             if (ad.MaleBodyArmour != null)
             {
                 t = ad.MaleBodyArmour();
-                if (t == null)
-                    ret.Add(new LoaderError(def.Mod, "ArmourData.MaleBodyArmour return value is null for ItemDef " + def + "."));
-                else
+                if (t != null)
                 {
                     int id = Main.armorBodyTexture.Length;
                     Array.Resize(ref Main.armorBodyTexture, Main.armorBodyTexture.Length + 1);
-                    Array.Resize(ref Main.armorBodyLoaded, Main.armorBodyLoaded.Length + 1);
+                    Array.Resize(ref Main.armorBodyLoaded , Main.armorBodyLoaded.Length  + 1);
                     Main.armorBodyLoaded[id] = true;
                     Main.armorBodyTexture[id] = t;
                     ad.maleBodyId = id;
@@ -306,9 +342,7 @@ namespace Prism.Mods.DefHandlers
             if (ad.Greaves != null)
             {
                 t = ad.Greaves();
-                if (t == null)
-                    ret.Add(new LoaderError(def.Mod, "ArmourData.Greaves return value is null for ItemDef " + def + "."));
-                else
+                if (t != null)
                 {
                     int id = Main.armorLegTexture.Length;
                     Array.Resize(ref Main.armorLegTexture, Main.armorLegTexture.Length + 1);
