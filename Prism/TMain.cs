@@ -19,6 +19,8 @@ namespace Prism
         static bool justDrawCrashed = false;
         static Exception lastDrawExn = null;
 
+        static bool prevGameMenu = true;
+
         internal TMain()
             : base()
         {
@@ -63,10 +65,6 @@ namespace Prism
             WhitePixel = new Texture2D(GraphicsDevice, 1, 1);
             WhitePixel.SetData(new[] { Color.White });
 
-#if DEV_BUILD
-            DebugMenu.Init();
-#endif
-
             base.LoadContent();
         }
         protected override void UnloadContent()
@@ -106,10 +104,13 @@ namespace Prism
 
                 //Debug is borked right now it will probably crash (i was in the middle of debugging when i said "fuck everything" and just closed the solution last night)
 
-//#if DEV_BUILD
-//                DebugMenu.Update(gt);
-//                HookManager.ModDef.UpdateDebug();                
-//#endif
+#if DEV_BUILD
+                if (!gameMenu && prevGameMenu)
+                    Main.NewText("Prism Dev Build Version " + PrismApi.Version.ToString() + ". Press Shift+Alt+H to open the Debug menu.", 0, 255, 255, true);
+                DebugMenu.Update(gt);
+                if (DebugMenu.HasBeenOpened)
+                    HookManager.ModDef.UpdateDebug();
+#endif
 
                 HookManager.ModDef.PostUpdate();
 
@@ -119,6 +120,8 @@ namespace Prism
             {
                 ExceptionHandler.Handle(e);
             }
+
+            prevGameMenu = gameMenu;
         }
 
         public override void UpdateMusicHook()
@@ -130,12 +133,10 @@ namespace Prism
         {
             try
             {
-                base.Draw(gt);
-
-                
+                base.Draw(gt);                
 
 #if DEV_BUILD
-                DebugMenu.DrawAll(Main.spriteBatch);
+                DebugMenu.DrawAll(spriteBatch);
 #endif
                 TraceDrawer.DrawTrace(spriteBatch, PrismDebug.lines);
                 justDrawCrashed = false;
