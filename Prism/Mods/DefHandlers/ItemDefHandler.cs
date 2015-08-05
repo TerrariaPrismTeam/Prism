@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Xna.Framework.Graphics;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Prism.Mods.Behaviours;
@@ -165,6 +166,7 @@ namespace Prism.Mods.DefHandlers
             def.CreateWall          = item.createWall;
             def.GetTexture          = () => Main.itemTexture[item.type];
 
+            #region ArmourData
             def.ArmourData = new ItemArmourData(() =>
             {
                 if (item.headSlot == -1)
@@ -200,6 +202,100 @@ namespace Prism.Mods.DefHandlers
                 legsId = item.legSlot,
                 maleBodyId = item.bodySlot
             };
+            #endregion
+            #region AccessoryData
+            def.AccessoryData = new ItemAccessoryData(() =>
+            {
+                if (item.backSlot == -1)
+                    return null;
+
+                Main.instance.LoadAccBack(item.backSlot);
+                return Main.accBackTexture[item.backSlot];
+            }, () =>
+            {
+                if (item.balloonSlot == -1)
+                    return null;
+
+                Main.instance.LoadAccBalloon(item.balloonSlot);
+                return Main.accBalloonTexture[item.balloonSlot];
+            }, () =>
+            {
+                if (item.faceSlot == -1)
+                    return null;
+
+                Main.instance.LoadAccFace(item.faceSlot);
+                return Main.accFaceTexture[item.faceSlot];
+            }, () =>
+            {
+                if (item.frontSlot == -1)
+                    return null;
+
+                Main.instance.LoadAccFront(item.frontSlot);
+                return Main.accFrontTexture[item.frontSlot];
+            }, () =>
+            {
+                if (item.handOffSlot == -1)
+                    return null;
+
+                Main.instance.LoadAccHandsOff(item.handOffSlot);
+                return Main.accHandsOffTexture[item.handOffSlot];
+            }, () =>
+            {
+                if (item.handOnSlot == -1)
+                    return null;
+
+                Main.instance.LoadAccHandsOn(item.handOnSlot);
+                return Main.accHandsOnTexture[item.handOnSlot];
+            }, () =>
+            {
+                if (item.neckSlot == -1)
+                    return null;
+
+                Main.instance.LoadAccNeck(item.neckSlot);
+                return Main.accNeckTexture[item.neckSlot];
+            }, () =>
+            {
+                if (item.shieldSlot == -1)
+                    return null;
+
+                Main.instance.LoadAccShield(item.shieldSlot);
+                return Main.accShieldTexture[item.shieldSlot];
+            }, () =>
+            {
+                if (item.shoeSlot == -1)
+                    return null;
+
+                Main.instance.LoadAccShoes(item.shoeSlot);
+                return Main.accShoesTexture[item.shoeSlot];
+            }, () =>
+            {
+                if (item.waistSlot == -1)
+                    return null;
+
+                Main.instance.LoadAccWaist(item.type);
+                return Main.accWaistTexture[item.type];
+            }, () =>
+            {
+                if (item.wingSlot == -1)
+                    return null;
+
+                Main.instance.LoadWings(item.type);
+                return Main.wingsTexture[item.type];
+            })
+            {
+                backId     = item.backSlot   ,
+                balloonId  = item.balloonSlot,
+                faceId     = item.faceSlot   ,
+                frontId    = item.frontSlot  ,
+                handsOffId = item.handOffSlot,
+                handsOnId  = item.handOnSlot ,
+                neckId     = item.neckSlot   ,
+                shieldId   = item.shieldSlot ,
+                shoesId    = item.shoeSlot   ,
+                waistId    = item.waistSlot  ,
+                wingsId    = item.wingSlot
+            };
+            #endregion
 
             def.IsSoul                   = ItemID.Sets.AnimatesAsSoul           [def.Type];
             def.IsStrangePlant           = ItemID.Sets.ExoticPlantsForDyeTrade  [def.Type];
@@ -274,6 +370,93 @@ namespace Prism.Mods.DefHandlers
             item.headSlot = def.ArmourData.headId;
             item.bodySlot = def.ArmourData.maleBodyId;
             item.legSlot  = def.ArmourData.legsId;
+
+            item.backSlot    = (sbyte)def.AccessoryData.backId    ;
+            item.balloonSlot = (sbyte)def.AccessoryData.balloonId ;
+            item.faceSlot    = (sbyte)def.AccessoryData.faceId    ;
+            item.frontSlot   = (sbyte)def.AccessoryData.frontId   ;
+            item.handOffSlot = (sbyte)def.AccessoryData.handsOffId;
+            item.handOnSlot  = (sbyte)def.AccessoryData.handsOnId ;
+            item.neckSlot    = (sbyte)def.AccessoryData.neckId    ;
+            item.shieldSlot  = (sbyte)def.AccessoryData.shieldId  ;
+            item.shoeSlot    = (sbyte)def.AccessoryData.shoesId   ;
+            item.waistSlot   = (sbyte)def.AccessoryData.waistId   ;
+            item.wingSlot    = (sbyte)def.AccessoryData.wingsId   ;
+        }
+
+        static int CheckAndPush<T>(Func<T> getter, ref T[] array, ref bool[] loadedArray)
+        {
+            if (getter == null)
+                return -1;
+            var t = getter();
+            if (t == null)
+                return -1;
+
+            var ret = array.Length;
+
+            Array.Resize(ref       array,       array.Length + 1);
+            Array.Resize(ref loadedArray, loadedArray.Length + 1);
+
+            loadedArray[ret] = true;
+                  array[ret] = t   ;
+
+            return ret;
+        }
+
+        static List<LoaderError> LoadArmourTextures(ItemDef def)
+        {
+            var ret = new List<LoaderError>();
+
+            var ad = def.ArmourData;
+
+            Texture2D t;
+
+            if (ad.MaleBodyArmour != null)
+            {
+                t = ad.MaleBodyArmour();
+                if (t != null)
+                {
+                    int id = Main.armorBodyTexture.Length;
+                    Array.Resize(ref Main.armorBodyTexture, Main.armorBodyTexture.Length + 1);
+                    Array.Resize(ref Main.armorBodyLoaded, Main.armorBodyLoaded.Length + 1);
+                    Main.armorBodyLoaded[id] = true;
+                    Main.armorBodyTexture[id] = t;
+                    ad.maleBodyId = id;
+
+                    t = (ad.FemaleBodyArmour ?? ad.MaleBodyArmour)();
+                    if (t == null) // will not execute if MaleBodyArmour returned null, that's handled already
+                        ret.Add(new LoaderError(def.Mod, "ArmourData.FemaleBodyArmour return value is null for ItemDef " + def + "."));
+                    else
+                    {
+                        id = Main.femaleBodyTexture.Length;
+                        if (Main.femaleBodyTexture.Length <= id)
+                            Array.Resize(ref Main.femaleBodyTexture, id + 1);
+                        Main.femaleBodyTexture[id] = t;
+                        ad.femaleBodyId = id;
+                    }
+                }
+            }
+
+            ad.legsId = CheckAndPush(ad.Greaves, ref Main.armorLegTexture , ref Main.armorLegsLoaded);
+            ad.headId = CheckAndPush(ad.Helmet , ref Main.armorHeadTexture, ref Main.armorHeadLoaded);
+
+            return ret;
+        }
+        static void LoadAccessoryTextures(ItemDef def)
+        {
+            var ad = def.AccessoryData;
+
+            ad.backId     = CheckAndPush(ad.Back    , ref Main.accBackTexture    , ref Main.accBackLoaded    );
+            ad.balloonId  = CheckAndPush(ad.Balloon , ref Main.accBalloonTexture , ref Main.accballoonLoaded );
+            ad.faceId     = CheckAndPush(ad.Face    , ref Main.accFaceTexture    , ref Main.accFaceLoaded    );
+            ad.frontId    = CheckAndPush(ad.Front   , ref Main.accFrontTexture   , ref Main.accFrontLoaded   );
+            ad.handsOffId = CheckAndPush(ad.HandsOff, ref Main.accHandsOffTexture, ref Main.accHandsOffLoaded);
+            ad.handsOnId  = CheckAndPush(ad.HandsOn , ref Main.accHandsOnTexture , ref Main.accHandsOnLoaded );
+            ad.neckId     = CheckAndPush(ad.Neck    , ref Main.accNeckTexture    , ref Main.accNeckLoaded    );
+            ad.shieldId   = CheckAndPush(ad.Shield  , ref Main.accShieldTexture  , ref Main.accShieldLoaded  );
+            ad.shoesId    = CheckAndPush(ad.Shoes   , ref Main.accShoesTexture   , ref Main.accShoesLoaded   );
+            ad.waistId    = CheckAndPush(ad.Waist   , ref Main.accWaistTexture   , ref Main.accWaistLoaded   );
+            ad.wingsId    = CheckAndPush(ad.Wings   , ref Main.   wingsTexture   , ref Main.   wingsLoaded   );
         }
 
         protected override List<LoaderError> CheckTextures(ItemDef def)
@@ -297,61 +480,10 @@ namespace Prism.Mods.DefHandlers
                 return ret;
             }
 
-            Main.itemTexture[def.Type] = def.GetTexture();
+            Main.itemTexture[def.Type] = t;
 
-            var ad = def.ArmourData;
-
-            if (ad.Helmet != null)
-            {
-                t = ad.Helmet();
-                if (t != null)
-                {
-                    int id = Main.armorHeadTexture.Length;
-                    Array.Resize(ref Main.armorHeadTexture, Main.armorHeadTexture.Length + 1);
-                    Array.Resize(ref Main.armorHeadLoaded , Main.armorHeadLoaded .Length + 1);
-                    Main.armorHeadLoaded [id] = true;
-                    Main.armorHeadTexture[id] = t   ;
-                    ad.headId = id;
-                }
-            }
-            if (ad.MaleBodyArmour != null)
-            {
-                t = ad.MaleBodyArmour();
-                if (t != null)
-                {
-                    int id = Main.armorBodyTexture.Length;
-                    Array.Resize(ref Main.armorBodyTexture, Main.armorBodyTexture.Length + 1);
-                    Array.Resize(ref Main.armorBodyLoaded , Main.armorBodyLoaded.Length  + 1);
-                    Main.armorBodyLoaded[id] = true;
-                    Main.armorBodyTexture[id] = t;
-                    ad.maleBodyId = id;
-
-                    t = (ad.FemaleBodyArmour ?? ad.MaleBodyArmour)();
-                    if (t == null) // will not execute if MaleBodyArmour returned null, that's handled already
-                        ret.Add(new LoaderError(def.Mod, "ArmourData.FemaleBodyArmour return value is null for ItemDef " + def + "."));
-                    else
-                    {
-                        id = Main.femaleBodyTexture.Length;
-                        if (Main.femaleBodyTexture.Length <= id)
-                            Array.Resize(ref Main.femaleBodyTexture, id + 1);
-                        Main.femaleBodyTexture[id] = t;
-                        ad.femaleBodyId = id;
-                    }
-                }
-            }
-            if (ad.Greaves != null)
-            {
-                t = ad.Greaves();
-                if (t != null)
-                {
-                    int id = Main.armorLegTexture.Length;
-                    Array.Resize(ref Main.armorLegTexture, Main.armorLegTexture.Length + 1);
-                    Array.Resize(ref Main.armorLegsLoaded, Main.armorLegsLoaded.Length + 1);
-                    Main.armorLegsLoaded[id] = true;
-                    Main.armorLegTexture[id] = t;
-                    ad.legsId = id;
-                }
-            }
+            ret.AddRange(LoadArmourTextures(def));
+            LoadAccessoryTextures(def);
 
             return ret;
         }

@@ -468,6 +468,14 @@ namespace Prism.API.Defs
             get;
             set;
         }
+        /// <summary>
+        /// Gets or sets the item's accessory texture stuff.
+        /// </summary>
+        public virtual ItemAccessoryData AccessoryData
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Gets or sets the ammo item the item consumes when used.
@@ -555,11 +563,13 @@ namespace Prism.API.Defs
         public ItemDef(string displayName, JsonData json,
             Func<Texture2D> getTexture = null,
             ItemArmourData armour = default(ItemArmourData), //TODO: support this in JSON
+            ItemAccessoryData accessoryStuff = default(ItemAccessoryData), //TODO: this, too
             Func<ItemBehaviour> newBehaviour = null)
             : this(displayName, newBehaviour)
         {
             GetTexture = getTexture ?? Empty<Texture2D>.Func;
             ArmourData = armour;
+            AccessoryData = accessoryStuff;
 
             //TODO: check if the fields exist
             //TODO: use error handling, exceptions shouldn't be thrown from a constructor
