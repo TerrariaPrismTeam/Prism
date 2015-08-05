@@ -32,10 +32,9 @@ namespace LitJson
 		private string json;
 		private JsonType type;
 
-		// Used to implement the IOrderedDictionary interface
-		private IList<KeyValuePair<string, JsonData>> object_list;
+        // Used to implement the IOrderedDictionary interface
+        private IList<KeyValuePair<string, JsonData>> object_list;
 		#endregion
-
 
 		#region Properties
 		public int Count
@@ -77,11 +76,11 @@ namespace LitJson
 		{
 			get { return type == JsonType.String; }
 		}
-		#endregion
+#endregion
 
 
-		#region ICollection Properties
-		int ICollection.Count
+        #region ICollection Properties
+        int ICollection.Count
 		{
 			get
 			{

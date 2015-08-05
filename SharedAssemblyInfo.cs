@@ -10,12 +10,18 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: Guid(AssemblyInfo.GUID)]
+#if DEV_BUILD
 [assembly: AssemblyVersion(AssemblyInfo.VERSION)]
 [assembly: AssemblyFileVersion(AssemblyInfo.VERSION)]
+#else
+[assembly: AssemblyVersion(AssemblyInfo.VERSION)]
+[assembly: AssemblyFileVersion(AssemblyInfo.VERSION)]
+#endif
 
 static class AssemblyInfo
 {
     public const string GUID = "fa53dc38-9b2b-45d3-818e-3e60f69143f6";
     public const string VERSION = "1.0.0.0";
     public const string TERRARIA_VERSION = "1.3.0.7";
+    internal const string DEV_BUILD_VERSION = "65534.65534.65534.65534"; //Max version value possible lol. no #if DEBUG cuz normal needs to check if 
 }

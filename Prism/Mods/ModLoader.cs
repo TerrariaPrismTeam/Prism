@@ -25,7 +25,7 @@ namespace Prism.Mods
 
         internal static void Debug_ShowAllErrors()
         {
-#if LOADER_ERR_DLG
+#if DEV_BUILD
             if (errors.Count > 0)
             {
                 StringBuilder errorDump = new StringBuilder(string.Format("Encountered {0} errors while loading mods:\n\n\n", errors.Count));
@@ -184,23 +184,48 @@ namespace Prism.Mods
             {
                 var curn = Assembly.GetExecutingAssembly().GetName();
                 var p = path + Path.DirectorySeparatorChar + info.AssemblyFileName;
-                var rasm = Assembly.ReflectionOnlyLoadFrom(p);
-
-                var refs = rasm.GetReferencedAssemblies();
+                var rasm = Assembly.ReflectionOnlyLoadFrom(p);		
+                var refs = rasm.GetReferencedAssemblies();                
                 var refn = refs.FirstOrDefault(an => an.Name == curn.Name);
 
+                var loadAssembly = true;
+
                 if (refn == null)
+                {
                     errors.Add(new LoaderError(info, "Mod does not reference Prism."));
-                else if (!refn.Equals(curn))
-                    errors.Add(new LoaderError(info, "Mod does not reference Prism the right version, the targeted version is '" + refn.Version + "', but the current is '" + curn.Version + "'."));
-                else
-                    asm = Assembly.LoadFrom(p);
+                    loadAssembly = false;
+                }
+
+                if (refn.Version.ToString() == AssemblyInfo.DEV_BUILD_VERSION)
+                {
+#if !DEV_BUILD
+                    errors.Add(new LoaderError(info, "Mod was built with an unstable developer build of Prism for testing purposes and can only be loaded by builds in the master branch of the Prism repository.")); //Make it sound complicated lmao
+                    loadAssembly = false;
+#endif
+                }
+
+                if (refn.Version < curn.Version)
+                {
+#if DEV_BUILD
+                    errors.Add(new LoaderError(info, "Mod was built with a release build of Prism and may not work correctly with the latest developer build."));
+#else
+                    errors.Add(new LoaderError(info, "Mod was built with a previous version of Prism and may not work correctly."));
+#endif
+                }
+
+                if (refn.Version > curn.Version)
+                {
+                    errors.Add(new LoaderError(info, "Mod was built with a newer version of Prism than the installed version. Update to the latest version of Prism in order to load this mod."));
+                    loadAssembly = false;
+                }
+
+                asm = Assembly.LoadFrom(p);
             }
             catch (Exception e)
             {
                 errors.Add(new LoaderError(info, "Could not load mod assembly", e));
                 return null;
-            }
+            }          
 
             return LoadModFromAssembly(asm, info);
         }

@@ -763,7 +763,7 @@ namespace Prism.API.Defs
         MartianMadness_Saucer         = 60,
         SolarEclipse_Eyez0r           = 61,
         Critter_Bunny                 = 62,
-        Critter_Butterfly             = 63, // a chat bubble showing a butterfly
+        Critter_Butterfly             = 63, // something vaguely resembling a butterfly
         Enemy_GoblinSummoner          = 64,
         PirateInvasion_PirateDeadeye  = 65,
         FrostLegion_SnowBalla         = 66,

@@ -20,7 +20,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\Bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;LOADER_ERR_DLG</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;DEV_BUILD</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
@@ -116,6 +116,10 @@
     <Compile Include="API\Defs\TileDef.cs" />
     <Compile Include="API\Defs\TileDefStructs.cs" />
     <Compile Include="API\Defs\TileRef.cs" />
+    <Compile Include="Debugging\DebugMenu\DbgMenuStructs.cs" />
+    <Compile Include="Debugging\DebugMenu\DebugMenuNode.cs" />
+    <Compile Include="Debugging\DebugMenu\DebugMenu.cs" />
+    <Compile Include="Debugging\DisgustingHacks.cs" />
     <Compile Include="Mods\Behaviours\TileBHandler.cs" />
     <Compile Include="Mods\DefHandlers\RecipeDefHandler.cs" />
     <Compile Include="Mods\DefHandlers\TileDefHandler.cs" />
@@ -161,6 +165,7 @@
     <Compile Include="Util\CommandLineArgs.cs" />
     <Compile Include="Util\HastebinHelper.cs" />
     <Compile Include="Util\IndexGetter.cs" />
+    <Compile Include="Util\JsonExtensions.cs" />
     <Compile Include="Util\LinqExt.cs" />
     <Compile Include="Util\ReadOnlyDictionary.cs" />
     <Compile Include="WinFormDialogs\ExceptionDialogForm.cs">
@@ -203,6 +208,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <EmbeddedResource Include="Debugging\Consolas20.xnb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

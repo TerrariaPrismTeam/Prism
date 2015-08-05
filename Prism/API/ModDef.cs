@@ -125,6 +125,14 @@ namespace Prism.API
         [Hook]
         public virtual void UpdateMusic() { }
 
+#if DEV_BUILD
+        /// <summary>
+        /// Remember that this will only work on this dev build. Be sure to remove this override (or comment it out) and retarget to the release build before releasing the mod.
+        /// </summary>
+        [Hook]
+        public virtual void UpdateDebug() { }
+#endif
+
         //TODO: move these somewhere else? (it might get crowded with these ~~soon~~ it's already becoming quite annoying imo)
         /// <summary>
         /// Gets all item definitions created by the mod.

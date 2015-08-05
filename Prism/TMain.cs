@@ -48,7 +48,7 @@ namespace Prism
             EntityDefLoader.SetupEntityHandlers();
             ModLoader.Load();
 
-#if LOADER_ERR_DLG
+#if DEV_BUILD
             ModLoader.Debug_ShowAllErrors();
 #endif
 
@@ -63,7 +63,11 @@ namespace Prism
             WhitePixel = new Texture2D(GraphicsDevice, 1, 1);
             WhitePixel.SetData(new[] { Color.White });
 
-            base.  LoadContent();
+#if DEV_BUILD
+            DebugMenu.Init();
+#endif
+
+            base.LoadContent();
         }
         protected override void UnloadContent()
         {
@@ -94,9 +98,18 @@ namespace Prism
             {
                 HookManager.ModDef.PreUpdate();
 
+
+
                 ApplyHotfixes(); //The array is initialized every time new Player() is called. Until we have like InitPlayer or something we just have to ghettohack it like this.
 
                 base.Update(gt);
+
+                //Debug is borked right now it will probably crash (i was in the middle of debugging when i said "fuck everything" and just closed the solution last night)
+
+//#if DEV_BUILD
+//                DebugMenu.Update(gt);
+//                HookManager.ModDef.UpdateDebug();                
+//#endif
 
                 HookManager.ModDef.PostUpdate();
 
@@ -119,8 +132,12 @@ namespace Prism
             {
                 base.Draw(gt);
 
-                TraceDrawer.DrawTrace(spriteBatch, PrismDebug.lines);
+                
 
+#if DEV_BUILD
+                DebugMenu.DrawAll(Main.spriteBatch);
+#endif
+                TraceDrawer.DrawTrace(spriteBatch, PrismDebug.lines);
                 justDrawCrashed = false;
                 lastDrawExn = null;
             }
