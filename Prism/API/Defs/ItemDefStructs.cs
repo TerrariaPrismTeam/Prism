@@ -18,7 +18,6 @@ namespace Prism.API.Defs
         Summon,
         Thrown
     }
-
     public enum ItemUseStyle
     {
         None,
@@ -63,7 +62,7 @@ namespace Prism.API.Defs
         /// Unlike <see cref="ItemRarity.Rainbow"/>, this does not automatically flag the item as a quest item.
         /// </summary>
         /// <remarks>Completely separate from Item.questItem</remarks>
-        Amber = -11,        
+        Amber = -11,
         Gray = -1,
         White = 0,
         Blue = 1,
@@ -79,13 +78,33 @@ namespace Prism.API.Defs
         Purple = 11
     }
 
-
     /// <summary>
     /// Container for the properties of the item which determine its use as armour.
     /// </summary>
-    public struct ItemArmourData : IEquatable<ItemArmourData>
+    public struct ItemArmourData
     {
         internal int headId, maleBodyId, femaleBodyId, legsId;
+
+        /// <summary>
+        /// Gets or sets whether the item can be used as a helmet.
+        /// </summary>
+        /// <remarks>Item.headSlot</remarks>
+        public Func<Texture2D> Helmet;
+        /// <summary>
+        /// Gets or sets whether the item can be used as body armour.
+        /// </summary>
+        /// <remarks>Item.bodySlot</remarks>
+        public Func<Texture2D> MaleBodyArmour;
+        /// <summary>
+        /// Gets or sets whether the item can be used as body armour.
+        /// </summary>
+        /// <remarks>Item.bodySlot</remarks>
+        public Func<Texture2D> FemaleBodyArmour;
+        /// <summary>
+        /// Gets or sets whether the item can be used as greaves.
+        /// </summary>
+        /// <remarks>Item.legSlot</remarks>
+        public Func<Texture2D> Greaves;
 
         public int HeadId
         {
@@ -117,27 +136,6 @@ namespace Prism.API.Defs
         }
 
         /// <summary>
-        /// Gets or sets whether the item can be used as a helmet.
-        /// </summary>
-        /// <remarks>Item.headSlot</remarks>
-        public Func<Texture2D> Helmet;
-        /// <summary>
-        /// Gets or sets whether the item can be used as body armour.
-        /// </summary>
-        /// <remarks>Item.bodySlot</remarks>
-        public Func<Texture2D> MaleBodyArmour;
-        /// <summary>
-        /// Gets or sets whether the item can be used as body armour.
-        /// </summary>
-        /// <remarks>Item.bodySlot</remarks>
-        public Func<Texture2D> FemaleBodyArmour;
-        /// <summary>
-        /// Gets or sets whether the item can be used as greaves.
-        /// </summary>
-        /// <remarks>Item.legSlot</remarks>
-        public Func<Texture2D> Greaves;
-
-        /// <summary>
         /// Constructs a new <see cref="ItemArmourData"/> structure.
         /// </summary>
         /// <param name="head"><see cref="Helmet"/></param>
@@ -153,34 +151,110 @@ namespace Prism.API.Defs
 
             FemaleBodyArmour = femaleBody ?? maleBody;
         }
+    }
+    public struct ItemAccessoryData
+    {
+        internal int backId, balloonId, faceId, frontId, handsOffId, handsOnId, neckId, shieldId, shoesId, waistId, wingsId;
 
-        public bool Equals(ItemArmourData other)
+        public Func<Texture2D>
+            Back   , Balloon, Face  , Front, HandsOff      ,
+            HandsOn, Neck   , Shield, Shoes, Waist   , Wings;
+
+        public int BackId
         {
-            return Helmet == other.Helmet && MaleBodyArmour == other.MaleBodyArmour && FemaleBodyArmour == other.FemaleBodyArmour && Greaves == other.Greaves;
+            get
+            {
+                return backId;
+            }
+        }
+        public int BalloonId
+        {
+            get
+            {
+                return balloonId;
+            }
+        }
+        public int FaceId
+        {
+            get
+            {
+                return faceId;
+            }
+        }
+        public int FrontId
+        {
+            get
+            {
+                return frontId;
+            }
+        }
+        public int HandsOffId
+        {
+            get
+            {
+                return handsOffId;
+            }
+        }
+        public int HandsOnId
+        {
+            get
+            {
+                return handsOnId;
+            }
+        }
+        public int NeckID
+        {
+            get
+            {
+                return neckId;
+            }
+        }
+        public int ShieldId
+        {
+            get
+            {
+                return shieldId;
+            }
+        }
+        public int ShoesId
+        {
+            get
+            {
+                return shoesId;
+            }
+        }
+        public int WaistId
+        {
+            get
+            {
+                return waistId;
+            }
+        }
+        public int WingsId
+        {
+            get
+            {
+                return wingsId;
+            }
         }
 
-        public override bool Equals(object obj)
+        public ItemAccessoryData(
+            Func<Texture2D> back   , Func<Texture2D> balloon, Func<Texture2D> face  , Func<Texture2D> front, Func<Texture2D> handsOff,
+            Func<Texture2D> handsOn, Func<Texture2D> neck   , Func<Texture2D> shield, Func<Texture2D> shoes, Func<Texture2D> waist   , Func<Texture2D> wings)
         {
-            if (ReferenceEquals(obj, null))
-                return false;
+            backId = balloonId = faceId = frontId = handsOffId = handsOnId = neckId = shieldId = shoesId = waistId = wingsId = -1;
 
-            if (obj is ItemArmourData)
-                return Equals((ItemArmourData)obj);
-
-            return false;
-        }
-        public override int GetHashCode()
-        {
-            return Helmet.GetHashCode() + MaleBodyArmour.GetHashCode() + FemaleBodyArmour.GetHashCode() + Greaves.GetHashCode();
-        }
-
-        public static bool operator ==(ItemArmourData a, ItemArmourData b)
-        {
-            return  a.Equals(b);
-        }
-        public static bool operator !=(ItemArmourData a, ItemArmourData b)
-        {
-            return !a.Equals(b);
+            Back = back;
+            Balloon = balloon;
+            Face = face;
+            Front = front;
+            HandsOff = handsOff;
+            HandsOn = handsOn;
+            Neck = neck;
+            Shield = shield;
+            Shoes = shoes;
+            Waist = waist;
+            Wings = wings;
         }
     }
     /// <summary>

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 
 namespace Prism.Injector.Patcher
 {
@@ -57,6 +58,25 @@ namespace Prism.Injector.Patcher
         //        if (ar.Name == "Newtonsoft.Json" && ar.Version == V7_0_0_0)
         //            ar.Version = V4_5_0_0;
         //}
+        static void RemoveConsoleWriteLineInWndProcHook()
+        {
+            var kbi_t = r.GetType("Terraria.keyBoardInput");
+
+            if (kbi_t.NestedTypes.Count == 0) // *nix version, only windows uses WndProc for text input (obviously)
+                return;
+
+            var inKey_t = kbi_t.NestedTypes[0];
+
+            var preFilterMessage = inKey_t.GetMethod("PreFilterMessage");
+
+            var instrs = preFilterMessage.Body.Instructions;
+            var pfmilp = preFilterMessage.Body.GetILProcessor();
+
+            var callWriteLine = instrs.First(i => i.OpCode.Code == Code.Call && i.Operand is MethodReference && ((MethodReference)i.Operand).Name == "WriteLine");
+
+            pfmilp.Remove(callWriteLine.Previous);
+            pfmilp.Remove(callWriteLine);
+        }
 
         public static void Patch(CecilContext context, string outputPath)
         {
@@ -69,6 +89,7 @@ namespace Prism.Injector.Patcher
             Publicify();
             //AddInternalsVisibleToAttr();
             //FixNewtonsoftJsonReferenceVersion();
+            RemoveConsoleWriteLineInWndProcHook();
 
             ItemPatcher      .Patch();
             NpcPatcher       .Patch();

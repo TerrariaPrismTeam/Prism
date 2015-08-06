@@ -155,8 +155,6 @@ namespace Prism.API.Defs
             set;
         }
 
-        //TODO: add IsFriendly (player can deal damage to the NPC)
-        //TODO: add IsHostile (will deal damage to player)
         /// <summary>
         /// Gets or sets whether or not this NPC ignores tile collision.
         /// </summary>
@@ -195,6 +193,14 @@ namespace Prism.API.Defs
         /// Gets or sets whether this NPC is excluded from radar counts ("x enemies nearby").
         /// </summary>
         public virtual bool NotOnRadar
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets whether the NPC can be harmed by the player.
+        /// </summary>
+        public virtual bool IsFriendly
         {
             get;
             set;
@@ -337,6 +343,14 @@ namespace Prism.API.Defs
             get;
             set;
         }
+        /// <summary>
+        /// Gets or sets the NPC's town NPC config.
+        /// </summary>
+        public virtual TownNpcConfig TownConfig
+        {
+            get;
+            set;
+        }
 
         //TODO: use BuffRef... later
         /// <summary>
@@ -348,9 +362,9 @@ namespace Prism.API.Defs
             set;
         }
         /// <summary>
-        /// Gets or sets the NPC's town NPC config.
+        /// Gets or sets the item that represents the caught NPC (when caught using a bug net. use 'null' to make the npc not catchable.)
         /// </summary>
-        public virtual TownNpcConfig TownConfig
+        public virtual ItemRef CaughtAsItem
         {
             get;
             set;

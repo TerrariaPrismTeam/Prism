@@ -134,14 +134,12 @@ namespace Prism.Mods.DefHandlers
             def.IgnoreGravity       = npc.noGravity;
             def.IsBoss              = npc.boss;
             def.IsTownNpc           = npc.townNPC;
+            def.IsFriendly          = npc.friendly;
             def.Scale               = npc.scale;
             def.KnockbackResistance = npc.knockBackResist;
             def.NpcSlots            = npc.npcSlots;
             def.Colour              = npc.color;
-
-            if (npc.type == 235)
-                Console.WriteLine("E->D 235 value: " + npc.value);
-            def.Value = new NpcValue(new CoinValue((int)npc.value));
+            def.Value               = new NpcValue(new CoinValue((int)npc.value));
             def.AiStyle             = (NpcAiStyle)npc.aiStyle;
             def.MaxLife             = npc.lifeMax;
             def.GetTexture          = () => Main.npcTexture[npc.type];
@@ -150,6 +148,7 @@ namespace Prism.Mods.DefHandlers
             for (int i = 0; i < npc.buffImmune.Length; i++)
                 if (npc.buffImmune[i])
                     def.BuffImmunities.Add(i);
+            def.CaughtAsItem = new ItemRef(npc.catchItem);
 
             def.DisplayName                         = Main.npcName                     [def.Type];
             def.FrameCount                          = Main.npcFrameCount               [def.Type];
@@ -192,6 +191,7 @@ namespace Prism.Mods.DefHandlers
             npc.noGravity       = def.IgnoreGravity;
             npc.boss            = def.IsBoss;
             npc.townNPC         = def.IsTownNpc;
+            npc.friendly        = def.IsFriendly;
             npc.scale           = def.Scale;
             npc.knockBackResist = def.KnockbackResistance;
             npc.npcSlots        = def.NpcSlots;
@@ -202,6 +202,8 @@ namespace Prism.Mods.DefHandlers
 
             for (int i = 0; i < def.BuffImmunities.Count; i++)
                 npc.buffImmune[i] = true;
+
+            npc.catchItem = (short)def.CaughtAsItem.Resolve().NetID;
         }
 
         void RegisterBossHeadTexture(NpcDef npc)
