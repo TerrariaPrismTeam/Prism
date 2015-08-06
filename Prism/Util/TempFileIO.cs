@@ -9,7 +9,7 @@ using Terraria;
 using System.Reflection;
 
 namespace Prism.Util
-{    
+{
     public enum StreamFate
     {
         DoNothing,
@@ -43,18 +43,18 @@ namespace Prism.Util
             ContentStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName);
         }
 
-        public TempFile(string path, Stream contents, bool dontOverrite = false, StreamFate contentFate = StreamFate.CloseAndDispose) 
+        public TempFile(string path, Stream contents, bool dontOverrite = false, StreamFate contentFate = StreamFate.CloseAndDispose)
             : this(contents, dontOverrite, contentFate)
         {
-            FilePath = path;                                    
-            Init();                                                  
+            FilePath = path;
+            Init();
         }
 
-        public TempFile(string path, string resourceName, bool dontOverrite = false, StreamFate contentFate = StreamFate.CloseAndDispose) 
+        public TempFile(string path, string resourceName, bool dontOverrite = false, StreamFate contentFate = StreamFate.CloseAndDispose)
             : this(resourceName, dontOverrite, contentFate)
         {
-            FilePath = path;                                    
-            Init();                                                  
+            FilePath = path;
+            Init();
         }
 
         public void Init()
@@ -103,16 +103,16 @@ namespace Prism.Util
                 ContentStream.Dispose();
                 ContentStream = null;
             }
-            if (File.Exists(FilePath))            
-                File.Delete(FilePath);    
-            
+            if (File.Exists(FilePath))
+                File.Delete(FilePath);
+
             FilePath = null;
         }
     }
 
     public class RandTempFile : TempFile
     {
-        public RandTempFile(Stream contents, string directory = null, string extension = null, bool doNotOverrite = false, StreamFate contentFate = StreamFate.CloseAndDispose) 
+        public RandTempFile(Stream contents, string directory = null, string extension = null, bool doNotOverrite = false, StreamFate contentFate = StreamFate.CloseAndDispose)
             : base(contents, doNotOverrite, contentFate)
         {
             FilePath = Path.Combine(directory ?? Path.GetTempPath(), Path.ChangeExtension(Guid.NewGuid().ToString(), extension));
@@ -120,7 +120,7 @@ namespace Prism.Util
             Init();
         }
 
-        public RandTempFile(string resourceName, string directory = null, string extension = null, bool doNotOverrite = false, StreamFate contentFate = StreamFate.CloseAndDispose) 
+        public RandTempFile(string resourceName, string directory = null, string extension = null, bool doNotOverrite = false, StreamFate contentFate = StreamFate.CloseAndDispose)
             : base(resourceName, doNotOverrite, contentFate)
         {
             FilePath = Path.Combine(directory ?? Path.GetTempPath(), Path.ChangeExtension(Guid.NewGuid().ToString(), extension));
@@ -129,7 +129,7 @@ namespace Prism.Util
         }
     }
 
-    public class RandTempContentFile<T> : TempFile        
+    public class RandTempContentFile<T> : TempFile
     {
         public readonly string ContentPath;
         public T Load(ContentManager content = null)
@@ -137,7 +137,7 @@ namespace Prism.Util
             return (content ?? Main.instance.Content).Load<T>(ContentPath);
         }
 
-        public RandTempContentFile(Stream contents, bool doNotOverrite = false, StreamFate contentFate = StreamFate.CloseAndDispose) 
+        public RandTempContentFile(Stream contents, bool doNotOverrite = false, StreamFate contentFate = StreamFate.CloseAndDispose)
             : base(contents, doNotOverrite, contentFate)
         {
             ContentPath = Path.Combine("Prism_Temp", Guid.NewGuid().ToString());
@@ -146,9 +146,9 @@ namespace Prism.Util
             Init();
         }
 
-        public RandTempContentFile(string resourceName, bool doNotOverrite = false, StreamFate contentFate = StreamFate.CloseAndDispose) 
+        public RandTempContentFile(string resourceName, bool doNotOverrite = false, StreamFate contentFate = StreamFate.CloseAndDispose)
             : base(resourceName, doNotOverrite, contentFate)
-        {            
+        {
             ContentPath = Path.Combine("Prism_Temp", Guid.NewGuid().ToString());
             FilePath = Path.Combine("Content", Path.ChangeExtension(ContentPath, "xnb"));
 

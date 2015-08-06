@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Prism.API.Audio;
 using Prism.Debugging;
-using Prism.Mods.DefHandlers;
 using Prism.Mods;
+using Prism.Mods.DefHandlers;
 using Prism.Mods.Hooks;
 using Terraria;
 
@@ -41,6 +41,8 @@ namespace Prism
 
         protected override void Initialize()
         {
+            OnUpdateMusic += Bgm.Update;
+
             Item      .OnSetDefaults += ItemDefHandler.OnSetDefaults;
             NPC       .OnSetDefaults += NpcDefHandler .OnSetDefaults;
             Projectile.OnSetDefaults += ProjDefHandler.OnSetDefaults;
@@ -96,8 +98,6 @@ namespace Prism
             {
                 HookManager.ModDef.PreUpdate();
 
-
-
                 ApplyHotfixes(); //The array is initialized every time new Player() is called. Until we have like InitPlayer or something we just have to ghettohack it like this.
 
                 base.Update(gt);
@@ -123,17 +123,11 @@ namespace Prism
 
             prevGameMenu = gameMenu;
         }
-
-        public override void UpdateMusicHook()
-        {
-            HookManager.ModDef.UpdateMusic();
-        }
-
         protected override void Draw  (GameTime gt)
         {
             try
             {
-                base.Draw(gt);                
+                base.Draw(gt);
 
 #if DEV_BUILD
                 DebugMenu.DrawAll(spriteBatch);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Prism.API.Audio;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Prism.Mods;
@@ -120,10 +121,11 @@ namespace Prism.API
         public virtual void PostUpdate() { }
 
         /// <summary>
-        /// A hook called right after Main.UpdateMusic() assigns this.newMusic to Main.curMusic.
+        /// A hook used to change the current music last-minute.
         /// </summary>
+        /// <param name="current">The inner value can be changed.</param>
         [Hook]
-        public virtual void UpdateMusic() { }
+        public virtual void UpdateMusic(Ref<KeyValuePair<string, BgmEntry>> current) { }
 
 #if DEV_BUILD
         /// <summary>
@@ -134,6 +136,18 @@ namespace Prism.API
 #endif
 
         //TODO: move these somewhere else? (it might get crowded with these ~~soon~~ it's already becoming quite annoying imo)
+        /// <summary>
+        /// Gets all BGM entries created by the mod.
+        /// </summary>
+        /// <returns>
+        /// A dictionary containing all BGM entry definitions.
+        /// The key of each key/value pair is the internal name of the entry.
+        /// </returns>
+        protected virtual Dictionary<string, BgmEntry> GetBgms()
+        {
+            return Empty<string, BgmEntry>.Dictionary;
+        }
+
         /// <summary>
         /// Gets all item definitions created by the mod.
         /// </summary>
@@ -276,6 +290,15 @@ namespace Prism.API
                 v.Dispose();
 
             resources.Clear();
+        }
+
+        /// <summary>
+        /// Gets teh BGM entry defs by calling the proteced version of <see cref="GetBgms" />.
+        /// </summary>
+        /// <returns><see cref="GetBgms"/></returns>
+        internal Dictionary<string, BgmEntry> GetBgmsInternally()
+        {
+            return GetBgms();
         }
 
         /// <summary>

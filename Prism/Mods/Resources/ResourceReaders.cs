@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using LitJson;
+using Prism.Util;
 
 namespace Prism.Mods.Resources
 {
@@ -45,6 +46,26 @@ namespace Prism.Mods.Resources
         protected override JsonData ReadTypedResource(Stream resourceStream)
         {
             return JsonMapper.ToObject((string)ResourceLoader.ResourceReaders[typeof(string)].ReadResource(resourceStream));
+        }
+    }
+    class SoundBankReader : ResourceReader<SoundBank>
+    {
+        protected override SoundBank ReadTypedResource(Stream resourceStream)
+        {
+            using (var tmp = new RandTempFile(resourceStream, extension: ".xsb", contentFate: StreamFate.DoNothing))
+            {
+                return new SoundBank(Main.engine, tmp.FilePath);
+            }
+        }
+    }
+    class WaveBankReader : ResourceReader<WaveBank>
+    {
+        protected override WaveBank ReadTypedResource(Stream resourceStream)
+        {
+            using (var tmp = new RandTempFile(resourceStream, extension: ".xwb", contentFate: StreamFate.DoNothing))
+            {
+                return new WaveBank(Main.engine, tmp.FilePath);
+            }
         }
     }
 }

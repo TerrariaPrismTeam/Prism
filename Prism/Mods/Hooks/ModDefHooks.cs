@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Prism.API;
+using Prism.API.Audio;
 using Terraria;
 
 namespace Prism.Mods.Hooks
@@ -12,8 +13,8 @@ namespace Prism.Mods.Hooks
             onAllModsLoaded,
             onUnload       ,
             preUpdate      ,
-            postUpdate     ,
-            updateMusic    ;
+            postUpdate     ;
+        IEnumerable<Action<Ref<KeyValuePair<string, BgmEntry>>>> updateMusic;
 
 #if DEV_BUILD
         IEnumerable<Action> updateDebug;
@@ -25,10 +26,11 @@ namespace Prism.Mods.Hooks
             onUnload        = HookManager.CreateHooks<ModDef, Action>(ModData.mods.Values, "OnUnload"       );
             preUpdate       = HookManager.CreateHooks<ModDef, Action>(ModData.mods.Values, "PreUpdate"      );
             postUpdate      = HookManager.CreateHooks<ModDef, Action>(ModData.mods.Values, "PostUpdate"     );
-            updateMusic     = HookManager.CreateHooks<ModDef, Action>(ModData.mods.Values, "UpdateMusic"    );
+
+            updateMusic     = HookManager.CreateHooks<ModDef, Action<Ref<KeyValuePair<string, BgmEntry>>>>(ModData.mods.Values, "UpdateMusic");
 
 #if DEV_BUILD
-            updateDebug     = HookManager.CreateHooks<ModDef, Action>(ModData.mods.Values, "UpdateDebug"    );
+            updateDebug     = HookManager.CreateHooks<ModDef, Action>(ModData.mods.Values, "UpdateDebug");
 #endif
         }
         public void Clear ()
@@ -48,21 +50,24 @@ namespace Prism.Mods.Hooks
         {
             HookManager.Call(onAllModsLoaded);
         }
-        public void OnUnload() //Fuckyou
+        public void OnUnload()
         {
             HookManager.Call(onUnload);
         }
-        public void PreUpdate() //Poro
+        public void PreUpdate()
         {
             HookManager.Call(preUpdate);
         }
-        public void PostUpdate() //Quit
+        public void PostUpdate()
         {
             HookManager.Call(postUpdate);
         }
-        public void UpdateMusic() //Doingthat
+
+        public void UpdateMusic(ref KeyValuePair<string, BgmEntry> current)
         {
-            HookManager.Call(updateMusic);
+            var r = new Ref<KeyValuePair<string, BgmEntry>>(current);
+            HookManager.Call(updateMusic, r);
+            current = r.Value;
         }
 
 #if DEV_BUILD

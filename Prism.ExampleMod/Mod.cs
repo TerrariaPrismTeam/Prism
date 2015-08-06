@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Prism.API;
+using Prism.API.Audio;
 using Prism.API.Defs;
 using Terraria;
 using Terraria.ID;
@@ -45,6 +46,14 @@ namespace Prism.ExampleMod
             TestBosses = new Dictionary<int, int>()
             {
                 { NpcDef.ByName["PizzaBoss", Info.InternalName].Type, 1 },
+            };
+        }
+
+        protected override Dictionary<string, BgmEntry> GetBgms()
+        {
+            return new Dictionary<string, BgmEntry>()
+            {
+                { "PizzaGod", new BgmEntry(Bgm.VanillaBgmOf(25), BgmPriority.Boss, () => Bgm.AnyNPCsForMusic(new NpcRef("PizzaBoss", Info.InternalName).Resolve().Type)) }
             };
         }
 
@@ -324,24 +333,24 @@ namespace Prism.ExampleMod
             prevKeyState = Main.keyState;
         }
 
-        public override void UpdateMusic()
-        {
-            if (Main.gameMenu || !Main.hasFocus)
-                return;
+        //public override void UpdateMusic()
+        //{
+        //    if (Main.gameMenu || !Main.hasFocus)
+        //        return;
 
-            Rectangle screen = new Rectangle((int)Main.screenPosition.X, (int)Main.screenPosition.Y, Main.screenWidth, Main.screenHeight);
-            int pizzaBossType = NpcDef.ByName["PizzaBoss", Info.InternalName].Type;
-            for (int i = 0; i < 200; i++)
-            {
-                if (Main.npc[i].active && Main.npc[i].type == pizzaBossType)
-                {
-                    Rectangle npcRect = new Rectangle((int)(Main.npc[i].position.X + (float)(Main.npc[i].width / 2)) - 5000, (int)(Main.npc[i].position.Y + (float)(Main.npc[i].height / 2)) - 5000, 10000, 10000);
-                    if (screen.Intersects(npcRect))
-                    {
-                        Main.curMusic = 25;
-                    }
-                }
-            }
-        }
+        //    Rectangle screen = new Rectangle((int)Main.screenPosition.X, (int)Main.screenPosition.Y, Main.screenWidth, Main.screenHeight);
+        //    int pizzaBossType = NpcDef.ByName["PizzaBoss", Info.InternalName].Type;
+        //    for (int i = 0; i < 200; i++)
+        //    {
+        //        if (Main.npc[i].active && Main.npc[i].type == pizzaBossType)
+        //        {
+        //            Rectangle npcRect = new Rectangle((int)(Main.npc[i].position.X + (float)(Main.npc[i].width / 2)) - 5000, (int)(Main.npc[i].position.Y + (float)(Main.npc[i].height / 2)) - 5000, 10000, 10000);
+        //            if (screen.Intersects(npcRect))
+        //            {
+        //                Main.curMusic = 25;
+        //            }
+        //        }
+        //    }
+        //}
     }
 }

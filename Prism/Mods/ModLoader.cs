@@ -142,6 +142,7 @@ namespace Prism.Mods
             ModData.modsFromInternalName.Add(mod.Info.InternalName, mod);
 
             errors.AddRange(ResourceLoader .Load(mod));
+            errors.AddRange(ContentLoader  .Load(mod));
             errors.AddRange(EntityDefLoader.Load(mod));
 
             return mod;
@@ -184,8 +185,8 @@ namespace Prism.Mods
             {
                 var curn = Assembly.GetExecutingAssembly().GetName();
                 var p = path + Path.DirectorySeparatorChar + info.AssemblyFileName;
-                var rasm = Assembly.ReflectionOnlyLoadFrom(p);		
-                var refs = rasm.GetReferencedAssemblies();                
+                var rasm = Assembly.ReflectionOnlyLoadFrom(p);
+                var refs = rasm.GetReferencedAssemblies();
                 var refn = refs.FirstOrDefault(an => an.Name == curn.Name);
 
                 var loadAssembly = true;
@@ -225,7 +226,7 @@ namespace Prism.Mods
             {
                 errors.Add(new LoaderError(info, "Could not load mod assembly", e));
                 return null;
-            }          
+            }
 
             return LoadModFromAssembly(asm, info);
         }
@@ -241,7 +242,9 @@ namespace Prism.Mods
             if (!Directory.Exists(PrismApi.ModDirectory))
                 Directory.CreateDirectory(PrismApi.ModDirectory);
 
+            // the EntityDefLoader setup is called in TMain.Initialize
             ResourceLoader.Setup();
+            ContentLoader .Setup();
 
             var dirs = Directory.EnumerateDirectories(PrismApi.ModDirectory);
 
@@ -315,8 +318,9 @@ namespace Prism.Mods
             foreach (var v in ModData.mods.Values)
                 v.Unload();
 
-            EntityDefLoader.ResetEntityHandlers ();
+            EntityDefLoader.ResetEntityHandlers();
             ResourceLoader .Unload();
+            ContentLoader  .Reset();
 
             ModData.mods.Clear();
 

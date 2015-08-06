@@ -95,6 +95,11 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="API\Audio\AltSupportingBgm.cs" />
+    <Compile Include="API\Audio\Bgm.cs" />
+    <Compile Include="API\Audio\BgmEntry.cs" />
+    <Compile Include="API\Audio\IBgm.cs" />
+    <Compile Include="API\Audio\VanillaBgms.cs" />
     <Compile Include="API\Behaviours\EntityBehaviour.cs" />
     <Compile Include="API\Behaviours\ItemBehaviour.cs" />
     <Compile Include="API\Behaviours\ProjectileBehaviour.cs" />
@@ -120,6 +125,7 @@
     <Compile Include="Debugging\DebugMenu\DebugMenuNode.cs" />
     <Compile Include="Debugging\DebugMenu\DebugMenu.cs" />
     <Compile Include="Mods\Behaviours\TileBHandler.cs" />
+    <Compile Include="Mods\ContentLoader.cs" />
     <Compile Include="Mods\DefHandlers\RecipeDefHandler.cs" />
     <Compile Include="Mods\DefHandlers\TileDefHandler.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -208,13 +214,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <EmbeddedResource Include="Resources\FakeContent\DebugFont.xnb" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\FakeContent\DebugFont.xnb" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="WinFormDialogs\ExceptionDialogForm.resx">
       <DependentUpon>ExceptionDialogForm.cs</DependentUpon>
     </EmbeddedResource>

@@ -38,7 +38,7 @@ namespace Prism.API.Defs
 
             if (!ModData.Mods.Keys.Any(mi => mi.InternalName == ModName))
                 throw new InvalidOperationException("NPC reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the mod is not loaded.");
-            if (!ModData.Mods.First(mi => mi.Key.InternalName == ModName).Value.ItemDefs.ContainsKey(ResourceName))
+            if (!ModData.Mods.First(mi => mi.Key.InternalName == ModName).Value.NpcDefs.ContainsKey(ResourceName))
                 throw new InvalidOperationException("NPC reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the NPC is not loaded.");
 
             return NpcDef.ByName[ResourceName, ModName];
