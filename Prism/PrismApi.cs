@@ -25,6 +25,20 @@ namespace Prism
 #endif
 #endif
 
+        public static string NiceVersionString
+        {
+            get
+            {
+                switch(PrismApi.VersionType)
+                {
+                    default: return "Prism";
+                    case VersionType.DevBuild:   return "Prism DevBuild [" + GitInfo.REPO + "/" + GitInfo.BRANCH + "]";                    
+                    case VersionType.PreRelease: return "Prism PreRelease v" + PrismApi.Version.ToString();
+                    case VersionType.Normal:     return "Prism v" + PrismApi.Version.ToString();
+                }
+            }
+        }
+
         public readonly static string TerrariaVersionString = AssemblyInfo.TERRARIA_VERSION;
         public readonly static Version TerrariaVersion = new Version(AssemblyInfo.TERRARIA_VERSION);
 

@@ -10,7 +10,6 @@ using Prism.API;
 using Prism.API.Defs;
 using Terraria;
 using Terraria.ID;
-using DV = Prism.Debugging.DebugMenu;
 
 namespace Prism.ExampleMod
 {
@@ -23,9 +22,6 @@ namespace Prism.ExampleMod
         public static Dictionary<int, int> TestItems = new Dictionary<int, int>();
         public static Dictionary<int, int> TestNpcs = new Dictionary<int, int>();
         public static Dictionary<int, int> TestBosses = new Dictionary<int, int>();
-
-        public static bool[] prevNpcActive;
-        public static bool[] prevPlayerActive;
 
         public override void OnAllModsLoaded()
         {
@@ -195,58 +191,11 @@ namespace Prism.ExampleMod
         public static Vector2 GetRandomPositionOnScreen()
         {
             return new Vector2(Main.screenPosition.X + (float)Main.rand.NextDouble() * Main.screenWidth, Main.screenPosition.Y + (float)Main.rand.NextDouble() * Main.screenHeight);
-        }
-
-        public override void OnLoad()
-        {
-            prevNpcActive = new bool[Main.npc.Length];
-            prevPlayerActive = new bool[Main.player.Length];
-
-            for (int i = 0; i < Main.npc.Length; i++)
-            {
-                prevNpcActive[i] = false;
-            }
-
-            for (int i = 0; i < Main.player.Length; i++)
-            {
-                prevPlayerActive[i] = false;
-            }
-        }
-
-        public override void UpdateDebug()
-        {
-            for(int i = 0; i < Main.npc.Length; i++)
-            {
-                if (Main.npc[i] != null && ((!prevNpcActive[i] && Main.npc[i].active) || DV.Node["NPCs"]["NPC_" + i].IsExpanded))
-                {
-                    DV.Node["NPCs"]["NPC_" + i].DebugValue = Main.npc[i];
-                    Main.npc[i] = (NPC)DV.Node["NPCs"]["NPC_" + i].Reflect(Main.npc[i], (f, o) =>
-                    {
-                        if (f.Name == "type")
-                        {
-                            Main.npc[i].SetDefaultsKeepPlayerInteraction((int)o);
-                        }
-                    });
-                }
-
-                prevNpcActive[i] = Main.npc[i].active;
-            }
-
-            for(int i = 0; i < Main.player.Length; i++)
-            {
-                if (Main.player[i] != null && ((!prevPlayerActive[i] && Main.player[i].active) || DV.Node["Players"]["Player_" + i].IsExpanded))
-                {
-                    DV.Node["Players"]["Player_" + i].DebugValue = Main.player[i];
-                    Main.player[i] = (Player)DV.Node["Players"]["Player_" + i].Reflect(Main.player[i], (f, o) => { });
-                }
-
-                prevPlayerActive[i] = Main.player[i].active;
-            }
-        }
+        }       
 
         public override void PostUpdate()
         {
-            if (Main.gameMenu || !Main.hasFocus || Main.chatMode || DV.IsOpen)
+            if (Main.gameMenu || !Main.hasFocus || Main.chatMode)
                 return;
 
             var p = Main.player[Main.myPlayer];

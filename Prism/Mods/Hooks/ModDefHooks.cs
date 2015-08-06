@@ -15,10 +15,6 @@ namespace Prism.Mods.Hooks
             postUpdate     ,
             updateMusic    ;
 
-#if DEV_BUILD
-        IEnumerable<Action> updateDebug;
-#endif
-
         public void Create()
         {
             onAllModsLoaded = HookManager.CreateHooks<ModDef, Action>(ModData.mods.Values, "OnAllModsLoaded");
@@ -26,10 +22,6 @@ namespace Prism.Mods.Hooks
             preUpdate       = HookManager.CreateHooks<ModDef, Action>(ModData.mods.Values, "PreUpdate"      );
             postUpdate      = HookManager.CreateHooks<ModDef, Action>(ModData.mods.Values, "PostUpdate"     );
             updateMusic     = HookManager.CreateHooks<ModDef, Action>(ModData.mods.Values, "UpdateMusic"    );
-
-#if DEV_BUILD
-            updateDebug     = HookManager.CreateHooks<ModDef, Action>(ModData.mods.Values, "UpdateDebug"    );
-#endif
         }
         public void Clear ()
         {
@@ -38,10 +30,6 @@ namespace Prism.Mods.Hooks
             preUpdate       = null;
             postUpdate      = null;
             updateMusic     = null;
-
-#if DEV_BUILD
-            updateDebug     = null;
-#endif
         }
 
         public void OnAllModsLoaded()
@@ -64,12 +52,5 @@ namespace Prism.Mods.Hooks
         {
             HookManager.Call(updateMusic);
         }
-
-#if DEV_BUILD
-        public void UpdateDebug()
-        {
-            HookManager.Call(updateDebug);
-        }
-#endif
     }
 }
