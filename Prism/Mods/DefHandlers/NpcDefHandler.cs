@@ -202,8 +202,8 @@ namespace Prism.Mods.DefHandlers
 
             for (int i = 0; i < def.BuffImmunities.Count; i++)
                 npc.buffImmune[i] = true;
-
-            npc.catchItem = (short)def.CaughtAsItem.Resolve().NetID;
+            
+            npc.catchItem = (short)(def.CaughtAsItem != null ? def.CaughtAsItem.Resolve().NetID : 0);
         }
 
         void RegisterBossHeadTexture(NpcDef npc)
