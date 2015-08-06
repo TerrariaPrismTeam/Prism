@@ -9,6 +9,7 @@ using Prism.Mods;
 using Prism.Mods.DefHandlers;
 using Prism.Mods.Hooks;
 using Terraria;
+using Prism.Util;
 
 namespace Prism
 {
@@ -24,9 +25,7 @@ namespace Prism
         internal TMain()
             : base()
         {
-            versionNumber += ", Prism v" + PrismApi.Version;
-            if (PrismApi.VersionType != VersionType.Normal)
-                versionNumber += " " + PrismApi.VersionType;
+            versionNumber += ", " + PrismApi.NiceVersionString;
 
             SavePath += "\\Prism";
 
@@ -102,15 +101,8 @@ namespace Prism
 
                 base.Update(gt);
 
-                //Debug is borked right now it will probably crash (i was in the middle of debugging when i said "fuck everything" and just closed the solution last night)
-
-#if DEV_BUILD
                 if (!gameMenu && prevGameMenu)
-                    Main.NewText("Prism DevBuild Version " + PrismApi.Version.ToString() + ". Press Shift+Alt+H to open the Debug menu (might freeze for a few seconds and/or take tons of RAM).", 0, 255, 255, true);
-                DebugMenu.Update(gt);
-                if (DebugMenu.HasBeenOpened)
-                    HookManager.ModDef.UpdateDebug();
-#endif
+                    Helpers.Main.RandColorText("Welcome to " + PrismApi.NiceVersionString + ".", true);
 
                 HookManager.ModDef.PostUpdate();
 
@@ -128,11 +120,9 @@ namespace Prism
             try
             {
                 base.Draw(gt);
-
-#if DEV_BUILD
-                DebugMenu.DrawAll(spriteBatch);
-#endif
+#if TRACE //logic
                 TraceDrawer.DrawTrace(spriteBatch, PrismDebug.lines);
+#endif
                 justDrawCrashed = false;
                 lastDrawExn = null;
             }
