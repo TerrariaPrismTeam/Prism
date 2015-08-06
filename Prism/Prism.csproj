@@ -112,6 +112,7 @@
     <Compile Include="API\Defs\ProjectileRef.cs" />
     <Compile Include="API\Defs\NpcRef.cs" />
     <Compile Include="API\Defs\ItemRef.cs" />
+    <Compile Include="API\Defs\BuffDef.cs" />
     <Compile Include="API\Defs\RecipeDef.cs" />
     <Compile Include="API\Defs\TileDef.cs" />
     <Compile Include="API\Defs\TileDefStructs.cs" />

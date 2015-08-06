@@ -97,9 +97,7 @@ namespace Prism
 
                 ApplyHotfixes(); //The array is initialized every time new Player() is called. Until we have like InitPlayer or something we just have to ghettohack it like this.
 
-                base.Update(gt);
-
-                //Debug is borked right now it will probably crash (i was in the middle of debugging when i said "fuck everything" and just closed the solution last night)
+                base.Update(gt);                
 
                 if (!gameMenu && prevGameMenu)
                     Helpers.Main.RandColorText("Welcome to " + PrismApi.NiceVersionString + ".", true);
