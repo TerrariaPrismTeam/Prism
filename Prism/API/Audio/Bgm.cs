@@ -33,7 +33,7 @@ namespace Prism.API.Audio
 
                 if (NPC.MoonLordCountdown > 720)
                     ret = MathHelper.Lerp(0f, 1f, ret);
-                else // mute completely for the last 3 minutes
+                else // mute completely for the last 12 seconds
                 {
                     ret = 0f;
                     current = null;
