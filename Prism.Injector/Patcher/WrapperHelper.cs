@@ -57,6 +57,30 @@ namespace Prism.Injector.Patcher
                 }
         }
 
+        public static void WrapMethod(CecilContext context, TypeDefinition typeDef, string methodName, MethodFlags methodFlags, TypeReference returnType, params TypeReference[] args)
+        {
+            WrapMethod(context, typeDef, methodName, methodFlags, "Terraria.PrismInjections", typeDef.Name + "_" + methodName + "Delegate", returnType, args);
+        }
+
+        public static void WrapMethod(CecilContext context, TypeDefinition typeDef, string methodName, MethodFlags methodFlags, string delegateNS, string delegateName, TypeReference returnType, params TypeReference[] args)
+        {
+            MethodDefinition invokeDelegate;
+
+            //If anyone knows a better way to insert one element at the beginning of an array and scoot all the other elements down one 
+            //then go ahead and do it lol. I dunno how2array
+            TypeReference[] delegateArgs = new[] { typeDef };
+            Array.Resize(ref delegateArgs, args.Length + 1);
+            Array.ConstrainedCopy(args, 0, delegateArgs, 1, args.Length);
+
+            var newDelegate = CecilHelper.CreateDelegate(context, delegateNS, delegateName, returnType, out invokeDelegate, delegateArgs);
+
+            var origMethod = typeDef.GetMethod(methodName, methodFlags, args);
+
+            var newMethod = WrapperHelper.ReplaceAndHook(origMethod, invokeDelegate);
+
+            WrapperHelper.ReplaceAllMethodRefs(context, origMethod, newMethod);
+        }
+
         public static MethodDefinition ReplaceAndHook(MethodDefinition toHook, MethodReference invokeHook)
         {
             //! no delegate type checking is done, runtime errors might happen if it doesn't match exactly
