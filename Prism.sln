@@ -27,23 +27,32 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		DevBuild|Any CPU = DevBuild|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{FA53DC38-9B2B-45D3-818E-3E60F69143F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FA53DC38-9B2B-45D3-818E-3E60F69143F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA53DC38-9B2B-45D3-818E-3E60F69143F6}.DevBuild|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA53DC38-9B2B-45D3-818E-3E60F69143F6}.DevBuild|Any CPU.Build.0 = Debug|Any CPU
 		{FA53DC38-9B2B-45D3-818E-3E60F69143F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA53DC38-9B2B-45D3-818E-3E60F69143F6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{75264225-6481-4139-95DD-11D62BBFE691}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{75264225-6481-4139-95DD-11D62BBFE691}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75264225-6481-4139-95DD-11D62BBFE691}.DevBuild|Any CPU.ActiveCfg = DevBuild|Any CPU
+		{75264225-6481-4139-95DD-11D62BBFE691}.DevBuild|Any CPU.Build.0 = DevBuild|Any CPU
 		{75264225-6481-4139-95DD-11D62BBFE691}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{75264225-6481-4139-95DD-11D62BBFE691}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6B42EB0B-AFA3-4449-ACDA-AA91C8A39DC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6B42EB0B-AFA3-4449-ACDA-AA91C8A39DC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B42EB0B-AFA3-4449-ACDA-AA91C8A39DC0}.DevBuild|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B42EB0B-AFA3-4449-ACDA-AA91C8A39DC0}.DevBuild|Any CPU.Build.0 = Debug|Any CPU
 		{6B42EB0B-AFA3-4449-ACDA-AA91C8A39DC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B42EB0B-AFA3-4449-ACDA-AA91C8A39DC0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F860FCD9-FDEA-4F94-8794-6FDACF1786A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F860FCD9-FDEA-4F94-8794-6FDACF1786A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F860FCD9-FDEA-4F94-8794-6FDACF1786A2}.DevBuild|Any CPU.ActiveCfg = Debug|Any CPU
+		{F860FCD9-FDEA-4F94-8794-6FDACF1786A2}.DevBuild|Any CPU.Build.0 = Debug|Any CPU
 		{F860FCD9-FDEA-4F94-8794-6FDACF1786A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F860FCD9-FDEA-4F94-8794-6FDACF1786A2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Prism.Mods;
+using Prism.Util;
 
 namespace Prism
 {
@@ -17,24 +18,26 @@ namespace Prism
         public readonly static Version Version = new Version(AssemblyInfo.VERSION);
 #if DEV_BUILD
         public readonly static VersionType VersionType = VersionType.DevBuild;
-#else
-#if DEBUG
+#elif DEBUG
         public readonly static VersionType VersionType = VersionType.PreRelease;
 #else
         public readonly static VersionType VersionType = VersionType.Normal;
-#endif
 #endif
 
         public static string NiceVersionString
         {
             get
             {
-                switch(PrismApi.VersionType)
+                switch (VersionType)
                 {
-                    default: return "Prism";
-                    case VersionType.DevBuild:   return "Prism DevBuild [" + GitInfo.REPO + "/" + GitInfo.BRANCH + "]";                    
-                    case VersionType.PreRelease: return "Prism PreRelease v" + PrismApi.Version.ToString();
-                    case VersionType.Normal:     return "Prism v" + PrismApi.Version.ToString();
+                    case VersionType.DevBuild:
+                        return "Prism DevBuild [" + GitInfo.REPO + "/" + GitInfo.BRANCH + "]";
+                    case VersionType.PreRelease:
+                        return "Prism PreRelease v" + Version.ToString();
+                    case VersionType.Normal:
+                        return "Prism v" + Version.ToString();
+                    default:
+                        return "Prism";
                 }
             }
         }
@@ -53,6 +56,6 @@ namespace Prism
             get;
             internal set;
         }
-        public readonly static ModInfo VanillaInfo = new ModInfo("_", TerrariaString, TerrariaString, "Re-Logic", TerrariaVersionString, "Vanilla terraria", String.Empty, String.Empty, new IReference[0]);
+        public readonly static ModInfo VanillaInfo = new ModInfo("_", TerrariaString, TerrariaString, "Re-Logic", TerrariaVersionString, "Vanilla terraria", String.Empty, String.Empty, Empty<IReference>.Array);
     }
 }

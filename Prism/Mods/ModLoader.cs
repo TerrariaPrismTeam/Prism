@@ -216,11 +216,11 @@ namespace Prism.Mods
 
                 if (refn.Version > curn.Version)
                 {
-                    errors.Add(new LoaderError(info, "Mod was built with a newer version of Prism than the installed version. Update to the latest version of Prism in order to load this mod."));
+                    errors.Add(new LoaderError(info, "Mod was built with a newer version of Prism than the installed version. Update to the latest version of Prism (" + refn.Version + ") in order to load this mod."));
                     loadAssembly = false;
                 }
 
-                asm = Assembly.LoadFrom(p);
+                asm = loadAssembly ? Assembly.LoadFrom(p) : null;
             }
             catch (Exception e)
             {
@@ -228,7 +228,7 @@ namespace Prism.Mods
                 return null;
             }
 
-            return LoadModFromAssembly(asm, info);
+            return asm == null ? null : LoadModFromAssembly(asm, info);
         }
 
         /// <summary>
