@@ -9,35 +9,35 @@ namespace Prism.Injector.Patcher
 {
     static class ProjectilePatcher
     {
-        static CecilContext   c;
-        static MemberResolver r;
+        static CecilContext   context;
+        static MemberResolver  memRes;
 
-        static TypeSystem ts;
-        static TypeDefinition projectile_t;
+        static TypeSystem typeSys;
+        static TypeDefinition typeDef_Projectile;
 
         static void WrapSetDefaults()
         {
             MethodDefinition invokeOnSetDefaults;
-            var onSetDefaultsDel = CecilHelper.CreateDelegate(c, "Terraria.PrismInjections", "Projectile_OnSetDefaultsDelegate", ts.Void, out invokeOnSetDefaults, projectile_t, ts.Int32);
+            var onSetDefaultsDel = CecilHelper.CreateDelegate(context, "Terraria.PrismInjections", "Projectile_OnSetDefaultsDelegate", typeSys.Void, out invokeOnSetDefaults, typeDef_Projectile, typeSys.Int32);
 
-            var setDefaults = projectile_t.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, ts.Int32);
+            var setDefaults = typeDef_Projectile.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32);
 
             var newSetDefaults = WrapperHelper.ReplaceAndHook(setDefaults, invokeOnSetDefaults);
 
-            WrapperHelper.ReplaceAllMethodRefs(c, setDefaults, newSetDefaults);
+            WrapperHelper.ReplaceAllMethodRefs(context, setDefaults, newSetDefaults);
         }
         static void AddFieldForBHandler()
         {
-            projectile_t.Fields.Add(new FieldDefinition("BHandler", FieldAttributes.Public, ts.Object));
+            typeDef_Projectile.Fields.Add(new FieldDefinition("BHandler", FieldAttributes.Public, typeSys.Object));
         }
 
         internal static void Patch()
         {
-            c = TerrariaPatcher.c;
-            r = TerrariaPatcher.r;
+            context = TerrariaPatcher.context;
+            memRes = TerrariaPatcher.memRes;
 
-            ts = c.PrimaryAssembly.MainModule.TypeSystem;
-            projectile_t = r.GetType("Terraria.Projectile");
+            typeSys = context.PrimaryAssembly.MainModule.TypeSystem;
+            typeDef_Projectile = memRes.GetType("Terraria.Projectile");
 
             WrapSetDefaults();
             AddFieldForBHandler();

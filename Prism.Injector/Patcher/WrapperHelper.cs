@@ -8,7 +8,11 @@ namespace Prism.Injector.Patcher
 {
     public static class WrapperHelper
     {
-        // gets the 'ldarg' instruction that requries the lowest possible memory
+        /// <summary>
+        /// Gets the ldarg instruction of the specified index using the smallest value type it can (because we're targeting the Sega Genesis and need to save memory).
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         static Instruction GetLdargOf(ushort index)
         {
             switch (index)
@@ -24,25 +28,32 @@ namespace Prism.Injector.Patcher
                 default:
                     if (index <= Byte.MaxValue)
                         return Instruction.Create(OpCodes.Ldarg_S, (byte)index);
-
+                    //Y U NO HAVE USHORT
                     return Instruction.Create(OpCodes.Ldarg, /* int */ index);
             }
         }
-
-        public static void ReplaceAllMethodRefs(CecilContext c, MethodReference tar, MethodReference @new, bool leaveRecursive = true)
+                
+        /// <summary>
+        /// Replaces all method references with the specified reference within the specified context.
+        /// </summary>
+        /// <param name="context">The current <see cref="CecilContext"/>.</param>
+        /// <param name="targetRef">The <see cref="MethodReference"/> to replace.</param>
+        /// <param name="newRef">The <see cref="MethodReference"/> to replace targetRef with.</param>
+        /// <param name="exitRecursion">Excludes recursive method calls from the replacement operation (may have undesired consequences with recursive methods).</param>
+        public static void ReplaceAllMethodRefs(CecilContext context, MethodReference targetRef, MethodReference newRef, bool exitRecursion = true)
         {
-            foreach (TypeDefinition t in c.PrimaryAssembly.MainModule.Types)
-                foreach (MethodDefinition m in t.Methods)
+            foreach (TypeDefinition tDef in context.PrimaryAssembly.MainModule.Types)
+                foreach (MethodDefinition mDef in tDef.Methods)
                 {
-                    if (!m.HasBody) // abstract, runtime & external, etc
+                    if (!mDef.HasBody) // abstract, runtime & external, etc
                         continue;
 
-                    if (leaveRecursive && m == @new) // may have undesired consequences with recursive methods
+                    if (exitRecursion && mDef == newRef) // may have undesired consequences with recursive methods
                         continue;
 
-                    foreach (Instruction i in m.Body.Instructions)
-                        if (i.Operand == tar)
-                            i.Operand = @new;
+                    foreach (Instruction i in mDef.Body.Instructions)
+                        if (i.Operand == targetRef)
+                            i.Operand = newRef;
                 }
         }
 

@@ -9,35 +9,35 @@ namespace Prism.Injector.Patcher
 {
     static class ItemPatcher
     {
-        static CecilContext   c;
-        static MemberResolver r;
+        static CecilContext   context;
+        static MemberResolver  memRes;
 
-        static TypeSystem ts;
-        static TypeDefinition item_t;
+        static TypeSystem typeSys;
+        static TypeDefinition typeDef_Item;
 
         static void WrapSetDefaults()
         {
             MethodDefinition invokeOnSetDefaults;
-            var onSetDefaultsDel = CecilHelper.CreateDelegate(c, "Terraria.PrismInjections", "Item_OnSetDefaultsDelegate", ts.Void, out invokeOnSetDefaults, item_t, ts.Int32, ts.Boolean);
+            var onSetDefaultsDel = CecilHelper.CreateDelegate(context, "Terraria.PrismInjections", "Item_OnSetDefaultsDelegate", typeSys.Void, out invokeOnSetDefaults, typeDef_Item, typeSys.Int32, typeSys.Boolean);
 
-            var setDefaults = item_t.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, ts.Int32, ts.Boolean);
+            var setDefaults = typeDef_Item.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32, typeSys.Boolean);
 
             var newSetDefaults = WrapperHelper.ReplaceAndHook(setDefaults, invokeOnSetDefaults);
 
-            WrapperHelper.ReplaceAllMethodRefs(c, setDefaults, newSetDefaults);
+            WrapperHelper.ReplaceAllMethodRefs(context, setDefaults, newSetDefaults);
         }
         static void AddFieldForBHandler()
         {
-            item_t.Fields.Add(new FieldDefinition("BHandler", FieldAttributes.Public, ts.Object));
+            typeDef_Item.Fields.Add(new FieldDefinition("BHandler", FieldAttributes.Public, typeSys.Object));
         }
 
         internal static void Patch()
         {
-            c = TerrariaPatcher.c;
-            r = TerrariaPatcher.r;
+            context = TerrariaPatcher.context;
+            memRes = TerrariaPatcher.memRes;
 
-            ts = c.PrimaryAssembly.MainModule.TypeSystem;
-            item_t = r.GetType("Terraria.Item");
+            typeSys = context.PrimaryAssembly.MainModule.TypeSystem;
+            typeDef_Item = memRes.GetType("Terraria.Item");
 
             WrapSetDefaults();
             AddFieldForBHandler();

@@ -8,11 +8,11 @@ namespace Prism.Injector.Patcher
 {
     static class PlayerPatcher
     {
-        static CecilContext   c;
-        static MemberResolver r;
+        static CecilContext   context;
+        static MemberResolver  memRes;
 
-        static TypeSystem ts;
-        static TypeDefinition player_t;
+        static TypeSystem typeSys;
+        static TypeDefinition typeDef_Player;
 
         // Removes the ID checks from player loading, so that invalid items
         // are removed instead of resulting in the character being declared
@@ -34,7 +34,7 @@ namespace Prism.Injector.Patcher
                     OpCodes.Br_S,
             };
 
-            var loadPlayerBody = player_t.GetMethod("LoadPlayer", MethodFlags.Public | MethodFlags.Static, ts.String, ts.Boolean).Body;
+            var loadPlayerBody = typeDef_Player.GetMethod("LoadPlayer", MethodFlags.Public | MethodFlags.Static, typeSys.String, typeSys.Boolean).Body;
             var processor = loadPlayerBody.GetILProcessor();
             int count = 0;
 
@@ -63,11 +63,11 @@ namespace Prism.Injector.Patcher
 
         internal static void Patch()
         {
-            c = TerrariaPatcher.c;
-            r = TerrariaPatcher.r;
+            context = TerrariaPatcher.context;
+            memRes  = TerrariaPatcher.memRes;
 
-            ts = c.PrimaryAssembly.MainModule.TypeSystem;
-            player_t = r.GetType("Terraria.Player");
+            typeSys = context.PrimaryAssembly.MainModule.TypeSystem;
+            typeDef_Player = memRes.GetType("Terraria.Player");
 
             RemoveBuggyPlayerLoading();
         }

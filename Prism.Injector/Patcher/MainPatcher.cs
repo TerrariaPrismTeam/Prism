@@ -9,11 +9,11 @@ namespace Prism.Injector.Patcher
 {
     static class MainPatcher
     {
-        static CecilContext   c;
-        static MemberResolver r;
+        static CecilContext   context;
+        static MemberResolver  memRes;
 
-        static TypeSystem ts;
-        static TypeDefinition main_t;
+        static TypeSystem typeSys;
+        static TypeDefinition typeDef_Main;
 
         static void RemoveNetModeCheckFromChat()
         {
@@ -43,7 +43,7 @@ namespace Prism.Injector.Patcher
                 OpCodes.Brfalse_S   //IL_2ac6: brfalse.s IL_2b20
             };
 
-            var mainUpdate = main_t.GetMethod("Update").Body; //Neither the access modifiers or the arg types are specified but its Terraria ffs what other "Update" method could we possibly be looking for in Main?
+            var mainUpdate = typeDef_Main.GetMethod("Update").Body; //Neither the access modifiers or the arg types are specified but its Terraria ffs what other "Update" method could we possibly be looking for in Main?
 
             var proc = mainUpdate.GetILProcessor();
 
@@ -75,7 +75,7 @@ namespace Prism.Injector.Patcher
                 OpCodes.Bge
             };
 
-            var drawNpcs = main_t.GetMethod("DrawNPCs", MethodFlags.Instance | MethodFlags.Public, ts.Boolean);
+            var drawNpcs = typeDef_Main.GetMethod("DrawNPCs", MethodFlags.Instance | MethodFlags.Public, typeSys.Boolean);
 
             var firstInstr = CecilHelper.FindInstructionSeq(drawNpcs.Body, seqToRemove);
             CecilHelper.RemoveInstructions(drawNpcs.Body.GetILProcessor(), firstInstr, seqToRemove.Length);
@@ -83,22 +83,22 @@ namespace Prism.Injector.Patcher
         static void WrapUpdateMusic()
         {
             MethodDefinition invokeOnUpdateMusic;
-            var onUpdateMusicDel = CecilHelper.CreateDelegate(c, "Terraria.PrismInjections", "Main_UpdateMusicDelegate", ts.Void, out invokeOnUpdateMusic, main_t);
+            var onUpdateMusicDel = CecilHelper.CreateDelegate(context, "Terraria.PrismInjections", "Main_UpdateMusicDelegate", typeSys.Void, out invokeOnUpdateMusic, typeDef_Main);
 
-            var updateMusic = main_t.GetMethod("UpdateMusic");
+            var updateMusic = typeDef_Main.GetMethod("UpdateMusic");
 
             var newUpdateMusic = WrapperHelper.ReplaceAndHook(updateMusic, invokeOnUpdateMusic);
 
-            WrapperHelper.ReplaceAllMethodRefs(c, updateMusic, newUpdateMusic);
+            WrapperHelper.ReplaceAllMethodRefs(context, updateMusic, newUpdateMusic);
         }
 
         internal static void Patch()
         {
-            c = TerrariaPatcher.c;
-            r = TerrariaPatcher.r;
+            context = TerrariaPatcher.context;
+            memRes = TerrariaPatcher.memRes;
 
-            ts = c.PrimaryAssembly.MainModule.TypeSystem;
-            main_t = r.GetType("Terraria.Main");
+            typeSys = context.PrimaryAssembly.MainModule.TypeSystem;
+            typeDef_Main = memRes.GetType("Terraria.Main");
 
             RemoveNetModeCheckFromChat();
             RemoveVanillaNpcDrawLimitation();

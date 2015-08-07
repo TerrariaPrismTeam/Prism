@@ -53,7 +53,7 @@ namespace Prism.ExampleMod
             };
         }
 
-        protected override Dictionary<string, ItemDef      > GetItemDefs      ()
+        protected override Dictionary<string, ItemDef> GetItemDefs()
         {
             return new Dictionary<string, ItemDef>
             {
@@ -105,7 +105,7 @@ namespace Prism.ExampleMod
                 } }
             };
         }
-        protected override Dictionary<string, NpcDef       > GetNpcDefs       ()
+        protected override Dictionary<string, NpcDef> GetNpcDefs()
         {
             return new Dictionary<string, NpcDef>
             {
@@ -131,7 +131,7 @@ namespace Prism.ExampleMod
                     IgnoreTileCollision = true,
                     Colour = Color.White,
                     Value = new NpcValue((CoinValue)0),
-                    AiStyle = NpcAiStyle.FlyingWeapon,
+                    AiStyle = NpcAiStyle.MoonLordCore,
                     IsBoss = true,
                     IsSummonableBoss = true
                 } }
