@@ -136,6 +136,7 @@ namespace Prism.Mods.DefHandlers
             def.IsBoss              = npc.boss;
             def.IsTownNpc           = npc.townNPC;
             def.IsFriendly          = npc.friendly;
+            def.DrawBehindTiles     = npc.behindTiles;
             def.Scale               = npc.scale;
             def.KnockbackResistance = npc.knockBackResist;
             def.NpcSlots            = npc.npcSlots;
@@ -196,6 +197,7 @@ namespace Prism.Mods.DefHandlers
             npc.boss            = def.IsBoss;
             npc.townNPC         = def.IsTownNpc;
             npc.friendly        = def.IsFriendly;
+            npc.behindTiles     = def.DrawBehindTiles;
             npc.scale           = def.Scale;
             npc.knockBackResist = def.KnockbackResistance;
             npc.npcSlots        = def.NpcSlots;

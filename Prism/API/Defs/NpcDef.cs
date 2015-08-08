@@ -154,6 +154,14 @@ namespace Prism.API.Defs
             get;
             set;
         }
+        /// <summary>
+        /// Gets or sets whether the NPC should be drawn behind the tiles.
+        /// </summary>
+        public virtual bool DrawBehindTiles
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Gets or sets whether this is a summonable boss. The game uses this to check if the enemy/boss someone is spawning in multiplayer is legitimate or if they're just hacking, ignoring netmessages trying to summon anything which doesn't have this property set to true.
