@@ -44,6 +44,19 @@ namespace Prism.Util
 
             return coll.Concat(other);
         }
+        public static IEnumerable<TOut> SafeSelect<TIn, TOut>(this IEnumerable<TIn> coll, Func<TIn, TOut> fn)
+        {
+            if (fn == null)
+                throw new ArgumentNullException("fn");
+
+            if (coll == null)
+                yield break;
+
+            foreach (var i in coll)
+                yield return fn(i);
+
+            yield break;
+        }
 
         public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> dict)
         {

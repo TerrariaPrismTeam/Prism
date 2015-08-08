@@ -151,7 +151,8 @@ namespace Prism.Mods.DefHandlers
                     def.BuffImmunities.Add(i);
             def.CaughtAsItem = new ItemRef(npc.catchItem);
 
-            def.Music = (ObjectRef)npc.P_Music;
+            if (npc.P_Music != null && npc.P_Music is ObjectRef)
+                def.Music = (ObjectRef)npc.P_Music;
 
             def.DisplayName                         = Main.npcName                     [def.Type];
             def.FrameCount                          = Main.npcFrameCount               [def.Type];

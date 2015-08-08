@@ -21,8 +21,7 @@ namespace Prism.Mods
         {
             var ret = new List<LoaderError>();
 
-            foreach (var kvp in mod.GetBgmsInternally())
-                mod.BgmEntries = mod.GetBgmsInternally();
+            mod.BgmEntries = mod.GetBgmsInternally();
 
             return ret;
         }

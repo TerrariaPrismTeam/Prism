@@ -29,6 +29,10 @@ namespace Prism.Injector.Patcher
         {
             typeDef_NPC.Fields.Add(new FieldDefinition("P_BHandler", FieldAttributes.Public, typeSys.Object));
         }
+        static void AddFieldForMusic()
+        {
+            typeDef_NPC.Fields.Add(new FieldDefinition("P_Music", FieldAttributes.Public, typeSys.Object));
+        }
 
         internal static void Patch()
         {
@@ -40,6 +44,7 @@ namespace Prism.Injector.Patcher
 
             WrapSetDefaults();
             AddFieldForBHandler();
+            AddFieldForMusic();
         }
     }
 }

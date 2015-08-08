@@ -45,14 +45,6 @@ namespace Prism.ExampleMod
             };
         }
 
-        protected override Dictionary<string, BgmEntry> GetBgms()
-        {
-            return new Dictionary<string, BgmEntry>()
-            {
-                { "PizzaGod", new BgmEntry(Bgm.VanillaBgmOf(25), BgmPriority.Boss, () => Bgm.AnyNPCsForMusic(new NpcRef("PizzaBoss", Info.InternalName).Resolve().Type)) }
-            };
-        }
-
         protected override Dictionary<string, ItemDef> GetItemDefs()
         {
             return new Dictionary<string, ItemDef>
@@ -133,7 +125,8 @@ namespace Prism.ExampleMod
                     Value = new NpcValue((CoinValue)0),
                     AiStyle = NpcAiStyle.MoonLordCore,
                     IsBoss = true,
-                    IsSummonableBoss = true
+                    IsSummonableBoss = true,
+                    Music = new ObjectRef("QueenBee")
                 } }
             };
         }

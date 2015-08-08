@@ -27,7 +27,7 @@ namespace Prism.API
 
             static IEnumerable<KeyValuePair<ObjectRef, ItemDef>> GetModDefs(KeyValuePair<ModInfo, ModDef> kvp)
             {
-                return kvp.Value.ItemDefs.Select(kvp_ => new KeyValuePair<ObjectRef, ItemDef>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
+                return kvp.Value.ItemDefs.SafeSelect(kvp_ => new KeyValuePair<ObjectRef, ItemDef>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
             }
 
             static ItemDef ByObjRef(ObjectRef or)
@@ -70,7 +70,7 @@ namespace Prism.API
 
             static IEnumerable<KeyValuePair<ObjectRef, NpcDef>> GetModDefs(KeyValuePair<ModInfo, ModDef> kvp)
             {
-                return kvp.Value.NpcDefs.Select(kvp_ => new KeyValuePair<ObjectRef, NpcDef>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
+                return kvp.Value.NpcDefs.SafeSelect(kvp_ => new KeyValuePair<ObjectRef, NpcDef>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
             }
 
             static NpcDef ByObjRef(ObjectRef or)
@@ -113,7 +113,7 @@ namespace Prism.API
 
             static IEnumerable<KeyValuePair<ObjectRef, ProjectileDef>> GetModDefs(KeyValuePair<ModInfo, ModDef> kvp)
             {
-                return kvp.Value.ProjectileDefs.Select(kvp_ => new KeyValuePair<ObjectRef, ProjectileDef>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
+                return kvp.Value.ProjectileDefs.SafeSelect(kvp_ => new KeyValuePair<ObjectRef, ProjectileDef>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
             }
 
             static ProjectileDef ByObjRef(ObjectRef or)
@@ -156,7 +156,7 @@ namespace Prism.API
 
             static IEnumerable<KeyValuePair<ObjectRef, TileDef>> GetModDefs(KeyValuePair<ModInfo, ModDef> kvp)
             {
-                return kvp.Value.TileDefs.Select(kvp_ => new KeyValuePair<ObjectRef, TileDef>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
+                return kvp.Value.TileDefs.SafeSelect(kvp_ => new KeyValuePair<ObjectRef, TileDef>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
             }
 
             static TileDef ByObjRef(ObjectRef or)
@@ -204,7 +204,7 @@ namespace Prism.API
 
             static IEnumerable<KeyValuePair<ObjectRef, BgmEntry>> GetModDefs(KeyValuePair<ModInfo, ModDef> kvp)
             {
-                return kvp.Value.BgmEntries.Select(kvp_ => new KeyValuePair<ObjectRef, BgmEntry>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
+                return kvp.Value.BgmEntries.SafeSelect(kvp_ => new KeyValuePair<ObjectRef, BgmEntry>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
             }
 
             static BgmEntry ByObjRef(ObjectRef or)

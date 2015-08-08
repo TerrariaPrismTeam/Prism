@@ -530,7 +530,7 @@ namespace Prism.API.Defs
 
             Scale = 1f;
 
-            ExtractinatorMode = -1;
+            ExtractinatorMode = MountType = -1;
 
             Colour = Color.White;
 
