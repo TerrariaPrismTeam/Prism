@@ -10,59 +10,8 @@ using Terraria;
 
 namespace Prism.API.Defs
 {
-    public class ProjectileDef : EntityDef<ProjectileBehaviour, Projectile>
+    public partial class ProjectileDef : EntityDef<ProjectileBehaviour, Projectile>
     {
-        /// <summary>
-        /// Gets ProjectileDefs by their type number.
-        /// </summary>
-        public struct ByTypeIndexer
-        {
-            public ProjectileDef this[int type]
-            {
-                get
-                {
-                    return Handler.ProjDef.DefsByType[type];
-                }
-            }
-        }
-        /// <summary>
-        /// Gets ProjectileDefs by their internal name (and optionally by their mod's internal name).
-        /// </summary>
-        public struct ByNameIndexer
-        {
-            public ProjectileDef this[string projectileInternalName, string modInternalName = null]
-            {
-                get
-                {
-                    if (String.IsNullOrEmpty(modInternalName) || modInternalName == PrismApi.VanillaString || modInternalName == PrismApi.TerrariaString)
-                        return Handler.ProjDef.VanillaDefsByName[projectileInternalName];
-
-                    return ModData.ModsFromInternalName[modInternalName].ProjectileDefs[projectileInternalName];
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets ProjectileDefs by their type number.
-        /// </summary>
-        public static ByTypeIndexer ByType
-        {
-            get
-            {
-                return new ByTypeIndexer();
-            }
-        }
-        /// <summary>
-        /// Gets ProjectileDefs by their internal name (and optionally by their mod's internal name).
-        /// </summary>
-        public static ByNameIndexer ByName
-        {
-            get
-            {
-                return new ByNameIndexer();
-            }
-        }
-
         /// <summary>
         /// Gets or sets the damage this projectile inflicts.
         /// </summary>

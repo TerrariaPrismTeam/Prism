@@ -11,59 +11,8 @@ using Terraria;
 
 namespace Prism.API.Defs
 {
-    public class NpcDef : EntityDef<NpcBehaviour, NPC>
+    public partial class NpcDef : EntityDef<NpcBehaviour, NPC>
     {
-        /// <summary>
-        /// Gets NpcDefs by their type number.
-        /// </summary>
-        public struct ByTypeIndexer
-        {
-            public NpcDef this[int type]
-            {
-                get
-                {
-                    return Handler.NpcDef.DefsByType[type];
-                }
-            }
-        }
-        /// <summary>
-        /// Gets NpcDefs by their internal name (and optionally by their mod's internal name).
-        /// </summary>
-        public struct ByNameIndexer
-        {
-            public NpcDef this[string npcInternalName, string modInternalName = null]
-            {
-                get
-                {
-                    if (String.IsNullOrEmpty(modInternalName) || modInternalName == PrismApi.VanillaString || modInternalName == PrismApi.TerrariaString)
-                        return Handler.NpcDef.VanillaDefsByName[npcInternalName];
-
-                    return ModData.ModsFromInternalName[modInternalName].NpcDefs[npcInternalName];
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets NpcDefs by their type number.
-        /// </summary>
-        public static ByTypeIndexer ByType
-        {
-            get
-            {
-                return new ByTypeIndexer();
-            }
-        }
-        /// <summary>
-        /// Gets NpcDefs by their internal name (and optionally by their mod's internal name).
-        /// </summary>
-        public static ByNameIndexer ByName
-        {
-            get
-            {
-                return new ByNameIndexer();
-            }
-        }
-
         /// <summary>
         /// Gets or sets the amount of damage this NPC inflicts.
         /// </summary>
@@ -365,6 +314,11 @@ namespace Prism.API.Defs
         /// Gets or sets the item that represents the caught NPC (when caught using a bug net. use 'null' to make the npc not catchable.)
         /// </summary>
         public virtual ItemRef CaughtAsItem
+        {
+            get;
+            set;
+        }
+        public virtual ObjectRef Music
         {
             get;
             set;

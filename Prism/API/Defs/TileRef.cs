@@ -17,6 +17,16 @@ namespace Prism.API.Defs
             if (resourceId >= TileID.Count)
                 throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla Tile type.");
         }
+        public TileRef(ObjectRef objRef)
+            : base(objRef)
+        {
+
+        }
+        public TileRef(string resourceName, ModInfo mod)
+            : base(resourceName, mod)
+        {
+
+        }
         public TileRef(string resourceName, string modName = null)
             : base(resourceName, modName)
         {
@@ -36,12 +46,12 @@ namespace Prism.API.Defs
                 return Handler.TileDef.VanillaDefsByName[ResourceName];
             }
 
-            if (!ModData.Mods.Keys.Any(mi => mi.InternalName == ModName))
+            if (!ModData.ModsFromInternalName.ContainsKey(ModName))
                 throw new InvalidOperationException("Tile reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the mod is not loaded.");
-            if (!ModData.Mods.First(mi => mi.Key.InternalName == ModName).Value.TileDefs.ContainsKey(ResourceName))
+            if (!ModData.ModsFromInternalName[ModName].TileDefs.ContainsKey(ResourceName))
                 throw new InvalidOperationException("Tile reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the tile is not loaded.");
 
-            return TileDef.ByName[ResourceName, ModName];
+            return ModData.ModsFromInternalName[ModName].TileDefs[ResourceName];
         }
     }
 }

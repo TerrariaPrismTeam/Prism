@@ -5,66 +5,13 @@ using LitJson;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.API.Behaviours;
-using Prism.Mods;
-using Prism.Mods.DefHandlers;
 using Prism.Util;
 using Terraria;
 
 namespace Prism.API.Defs
 {
-    public class ItemDef : EntityDef<ItemBehaviour, Item>
+    public partial class ItemDef : EntityDef<ItemBehaviour, Item>
     {
-        /// <summary>
-        /// Gets ItemDefs by their type number.
-        /// </summary>
-        public struct ByTypeIndexer
-        {
-            public ItemDef this[int type]
-            {
-                get
-                {
-                    return Handler.ItemDef.DefsByType[type];
-                }
-            }
-        }
-        /// <summary>
-        /// Gets ItemDefs by their internal name (and optionally by their mod's internal name).
-        /// </summary>
-        public struct ByNameIndexer
-        {
-            public ItemDef this[string itemInternalName, string modInternalName = null]
-            {
-                get
-                {
-                    if (String.IsNullOrEmpty(modInternalName) || modInternalName == PrismApi.VanillaString || modInternalName == PrismApi.TerrariaString)
-                        return Handler.ItemDef.VanillaDefsByName[itemInternalName];
-
-                    return ModData.ModsFromInternalName[modInternalName].ItemDefs[itemInternalName];
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets ItemDefs by their type number.
-        /// </summary>
-        public static ByTypeIndexer ByType
-        {
-            get
-            {
-                return new ByTypeIndexer();
-            }
-        }
-        /// <summary>
-        /// Gets ItemDefs by their internal name (and optionally by their mod's internal name).
-        /// </summary>
-        public static ByNameIndexer ByName
-        {
-            get
-            {
-                return new ByNameIndexer();
-            }
-        }
-
         /// <summary>
         /// Gets or sets the damage this item inflicts.
         /// </summary>

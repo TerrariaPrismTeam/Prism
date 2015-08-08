@@ -54,7 +54,7 @@ namespace Prism.Injector.Patcher
             var containing = toHook.DeclaringType;
 
             // create and add the hook delegate field
-            var hookField = new FieldDefinition("On" + origName, FieldAttributes.Public | FieldAttributes.Static, invokeHook.DeclaringType);
+            var hookField = new FieldDefinition("P_On" + origName, FieldAttributes.Public | FieldAttributes.Static, invokeHook.DeclaringType);
             containing.Fields.Add(hookField);
 
             // change the hooked method name

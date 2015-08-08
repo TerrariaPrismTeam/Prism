@@ -17,6 +17,16 @@ namespace Prism.API.Defs
             if (resourceId >= ItemID.Count)
                 throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla Item type or netID.");
         }
+        public ItemRef(ObjectRef objRef)
+            : base(objRef)
+        {
+
+        }
+        public ItemRef(string resourceName, ModInfo mod)
+            : base(resourceName, mod)
+        {
+
+        }
         public ItemRef(string resourceName, string modName = null)
             : base(resourceName, modName)
         {
@@ -36,12 +46,12 @@ namespace Prism.API.Defs
                 return Handler.ItemDef.VanillaDefsByName[ResourceName];
             }
 
-            if (!ModData.Mods.Keys.Any(mi => mi.InternalName == ModName))
+            if (!ModData.ModsFromInternalName.ContainsKey(ModName))
                 throw new InvalidOperationException("Item reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the mod is not loaded.");
-            if (!ModData.Mods.First(mi => mi.Key.InternalName == ModName).Value.ItemDefs.ContainsKey(ResourceName))
+            if (!ModData.ModsFromInternalName[ModName].ItemDefs.ContainsKey(ResourceName))
                 throw new InvalidOperationException("Item reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the item is not loaded.");
 
-            return ItemDef.ByName[ResourceName, ModName];
+            return ModData.ModsFromInternalName[ModName].ItemDefs[ResourceName];
         }
     }
 }

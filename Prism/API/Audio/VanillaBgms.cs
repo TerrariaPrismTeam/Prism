@@ -64,18 +64,21 @@ namespace Prism.API.Audio
             FrostMoon   = new BgmEntry(Bgm.VanillaBgmOf(32), BgmPriority.Event, () => Main.snowMoon   ),
             PumpkinMoon = new BgmEntry(Bgm.VanillaBgmOf(30), BgmPriority.Event, () => Main.pumpkinMoon),
 
-            MoonLord       = new BgmEntry(Bgm.VanillaBgmOf(38), BgmPriority.Boss, () => Bgm.AnyNPCsForMusic(MoonLordNPCs)),
-            MartianMadness = new BgmEntry(Bgm.VanillaBgmOf(37), BgmPriority.Boss, () => Bgm.AnyNPCsForMusic(MartianMadnessNPCs)),
-            LunarPillar    = new BgmEntry(Bgm.VanillaBgmOf(34), BgmPriority.Boss, () => Bgm.AnyNPCsForMusic(LunarPillarNPCs)),
-            Plantera       = new BgmEntry(Bgm.VanillaBgmOf(24), BgmPriority.Boss, () => Bgm.AnyNPCsForMusic(PlanteraNPCs)),
-            Boss2          = new BgmEntry(Bgm.VanillaBgmOf(12), BgmPriority.Boss, () => Bgm.AnyNPCsForMusic(Boss2NPCs)),
-            Boss1          = new BgmEntry(Bgm.VanillaBgmOf( 5), BgmPriority.Boss, () => Bgm.AnyNPCsForMusic(IsBoss1Boss)),
-            Boss3          = new BgmEntry(Bgm.VanillaBgmOf(13), BgmPriority.Boss, () => Bgm.AnyNPCsForMusic(Boss3NPCs)),
-            Golem          = new BgmEntry(Bgm.VanillaBgmOf(17), BgmPriority.Boss, () => Bgm.AnyNPCsForMusic(GolemNPCs)),
-            QueenBee       = new BgmEntry(Bgm.VanillaBgmOf(25), BgmPriority.Boss, () => Bgm.AnyNPCsForMusic(QueenBeeNPCs)),
-            Pirates        = new BgmEntry(Bgm.VanillaBgmOf(35), BgmPriority.Boss, () => Bgm.AnyNPCsForMusic(PiratesNPCs)),
-            GoblinArmy     = new BgmEntry(Bgm.VanillaBgmOf(39), BgmPriority.Boss, () => Bgm.AnyNPCsForMusic(GoblinArmyNPCs)),
+            MoonLord       = new BgmEntry(Bgm.VanillaBgmOf(38), BgmPriority.Boss, () => Bgm.justScanned ? Bgm.bossMusicId ==  7 : Bgm.AnyNPCsForMusic(MoonLordNPCs      )),
+            MartianMadness = new BgmEntry(Bgm.VanillaBgmOf(37), BgmPriority.Boss, () => Bgm.justScanned ? Bgm.bossMusicId ==  9 : Bgm.AnyNPCsForMusic(MartianMadnessNPCs)),
+            LunarPillar    = new BgmEntry(Bgm.VanillaBgmOf(34), BgmPriority.Boss, () => Bgm.justScanned ? Bgm.bossMusicId == 10 : Bgm.AnyNPCsForMusic(LunarPillarNPCs   )),
+            Plantera       = new BgmEntry(Bgm.VanillaBgmOf(24), BgmPriority.Boss, () => Bgm.justScanned ? Bgm.bossMusicId ==  6 : Bgm.AnyNPCsForMusic(PlanteraNPCs      )),
+            Boss2          = new BgmEntry(Bgm.VanillaBgmOf(12), BgmPriority.Boss, () => Bgm.justScanned ? Bgm.bossMusicId ==  2 : Bgm.AnyNPCsForMusic(Boss2NPCs         )),
+            Boss1          = new BgmEntry(Bgm.VanillaBgmOf( 5), BgmPriority.Boss, () => Bgm.justScanned ? Bgm.bossMusicId ==  1 : Bgm.AnyNPCsForMusic(IsBoss1Boss       )),
+            Boss3          = new BgmEntry(Bgm.VanillaBgmOf(13), BgmPriority.Boss, () => Bgm.justScanned ? Bgm.bossMusicId ==  3 : Bgm.AnyNPCsForMusic(Boss3NPCs         )),
+            Golem          = new BgmEntry(Bgm.VanillaBgmOf(17), BgmPriority.Boss, () => Bgm.justScanned ? Bgm.bossMusicId ==  4 : Bgm.AnyNPCsForMusic(GolemNPCs         )),
+            QueenBee       = new BgmEntry(Bgm.VanillaBgmOf(25), BgmPriority.Boss, () => Bgm.justScanned ? Bgm.bossMusicId ==  5 : Bgm.AnyNPCsForMusic(QueenBeeNPCs      )),
+            Pirates        = new BgmEntry(Bgm.VanillaBgmOf(35), BgmPriority.Boss, () => Bgm.justScanned ? Bgm.bossMusicId ==  8 : Bgm.AnyNPCsForMusic(PiratesNPCs       )),
+            GoblinArmy     = new BgmEntry(Bgm.VanillaBgmOf(39), BgmPriority.Boss, () => Bgm.justScanned ? Bgm.bossMusicId == 11 : Bgm.AnyNPCsForMusic(GoblinArmyNPCs    ));
 
+        internal readonly static BgmEntry NpcMusicHandler = new BgmEntry(new NpcMusicBgm(), BgmPriority.Boss, () => Bgm.justScanned && Bgm.bossMusicId == -1);
+
+        public readonly static BgmEntry
             Underworld   = new BgmEntry(Bgm.VanillaBgmOf(36), BgmPriority.Biome, () => Main.player[Main.myPlayer].position.Y > (Main.maxTilesY - 200) * 16),
             Eclipse      = new BgmEntry(Bgm.VanillaBgmOf(27), BgmPriority.Biome, () => Main.eclipse && Main.player[Main.myPlayer].position.Y < Main.worldSurface * 16 + Main.screenHeight / 2),
             Space        = new BgmEntry(Bgm.VanillaBgmOf(15), BgmPriority.Biome, IsInSpace),
@@ -153,14 +156,14 @@ namespace Prism.API.Audio
 
         internal static void FillVanilla()
         {
-            Bgm.VanillaDicts.Add("Title", Title);
+            Bgm.VanillaDict.Add("Title", Title);
 
             for (int i = 0; i < MusicBoxes.Length; i++)
-                Bgm.VanillaDicts.Add("MusicBox" + (i + 1), MusicBoxes[i]);
+                Bgm.VanillaDict.Add("MusicBox" + (i + 1), MusicBoxes[i]);
 
             // will be in the order of definitions above, but Title is excluded (it is more important than the musicboxes)
             foreach (var fi in typeof(VanillaBgms).GetFields(BindingFlags.Public | BindingFlags.Static).Where(fi => fi.Name != "Title" && fi.FieldType == typeof(BgmEntry)))
-                Bgm.VanillaDicts.Add(fi.Name, (BgmEntry)fi.GetValue(null));
+                Bgm.VanillaDict.Add(fi.Name, (BgmEntry)fi.GetValue(null));
         }
     }
 }

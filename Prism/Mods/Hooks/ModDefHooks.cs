@@ -14,7 +14,7 @@ namespace Prism.Mods.Hooks
             onUnload       ,
             preUpdate      ,
             postUpdate     ;
-        IEnumerable<Action<Ref<KeyValuePair<string, BgmEntry>>>> updateMusic;
+        IEnumerable<Action<Ref<KeyValuePair<ObjectRef, BgmEntry>>>> updateMusic;
 
         public void Create()
         {
@@ -23,7 +23,7 @@ namespace Prism.Mods.Hooks
             preUpdate       = HookManager.CreateHooks<ModDef, Action>(ModData.mods.Values, "PreUpdate"      );
             postUpdate      = HookManager.CreateHooks<ModDef, Action>(ModData.mods.Values, "PostUpdate"     );
 
-            updateMusic     = HookManager.CreateHooks<ModDef, Action<Ref<KeyValuePair<string, BgmEntry>>>>(ModData.mods.Values, "UpdateMusic");
+            updateMusic     = HookManager.CreateHooks<ModDef, Action<Ref<KeyValuePair<ObjectRef, BgmEntry>>>>(ModData.mods.Values, "UpdateMusic");
         }
         public void Clear ()
         {
@@ -51,9 +51,9 @@ namespace Prism.Mods.Hooks
             HookManager.Call(postUpdate);
         }
 
-        public void UpdateMusic(ref KeyValuePair<string, BgmEntry> current)
+        public void UpdateMusic(ref KeyValuePair<ObjectRef, BgmEntry> current)
         {
-            var r = new Ref<KeyValuePair<string, BgmEntry>>(current);
+            var r = new Ref<KeyValuePair<ObjectRef, BgmEntry>>(current);
             HookManager.Call(updateMusic, r);
             current = r.Value;
         }

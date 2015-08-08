@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Prism.API;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Prism.Mods.Behaviours;
@@ -64,7 +65,7 @@ namespace Prism.Mods.DefHandlers
                 h.behaviours.AddRange(bs);
 
                 h.Create();
-                n.BHandler = h;
+                n.P_BHandler = h;
 
                 foreach (var b in h.Behaviours)
                     b.Entity = n;
@@ -150,6 +151,8 @@ namespace Prism.Mods.DefHandlers
                     def.BuffImmunities.Add(i);
             def.CaughtAsItem = new ItemRef(npc.catchItem);
 
+            def.Music = (ObjectRef)npc.P_Music;
+
             def.DisplayName                         = Main.npcName                     [def.Type];
             def.FrameCount                          = Main.npcFrameCount               [def.Type];
 
@@ -204,6 +207,8 @@ namespace Prism.Mods.DefHandlers
                 npc.buffImmune[i] = true;
 
             npc.catchItem = def.CaughtAsItem == null ? (short)0 : (short)def.CaughtAsItem.Resolve().NetID;
+
+            npc.P_Music = def.Music;
         }
 
         void RegisterBossHeadTexture(NpcDef npc)

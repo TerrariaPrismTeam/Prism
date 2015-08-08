@@ -17,6 +17,16 @@ namespace Prism.API.Defs
             if (resourceId >= ProjectileID.Count)
                 throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla Projectile type.");
         }
+        public ProjectileRef(ObjectRef objRef)
+            : base(objRef)
+        {
+
+        }
+        public ProjectileRef(string resourceName, ModInfo mod)
+            : base(resourceName, mod)
+        {
+
+        }
         public ProjectileRef(string resourceName, string modName = null)
             : base(resourceName, modName)
         {
@@ -36,12 +46,12 @@ namespace Prism.API.Defs
                 return Handler.ProjDef.VanillaDefsByName[ResourceName];
             }
 
-            if (!ModData.Mods.Keys.Any(mi => mi.InternalName == ModName))
+            if (!ModData.ModsFromInternalName.ContainsKey(ModName))
                 throw new InvalidOperationException("Projectile reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the mod is not loaded.");
-            if (!ModData.Mods.First(mi => mi.Key.InternalName == ModName).Value.ProjectileDefs.ContainsKey(ResourceName))
+            if (!ModData.ModsFromInternalName[ModName].ProjectileDefs.ContainsKey(ResourceName))
                 throw new InvalidOperationException("Projectile reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the Projectile is not loaded.");
 
-            return ProjectileDef.ByName[ResourceName, ModName];
+            return ModData.ModsFromInternalName[ModName].ProjectileDefs[ResourceName];
         }
     }
 }

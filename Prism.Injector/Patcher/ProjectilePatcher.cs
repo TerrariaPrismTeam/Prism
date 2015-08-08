@@ -28,7 +28,7 @@ namespace Prism.Injector.Patcher
         }
         static void AddFieldForBHandler()
         {
-            projectile_t.Fields.Add(new FieldDefinition("BHandler", FieldAttributes.Public, ts.Object));
+            projectile_t.Fields.Add(new FieldDefinition("P_BHandler", FieldAttributes.Public, ts.Object));
         }
 
         internal static void Patch()

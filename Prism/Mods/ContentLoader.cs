@@ -10,8 +10,7 @@ namespace Prism.Mods
     {
         internal static void Reset()
         {
-            Bgm.VanillaDicts.Clear();
-            Bgm.ByMod.Clear();
+            Bgm.VanillaDict.Clear();
         }
         internal static void Setup()
         {
@@ -23,7 +22,7 @@ namespace Prism.Mods
             var ret = new List<LoaderError>();
 
             foreach (var kvp in mod.GetBgmsInternally())
-                Bgm.ByMod.Add(mod.Info, mod.GetBgmsInternally());
+                mod.BgmEntries = mod.GetBgmsInternally();
 
             return ret;
         }

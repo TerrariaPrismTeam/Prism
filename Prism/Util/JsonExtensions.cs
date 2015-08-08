@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Prism.API.Defs;
+using Prism.API;
 
 namespace Prism.Util
 {
@@ -74,22 +75,29 @@ namespace Prism.Util
             return def;
         }
 
-        public static object ParseAsIntOrEntityInternalName(this JsonData j)
+        public static object ParseAsIntOrObjectRef(this JsonData j)
         {
             if (j.IsInt)
                 return (int)j;
-            else if (j.IsString)
-                return (string)j;
+            else if (j.IsString || j.IsObject)
+                return j.ParseAsObjectRef();
+
+            throw new FormatException("Invalid entity reference type " + j.GetJsonType() + ", must be either int or {string}.");
+        }
+        public static ObjectRef ParseAsObjectRef(this JsonData j)
+        {
+            if (j.IsString)
+                return new ObjectRef((string)j);
             else if (j.IsObject)
                 foreach (KeyValuePair<string, JsonData> o in j)
                 {
                     if (!o.Value.IsString)
-                        throw new FormatException("Invalid key/value pair value type " + o.Value.GetJsonType() + ", must be string.");
+                        throw new FormatException("Invalid object ref modname type " + o.Value.GetJsonType() + ", must be string.");
 
-                    return Tuple.Create(o.Key, (string)o.Value);
+                    return new ObjectRef(o.Key, (string)o.Value);
                 }
 
-            throw new FormatException("Invalid entity reference type " + j.GetJsonType() + ", must be either int or {string}.");
+            throw new FormatException("Invalid object reference type " + j.GetJsonType() + ", must be either string or {string}.");
         }
         public static TEnum ParseAsEnum<TEnum>(this JsonData j)
             where TEnum : struct, IComparable, IConvertible
@@ -110,63 +118,39 @@ namespace Prism.Util
 
         public static ItemRef ParseItemRef(this JsonData j)
         {
-            var o = ParseAsIntOrEntityInternalName(j);
+            var o = ParseAsIntOrObjectRef(j);
 
             if (o is int)
                 return new ItemRef((int)o);
-            else if (o is string)
-                return new ItemRef((string)o);
             else
-            {
-                var t = (Tuple<string, string>)o;
-
-                return new ItemRef(t.Item1, t.Item2);
-            }
+                return new ItemRef((ObjectRef)o);
         }
         public static NpcRef ParseNpcRef(this JsonData j)
         {
-            var o = ParseAsIntOrEntityInternalName(j);
+            var o = ParseAsIntOrObjectRef(j);
 
             if (o is int)
                 return new NpcRef((int)o);
-            else if (o is string)
-                return new NpcRef((string)o);
             else
-            {
-                var t = (Tuple<string, string>)o;
-
-                return new NpcRef(t.Item1, t.Item2);
-            }
+                return new NpcRef((ObjectRef)o);
         }
         public static ProjectileRef ParseProjectileRef(this JsonData j)
         {
-            var o = ParseAsIntOrEntityInternalName(j);
+            var o = ParseAsIntOrObjectRef(j);
 
             if (o is int)
                 return new ProjectileRef((int)o);
-            else if (o is string)
-                return new ProjectileRef((string)o);
             else
-            {
-                var t = (Tuple<string, string>)o;
-
-                return new ProjectileRef(t.Item1, t.Item2);
-            }
+                return new ProjectileRef((ObjectRef)o);
         }
         public static TileRef ParseTileRef(this JsonData j)
         {
-            var o = ParseAsIntOrEntityInternalName(j);
+            var o = ParseAsIntOrObjectRef(j);
 
             if (o is int)
                 return new TileRef((int)o);
-            else if (o is string)
-                return new TileRef((string)o);
             else
-            {
-                var t = (Tuple<string, string>)o;
-
-                return new TileRef(t.Item1, t.Item2);
-            }
+                return new TileRef((ObjectRef)o);
         }
     }
 }

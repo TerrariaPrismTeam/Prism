@@ -29,19 +29,19 @@ namespace Prism.ExampleMod
             TestItems = new Dictionary<int, int>
             {
                 { ItemID.Gel, 999 },
-                { ItemDef.ByName["Ant", Info.InternalName].Type, 1 },
-                { ItemDef.ByName["Pizzantzioli", Info.InternalName].Type, 1 },
-                { ItemDef.ByName["Pizzant", Info.InternalName].Type, 1 },
+                { ItemDef.Defs["Ant", Info].Type, 1 },
+                { ItemDef.Defs["Pizzantzioli", Info].Type, 1 },
+                { ItemDef.Defs["Pizzant", Info].Type, 1 },
             };
 
             TestNpcs = new Dictionary<int, int>
             {
-                { NpcDef.ByName["PizzaNPC", Info.InternalName].Type, 1 },
+                { NpcDef.Defs["PizzaNPC", Info].Type, 1 },
             };
 
             TestBosses = new Dictionary<int, int>()
             {
-                { NpcDef.ByName["PizzaBoss", Info.InternalName].Type, 1 },
+                { NpcDef.Defs["PizzaBoss", Info].Type, 1 },
             };
         }
 
@@ -201,7 +201,7 @@ namespace Prism.ExampleMod
         public static Vector2 GetRandomPositionOnScreen()
         {
             return new Vector2(Main.screenPosition.X + (float)Main.rand.NextDouble() * Main.screenWidth, Main.screenPosition.Y + (float)Main.rand.NextDouble() * Main.screenHeight);
-        }       
+        }
 
         public override void PostUpdate ()
         {

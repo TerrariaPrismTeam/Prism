@@ -17,6 +17,16 @@ namespace Prism.API.Defs
             if (resourceId >= NPCID.Count)
                 throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla NPC type or netID.");
         }
+        public NpcRef(ObjectRef objRef)
+            : base(objRef)
+        {
+
+        }
+        public NpcRef(string resourceName, ModInfo mod)
+            : base(resourceName, mod)
+        {
+
+        }
         public NpcRef(string resourceName, string modName = null)
             : base(resourceName, modName)
         {
@@ -36,12 +46,12 @@ namespace Prism.API.Defs
                 return Handler.NpcDef.VanillaDefsByName[ResourceName];
             }
 
-            if (!ModData.Mods.Keys.Any(mi => mi.InternalName == ModName))
+            if (!ModData.ModsFromInternalName.ContainsKey(ModName))
                 throw new InvalidOperationException("NPC reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the mod is not loaded.");
-            if (!ModData.Mods.First(mi => mi.Key.InternalName == ModName).Value.NpcDefs.ContainsKey(ResourceName))
+            if (!ModData.ModsFromInternalName[ModName].NpcDefs.ContainsKey(ResourceName))
                 throw new InvalidOperationException("NPC reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the NPC is not loaded.");
 
-            return NpcDef.ByName[ResourceName, ModName];
+            return ModData.ModsFromInternalName[ModName].NpcDefs[ResourceName];
         }
     }
 }

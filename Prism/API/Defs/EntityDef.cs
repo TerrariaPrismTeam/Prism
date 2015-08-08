@@ -93,5 +93,10 @@ namespace Prism.API.Defs
         {
             return "{" + (String.IsNullOrEmpty(InternalName) ? DisplayName : InternalName) + ", Mod=" + Mod + "}";
         }
+
+        public static implicit operator ObjectRef(EntityDef<TBehaviour, TEntity> d)
+        {
+            return new ObjectRef(d.InternalName, d.Mod);
+        }
     }
 }

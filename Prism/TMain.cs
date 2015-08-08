@@ -8,8 +8,8 @@ using Prism.Debugging;
 using Prism.Mods;
 using Prism.Mods.DefHandlers;
 using Prism.Mods.Hooks;
-using Terraria;
 using Prism.Util;
+using Terraria;
 
 namespace Prism
 {
@@ -40,11 +40,11 @@ namespace Prism
 
         protected override void Initialize()
         {
-            OnUpdateMusic += Bgm.Update;
+            P_OnUpdateMusic += Bgm.Update;
 
-            Item      .OnSetDefaults += ItemDefHandler.OnSetDefaults;
-            NPC       .OnSetDefaults += NpcDefHandler .OnSetDefaults;
-            Projectile.OnSetDefaults += ProjDefHandler.OnSetDefaults;
+            Item      .P_OnSetDefaults += ItemDefHandler.OnSetDefaults;
+            NPC       .P_OnSetDefaults += NpcDefHandler .OnSetDefaults;
+            Projectile.P_OnSetDefaults += ProjDefHandler.OnSetDefaults;
 
             base.Initialize(); // terraria init and LoadContent happen here
 

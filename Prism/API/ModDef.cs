@@ -40,6 +40,16 @@ namespace Prism.API
         }
 
         /// <summary>
+        /// Gets the mod's BGM entries.
+        /// </summary>
+        /// <remarks>The key of the dictionary is the BGM's internal name (without mod internal name).</remarks>
+        public Dictionary<string, BgmEntry> BgmEntries
+        {
+            get;
+            internal set;
+        }
+
+        /// <summary>
         /// Gets the mod's item definitions.
         /// </summary>
         /// <remarks>The key of the dictionary is the item's internal name (without mod internal name).</remarks>
@@ -125,7 +135,7 @@ namespace Prism.API
         /// </summary>
         /// <param name="current">The inner value can be changed.</param>
         [Hook]
-        public virtual void UpdateMusic(Ref<KeyValuePair<string, BgmEntry>> current) { }
+        public virtual void UpdateMusic(Ref<KeyValuePair<ObjectRef, BgmEntry>> current) { }
 
 #if DEV_BUILD
         /// <summary>
@@ -136,6 +146,7 @@ namespace Prism.API
 #endif
 
         //TODO: move these somewhere else? (it might get crowded with these ~~soon~~ it's already becoming quite annoying imo)
+        //! don't forget the def dicts
         /// <summary>
         /// Gets all BGM entries created by the mod.
         /// </summary>
@@ -290,6 +301,21 @@ namespace Prism.API
                 v.Dispose();
 
             resources.Clear();
+
+            BgmEntries.Clear();
+            BgmEntries = null;
+
+            ItemDefs      .Clear();
+            NpcDefs       .Clear();
+            ProjectileDefs.Clear();
+            TileDefs      .Clear();
+
+            ItemDefs       = null;
+            NpcDefs        = null;
+            ProjectileDefs = null;
+            TileDefs       = null;
+
+            RecipeDefs = null;
         }
 
         /// <summary>

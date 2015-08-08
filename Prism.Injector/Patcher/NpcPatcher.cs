@@ -27,7 +27,11 @@ namespace Prism.Injector.Patcher
         }
         static void AddFieldForBHandler()
         {
-            npc_t.Fields.Add(new FieldDefinition("BHandler", FieldAttributes.Public, ts.Object));
+            npc_t.Fields.Add(new FieldDefinition("P_BHandler", FieldAttributes.Public, ts.Object));
+        }
+        static void AddFieldForMusic()
+        {
+            npc_t.Fields.Add(new FieldDefinition("P_Music", FieldAttributes.Public, ts.Object));
         }
 
         internal static void Patch()
@@ -40,6 +44,7 @@ namespace Prism.Injector.Patcher
 
             WrapSetDefaults();
             AddFieldForBHandler();
+            AddFieldForMusic();
         }
     }
 }

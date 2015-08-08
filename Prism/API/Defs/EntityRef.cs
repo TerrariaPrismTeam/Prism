@@ -53,12 +53,21 @@ namespace Prism.API.Defs
 
             resName = new Lazy<string>(() => resourceId == 0 ? String.Empty : toResName(resourceId));
         }
-        public EntityRef(string resourceName, string modName = null)
+        public EntityRef(ObjectRef objRef)
         {
-            resName = new Lazy<string>(() => resourceName);
-            // resName /* force */ .Value /* make it compile */.ElementAt(0);
+            resName = new Lazy<string>(() => objRef.Name);
 
-            ModName = String.IsNullOrEmpty(resourceName) || modName == PrismApi.VanillaString || modName == PrismApi.TerrariaString ? null : modName;
+            ModName = objRef.ModName;
+        }
+        public EntityRef(string resourceName, string modName = null)
+            : this(new ObjectRef(resourceName, modName))
+        {
+
+        }
+        public EntityRef(string resourceName, ModInfo mod)
+            : this(new ObjectRef(resourceName, mod))
+        {
+
         }
 
         public abstract TEntityDef Resolve();
@@ -85,6 +94,11 @@ namespace Prism.API.Defs
         public override string ToString()
         {
             return (ResourceID.HasValue ? ("#" + ResourceID.Value + " ") : String.Empty) + (String.IsNullOrEmpty(ResourceName) ? "<empty>" : ("{" + Mod.InternalName + "." + ResourceName + "}"));
+        }
+
+        public static implicit operator ObjectRef(EntityRef<TEntityDef, TBehaviour, TEntity> e)
+        {
+            return new ObjectRef(e.ResourceName, e.Mod);
         }
     }
 }

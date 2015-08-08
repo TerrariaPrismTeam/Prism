@@ -60,7 +60,7 @@ namespace Prism.Mods.DefHandlers
                 h.behaviours.AddRange(bs);
 
                 h.Create();
-                item.BHandler = h;
+                item.P_BHandler = h;
 
                 foreach (var b in h.Behaviours)
                     b.Entity = item;

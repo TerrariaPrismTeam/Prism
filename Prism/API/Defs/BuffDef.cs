@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Prism.API.Defs
 {
     public class BuffDef
-    {        
+    {
         /// <summary>
         /// The internal name used to reference this buff.
         /// </summary>
@@ -102,7 +102,7 @@ namespace Prism.API.Defs
             get;
             set;
         }
-        
+
         public bool IsLightPet
         {
             get;
@@ -134,7 +134,7 @@ namespace Prism.API.Defs
             HideTimeDisplay = false;
             Alpha = 1.0f;
             IsVanityPet = false;
-            IsLightPet = false;        
+            IsLightPet = false;
         }
     }
 }

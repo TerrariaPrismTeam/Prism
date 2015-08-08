@@ -12,64 +12,13 @@ using Terraria;
 namespace Prism.API.Defs
 {
 
-    public class TileDef : EntityDef<TileBehaviour, Tile>
+    public partial class TileDef : EntityDef<TileBehaviour, Tile>
     {
         /* TODO:
          * - Add TileAdj
          * - Add TileMerge
          * - Improve Tile Drop JSON read
          */
-
-        /// <summary>
-        /// Gets TileDefs by their type number.
-        /// </summary>
-        public struct ByTypeIndexer
-        {
-            public TileDef this[int type]
-            {
-                get
-                {
-                    return Handler.TileDef.DefsByType[type];
-                }
-            }
-        }
-        /// <summary>
-        /// Gets TileDefs by their internal name (and optionally by their mod's internal name).
-        /// </summary>
-        public struct ByNameIndexer
-        {
-            public TileDef this[string tileInternalName, string modInternalName = null]
-            {
-                get
-                {
-                    if (String.IsNullOrEmpty(modInternalName) || modInternalName == PrismApi.VanillaString || modInternalName == PrismApi.TerrariaString)
-                        return Handler.TileDef.VanillaDefsByName[tileInternalName];
-
-                    return ModData.ModsFromInternalName[modInternalName].TileDefs[tileInternalName];
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets TileDefs by their type number.
-        /// </summary>
-        public static ByTypeIndexer ByType
-        {
-            get
-            {
-                return new ByTypeIndexer();
-            }
-        }
-        /// <summary>
-        /// Gets TileDefs by their internal name (and optionally by their mod's internal name).
-        /// </summary>
-        public static ByNameIndexer ByName
-        {
-            get
-            {
-                return new ByNameIndexer();
-            }
-        }
 
         /// <summary>
         /// Gets or sets the tile's texture function.

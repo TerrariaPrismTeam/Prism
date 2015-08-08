@@ -101,13 +101,16 @@
     <Compile Include="API\Audio\Bgm.cs" />
     <Compile Include="API\Audio\BgmEntry.cs" />
     <Compile Include="API\Audio\IBgm.cs" />
+    <Compile Include="API\Audio\NpcMusicBgm.cs" />
     <Compile Include="API\Audio\VanillaBgms.cs" />
     <Compile Include="API\Behaviours\EntityBehaviour.cs" />
     <Compile Include="API\Behaviours\ItemBehaviour.cs" />
     <Compile Include="API\Behaviours\ProjectileBehaviour.cs" />
     <Compile Include="API\Behaviours\NpcBehaviour.cs" />
     <Compile Include="API\Behaviours\TileBehaviour.cs" />
+    <Compile Include="API\_Defs.cs" />
     <Compile Include="API\Defs\EntityDef.cs" />
+    <Compile Include="API\DefIndexer.cs" />
     <Compile Include="API\Defs\EntityRef.cs" />
     <Compile Include="API\Defs\EntityDefStructs.cs" />
     <Compile Include="API\Defs\ProjectileDef.cs" />
@@ -124,6 +127,7 @@
     <Compile Include="API\Defs\TileDef.cs" />
     <Compile Include="API\Defs\TileDefStructs.cs" />
     <Compile Include="API\Defs\TileRef.cs" />
+    <Compile Include="API\ObjectRef.cs" />
     <Compile Include="Mods\Behaviours\TileBHandler.cs" />
     <Compile Include="Mods\ContentLoader.cs" />
     <Compile Include="Mods\DefHandlers\RecipeDefHandler.cs" />
