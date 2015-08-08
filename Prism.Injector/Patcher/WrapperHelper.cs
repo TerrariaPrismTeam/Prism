@@ -13,8 +13,10 @@ namespace Prism.Injector.Patcher
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        static Instruction GetLdargOf(ushort index)
+        static Instruction GetLdargOf(ushort index, IList<ParameterDefinition> @params, bool isInstance = true)
         {
+            int offset = isInstance ? 1 : 0;
+
             switch (index)
             {
                 case 0:
@@ -27,9 +29,9 @@ namespace Prism.Injector.Patcher
                     return Instruction.Create(OpCodes.Ldarg_3);
                 default:
                     if (index <= Byte.MaxValue)
-                        return Instruction.Create(OpCodes.Ldarg_S, (byte)index);
+                        return Instruction.Create(OpCodes.Ldarg_S, @params[index - offset]);
                     //Y U NO HAVE USHORT
-                    return Instruction.Create(OpCodes.Ldarg, /* int */ index);
+                    return Instruction.Create(OpCodes.Ldarg, @params[index]);
             }
         }
 
@@ -132,8 +134,8 @@ namespace Prism.Injector.Patcher
 
             ilproc.Emit(OpCodes.Ldsfld, hookField);
 
-            for (ushort i = 0; i <= toHook.Parameters.Count; i++)
-                ilproc.Append(GetLdargOf(i));
+            for (ushort i = 0; i < toHook.Parameters.Count + (toHook.IsStatic ? 0 : 1); i++)
+                ilproc.Append(GetLdargOf(i, toHook.Parameters, !toHook.IsStatic));
 
             ilproc.Emit(OpCodes.Callvirt, invokeHook);
 

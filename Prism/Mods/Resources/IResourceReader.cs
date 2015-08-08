@@ -19,7 +19,7 @@ namespace Prism.Mods.Resources
     {
         static bool TIsDisposable = Array.IndexOf(typeof(T).GetInterfaces(), typeof(IDisposable)) != -1;
 
-        Ref<T> read;
+        List<T> read = new List<T>();
 
         protected bool IsDisposed
         {
@@ -37,12 +37,15 @@ namespace Prism.Mods.Resources
 
         public object ReadResource(Stream resourceStream)
         {
-            if (read != null)
-                return read.Value;
+            var origPos = resourceStream.Position;
 
-            read = new Ref<T>(ReadTypedResource(resourceStream));
+            var r = ReadTypedResource(resourceStream);
 
-            return read.Value;
+            resourceStream.Position = origPos;
+
+            read.Add(r);
+
+            return r;
         }
 
         protected abstract T ReadTypedResource(Stream resourceStream);
@@ -53,8 +56,10 @@ namespace Prism.Mods.Resources
                 return;
 
             if (TIsDisposable)
-                ((IDisposable)read.Value).Dispose();
+                for (int i = 0; i < read.Count; i++)
+                    ((IDisposable)read[i]).Dispose();
 
+            read.Clear();
             read = null;
 
             IsDisposed = true;

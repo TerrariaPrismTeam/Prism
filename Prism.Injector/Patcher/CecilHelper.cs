@@ -22,7 +22,7 @@ namespace Prism.Injector.Patcher
 
             delegateType.Methods.Add(ctor);
 
-            invoke = new MethodDefinition("Invoke", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, typeSys.Void);
+            invoke = new MethodDefinition("Invoke", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, returnType);
             invoke.IsRuntime = true;
             for (int i = 0; i < parameters.Length; i++)
                 invoke.Parameters.Add(new ParameterDefinition("arg" + i, 0, parameters[i]));

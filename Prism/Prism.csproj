@@ -148,6 +148,7 @@
     <Compile Include="Mods\ContentLoader.cs" />
     <Compile Include="Mods\DefHandlers\RecipeDefHandler.cs" />
     <Compile Include="Mods\DefHandlers\TileDefHandler.cs" />
+    <Compile Include="Mods\Hooks\NpcHooks.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

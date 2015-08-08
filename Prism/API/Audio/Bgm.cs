@@ -9,6 +9,24 @@ using Terraria.ID;
 
 namespace Prism.API.Audio
 {
+    enum BossBgms
+    {
+        Custom = 65536,
+        None   =     0,
+
+        Boss1          =   0x1,
+        Boss2          =   0x2,
+        Boss3          =   0x4,
+        Golem          =   0x8,
+        QueenBee       =  0x10,
+        Plantera       =  0x20,
+        MoonLord       =  0x40,
+        Pirates        =  0x80,
+        MartianMadness = 0x100,
+        LunarPillar    = 0x200,
+        GoblinArmy     = 0x400
+    }
+
     public static partial class Bgm
     {
         const float fade_delta = 0.005f;
@@ -16,7 +34,7 @@ namespace Prism.API.Audio
 
         internal static Dictionary<string, BgmEntry> VanillaDict = new Dictionary<string, BgmEntry>();
 
-        internal static int bossMusicId = 0;
+        internal static BossBgms bossMusicId = BossBgms.None;
         internal static ObjectRef bossMusic_custom;
         internal static bool justScanned = false; // if NPCs might be updated, scan using AnyNPCsForMusic.
                                                   // using the bossMusicId will only use 1 main.npc iteration per tick, instead of {Defs.Values.Select(e => e.Priority == BgmPriority.Boss).Count()}
@@ -136,7 +154,7 @@ namespace Prism.API.Audio
 
         static void ScanForVanillaBossMusics()
         {
-            bossMusicId = 0;
+            bossMusicId = BossBgms.None;
             bossMusic_custom = default(ObjectRef);
 
             var screen = new Rectangle((int)Main.screenPosition.X, (int)Main.screenPosition.Y, Main.screenWidth, Main.screenHeight);
@@ -151,7 +169,7 @@ namespace Prism.API.Audio
                 if (!screen.Intersects(npcMusicHitbox))
                     continue;
 
-                int musicSelector = 0;
+                BossBgms musicSelector = BossBgms.None;
 
                 #region npc type (or .music) -> musicSelector
                 switch (Main.npc[i].type)
@@ -159,13 +177,13 @@ namespace Prism.API.Audio
                     case NPCID.EaterofWorldsHead:
                     case NPCID.EaterofWorldsBody:
                     case NPCID.EaterofWorldsTail:
-                        musicSelector = 1;
+                        musicSelector |= BossBgms.Boss1;
                         break;
                     case NPCID.WallofFleshEye:
                     case NPCID.WallofFlesh:
                     case NPCID.Retinazer:
                     case NPCID.Spazmatism:
-                        musicSelector = 2;
+                        musicSelector |= BossBgms.Boss2;
                         break;
                     case NPCID.TheDestroyer:
                     case NPCID.TheDestroyerBody:
@@ -174,23 +192,23 @@ namespace Prism.API.Audio
                     case NPCID.MisterStabby:
                     case NPCID.SnowBalla:
                     case NPCID.BrainofCthulhu:
-                        musicSelector = 3;
+                        musicSelector |= BossBgms.Boss3;
                         break;
                     case NPCID.Golem:
                     case NPCID.CultistDevote:
                     case NPCID.CultistBoss:
-                        musicSelector = 4;
+                        musicSelector |= BossBgms.Golem;
                         break;
                     case NPCID.QueenBee:
-                        musicSelector = 5;
+                        musicSelector |= BossBgms.QueenBee;
                         break;
                     case NPCID.Plantera:
                     case NPCID.PlanterasHook:
                     case NPCID.PlanterasTentacle:
-                        musicSelector = 6;
+                        musicSelector |= BossBgms.Plantera;
                         break;
                     case NPCID.MoonLordCore:
-                        musicSelector = 7;
+                        musicSelector |= BossBgms.MoonLord;
                         break;
                     case NPCID.PirateDeckhand:
                     case NPCID.PirateCorsair:
@@ -198,7 +216,7 @@ namespace Prism.API.Audio
                     case NPCID.PirateCrossbower:
                     case NPCID.PirateCaptain:
                     case NPCID.PirateShip:
-                        musicSelector = 8;
+                        musicSelector |= BossBgms.Pirates;
                         break;
                     case NPCID.BrainScrambler:
                     case NPCID.RayGunner:
@@ -212,36 +230,36 @@ namespace Prism.API.Audio
                     case NPCID.Scutlix:
                     case NPCID.MartianSaucerCore:
                     case NPCID.MartianWalker:
-                        musicSelector = 9;
+                        musicSelector |= BossBgms.MartianMadness;
                         break;
                     case NPCID.LunarTowerVortex:
                     case NPCID.LunarTowerStardust:
                     case NPCID.LunarTowerNebula:
                     case NPCID.LunarTowerSolar:
-                        musicSelector = 10;
+                        musicSelector |= BossBgms.LunarPillar;
                         break;
                     case NPCID.GoblinPeon:
                     case NPCID.GoblinThief:
                     case NPCID.GoblinWarrior:
                     case NPCID.GoblinSorcerer:
                     case NPCID.GoblinArcher:
-                        musicSelector = 11;
+                        musicSelector |= BossBgms.GoblinArmy;
                         break;
 
                     default:
-                        if (musicSelector == 0)
+                        if (musicSelector == BossBgms.None)
                             if (Main.npc[i].P_Music != null && Main.npc[i].P_Music is ObjectRef)
                             {
                                 var or = (ObjectRef)Main.npc[i].P_Music;
 
                                 if (!or.IsNull)
                                 {
-                                    musicSelector = -1;
+                                    musicSelector = BossBgms.Custom;
                                     bossMusic_custom = or;
                                 }
                             }
                             else if (Main.npc[i].boss)
-                                musicSelector = 1;
+                                musicSelector = BossBgms.Boss1;
 
                         break;
                 }
@@ -306,11 +324,11 @@ namespace Prism.API.Audio
                     e.Value.Priority
                 ).FirstOrDefault();
 
-            if (newCurrent.Value.Priority < BgmPriority.Boss && bossMusicId != 0)
-                if (bossMusicId == -1)
+            if (newCurrent.Value.Priority < BgmPriority.Boss && bossMusicId != BossBgms.None)
+                if (bossMusicId == BossBgms.Custom)
                     newCurrent = new KeyValuePair<ObjectRef, BgmEntry>(bossMusic_custom, Entries[bossMusic_custom]);
-                else
-                    newCurrent = new KeyValuePair<ObjectRef, BgmEntry>(ObjectRefOfBossMusicId(bossMusicId), Entries[bossMusicId     ]);
+                //else // not really needed
+                //    newCurrent = new KeyValuePair<ObjectRef, BgmEntry>(ObjectRefOfBossMusicId(bossMusicId), Entries[bossMusicId     ]);
 
             Main.engine.Update();
 

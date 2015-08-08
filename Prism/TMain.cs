@@ -39,11 +39,14 @@ namespace Prism
 
         protected override void Initialize()
         {
+            //TODO: might move this somewhere else, too
             P_OnUpdateMusic += Bgm.Update;
 
             Item      .P_OnSetDefaults += ItemDefHandler.OnSetDefaults;
             NPC       .P_OnSetDefaults += NpcDefHandler .OnSetDefaults;
             Projectile.P_OnSetDefaults += ProjDefHandler.OnSetDefaults;
+
+            NPC.P_OnNewNPC += NpcHooks.OnNewNPC;
 
             base.Initialize(); // terraria init and LoadContent happen here
 
