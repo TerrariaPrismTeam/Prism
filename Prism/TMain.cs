@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.API.Audio;
+using Prism.Debugging;
 using Prism.Mods;
 using Prism.Mods.DefHandlers;
 using Prism.Mods.Hooks;
@@ -22,19 +23,19 @@ namespace Prism
         static bool prevGameMenu = true;
 
         internal TMain()
-            : base()
+        : base()
         {
             versionNumber += ", " + PrismApi.NiceVersionString;
 
             SavePath += "\\Prism";
 
             PlayerPath = SavePath + "\\Players";
-            WorldPath  = SavePath + "\\Worlds" ;
+            WorldPath = SavePath + "\\Worlds";
 
             PrismApi.ModDirectory = SavePath + "\\Mods";
 
             CloudPlayerPath = "players_Prism";
-            CloudWorldPath  = "worlds_Prism" ;
+            CloudWorldPath = "worlds_Prism";
         }
 
         protected override void Initialize()
@@ -42,8 +43,8 @@ namespace Prism
             //TODO: might move this somewhere else, too
             P_OnUpdateMusic += Bgm.Update;
 
-            Item      .P_OnSetDefaults += ItemDefHandler.OnSetDefaults;
-            NPC       .P_OnSetDefaults += NpcDefHandler .OnSetDefaults;
+            Item .P_OnSetDefaults += ItemDefHandler.OnSetDefaults;
+            NPC .P_OnSetDefaults += NpcDefHandler .OnSetDefaults;
             Projectile.P_OnSetDefaults += ProjDefHandler.OnSetDefaults;
 
             NPC.P_OnNewNPC += NpcHooks.OnNewNPC;
@@ -53,9 +54,9 @@ namespace Prism
             EntityDefLoader.SetupEntityHandlers();
             ModLoader.Load();
 
-#if DEV_BUILD
+            #if DEV_BUILD
             ModLoader.Debug_ShowAllErrors();
-#endif
+            #endif
 
             ApplyHotfixes();
 
@@ -63,13 +64,14 @@ namespace Prism
                 (ModLoader.errors.Count > 0 ? ", load errors: " + ModLoader.errors.Count : "");
         }
 
-        protected override void   LoadContent()
+        protected override void LoadContent()
         {
             WhitePixel = new Texture2D(GraphicsDevice, 1, 1);
             WhitePixel.SetData(new[] { Color.White });
 
             base.LoadContent();
         }
+
         protected override void UnloadContent()
         {
             ModLoader.Unload();
@@ -107,6 +109,8 @@ namespace Prism
                     Helpers.Main.RandColorText("Welcome to " + PrismApi.NiceVersionString + ".", true);
 
                 HookManager.ModDef.PostUpdate();
+
+                PrismDebug.Update();
             }
             catch (Exception e)
             {
@@ -115,11 +119,17 @@ namespace Prism
 
             prevGameMenu = gameMenu;
         }
+
         protected override void Draw  (GameTime gt)
         {
             try
             {
                 base.Draw(gt);
+
+#if TRACE
+                TraceDrawer.DrawTrace(spriteBatch, PrismDebug.lines);
+#endif
+
                 justDrawCrashed = false;
                 lastDrawExn = null;
             }
