@@ -38,6 +38,14 @@ namespace Prism.API
             }
         }
 
+        public bool IsNull
+        {
+            get
+            {
+                return String.IsNullOrEmpty(name);
+            }
+        }
+
         public ObjectRef(string name, string modName = null)
         {
             if (String.IsNullOrEmpty(name))

@@ -74,11 +74,8 @@ namespace Prism.API.Audio
             Golem          = new BgmEntry(Bgm.VanillaBgmOf(17), BgmPriority.Boss, () => Bgm.justScanned ? Bgm.bossMusicId ==  4 : Bgm.AnyNPCsForMusic(GolemNPCs         )),
             QueenBee       = new BgmEntry(Bgm.VanillaBgmOf(25), BgmPriority.Boss, () => Bgm.justScanned ? Bgm.bossMusicId ==  5 : Bgm.AnyNPCsForMusic(QueenBeeNPCs      )),
             Pirates        = new BgmEntry(Bgm.VanillaBgmOf(35), BgmPriority.Boss, () => Bgm.justScanned ? Bgm.bossMusicId ==  8 : Bgm.AnyNPCsForMusic(PiratesNPCs       )),
-            GoblinArmy     = new BgmEntry(Bgm.VanillaBgmOf(39), BgmPriority.Boss, () => Bgm.justScanned ? Bgm.bossMusicId == 11 : Bgm.AnyNPCsForMusic(GoblinArmyNPCs    ));
+            GoblinArmy     = new BgmEntry(Bgm.VanillaBgmOf(39), BgmPriority.Boss, () => Bgm.justScanned ? Bgm.bossMusicId == 11 : Bgm.AnyNPCsForMusic(GoblinArmyNPCs    )),
 
-        internal readonly static BgmEntry NpcMusicHandler = new BgmEntry(new NpcMusicBgm(), BgmPriority.Boss, () => Bgm.justScanned && Bgm.bossMusicId == -1);
-
-        public readonly static BgmEntry
             Underworld   = new BgmEntry(Bgm.VanillaBgmOf(36), BgmPriority.Biome, () => Main.player[Main.myPlayer].position.Y > (Main.maxTilesY - 200) * 16),
             Eclipse      = new BgmEntry(Bgm.VanillaBgmOf(27), BgmPriority.Biome, () => Main.eclipse && Main.player[Main.myPlayer].position.Y < Main.worldSurface * 16 + Main.screenHeight / 2),
             Space        = new BgmEntry(Bgm.VanillaBgmOf(15), BgmPriority.Biome, IsInSpace),

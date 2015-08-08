@@ -251,7 +251,7 @@ namespace Prism.API.Defs
             set;
         }
         /// <summary>
-        /// Gets or sets this NPC's resistance to knockback.
+        /// Gets or sets this NPC's resistance to knockback (is a multiplier).
         /// </summary>
         public virtual float KnockbackResistance
         {

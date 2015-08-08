@@ -107,26 +107,27 @@ namespace Prism.ExampleMod
                     Width = 64,
                     Height = 64,
                     Alpha = 0,
-                    Scale = 1.0f,
+                    Scale = 1f,
                     IgnoreTileCollision = true,
                     Colour = Color.White,
-                    Value = new NpcValue((CoinValue)0),
+                    Value = NpcValue.Zero,
                     AiStyle = NpcAiStyle.FlyingWeapon
                 } },
                 { "PizzaBoss", new NpcDef("Pizza God", null, 1000, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"), () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
                 {   FrameCount = 1,
                     Damage = 5,
-                    Width = 64,
-                    Height = 64,
+                    Width = 64 * 4,
+                    Height = 64 * 4,
                     Alpha = 0,
-                    Scale = 4.0f,
+                    Scale = 4f,
                     IgnoreTileCollision = true,
+                    KnockbackResistance = 0f,
                     Colour = Color.White,
-                    Value = new NpcValue((CoinValue)0),
-                    AiStyle = NpcAiStyle.MoonLordCore,
+                    Value = NpcValue.Zero,
+                    AiStyle = NpcAiStyle.FlyingHead,
                     IsBoss = true,
                     IsSummonableBoss = true,
-                    Music = new ObjectRef("QueenBee")
+                    Music = new ObjectRef("MoonLord")
                 } }
             };
         }
@@ -196,7 +197,7 @@ namespace Prism.ExampleMod
             return new Vector2(Main.screenPosition.X + (float)Main.rand.NextDouble() * Main.screenWidth, Main.screenPosition.Y + (float)Main.rand.NextDouble() * Main.screenHeight);
         }
 
-        public override void PostUpdate ()
+        public override void PostUpdate()
         {
             if (Main.gameMenu || !Main.hasFocus || Main.chatMode)
                 return;
@@ -274,25 +275,5 @@ namespace Prism.ExampleMod
 
             prevKeyState = Main.keyState;
         }
-
-        //public override void UpdateMusic()
-        //{
-        //    if (Main.gameMenu || !Main.hasFocus)
-        //        return;
-
-        //    Rectangle screen = new Rectangle((int)Main.screenPosition.X, (int)Main.screenPosition.Y, Main.screenWidth, Main.screenHeight);
-        //    int pizzaBossType = NpcDef.ByName["PizzaBoss", Info.InternalName].Type;
-        //    for (int i = 0; i < 200; i++)
-        //    {
-        //        if (Main.npc[i].active && Main.npc[i].type == pizzaBossType)
-        //        {
-        //            Rectangle npcRect = new Rectangle((int)(Main.npc[i].position.X + (float)(Main.npc[i].width / 2)) - 5000, (int)(Main.npc[i].position.Y + (float)(Main.npc[i].height / 2)) - 5000, 10000, 10000);
-        //            if (screen.Intersects(npcRect))
-        //            {
-        //                Main.curMusic = 25;
-        //            }
-        //        }
-        //    }
-        //}
     }
 }
