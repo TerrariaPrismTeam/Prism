@@ -1,28 +1,25 @@
-﻿using Microsoft.Xna.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Terraria;
-using T = Terraria;
+using Microsoft.Xna.Framework;
 
 namespace Prism.Util
 {
-    public class Helpers
+    public static class Helpers
     {
-        public class Main
+        public static class Main
         {
-            public static void RandColorText(string newText, bool force = false)
-            {
-                T.Main.NewText(newText, (byte)T.Main.DiscoR, (byte)T.Main.DiscoG, (byte)T.Main.DiscoB, force);
-            }
-
             public static Color DiscoColor
             {
                 get
                 {
-                    return new Color(T.Main.DiscoR, T.Main.DiscoG, T.Main.DiscoB);
+                    return new Color(TMain.DiscoR, TMain.DiscoG, TMain.DiscoB);
                 }
+            }
+
+            public static void RandColorText(string newText, bool force = false)
+            {
+                TMain.NewText(newText, (byte)TMain.DiscoR, (byte)TMain.DiscoG, (byte)TMain.DiscoB, force);
             }
         }
 

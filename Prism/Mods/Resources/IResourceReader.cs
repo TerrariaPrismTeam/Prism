@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Terraria;
 
 namespace Prism.Mods.Resources
 {
@@ -18,7 +19,7 @@ namespace Prism.Mods.Resources
     {
         static bool TIsDisposable = Array.IndexOf(typeof(T).GetInterfaces(), typeof(IDisposable)) != -1;
 
-        List<T> read = new List<T>();
+        Ref<T> read;
 
         protected bool IsDisposed
         {
@@ -36,15 +37,12 @@ namespace Prism.Mods.Resources
 
         public object ReadResource(Stream resourceStream)
         {
-            var origPos = resourceStream.Position;
+            if (read != null)
+                return read.Value;
 
-            var r = ReadTypedResource(resourceStream);
+            read = new Ref<T>(ReadTypedResource(resourceStream));
 
-            resourceStream.Position = origPos; // reset the position so the resource can be read again
-
-            read.Add(r);
-
-            return r;
+            return read.Value;
         }
 
         protected abstract T ReadTypedResource(Stream resourceStream);
@@ -55,14 +53,11 @@ namespace Prism.Mods.Resources
                 return;
 
             if (TIsDisposable)
-                for (int i = 0; i < read.Count; i++)
-                    ((IDisposable)read[i]).Dispose();
+                ((IDisposable)read.Value).Dispose();
 
-            read.Clear();
             read = null;
 
-            if (!IsDisposed)
-                IsDisposed = true;
+            IsDisposed = true;
         }
 
         ~ResourceReader()
