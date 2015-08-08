@@ -4,7 +4,6 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.API.Audio;
-using Prism.Debugging;
 using Prism.Mods;
 using Prism.Mods.DefHandlers;
 using Prism.Mods.Hooks;
@@ -105,8 +104,6 @@ namespace Prism
                     Helpers.Main.RandColorText("Welcome to " + PrismApi.NiceVersionString + ".", true);
 
                 HookManager.ModDef.PostUpdate();
-
-                PrismDebug.Update();
             }
             catch (Exception e)
             {
@@ -120,9 +117,6 @@ namespace Prism
             try
             {
                 base.Draw(gt);
-#if TRACE //logic
-                TraceDrawer.DrawTrace(spriteBatch, PrismDebug.lines);
-#endif
                 justDrawCrashed = false;
                 lastDrawExn = null;
             }

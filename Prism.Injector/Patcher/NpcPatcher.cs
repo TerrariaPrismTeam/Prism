@@ -8,43 +8,38 @@ namespace Prism.Injector.Patcher
 {
     static class NpcPatcher
     {
-        static CecilContext   c;
-        static MemberResolver r;
+        static CecilContext   context;
+        static MemberResolver  memRes;
 
-        static TypeSystem ts;
-        static TypeDefinition npc_t;
+        static TypeSystem typeSys;
+        static TypeDefinition typeDef_NPC;
 
         static void WrapSetDefaults()
         {
             MethodDefinition invokeOnSetDefaults;
-            var onSetDefaultsDel = CecilHelper.CreateDelegate(c, "Terraria.PrismInjections", "NPC_OnSetDefaultsDelegate", ts.Void, out invokeOnSetDefaults, npc_t, ts.Int32, ts.Single);
+            var onSetDefaultsDel = CecilHelper.CreateDelegate(context, "Terraria.PrismInjections", "NPC_OnSetDefaultsDelegate", typeSys.Void, out invokeOnSetDefaults, typeDef_NPC, typeSys.Int32, typeSys.Single);
 
-            var setDefaults = npc_t.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, ts.Int32, ts.Single);
+            var setDefaults = typeDef_NPC.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32, typeSys.Single);
 
             var newSetDefaults = WrapperHelper.ReplaceAndHook(setDefaults, invokeOnSetDefaults);
 
-            WrapperHelper.ReplaceAllMethodRefs(c, setDefaults, newSetDefaults);
+            WrapperHelper.ReplaceAllMethodRefs(context, setDefaults, newSetDefaults);
         }
         static void AddFieldForBHandler()
         {
-            npc_t.Fields.Add(new FieldDefinition("P_BHandler", FieldAttributes.Public, ts.Object));
-        }
-        static void AddFieldForMusic()
-        {
-            npc_t.Fields.Add(new FieldDefinition("P_Music", FieldAttributes.Public, ts.Object));
+            typeDef_NPC.Fields.Add(new FieldDefinition("P_BHandler", FieldAttributes.Public, typeSys.Object));
         }
 
         internal static void Patch()
         {
-            c = TerrariaPatcher.c;
-            r = TerrariaPatcher.r;
+            context = TerrariaPatcher.context;
+            memRes = TerrariaPatcher.memRes;
 
-            ts = c.PrimaryAssembly.MainModule.TypeSystem;
-            npc_t  = r.GetType("Terraria.NPC" );
+            typeSys = context.PrimaryAssembly.MainModule.TypeSystem;
+            typeDef_NPC  = memRes.GetType("Terraria.NPC" );
 
             WrapSetDefaults();
             AddFieldForBHandler();
-            AddFieldForMusic();
         }
     }
 }

@@ -9,49 +9,12 @@ namespace Prism.Injector.Patcher
 {
     static class MainPatcher
     {
-        static CecilContext   c;
-        static MemberResolver r;
+        static CecilContext   context;
+        static MemberResolver  memRes;
 
-        static TypeSystem ts;
-        static TypeDefinition main_t;
+        static TypeSystem typeSys;
+        static TypeDefinition typeDef_Main;
 
-        static void RemoveNetModeCheckFromChat()
-        {
-            OpCode[] searchSeq =
-            {
-                //IL_2a83: ldsflda valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.KeyboardState Terraria.Main::keyState
-                //IL_2a88: ldc.i4.s 13
-                //IL_2a8a: call instance bool [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.KeyboardState::IsKeyDown(valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.Keys)
-                //IL_2a8f: brfalse IL_2b20
-
-                // Remove these 3:
-                OpCodes.Ldsfld,     //IL_2a94: ldsfld int32 Terraria.Main::netMode
-                OpCodes.Ldc_I4_1,   //IL_2a99: ldc.i4.1
-                OpCodes.Bne_Un,     //IL_2a9a: bne.un IL_2b20
-
-                OpCodes.Ldsflda,    //IL_2a9f: Main.ldsflda valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.KeyboardState Terraria.Main::keyState
-                OpCodes.Ldc_I4,     //IL_2aa4: ldc.i4 164
-                OpCodes.Call,       //IL_2aa9: call instance bool [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.KeyboardState::IsKeyDown(valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.Keys)
-                OpCodes.Brtrue_S,   //IL_2aae: brtrue.s IL_2b20
-
-                OpCodes.Ldsflda,    //IL_2ab0: ldsflda valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.KeyboardState Terraria.Main::keyState
-                OpCodes.Ldc_I4,     //IL_2ab5: ldc.i4 165
-                OpCodes.Call,       //IL_2aba: call instance bool [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.KeyboardState::IsKeyDown(valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.Keys)
-                OpCodes.Brtrue_S,   //IL_2abf: brtrue.s IL_2b20
-
-                OpCodes.Ldsfld,     //IL_2ac1: ldsfld bool Terraria.Main::hasFocus
-                OpCodes.Brfalse_S   //IL_2ac6: brfalse.s IL_2b20
-            };
-
-            var mainUpdate = main_t.GetMethod("Update").Body; //Neither the access modifiers or the arg types are specified but its Terraria ffs what other "Update" method could we possibly be looking for in Main?
-
-            var proc = mainUpdate.GetILProcessor();
-
-            var firstLoc = CecilHelper.FindInstructionSeq(mainUpdate, searchSeq);
-
-            if (firstLoc != null)
-                CecilHelper.RemoveInstructions(proc, firstLoc, 3);
-        }
         static void RemoveVanillaNpcDrawLimitation()
         {
             OpCode[] seqToRemove =
@@ -75,32 +38,24 @@ namespace Prism.Injector.Patcher
                 OpCodes.Bge
             };
 
-            var drawNpcs = main_t.GetMethod("DrawNPCs", MethodFlags.Instance | MethodFlags.Public, ts.Boolean);
+            var drawNpcs = typeDef_Main.GetMethod("DrawNPCs", MethodFlags.Instance | MethodFlags.Public, typeSys.Boolean);
 
             var firstInstr = CecilHelper.FindInstructionSeq(drawNpcs.Body, seqToRemove);
             CecilHelper.RemoveInstructions(drawNpcs.Body.GetILProcessor(), firstInstr, seqToRemove.Length);
         }
         static void WrapUpdateMusic()
         {
-            MethodDefinition invokeOnUpdateMusic;
-            var onUpdateMusicDel = CecilHelper.CreateDelegate(c, "Terraria.PrismInjections", "Main_UpdateMusicDelegate", ts.Void, out invokeOnUpdateMusic, main_t);
-
-            var updateMusic = main_t.GetMethod("UpdateMusic");
-
-            var newUpdateMusic = WrapperHelper.ReplaceAndHook(updateMusic, invokeOnUpdateMusic);
-
-            WrapperHelper.ReplaceAllMethodRefs(c, updateMusic, newUpdateMusic);
+            WrapperHelper.WrapInstanceMethod(context, typeDef_Main, typeSys.Void, "UpdateMusic");
         }
 
         internal static void Patch()
         {
-            c = TerrariaPatcher.c;
-            r = TerrariaPatcher.r;
+            context = TerrariaPatcher.context;
+            memRes = TerrariaPatcher.memRes;
 
-            ts = c.PrimaryAssembly.MainModule.TypeSystem;
-            main_t = r.GetType("Terraria.Main");
+            typeSys = context.PrimaryAssembly.MainModule.TypeSystem;
+            typeDef_Main = memRes.GetType("Terraria.Main");
 
-            RemoveNetModeCheckFromChat();
             RemoveVanillaNpcDrawLimitation();
             WrapUpdateMusic();
         }

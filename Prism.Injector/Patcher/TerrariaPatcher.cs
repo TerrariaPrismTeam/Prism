@@ -14,8 +14,8 @@ namespace Prism.Injector.Patcher
         //    V7_0_0_0 = new Version(7, 0, 0, 0),
         //    V4_5_0_0 = new Version(4, 5, 0, 0);
 
-        internal static CecilContext   c;
-        internal static MemberResolver r;
+        internal static CecilContext   context;
+        internal static MemberResolver  memRes;
 
         static void PublicifyRec(TypeDefinition td)
         {
@@ -35,7 +35,7 @@ namespace Prism.Injector.Patcher
         {
             // make all types and members in the "Terraria" and "Terraria.Map" namespace public
 
-            foreach (TypeDefinition td in c.PrimaryAssembly.MainModule.Types)
+            foreach (TypeDefinition td in context.PrimaryAssembly.MainModule.Types)
             {
                 if (td.Namespace != "Terraria" && td.Namespace != "Terraria.Map")
                     continue;
@@ -47,10 +47,10 @@ namespace Prism.Injector.Patcher
         static void AddInternalsVisibleToAttr()
         {
             // raises attribute not imported error on write
-            var ivt_t = r.ReferenceOf(typeof(InternalsVisibleToAttribute)).Resolve();
+            var ivt_t = memRes.ReferenceOf(typeof(InternalsVisibleToAttribute)).Resolve();
             var ivt_ctor = ivt_t.Methods.First(md => (md.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)) != 0);
 
-            c.PrimaryAssembly.CustomAttributes.Add(new CustomAttribute(ivt_ctor, Encoding.UTF8.GetBytes("Prism")));
+            context.PrimaryAssembly.CustomAttributes.Add(new CustomAttribute(ivt_ctor, Encoding.UTF8.GetBytes("Prism")));
         }
         //static void FixNewtonsoftJsonReferenceVersion()
         //{
@@ -60,7 +60,7 @@ namespace Prism.Injector.Patcher
         //}
         static void RemoveConsoleWriteLineInWndProcHook()
         {
-            var kbi_t = r.GetType("Terraria.keyBoardInput");
+            var kbi_t = memRes.GetType("Terraria.keyBoardInput");
 
             if (kbi_t.NestedTypes.Count == 0) // *nix version, only windows uses WndProc for text input (obviously)
                 return;
@@ -80,11 +80,11 @@ namespace Prism.Injector.Patcher
 
         public static void Patch(CecilContext context, string outputPath)
         {
-            c = context;
-            r = c.Resolver;
+            TerrariaPatcher.context = context;
+            memRes = TerrariaPatcher.context.Resolver;
 
-            c.PrimaryAssembly.Name.Name = "Prism.Terraria";
-            c.PrimaryAssembly.MainModule.Name = c.PrimaryAssembly.Name.Name + ".dll";
+            TerrariaPatcher.context.PrimaryAssembly.Name.Name = "Prism.Terraria";
+            TerrariaPatcher.context.PrimaryAssembly.MainModule.Name = TerrariaPatcher.context.PrimaryAssembly.Name.Name + ".dll";
 
             Publicify();
             //AddInternalsVisibleToAttr();
@@ -99,10 +99,10 @@ namespace Prism.Injector.Patcher
             // do other stuff here
 
             // Newtonsoft.Json.dll, Steamworks.NET.dll and Ionic.Zip.CF.dll are required to write the assembly (and FNA and WindowsBase on mono, too)
-            c.PrimaryAssembly.Write(outputPath);
+            TerrariaPatcher.context.PrimaryAssembly.Write(outputPath);
 
-            r = null;
-            c = null;
+            memRes = null;
+            TerrariaPatcher.context = null;
         }
     }
 }

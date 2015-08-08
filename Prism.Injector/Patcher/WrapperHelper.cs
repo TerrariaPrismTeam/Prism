@@ -8,7 +8,11 @@ namespace Prism.Injector.Patcher
 {
     public static class WrapperHelper
     {
-        // gets the 'ldarg' instruction that requries the lowest possible memory
+        /// <summary>
+        /// Gets the ldarg instruction of the specified index using the smallest value type it can (because we're targeting the Sega Genesis and need to save memory).
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         static Instruction GetLdargOf(ushort index)
         {
             switch (index)
@@ -24,26 +28,73 @@ namespace Prism.Injector.Patcher
                 default:
                     if (index <= Byte.MaxValue)
                         return Instruction.Create(OpCodes.Ldarg_S, (byte)index);
-
+                    //Y U NO HAVE USHORT
                     return Instruction.Create(OpCodes.Ldarg, /* int */ index);
             }
         }
 
-        public static void ReplaceAllMethodRefs(CecilContext c, MethodReference tar, MethodReference @new, bool leaveRecursive = true)
+        /// <summary>
+        /// Replaces all method references with the specified reference within the specified context.
+        /// </summary>
+        /// <param name="context">The current <see cref="CecilContext"/>.</param>
+        /// <param name="targetRef">The <see cref="MethodReference"/> to replace.</param>
+        /// <param name="newRef">The <see cref="MethodReference"/> to replace targetRef with.</param>
+        /// <param name="exitRecursion">Excludes recursive method calls from the replacement operation (may have undesired consequences with recursive methods).</param>
+        public static void ReplaceAllMethodRefs(CecilContext context, MethodReference targetRef, MethodReference newRef, bool exitRecursion = true)
         {
-            foreach (TypeDefinition t in c.PrimaryAssembly.MainModule.Types)
-                foreach (MethodDefinition m in t.Methods)
+            foreach (TypeDefinition tDef in context.PrimaryAssembly.MainModule.Types)
+                foreach (MethodDefinition mDef in tDef.Methods)
                 {
-                    if (!m.HasBody) // abstract, runtime & external, etc
+                    if (!mDef.HasBody) // abstract, runtime & external, etc
                         continue;
 
-                    if (leaveRecursive && m == @new) // may have undesired consequences with recursive methods
+                    if (exitRecursion && mDef == newRef) // may have undesired consequences with recursive methods
                         continue;
 
-                    foreach (Instruction i in m.Body.Instructions)
-                        if (i.Operand == tar)
-                            i.Operand = @new;
+                    foreach (Instruction i in mDef.Body.Instructions)
+                        if (i.Operand == targetRef)
+                            i.Operand = newRef;
                 }
+        }
+
+        public static string[] DefDelTypeName(TypeDefinition typeDef, string methodName)
+        {
+            return new[] { "Terraria.PrismInjections", typeDef.Name + "_" + methodName + "Delegate" };
+        }
+
+        /// <summary>
+        /// Wraps a method using a fancy delegate. Replaces all references of the method with the wrapped one and creates an "On[MethodName]" hook which passes the method's parent type followed by the type parameters of the original method
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="typeDef"></param>
+        /// <param name="methodName"></param>
+        /// <param name="methodFlags"></param>
+        /// <param name="delegateNS"></param>
+        /// <param name="delegateTypeName"></param>
+        /// <param name="returnType"></param>
+        /// <param name="args"></param>
+        public static void WrapInstanceMethod(CecilContext context, string delegateNS, string delegateTypeName, TypeDefinition typeDef, TypeReference returnType, string methodName, MethodFlags methodFlags = MethodFlags.All, params TypeReference[] args)
+        {
+            MethodDefinition invokeDelegate;
+
+            //If anyone knows a better way to insert one element at the beginning of an array and scoot
+            //all the other elements down one index then go ahead and do it lol. I dunno how2array.
+            var delegateArgs = (new TypeReference[] { typeDef }).Concat(args).ToArray();
+
+            var newDelegateType = CecilHelper.CreateDelegate(context, delegateNS, delegateTypeName, returnType, out invokeDelegate, delegateArgs);
+
+            var origMethod = typeDef.GetMethod(methodName, methodFlags, args);
+
+            var newMethod = WrapperHelper.ReplaceAndHook(origMethod, invokeDelegate);
+
+            WrapperHelper.ReplaceAllMethodRefs(context, origMethod, newMethod);
+        }
+
+        //TODO: Finish the XmlDoc for the original method then copy it to this overload (underload?)...
+        public static void WrapInstanceMethod(CecilContext context, TypeDefinition typeDef, TypeReference returnType, string methodName, MethodFlags methodFlags = MethodFlags.All, params TypeReference[] args)
+        {
+            var delTypeName = DefDelTypeName(typeDef, methodName);
+            WrapInstanceMethod(context, delTypeName[0], delTypeName[1], typeDef, returnType, methodName, methodFlags, args);
         }
 
         public static MethodDefinition ReplaceAndHook(MethodDefinition toHook, MethodReference invokeHook)

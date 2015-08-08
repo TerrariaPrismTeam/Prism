@@ -9,13 +9,13 @@ namespace Prism.Injector
     [Flags]
     public enum MethodFlags : byte
     {
-        Public    = 1,
-        NonPublic = 2,
+        Public    =  1,
+        NonPublic =  2,
 
-        Instance  = 4,
-        Static    = 8,
+        Instance  =  4,
+        Static    =  8,
 
-        All = 15
+        All       = 15
     }
 
     public static class MemberResolverExtensions
