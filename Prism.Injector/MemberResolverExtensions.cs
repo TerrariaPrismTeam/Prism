@@ -15,7 +15,7 @@ namespace Prism.Injector
         Instance  = 4,
         Static    = 8,
 
-        All = 15
+        All       = 15
     }
 
     public static class MemberResolverExtensions

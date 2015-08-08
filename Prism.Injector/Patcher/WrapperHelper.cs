@@ -57,28 +57,44 @@ namespace Prism.Injector.Patcher
                 }
         }
 
-        public static void WrapMethod(CecilContext context, TypeDefinition typeDef, string methodName, MethodFlags methodFlags, TypeReference returnType, params TypeReference[] args)
+        public static string[] DefDelTypeName(TypeDefinition typeDef, string methodName)
         {
-            WrapMethod(context, typeDef, methodName, methodFlags, "Terraria.PrismInjections", typeDef.Name + "_" + methodName + "Delegate", returnType, args);
-        }
+            return new[] { "Terraria.PrismInjections", typeDef.Name + "_" + methodName + "Delegate" };
+        }        
 
-        public static void WrapMethod(CecilContext context, TypeDefinition typeDef, string methodName, MethodFlags methodFlags, string delegateNS, string delegateName, TypeReference returnType, params TypeReference[] args)
+        /// <summary>
+        /// Wraps a method using a fancy delegate. Replaces all references of the method with the wrapped one and creates an "On[MethodName]" hook which passes the method's parent type followed by the type parameters of the original method 
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="typeDef"></param>
+        /// <param name="methodName"></param>
+        /// <param name="methodFlags"></param>
+        /// <param name="delegateNS"></param>
+        /// <param name="delegateTypeName"></param>
+        /// <param name="returnType"></param>
+        /// <param name="args"></param>
+        public static void WrapInstanceMethod(CecilContext context, string delegateNS, string delegateTypeName, TypeDefinition typeDef, TypeReference returnType, string methodName, MethodFlags methodFlags = MethodFlags.All, params TypeReference[] args)
         {
             MethodDefinition invokeDelegate;
 
-            //If anyone knows a better way to insert one element at the beginning of an array and scoot all the other elements down one 
-            //then go ahead and do it lol. I dunno how2array
-            TypeReference[] delegateArgs = new[] { typeDef };
-            Array.Resize(ref delegateArgs, args.Length + 1);
-            Array.ConstrainedCopy(args, 0, delegateArgs, 1, args.Length);
+            //If anyone knows a better way to insert one element at the beginning of an array and scoot 
+            //all the other elements down one index then go ahead and do it lol. I dunno how2array.
+            var delegateArgs = (new TypeReference[] { typeDef }).Concat(args).ToArray();
 
-            var newDelegate = CecilHelper.CreateDelegate(context, delegateNS, delegateName, returnType, out invokeDelegate, delegateArgs);
+            var newDelegateType = CecilHelper.CreateDelegate(context, delegateNS, delegateTypeName, returnType, out invokeDelegate, delegateArgs);
 
             var origMethod = typeDef.GetMethod(methodName, methodFlags, args);
 
             var newMethod = WrapperHelper.ReplaceAndHook(origMethod, invokeDelegate);
 
             WrapperHelper.ReplaceAllMethodRefs(context, origMethod, newMethod);
+        }
+
+        //TODO: Finish the XmlDoc for the original method then copy it to this overload (underload?)...
+        public static void WrapInstanceMethod(CecilContext context, TypeDefinition typeDef, TypeReference returnType, string methodName, MethodFlags methodFlags = MethodFlags.All, params TypeReference[] args)
+        {
+            var delTypeName = DefDelTypeName(typeDef, methodName);
+            WrapInstanceMethod(context, delTypeName[0], delTypeName[1], typeDef, returnType, methodName, methodFlags, args);
         }
 
         public static MethodDefinition ReplaceAndHook(MethodDefinition toHook, MethodReference invokeHook)

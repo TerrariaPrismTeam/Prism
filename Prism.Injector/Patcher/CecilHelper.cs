@@ -8,45 +8,45 @@ namespace Prism.Injector.Patcher
 {
     public static class CecilHelper
     {
-        public static TypeDefinition CreateDelegate(CecilContext c, string ns, string name, TypeReference returnType, out MethodDefinition invoke, params TypeReference[] parameters)
+        public static TypeDefinition CreateDelegate(CecilContext context, string @namespace, string name, TypeReference returnType, out MethodDefinition invoke, params TypeReference[] parameters)
         {
-            var r = c.Resolver;
-            var ts = c.PrimaryAssembly.MainModule.TypeSystem;
+            var cResolver = context.Resolver;
+            var typeSys = context.PrimaryAssembly.MainModule.TypeSystem;
 
-            var ret = new TypeDefinition(ns, name, TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.AnsiClass | TypeAttributes.Sealed, r.ReferenceOf(typeof(MulticastDelegate)));
+            var delegateType = new TypeDefinition(@namespace, name, TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.AnsiClass | TypeAttributes.Sealed, cResolver.ReferenceOf(typeof(MulticastDelegate)));
 
-            var ctor = new MethodDefinition(".ctor", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName, ts.Void);
+            var ctor = new MethodDefinition(".ctor", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName, typeSys.Void);
             ctor.IsRuntime = true;
-            ctor.Parameters.Add(new ParameterDefinition("object", 0, ts.Object));
-            ctor.Parameters.Add(new ParameterDefinition("method", 0, ts.IntPtr));
+            ctor.Parameters.Add(new ParameterDefinition("object", 0, typeSys.Object));
+            ctor.Parameters.Add(new ParameterDefinition("method", 0, typeSys.IntPtr));
 
-            ret.Methods.Add(ctor);
+            delegateType.Methods.Add(ctor);
 
-            invoke = new MethodDefinition("Invoke", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, ts.Void);
+            invoke = new MethodDefinition("Invoke", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, typeSys.Void);
             invoke.IsRuntime = true;
             for (int i = 0; i < parameters.Length; i++)
                 invoke.Parameters.Add(new ParameterDefinition("arg" + i, 0, parameters[i]));
 
-            ret.Methods.Add(invoke);
+            delegateType.Methods.Add(invoke);
 
-            var beginInvoke = new MethodDefinition("BeginInvoke", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, r.ReferenceOf(typeof(IAsyncResult)));
+            var beginInvoke = new MethodDefinition("BeginInvoke", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, cResolver.ReferenceOf(typeof(IAsyncResult)));
             beginInvoke.IsRuntime = true;
             for (int i = 0; i < parameters.Length; i++)
                 beginInvoke.Parameters.Add(new ParameterDefinition("arg" + i, 0, parameters[i]));
-            beginInvoke.Parameters.Add(new ParameterDefinition("callback", 0, r.ReferenceOf(typeof(AsyncCallback))));
-            beginInvoke.Parameters.Add(new ParameterDefinition("object", 0, ts.Object));
+            beginInvoke.Parameters.Add(new ParameterDefinition("callback", 0, cResolver.ReferenceOf(typeof(AsyncCallback))));
+            beginInvoke.Parameters.Add(new ParameterDefinition("object", 0, typeSys.Object));
 
-            ret.Methods.Add(beginInvoke);
+            delegateType.Methods.Add(beginInvoke);
 
-            var endInvoke = new MethodDefinition("EndInvoke", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, ts.Void);
+            var endInvoke = new MethodDefinition("EndInvoke", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, typeSys.Void);
             endInvoke.IsRuntime = true;
-            endInvoke.Parameters.Add(new ParameterDefinition("result", 0, r.ReferenceOf(typeof(IAsyncResult))));
+            endInvoke.Parameters.Add(new ParameterDefinition("result", 0, cResolver.ReferenceOf(typeof(IAsyncResult))));
 
-            ret.Methods.Add(endInvoke);
+            delegateType.Methods.Add(endInvoke);
 
-            c.PrimaryAssembly.MainModule.Types.Add(ret);
+            context.PrimaryAssembly.MainModule.Types.Add(delegateType);
 
-            return ret;
+            return delegateType;
         }
         public static Instruction FindInstructionSeq(MethodBody body, OpCode[] instrs)
         {
