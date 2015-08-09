@@ -40,11 +40,11 @@ namespace Prism.Injector.Patcher
 
             while (true)
             {
-                var firstInstr = CecilHelper.FindInstructionSeq(loadPlayerBody, seqToRemove);
+                var firstInstr = loadPlayerBody.FindInstrSeqStart(seqToRemove);
                 if (firstInstr != null)
                 {
                     count++;
-                    CecilHelper.RemoveInstructions(processor, firstInstr, seqToRemove.Length);
+                    processor.RemoveInstructions(firstInstr, seqToRemove.Length);
                 }
                 else
                 {

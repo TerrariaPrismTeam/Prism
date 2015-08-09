@@ -6,9 +6,9 @@ using Mono.Cecil.Cil;
 
 namespace Prism.Injector.Patcher
 {
-    public static class CecilHelper
+    public static class CecilHelperExtensions
     {
-        public static TypeDefinition CreateDelegate(CecilContext context, string @namespace, string name, TypeReference returnType, out MethodDefinition invoke, params TypeReference[] parameters)
+        public static TypeDefinition CreateDelegate(this CecilContext context, string @namespace, string name, TypeReference returnType, out MethodDefinition invoke, params TypeReference[] parameters)
         {
             var cResolver = context.Resolver;
             var typeSys = context.PrimaryAssembly.MainModule.TypeSystem;
@@ -47,8 +47,19 @@ namespace Prism.Injector.Patcher
             context.PrimaryAssembly.MainModule.Types.Add(delegateType);
 
             return delegateType;
+        }        
+        public static Instruction[] FindInstrSeq(this MethodBody body, OpCode[] instrs, int amt)
+        {
+            Instruction[] result = new Instruction[amt];
+
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = i == 0 ? body.FindInstrSeqStart(instrs) : result[i - 1] != null ? result[i - 1].Next : null;
+            }
+
+            return result;
         }
-        public static Instruction FindInstructionSeq(MethodBody body, OpCode[] instrs)
+        public static Instruction FindInstrSeqStart(this MethodBody body, OpCode[] instrs)
         {
             for (int i = 0; i < body.Instructions.Count - instrs.Length; i++)
             {
@@ -65,7 +76,29 @@ namespace Prism.Injector.Patcher
 
             return null;
         }
-        public static void RemoveInstructions(ILProcessor p, Instruction first, int count)
+        public static void ReplaceInstructions(this ILProcessor p, IEnumerable<Instruction> orig, IEnumerable<Instruction> repl)
+        {
+            if (!orig.Chronological(null, i => i.Next) || !repl.Chronological(null, i => i.Next))
+            {
+                Console.Error.WriteLine("Error: Both sequences in CecilHelper.ReplaceInstructions(ILProcessor, IEnumerable<Instruction>, IEnumerable<Instruction>) must be chronological.");
+            }
+            Instruction firstOrig = orig.First();            
+
+            foreach (var i in repl)
+            {
+                p.InsertBefore(firstOrig, i);
+            }
+
+            p.RemoveInstructions(orig);
+        }
+        public static void RemoveInstructions(this ILProcessor p, IEnumerable<Instruction> instrs)
+        {
+            foreach (var i in instrs)
+            {
+                p.Remove(i);
+            }
+        }
+        public static void RemoveInstructions(this ILProcessor p, Instruction first, int count)
         {
             var cur = first;
             for (int i = 0; i < count; i++)

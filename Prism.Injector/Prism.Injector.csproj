@@ -101,7 +101,7 @@
     <Compile Include="ILAsm\ILSnippetCompiler.cs" />
     <Compile Include="ILInjector.cs" />
     <Compile Include="InjectionData.cs" />
-    <Compile Include="Patcher\CecilHelper.cs" />
+    <Compile Include="Patcher\CecilHelperExtensions.cs" />
     <Compile Include="LinqExt.cs" />
     <Compile Include="MemberResolver.cs" />
     <Compile Include="MemberResolverExtensions.cs" />

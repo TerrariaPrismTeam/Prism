@@ -17,7 +17,7 @@ namespace Prism.Injector.Patcher
         static void WrapSetDefaults()
         {
             MethodDefinition invokeOnSetDefaults;
-            var onSetDefaultsDel = CecilHelper.CreateDelegate(context, "Terraria.PrismInjections", "NPC_OnSetDefaultsDelegate", typeSys.Void, out invokeOnSetDefaults, typeDef_NPC, typeSys.Int32, typeSys.Single);
+            var onSetDefaultsDel = context.CreateDelegate("Terraria.PrismInjections", "NPC_OnSetDefaultsDelegate", typeSys.Void, out invokeOnSetDefaults, typeDef_NPC, typeSys.Int32, typeSys.Single);
 
             var setDefaults = typeDef_NPC.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32, typeSys.Single);
 
@@ -36,7 +36,7 @@ namespace Prism.Injector.Patcher
         static void InsertInitialize()
         {
             MethodDefinition invokeOnNewNPC;
-            var onNewNPCDel = CecilHelper.CreateDelegate(context, "Terraria.PrismInjections", "NPC_OnNewNPCDelegate", typeSys.Int32, out invokeOnNewNPC,
+            var onNewNPCDel = context.CreateDelegate("Terraria.PrismInjections", "NPC_OnNewNPCDelegate", typeSys.Int32, out invokeOnNewNPC,
                 typeSys.Int32, typeSys.Int32, typeSys.Int32, typeSys.Int32,
                 typeSys.Single, typeSys.Single, typeSys.Single, typeSys.Single,
                 typeSys.Int32);

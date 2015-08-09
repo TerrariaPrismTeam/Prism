@@ -83,7 +83,7 @@ namespace Prism.Injector.Patcher
             //all the other elements down one index then go ahead and do it lol. I dunno how2array.
             var delegateArgs = (new TypeReference[] { typeDef }).Concat(args).ToArray();
 
-            var newDelegateType = CecilHelper.CreateDelegate(context, delegateNS, delegateTypeName, returnType, out invokeDelegate, delegateArgs);
+            var newDelegateType = context.CreateDelegate(delegateNS, delegateTypeName, returnType, out invokeDelegate, delegateArgs);
 
             var origMethod = typeDef.GetMethod(methodName, methodFlags, args);
 

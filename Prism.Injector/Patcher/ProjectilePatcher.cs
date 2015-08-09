@@ -18,7 +18,7 @@ namespace Prism.Injector.Patcher
         static void WrapSetDefaults()
         {
             MethodDefinition invokeOnSetDefaults;
-            var onSetDefaultsDel = CecilHelper.CreateDelegate(context, "Terraria.PrismInjections", "Projectile_OnSetDefaultsDelegate", typeSys.Void, out invokeOnSetDefaults, typeDef_Projectile, typeSys.Int32);
+            var onSetDefaultsDel = context.CreateDelegate("Terraria.PrismInjections", "Projectile_OnSetDefaultsDelegate", typeSys.Void, out invokeOnSetDefaults, typeDef_Projectile, typeSys.Int32);
 
             var setDefaults = typeDef_Projectile.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32);
 

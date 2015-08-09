@@ -40,8 +40,8 @@ namespace Prism.Injector.Patcher
 
             var drawNpcs = typeDef_Main.GetMethod("DrawNPCs", MethodFlags.Instance | MethodFlags.Public, typeSys.Boolean);
 
-            var firstInstr = CecilHelper.FindInstructionSeq(drawNpcs.Body, seqToRemove);
-            CecilHelper.RemoveInstructions(drawNpcs.Body.GetILProcessor(), firstInstr, seqToRemove.Length);
+            var firstInstr = drawNpcs.Body.FindInstrSeqStart(seqToRemove);
+            drawNpcs.Body.GetILProcessor().RemoveInstructions(firstInstr, seqToRemove.Length);
         }
         static void WrapUpdateMusic()
         {
