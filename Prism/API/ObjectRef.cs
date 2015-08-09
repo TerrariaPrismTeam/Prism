@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Prism.Mods;
 
 namespace Prism.API
@@ -8,6 +9,7 @@ namespace Prism.API
     public struct ObjectRef : IEquatable<ObjectRef>
     {
         string name, modName;
+        internal ModDef requesting;
 
         public string Name
         {
@@ -53,11 +55,13 @@ namespace Prism.API
 
             this.name = name;
             this.modName = modName ?? String.Empty;
+
+            requesting = ModData.ModFromAssembly(Assembly.GetCallingAssembly());
         }
         public ObjectRef(string name, ModInfo mod)
             : this(name, mod.InternalName)
         {
-
+            requesting = null;
         }
 
         public bool Equals(ObjectRef other)

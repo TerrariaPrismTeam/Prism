@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Prism.API.Behaviours;
 using Prism.Mods;
 using Prism.Mods.DefHandlers;
@@ -18,17 +19,17 @@ namespace Prism.API.Defs
                 throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla NPC type or netID.");
         }
         public NpcRef(ObjectRef objRef)
-            : base(objRef)
+            : base(objRef, Assembly.GetCallingAssembly())
         {
 
         }
         public NpcRef(string resourceName, ModInfo mod)
-            : base(resourceName, mod)
+            : base(new ObjectRef(resourceName, mod), Assembly.GetCallingAssembly())
         {
 
         }
         public NpcRef(string resourceName, string modName = null)
-            : base(resourceName, modName)
+            : base(new ObjectRef(resourceName, modName), Assembly.GetCallingAssembly())
         {
 
         }
@@ -37,6 +38,9 @@ namespace Prism.API.Defs
         {
             if (ResourceID.HasValue && Handler.NpcDef.DefsByType.ContainsKey(ResourceID.Value))
                 return Handler.NpcDef.DefsByType[ResourceID.Value];
+
+            if (String.IsNullOrEmpty(ModName) && Requesting != null && Requesting.NpcDefs.ContainsKey(ResourceName))
+                return Requesting.NpcDefs[ResourceName];
 
             if (IsVanillaRef)
             {

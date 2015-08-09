@@ -27,19 +27,19 @@ namespace Prism.ExampleMod
             TestItems = new Dictionary<int, int>
             {
                 { ItemID.Gel, 999 },
-                { ItemDef.Defs["Ant", Info].Type, 1 },
-                { ItemDef.Defs["Pizzantzioli", Info].Type, 1 },
-                { ItemDef.Defs["Pizzant", Info].Type, 1 },
+                { ItemDef.Defs["Ant"].Type, 1 },
+                { ItemDef.Defs["Pizzantzioli"].Type, 1 },
+                { ItemDef.Defs["Pizzant"].Type, 1 },
             };
 
             TestNpcs = new Dictionary<int, int>
             {
-                { NpcDef.Defs["PizzaNPC", Info].Type, 1 },
+                { NpcDef.Defs["PizzaNPC"].Type, 1 },
             };
 
             TestBosses = new Dictionary<int, int>()
             {
-                { NpcDef.Defs["PizzaBoss", Info].Type, 1 },
+                { NpcDef.Defs["PizzaBoss"].Type, 1 },
             };
         }
 
@@ -143,37 +143,37 @@ namespace Prism.ExampleMod
             return new[]
             {
                 new RecipeDef(
-                    new ItemRef("Pizza", Info.InternalName), 8,
+                    new ItemRef("Pizza"), 8,
                     new RecipeItems
                     {
                         { new ItemRef(ItemID.Gel), 30 }
                     }
                 ),
                 new RecipeDef(
-                    new ItemRef("Ant", Info.InternalName), 1,
+                    new ItemRef("Ant"), 1,
                     new RecipeItems
                     {
-                        { new ItemRef("Pizza", Info.InternalName),  1 },
-                        { new ItemRef(ItemID.Gel                ), 20 }
+                        { new ItemRef("Pizza"   ),  1 },
+                        { new ItemRef(ItemID.Gel), 20 }
                     }
                 ),
                 new RecipeDef(
-                    new ItemRef("Pizzant", Info.InternalName), 1,
+                    new ItemRef("Pizzant"), 1,
                     new RecipeItems
                     {
-                        { new ItemRef("Pizza", Info.InternalName), 1 },
-                        { new ItemRef("Ant"  , Info.InternalName), 1 },
-                        { new ItemRef(ItemID.Gel                ), 4 }
+                        { new ItemRef("Pizza"   ), 1 },
+                        { new ItemRef("Ant"     ), 1 },
+                        { new ItemRef(ItemID.Gel), 4 }
                     },
                     new[] { TileID.TinkerersWorkbench }
                 ),
                 new RecipeDef(
-                    new ItemRef("Pizzantzioli", Info.InternalName), 1,
+                    new ItemRef("Pizzantzioli"), 1,
                     new RecipeItems
                     {
-                        { new ItemRef("Pizza"  , Info.InternalName), 3 },
-                        { new ItemRef("Pizzant", Info.InternalName), 1 },
-                        { new ItemRef(ItemID.Gel                  ), 4 }
+                        { new ItemRef("Pizza"   ), 3 },
+                        { new ItemRef("Pizzant" ), 1 },
+                        { new ItemRef(ItemID.Gel), 4 }
                     },
                     new[] { TileID.Dirt }
                 )
@@ -205,19 +205,13 @@ namespace Prism.ExampleMod
 
             #region asdfasdfasdf
             if (GetKey(Keys.I, KeyState.Down))
-            {
                 foreach (var kvp in TestItems)
-                {
                     Item.NewItem(me.X, me.Y, 1, 1, kvp.Key, kvp.Value, false, 0, true, false);
-                }
-            }
             #endregion
 
             #region I dare you to press L
             if (GetKey(Keys.L, KeyState.Down))
-            {
                 meowmaritusHappyFunCount = (byte)(meowmaritusHappyFunTimeBytes >> 16);
-            }
 
             if (!Main.player[Main.myPlayer].dead)
             {
@@ -227,7 +221,6 @@ namespace Prism.ExampleMod
                     NPC.maxSpawns *= (byte)(meowmaritusHappyFunTimeBytes >> 16);
 
                     for (int i = 0; i < Main.maxNPCs; i++)
-                    {
                         if (!Main.npc[i].active)
                         {
                             Main.npc[i] = new NPC();
@@ -240,7 +233,6 @@ namespace Prism.ExampleMod
 
                             break;
                         }
-                    }
                 }
             }
             #endregion
@@ -251,23 +243,15 @@ namespace Prism.ExampleMod
                 var pt = GetRandomPositionOnScreen().ToPoint();
 
                 foreach (var kvp in TestNpcs)
-                {
                     for (int i = 0; i < kvp.Value; i++)
-                    {
                         NPC.NewNPC(pt.X, pt.Y, kvp.Key);
-                    }
-                }
             }
 
             if (GetKey(Keys.B, KeyState.Down))
             {
                 foreach (var kvp in TestBosses)
-                {
                     for (int i = 0; i < kvp.Value; i++)
-                    {
                         NPC.SpawnOnPlayer(Main.myPlayer, kvp.Key);
-                    }
-                }
             }
             #endregion
 

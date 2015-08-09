@@ -10,6 +10,7 @@ using Terraria.ID;
 
 namespace Prism.API
 {
+    //TODO: (?) put most of the stuff in ByObjRef and ById in DefIndexer -> less code repetition (=> less c/p errors)
     namespace Defs
     {
         public partial class ItemDef
@@ -30,8 +31,13 @@ namespace Prism.API
                 return kvp.Value.ItemDefs.SafeSelect(kvp_ => new KeyValuePair<ObjectRef, ItemDef>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
             }
 
-            static ItemDef ByObjRef(ObjectRef or)
+            static ItemDef ByObjRef(ObjectRef or, ModDef requesting)
             {
+                var req = requesting ?? or.requesting;
+
+                if (String.IsNullOrEmpty(or.ModName) && req != null && req.ItemDefs.ContainsKey(or.Name))
+                    return req.ItemDefs[or.Name];
+
                 if (or.Mod == PrismApi.VanillaInfo)
                 {
                     if (!Handler.ItemDef.VanillaDefsByName.ContainsKey(or.Name))
@@ -73,8 +79,13 @@ namespace Prism.API
                 return kvp.Value.NpcDefs.SafeSelect(kvp_ => new KeyValuePair<ObjectRef, NpcDef>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
             }
 
-            static NpcDef ByObjRef(ObjectRef or)
+            static NpcDef ByObjRef(ObjectRef or, ModDef requesting)
             {
+                var req = requesting ?? or.requesting;
+
+                if (String.IsNullOrEmpty(or.ModName) && req != null && req.NpcDefs.ContainsKey(or.Name))
+                    return req.NpcDefs[or.Name];
+
                 if (or.Mod == PrismApi.VanillaInfo)
                 {
                     if (!Handler.NpcDef.VanillaDefsByName.ContainsKey(or.Name))
@@ -116,8 +127,13 @@ namespace Prism.API
                 return kvp.Value.ProjectileDefs.SafeSelect(kvp_ => new KeyValuePair<ObjectRef, ProjectileDef>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
             }
 
-            static ProjectileDef ByObjRef(ObjectRef or)
+            static ProjectileDef ByObjRef(ObjectRef or, ModDef requesting)
             {
+                var req = requesting ?? or.requesting;
+
+                if (String.IsNullOrEmpty(or.ModName) && req != null && req.ProjectileDefs.ContainsKey(or.Name))
+                    return req.ProjectileDefs[or.Name];
+
                 if (or.Mod == PrismApi.VanillaInfo)
                 {
                     if (!Handler.ProjDef.VanillaDefsByName.ContainsKey(or.Name))
@@ -159,8 +175,13 @@ namespace Prism.API
                 return kvp.Value.TileDefs.SafeSelect(kvp_ => new KeyValuePair<ObjectRef, TileDef>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
             }
 
-            static TileDef ByObjRef(ObjectRef or)
+            static TileDef ByObjRef(ObjectRef or, ModDef requesting)
             {
+                var req = requesting ?? or.requesting;
+
+                if (String.IsNullOrEmpty(or.ModName) && req != null && req.TileDefs.ContainsKey(or.Name))
+                    return req.TileDefs[or.Name];
+
                 if (or.Mod == PrismApi.VanillaInfo)
                 {
                     if (!Handler.TileDef.VanillaDefsByName.ContainsKey(or.Name))
@@ -207,8 +228,13 @@ namespace Prism.API
                 return kvp.Value.BgmEntries.SafeSelect(kvp_ => new KeyValuePair<ObjectRef, BgmEntry>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
             }
 
-            static BgmEntry ByObjRef(ObjectRef or)
+            static BgmEntry ByObjRef(ObjectRef or, ModDef requesting)
             {
+                var req = requesting ?? or.requesting;
+
+                if (String.IsNullOrEmpty(or.ModName) && req != null && req.BgmEntries.ContainsKey(or.Name))
+                    return req.BgmEntries[or.Name];
+
                 if (or.Mod == PrismApi.VanillaInfo)
                 {
                     if (!VanillaDict.ContainsKey(or.Name))

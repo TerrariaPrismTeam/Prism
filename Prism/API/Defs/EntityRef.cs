@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Prism.API.Behaviours;
 using Prism.Mods;
 
 namespace Prism.API.Defs
 {
+    //TODO: (?) remove some/most/all generic constraints so this can be used for more things than only EntityDefs (and maybe rename this, too, then nuke ObjectRef?)
     public abstract class EntityRef<TEntityDef, TBehaviour, TEntity> : IEquatable<EntityRef<TEntityDef, TBehaviour, TEntity>>
         where TEntity : class
         where TBehaviour : EntityBehaviour<TEntity>
@@ -31,6 +33,12 @@ namespace Prism.API.Defs
             private set;
         }
 
+        protected ModDef Requesting
+        {
+            get;
+            private set;
+        }
+
         public bool IsVanillaRef
         {
             get
@@ -47,27 +55,19 @@ namespace Prism.API.Defs
             }
         }
 
-        public EntityRef(int resourceId, Func<int, string> toResName)
+        protected EntityRef(int resourceId, Func<int, string> toResName)
         {
             ResourceID = resourceId;
 
             resName = new Lazy<string>(() => resourceId == 0 ? String.Empty : toResName(resourceId));
         }
-        public EntityRef(ObjectRef objRef)
+        protected EntityRef(ObjectRef objRef, Assembly calling)
         {
             resName = new Lazy<string>(() => objRef.Name);
 
             ModName = objRef.ModName;
-        }
-        public EntityRef(string resourceName, string modName = null)
-            : this(new ObjectRef(resourceName, modName))
-        {
 
-        }
-        public EntityRef(string resourceName, ModInfo mod)
-            : this(new ObjectRef(resourceName, mod))
-        {
-
+            Requesting = ModData.ModFromAssembly(calling);
         }
 
         public abstract TEntityDef Resolve();
@@ -98,7 +98,10 @@ namespace Prism.API.Defs
 
         public static implicit operator ObjectRef(EntityRef<TEntityDef, TBehaviour, TEntity> e)
         {
-            return new ObjectRef(e.ResourceName, e.Mod);
+            return new ObjectRef(e.ResourceName, e.Mod)
+            {
+                requesting = e.Requesting
+            };
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Prism.API.Behaviours;
 using Prism.Mods;
 
@@ -9,7 +10,7 @@ namespace Prism.API
 {
     public struct DefIndexer<T> : IEnumerable<KeyValuePair<ObjectRef, T>>
     {
-        Func<ObjectRef, T> byObjRef;
+        Func<ObjectRef, ModDef, T> byObjRef;
         Func<int, T> byId;
 
         IEnumerable<KeyValuePair<ObjectRef, T>> allDefs;
@@ -25,21 +26,21 @@ namespace Prism.API
         {
             get
             {
-                return byObjRef(objRef);
+                return byObjRef(objRef, ModData.ModFromAssembly(Assembly.GetCallingAssembly()));
             }
         }
         public T this[string internalName, string modName = null]
         {
             get
             {
-                return byObjRef(new ObjectRef(internalName, modName));
+                return byObjRef(new ObjectRef(internalName, modName), ModData.ModFromAssembly(Assembly.GetCallingAssembly()));
             }
         }
         public T this[string internalName, ModInfo mod]
         {
             get
             {
-                return byObjRef(new ObjectRef(internalName, mod));
+                return byObjRef(new ObjectRef(internalName, mod), ModData.ModFromAssembly(Assembly.GetCallingAssembly()));
             }
         }
 
@@ -58,7 +59,7 @@ namespace Prism.API
             }
         }
 
-        public DefIndexer(IEnumerable<KeyValuePair<ObjectRef, T>> allDefs, Func<ObjectRef, T> byObjRef, Func<int, T> byId)
+        public DefIndexer(IEnumerable<KeyValuePair<ObjectRef, T>> allDefs, Func<ObjectRef, ModDef, T> byObjRef, Func<int, T> byId)
         {
             this.allDefs  = allDefs ;
             this.byObjRef = byObjRef;

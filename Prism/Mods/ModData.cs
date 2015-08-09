@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using LitJson;
 using Prism.API;
 using Prism.Util;
@@ -25,6 +26,11 @@ namespace Prism.Mods
         /// </summary>
         public readonly static ReadOnlyDictionary<string, ModDef> ModsFromInternalName = new ReadOnlyDictionary<string, ModDef>(modsFromInternalName);
         // other dicts etc
+
+        public static ModDef ModFromAssembly(Assembly modAsm)
+        {
+            return mods.Values.FirstOrDefault(d => d.Assembly == modAsm);
+        }
 
         /// <summary>
         /// Parses the mod's information from Json, loading any required references, and returns its <see cref="ModInfo"/> object.
