@@ -82,6 +82,15 @@ namespace Prism.API.Defs
             get;
             set;
         }
+        /// <summary>
+        /// Gets or sets the rarity of the NPC. The NPC with the highest rarity is shown by the Lifeform Analyzer.
+        /// </summary>
+        /// <remarks>I don't know how this value is scaled.</remarks>
+        public virtual int Rarity
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Gets or sets the default length of this NPC's trail cache. The cache can be accessed with <see cref="NPC.oldPos" /> (a <see cref="Vector2" />[])
@@ -158,6 +167,30 @@ namespace Prism.API.Defs
         /// Gets or sets whether the NPC should be drawn behind the tiles.
         /// </summary>
         public virtual bool DrawBehindTiles
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets whether this NPC is immortal. (eg. the Target Dummy is in fact an immortal NPC)
+        /// </summary>
+        public virtual bool IsImmortal
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets whether this NPC can be chased after (by minions?).
+        /// </summary>
+        public virtual bool IsChaseable
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets whether this NPC is immune to anything.
+        /// </summary>
+        public virtual bool IsImmune
         {
             get;
             set;
@@ -354,7 +387,7 @@ namespace Prism.API.Defs
         {
             Width = Height = 16;
             MaxLife = lifeMax;
-            SoundOnHit = SoundOnDeath = 1;
+            //SoundOnHit = SoundOnDeath = 1;
 
             TrailCacheLength = 10;
             FrameCount = 1;
@@ -365,10 +398,9 @@ namespace Prism.API.Defs
 
             BuffImmunities = Empty<int>.List;
 
-            TownConfig = new TownNpcConfig();
+            TownConfig = new TownNpcConfig(null);
 
             GetTexture = getTexture ?? Empty<Texture2D>.Func;
-
             GetBossHeadTexture = getBossHeadTexture ?? Empty<Texture2D>.Func;
         }
 

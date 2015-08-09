@@ -33,7 +33,7 @@ namespace Prism.API.Audio
             },
             Boss1NPCs =
             {
-                NPCID.EaterofWorldsHead, NPCID.EaterofWorldsBody, NPCID.EaterofWorldsTail
+                NPCID.EaterofWorldsHead, NPCID.EaterofWorldsBody, NPCID.EaterofWorldsTail, NPCID.EyeofCthulhu, NPCID.SkeletronHead, NPCID.SkeletronPrime
             },
             Boss3NPCs =
             {
@@ -129,7 +129,7 @@ namespace Prism.API.Audio
         static bool IsBoss1Boss(NPC n)
         {
             TempNpcArray[0] = n.type;
-            return Bgm.AnyNPCsForMusic(Boss1NPCs) || (n.boss && n.P_Music != null && !Bgm.AnyNPCsForMusic(TempNpcArray));
+            return Bgm.AnyNPCsForMusic(Boss1NPCs) || (n.boss && n.P_Music == null && !Bgm.AnyNPCsForMusic(TempNpcArray));
         }
 
         static bool IsUnderground()

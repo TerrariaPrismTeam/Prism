@@ -279,14 +279,12 @@ namespace Prism.API.Defs
         /// </summary>
         /// <remarks>Item.vanity</remarks>
         public bool ShowVanity;
-
         /// <summary>
         /// Gets or sets whether this item is labeled with the "Expert" tag in its tool-tip.
         /// <para/>Note: Enabling this will also make the item display with a rainbow name, regardless of its rarity (it doesn't affect its existing rarity value).
         /// </summary>
         /// <remarks>Item.expert</remarks>
         public bool ShowExpert;
-
         /// <summary>
         /// Gets or sets whether this item is labeled with the "Quest Item" tag in its tool-tip (does not effect rarity/text color).
         /// </summary>
@@ -298,6 +296,7 @@ namespace Prism.API.Defs
         /// </summary>
         /// <remarks>!Item.notAmmo</remarks>
         public bool HideAmmoFlag;
+        public bool HideMaterialFlag;
 
         /// <summary>
         /// Constructs a new <see cref="ItemDescription"/> structure.
@@ -308,7 +307,7 @@ namespace Prism.API.Defs
         /// <param name="expert"><see cref="ItemDescription.ShowExpert"/></param>
         /// <param name="quest"><see cref="ItemDescription.ShowQuestItem"/></param>
         /// <param name="hideAmmo"><see cref="ItemDescription.HideAmmoFlag"/></param>
-        public ItemDescription(string desc, string extraDesc = null, bool vanity = false, bool expert = false, bool quest = false, bool hideAmmo = false)
+        public ItemDescription(string desc, string extraDesc = null, bool vanity = false, bool expert = false, bool quest = false, bool hideAmmo = false, bool hideMat = false)
         {
             Description      = desc      ?? String.Empty;
             ExtraDescription = extraDesc ?? String.Empty;
@@ -316,11 +315,12 @@ namespace Prism.API.Defs
             ShowExpert       = expert;
             ShowQuestItem    = quest;
             HideAmmoFlag     = hideAmmo;
+            HideMaterialFlag = hideMat;
         }
 
         public bool Equals(ItemDescription other)
         {
-            return Description == other.Description && ExtraDescription == other.ExtraDescription && ShowVanity == other.ShowVanity && HideAmmoFlag == other.HideAmmoFlag;
+            return Description == other.Description && ExtraDescription == other.ExtraDescription && ShowVanity == other.ShowVanity && HideAmmoFlag == other.HideAmmoFlag && HideMaterialFlag == other.HideMaterialFlag;
         }
 
         public override bool Equals(object obj)
@@ -335,7 +335,7 @@ namespace Prism.API.Defs
         }
         public override int GetHashCode()
         {
-            return (Description.GetHashCode() & ExtraDescription.GetHashCode()) + (ShowVanity.GetHashCode() ^ HideAmmoFlag.GetHashCode());
+            return (Description.GetHashCode() & ExtraDescription.GetHashCode()) + (ShowVanity.GetHashCode() ^ ShowExpert.GetHashCode() ^ ShowQuestItem.GetHashCode()) + (HideAmmoFlag.GetHashCode() ^ HideMaterialFlag.GetHashCode());
         }
 
         public static bool operator ==(ItemDescription a, ItemDescription b)

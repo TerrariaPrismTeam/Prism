@@ -303,6 +303,10 @@ namespace Prism.Mods.DefHandlers
             def.MountType = item.mountType;
             def.FishingPole = item.fishingPole;
 
+            def.material = item.material;
+
+            def.Description = new ItemDescription(item.toolTip, item.toolTip2, item.vanity, item.expert, item.questItem, item.notAmmo, !item.material);
+
             def.IsSoul                   = ItemID.Sets.AnimatesAsSoul           [def.Type];
             def.IsStrangePlant           = ItemID.Sets.ExoticPlantsForDyeTrade  [def.Type];
             def.IsBullet                 = ItemID.Sets.gunProj                  [def.Type];
@@ -315,6 +319,9 @@ namespace Prism.Mods.DefHandlers
         }
         protected override void CopyDefToEntity(ItemDef def, Item item)
         {
+            if (!def.material.HasValue)
+                def.material = RecipeDef.Recipes.Any(r => r.RequiredItems.Any(ir => ir.Key.Resolve().NetID == def.NetID));
+
             item.name         = def.DisplayName;
             item.type         = def.Type;
             item.netID        = def.NetID;
@@ -359,12 +366,6 @@ namespace Prism.Mods.DefHandlers
             item.summon       = def.DamageType == ItemDamageType.Summon;
             item.thrown       = def.DamageType == ItemDamageType.Thrown;
             item.value        = def.Value.Value;
-            item.vanity       = def.Description.ShowVanity;
-            item.notAmmo      = def.Description.HideAmmoFlag;
-            item.toolTip      = def.Description.Description;
-            item.toolTip2     = def.Description.ExtraDescription;
-            item.questItem    = def.Description.ShowQuestItem;
-            item.expert       = def.Description.ShowExpert;
             item.buffTime     = def.Buff.Duration;
             item.buffType     = def.Buff.Type;
             item.shoot        = def.ShootProjectile == null ?  0 : def.ShootProjectile.Resolve().Type ;
@@ -374,9 +375,9 @@ namespace Prism.Mods.DefHandlers
             item.createWall   = def.CreateWall;
             item.useAmmo      = def.UsedAmmo        == null ?  0 : def.UsedAmmo       .Resolve().Type ;
 
-            item.headSlot = def.ArmourData.headId;
+            item.headSlot = def.ArmourData.headId    ;
             item.bodySlot = def.ArmourData.maleBodyId;
-            item.legSlot  = def.ArmourData.legsId;
+            item.legSlot  = def.ArmourData.legsId    ;
 
             item.backSlot    = (sbyte)def.AccessoryData.backId    ;
             item.balloonSlot = (sbyte)def.AccessoryData.balloonId ;
@@ -390,10 +391,20 @@ namespace Prism.Mods.DefHandlers
             item.waistSlot   = (sbyte)def.AccessoryData.waistId   ;
             item.wingSlot    = (sbyte)def.AccessoryData.wingsId   ;
 
+            item.toolTip   =  def.Description.Description     ;
+            item.toolTip2  =  def.Description.ExtraDescription;
+            item.vanity    =  def.Description.ShowVanity      ;
+            item.questItem =  def.Description.ShowQuestItem   ;
+            item.expert    =  def.Description.ShowExpert      ;
+            item.notAmmo   =  def.Description.HideAmmoFlag    ;
+            item.material  = !def.Description.HideMaterialFlag && (def.material ?? false);
+
             item.dye = (byte)def.Dye;
             item.hairDye = (short)def.HairDye;
             item.mountType = def.MountType;
             item.fishingPole = def.FishingPole;
+
+            item.potion = def.LifeHeal > 0;
         }
 
         static int CheckAndPush<T>(Func<T> getter, ref T[] array, ref bool[] loadedArray)

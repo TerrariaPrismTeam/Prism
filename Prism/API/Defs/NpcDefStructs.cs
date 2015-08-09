@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Prism.Util;
 
 namespace Prism.API.Defs
 {
@@ -11,6 +13,8 @@ namespace Prism.API.Defs
     /// </summary>
     public class TownNpcConfig
     {
+        internal int HeadId = 0;
+
         /// <summary>
         /// Gets or sets the amount of animation frames the town NPC's sprite contains for attacking.
         /// </summary>
@@ -97,9 +101,16 @@ namespace Prism.API.Defs
             get;
             set;
         }
-
-        public TownNpcConfig()
+        public Func<Texture2D> GetHeadTexture
         {
+            get;
+            set;
+        }
+
+        public TownNpcConfig(Func<Texture2D> getHead)
+        {
+            GetHeadTexture = getHead ?? Empty<Texture2D>.Func;
+
             AttackFrameCount = -1;
             AttackTime = -1;
             AttackType = TownNpcAttackType.None;

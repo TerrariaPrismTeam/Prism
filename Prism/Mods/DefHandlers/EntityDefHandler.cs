@@ -106,6 +106,11 @@ namespace Prism.Mods.DefHandlers
 
         protected abstract int GetRegularType(TEntity entity);
 
+        protected virtual string InternalName(TEntity entity)
+        {
+            return null;
+        }
+
         protected virtual void PostFillVanilla() { }
 
         internal void FillVanilla()
@@ -132,8 +137,11 @@ namespace Prism.Mods.DefHandlers
                 var entity = GetVanillaEntityFromID(id);
                 def = NewDefFromVanilla(entity);
 
+                var iname_ = InternalName(entity);
+                var iname = String.IsNullOrEmpty(iname_) ? IDNames[index] : iname_;
+
                 DefsByType.Add(id, def);
-                VanillaDefsByName.Add(IDNames[index], def);
+                VanillaDefsByName.Add(iname, def);
 
                 var n = GetNameVanillaMethod(entity);
                 if (!byDisplayName.ContainsKey(n) && !VanillaDefsByName.ContainsKey(n))
@@ -141,7 +149,7 @@ namespace Prism.Mods.DefHandlers
 
                 CopyEntityToDef(entity, def); // TEntityDef is a class -> dictionary entries are updated, too
 
-                def.InternalName = IDNames[index];
+                def.InternalName = iname;
             }
 
             foreach (var kvp in byDisplayName)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Xna.Framework.Graphics;
 using Prism.API;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
@@ -38,7 +39,12 @@ namespace Prism.Mods.DefHandlers
 
                 Handler.NpcDef.CopyDefToEntity(d, n);
 
+                if (Main.expertMode)
+                    n.scaleStats();
+
                 n.life = n.lifeMax; //! BEEP BOOP
+                n.defDamage = n.damage;
+                n.defDefense = n.defense;
 
                 if (scaleOverride > -1f)
                     n.scale = scaleOverride;
@@ -81,11 +87,13 @@ namespace Prism.Mods.DefHandlers
             if (!Main.dedServ)
                 Array.Resize(ref Main.npcTexture, newLen);
 
-            Array.Resize(ref Main.npcName                     , newLen);
-            Array.Resize(ref Main.NPCLoaded                   , newLen);
-            Array.Resize(ref Main.npcFrameCount               , newLen);
-            Array.Resize(ref Main.npcCatchable                , newLen);
-            Array.Resize(ref NPC.killCount                    , newLen); //Hardcoded 540 in NPC.ResetKillCount();
+            Array.Resize(ref Main.npcName      , newLen);
+            Array.Resize(ref Main.NPCLoaded    , newLen);
+            Array.Resize(ref Main.npcFrameCount, newLen);
+            Array.Resize(ref Main.npcCatchable , newLen);
+
+            Array.Resize(ref NPC.killCount, newLen); //Hardcoded 540 in NPC.ResetKillCount();
+
             Array.Resize(ref NPCID.Sets.AttackAverageChance   , newLen);
             Array.Resize(ref NPCID.Sets.AttackFrameCount      , newLen);
             Array.Resize(ref NPCID.Sets.AttackTime            , newLen);
@@ -145,12 +153,22 @@ namespace Prism.Mods.DefHandlers
             def.AiStyle             = (NpcAiStyle)npc.aiStyle;
             def.MaxLife             = npc.lifeMax;
             def.GetTexture          = () => Main.npcTexture[npc.type];
+            def.IsImmortal          = npc.immortal;
 
             def.BuffImmunities.Clear();
             for (int i = 0; i < npc.buffImmune.Length; i++)
                 if (npc.buffImmune[i])
                     def.BuffImmunities.Add(i);
             def.CaughtAsItem = new ItemRef(npc.catchItem);
+
+            def.IsChaseable = npc.chaseable     ;
+            def.IsImmune    = npc.dontTakeDamage;
+            def.Rarity      = npc.rarity        ;
+
+            def.TownConfig = new TownNpcConfig(() => Main.npcHeadTexture[NPC.TypeToNum(npc.type)])
+            {
+                HeadId = NPC.TypeToNum(npc.type)
+            };
 
             if (npc.P_Music != null && npc.P_Music is ObjectRef)
                 def.Music = (ObjectRef)npc.P_Music;
@@ -205,6 +223,7 @@ namespace Prism.Mods.DefHandlers
             npc.dontCountMe     = def.NotOnRadar;
             npc.value           = (def.Value.Min.Value + def.Value.Max.Value) / 2; //Main.rand.Next(def.Value.Min.Value, def.Value.Max.Value); // close enough
             npc.aiStyle         = (int)def.AiStyle;
+            npc.immortal        = def.IsImmortal;
 
             for (int i = 0; i < def.BuffImmunities.Count; i++)
                 npc.buffImmune[i] = true;
@@ -212,14 +231,25 @@ namespace Prism.Mods.DefHandlers
             npc.catchItem = def.CaughtAsItem == null ? (short)0 : (short)def.CaughtAsItem.Resolve().NetID;
 
             npc.P_Music = def.Music;
+
+            npc.chaseable      = def.IsChaseable;
+            npc.dontTakeDamage = def.IsImmune   ;
+            npc.rarity         = def.Rarity     ;
         }
 
-        void RegisterBossHeadTexture(NpcDef npc)
+        void RegisterBossHeadTexture(NpcDef npc, Texture2D tex)
         {
             NPCID.Sets.BossHeadTextures[npc.Type] = Main.npcHeadBossTexture.Length;
             int newLen = Main.npcHeadBossTexture.Length + 1;
             Array.Resize(ref Main.npcHeadBossTexture, newLen);
-            Main.npcHeadBossTexture[newLen - 1] = npc.GetBossHeadTexture();
+            Main.npcHeadBossTexture[newLen - 1] = tex;
+        }
+        void RegisterTownNpcHeadTexture(NpcDef npc, Texture2D tex)
+        {
+            npc.TownConfig.HeadId = Main.npcHeadTexture.Length;
+            int newLen = Main.npcHeadTexture.Length + 1;
+            Array.Resize(ref Main.npcHeadTexture, newLen);
+            Main.npcHeadTexture[newLen - 1] = tex;
         }
 
         protected override List<LoaderError> CheckTextures(NpcDef def)
@@ -230,6 +260,8 @@ namespace Prism.Mods.DefHandlers
                 ret.Add(new LoaderError(def.Mod, "GetTexture of NpcDef " + def + " is null."));
             if ((def.IsBoss || def.IsTechnicallyABoss) && def.GetBossHeadTexture == null)
                 ret.Add(new LoaderError(def.Mod, "GetBossHeadTexture of NpcDef " + def + " is null."));
+            if (def.IsTownNpc && def.TownConfig.GetHeadTexture == null)
+                ret.Add(new LoaderError(def.Mod, "TownConfig.GetHeadTexture of NpcDef " + def + " is null."));
 
             return ret;
         }
@@ -253,9 +285,16 @@ namespace Prism.Mods.DefHandlers
                 if (bht == null)
                     ret.Add(new LoaderError(def.Mod, "GetBossHeadTexture return value is null for NpcDef " + def + "."));
                 else
-                {
-                    RegisterBossHeadTexture(def);
-                }
+                    RegisterBossHeadTexture(def, bht);
+            }
+
+            if (def.IsTownNpc)
+            {
+                var tch = def.TownConfig.GetHeadTexture();
+                if (tch == null)
+                    ret.Add(new LoaderError(def.Mod, "TownConfig.GetHeadTexture return value is null for NpcDef " + def + "."));
+                else
+                    RegisterTownNpcHeadTexture(def, tch);
             }
 
             return ret;
@@ -270,6 +309,7 @@ namespace Prism.Mods.DefHandlers
         {
             Main.npcName                     [def.Type] = def.DisplayName;
             Main.npcFrameCount               [def.Type] = def.FrameCount;
+            Main.npcCatchable                [def.Type] = def.CaughtAsItem != null;
 
             NPCID.Sets.AttackAverageChance   [def.Type] = def.TownConfig.AverageAttackChance;
             NPCID.Sets.AttackFrameCount      [def.Type] = def.TownConfig.AttackFrameCount;
@@ -295,6 +335,18 @@ namespace Prism.Mods.DefHandlers
 
             if (def.IsSkeleton && !NPCID.Sets.Skeletons.Contains(def.Type))
                 NPCID.Sets.Skeletons.Add(def.Type);
+        }
+
+        // give priority to regular town npc internal names instead of the field name
+        // their internal name is displayed in the housing UI, and without this fix,
+        // it would be shown as eg. "GoblinTinkerer" instead of "Goblin Tinkerer"
+        protected override string GetNameVanillaMethod(NPC npc)
+        {
+            return npc.townNPC ? IDNames[Array.IndexOf(IDValues, npc.netID)] : npc.name;
+        }
+        protected override string InternalName(NPC npc)
+        {
+            return npc.townNPC ? npc.name : null;
         }
     }
 }

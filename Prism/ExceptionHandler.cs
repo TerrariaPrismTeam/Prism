@@ -54,14 +54,10 @@ namespace Prism
                     Handle(ae.InnerExceptions[i]); // prints it
             }
             else
-            {
                 Trace.WriteLine(e.Message + " at " + e.TargetSite);
-            }
 
             if (DetailedExceptions)
-            {
                 MessageBox.Show("An exception has occured:\n" + e, e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
         }
         public static int HandleFatal(Exception e, bool exitImmediately = true)
         {

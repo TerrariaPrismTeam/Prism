@@ -12,6 +12,8 @@ namespace Prism.API.Defs
 {
     public partial class ItemDef : EntityDef<ItemBehaviour, Item>
     {
+        internal bool? material;
+
         /// <summary>
         /// Gets or sets the damage this item inflicts.
         /// </summary>
