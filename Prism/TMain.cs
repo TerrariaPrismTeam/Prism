@@ -10,6 +10,7 @@ using Prism.Mods.DefHandlers;
 using Prism.Mods.Hooks;
 using Prism.Util;
 using Terraria;
+using Terraria.IO;
 
 namespace Prism
 {
@@ -36,6 +37,11 @@ namespace Prism
 
             CloudPlayerPath = "players_Prism";
             CloudWorldPath = "worlds_Prism";
+
+            LocalFavoriteData = new FavoritesFile(SavePath + "\\favorites.json", false);
+            CloudFavoritesData = new FavoritesFile("/favorites_Prism.json", false);
+
+            Configuration = new Preferences(SavePath + "\\config.json", false, false);
         }
 
         protected override void Initialize()
