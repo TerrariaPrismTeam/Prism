@@ -8,12 +8,13 @@ Prism is licensed under the Artistic License.
 ## Building
 Copy your `Terraria.exe` file into `.\References` before attempting to build.
 * _Windows_:
- * Install Visual Studio 15 if you don't have it (You can get the Community version for free).
+ * Install Visual Studio 2015 if you don't have it (You can get the Community version for free).
  * Open the solution in Visual Studio.
  * Click "Build Solution" (you may have to additionally click "Rebuild Solution" in order for it to build properly).
+ * Prism can also be built using MSBuild from the command-line: ```xbuild /m Prism.sln /p:Configuration=DevBuild```. (not including the /p switch will default to `PreRelease` instead of `DevBuild`).
 * _OS X & Linux_:
  * Install the Mono Platform if you don't have it.
- * Execute ```xbuild Prism.sln``` to build solution with XBuild.
+ * Execute ```xbuild Prism.sln /p:Configuration=DevBuild``` to build solution with XBuild. (not including the /p switch will default to `PreRelease` instead of `DevBuild`).
 * This should automatically load Terraria.exe, patch it, then create a `Prism.Terraria.dll` file for `Prism.csproj` to reference.
 * The Prism binaries as well as all other required files will be located in `.\Bin\Debug`:
  * **`Prism.exe / Prism.pdb`** - Prism
