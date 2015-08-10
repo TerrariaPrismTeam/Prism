@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prism.TerrariaPatcher", "Pa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prism.ExampleMod", "Prism.ExampleMod\Prism.ExampleMod.csproj", "{F860FCD9-FDEA-4F94-8794-6FDACF1786A2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prism.DebuggingMod", "Prism.DebuggingMod\Prism.DebuggingMod.csproj", "{9A758DCD-92DB-4560-857F-82DFD88A9785}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,12 @@ Global
 		{F860FCD9-FDEA-4F94-8794-6FDACF1786A2}.DevBuild|Any CPU.Build.0 = Debug|Any CPU
 		{F860FCD9-FDEA-4F94-8794-6FDACF1786A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F860FCD9-FDEA-4F94-8794-6FDACF1786A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A758DCD-92DB-4560-857F-82DFD88A9785}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A758DCD-92DB-4560-857F-82DFD88A9785}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A758DCD-92DB-4560-857F-82DFD88A9785}.DevBuild|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A758DCD-92DB-4560-857F-82DFD88A9785}.DevBuild|Any CPU.Build.0 = Debug|Any CPU
+		{9A758DCD-92DB-4560-857F-82DFD88A9785}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A758DCD-92DB-4560-857F-82DFD88A9785}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

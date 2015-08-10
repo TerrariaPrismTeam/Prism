@@ -1,0 +1,10 @@
+﻿{
+    "internalName": "Prism.DebuggingMod",
+    "asmFileName": "Prism.DebuggingMod.dll",
+    "modDefTypeName": "Prism.DebuggingMod.Mod",
+
+    "displayName": "Prism Debugging Mod",
+    "author": "Terraria Prism Team",
+    "version": "1.0.0.0",
+    "description": "A mod for debugging things...like mods!"
+}
