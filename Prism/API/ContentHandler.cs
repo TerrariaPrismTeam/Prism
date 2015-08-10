@@ -6,34 +6,94 @@ using Prism.API.Audio;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Prism.Util;
+using Prism.Mods;
+using System.IO;
+using Prism.Mods.Resources;
 
 namespace Prism.API
 {
     public abstract class ContentHandler
     {
-        internal WeakReference modDef_wr;
+        internal ModInfo? Mod;
+        internal Dictionary<string, Stream> resources = new Dictionary<string, Stream>();        
 
-        protected ModDef ModDef
+        public void Adopt(ModInfo owner)
         {
-            get
-            {
-                if (modDef_wr == null || !modDef_wr.IsAlive)
-                    throw new ObjectDisposedException("Mod");
+            Mod = Mod ?? owner;
+        }
 
-                return (ModDef)modDef_wr.Target;
+        internal void Unload()
+        {
+            Mod = null;
+            if (resources != null)
+            {
+                foreach (var v in resources.Values)
+                    v.Dispose();
+
+                resources.Clear();
+                resources = null;
             }
         }
 
-        protected T GetResource        <T>(string path)
+        T GetResourceInternal<T>(Func<Stream> getStream)
         {
-            return ModDef.GetResource<T>(path);
-        }
-        protected T GetEmbeddedResource<T>(string path, Assembly containing = null)
-        {
-            return ModDef.GetEmbeddedResource<T>(path, containing ?? Assembly.GetCallingAssembly());
+            if (ResourceLoader.ResourceReaders.ContainsKey(typeof(T)))
+                return (T)ResourceLoader.ResourceReaders[typeof(T)].ReadResource(getStream());
+
+            throw new InvalidOperationException("No resource reader found for type " + typeof(T) + ".");
         }
 
-        // ---
+        /// <summary>
+        /// Gets the specified resource loaded by the mod.
+        /// </summary>
+        /// <typeparam name="T">The type of resource.</typeparam>
+        /// <param name="path">The path to the resource.</param>
+        /// <returns>The resource</returns>
+        public T GetResource<T>(string path)
+        {
+            path = ResourceLoader.NormalizeResourceFilePath(path);
+
+            if (!resources.ContainsKey(path))
+                throw new FileNotFoundException("Resource '" + path + "' not found.");
+
+            return GetResourceInternal<T>(() => resources[path]);
+        }
+        /// <summary>
+        /// Returns the specified resource embedded in the mod's assembly.
+        /// </summary>
+        /// <typeparam name="T">The type of resource.</typeparam>
+        /// <param name="path">The path to the resource.</param>
+        /// <param name="containing">The assembly that contains the embedded resource. Leave it to null for the calling assembly.</param>
+        /// <returns>The resource</returns>
+        public T GetEmbeddedResource<T>(string path, Assembly containing = null)
+        {
+            var c = containing ?? Assembly.GetCallingAssembly();
+
+            var asmNamePfix = c.GetName().Name + ".";
+            var path_ = ResourceLoader.NormalizeResourceFilePath(path, asmNamePfix);
+
+            var fromFilePath = Path.GetDirectoryName(path).Replace('/', '.').Replace('\\', '.') + "." + Path.GetFileName(path);
+            var fromFilePath_ = Path.GetDirectoryName(path_).Replace('/', '.').Replace('\\', '.') + "." + Path.GetFileName(path_);
+
+            var tries = new[]
+            {
+                path,
+                asmNamePfix + path,
+                fromFilePath,
+                asmNamePfix + fromFilePath,
+
+                path_,
+                asmNamePfix + path_,
+                fromFilePath_,
+                asmNamePfix + fromFilePath_
+            };
+
+            for (int i = 0; i < tries.Length; i++)
+                if (Array.IndexOf(c.GetManifestResourceNames(), tries[i]) != -1)
+                    return GetResourceInternal<T>(() => c.GetManifestResourceStream(tries[i])); // passing 'i' directly here is ok, because the function is called before GetResourceInternal returns (and i increases)
+
+            throw new FileNotFoundException("Embedded resource '" + path + "' not found.");
+        }
 
         /// <summary>
         /// Gets all BGM entries created by the mod.

@@ -19,10 +19,8 @@ namespace Prism.API
     /// Every mod must have exactly one type that inherits from <see cref="ModDef"/>.
     /// </summary>
     public abstract class ModDef : HookContainer
-    {
-        internal Dictionary<string, Stream> resources = new Dictionary<string, Stream>();
+    {        
         internal ContentHandler contentHandler;
-
         internal GameBehaviour gameBehaviour;
 
         /// <summary>
@@ -56,7 +54,7 @@ namespace Prism.API
         /// Gets the mod's item definitions.
         /// </summary>
         /// <remarks>The key of the dictionary is the item's internal name (without mod internal name).</remarks>
-        public Dictionary<string, ItemDef      > ItemDefs
+        public Dictionary<string, ItemDef> ItemDefs
         {
             get;
             internal set;
@@ -65,7 +63,7 @@ namespace Prism.API
         /// Gets the mod's NPC definitions.
         /// </summary>
         /// <remarks>The key of the dictionary is the NPC's internal name (without mod internal name).</remarks>
-        public Dictionary<string, NpcDef       > NpcDefs
+        public Dictionary<string, NpcDef> NpcDefs
         {
             get;
             internal set;
@@ -83,7 +81,7 @@ namespace Prism.API
         /// Gets the mod's tile definitions.
         /// </summary>
         /// <remarks>The key of the dictionary is the tile's internal name (without mod internal name).</remarks>
-        public Dictionary<string, TileDef      > TileDefs
+        public Dictionary<string, TileDef> TileDefs
         {
             get;
             internal set;
@@ -92,7 +90,7 @@ namespace Prism.API
         /// <summary>
         /// Gets the mod's recipe definitions.
         /// </summary>
-        public IEnumerable<RecipeDef> RecipeDefs
+        public List<RecipeDef> RecipeDefs
         {
             get;
             internal set;
@@ -108,7 +106,7 @@ namespace Prism.API
         /// Called as soon as the mod is loaded.
         /// </summary>
         //! do not mark as a hook, because this method is called before hooks are created.
-        public virtual void OnLoad  () { }
+        public virtual void OnLoad() { }
 
         /// <summary>
         /// A hook called when all mods are being unloaded.
@@ -125,92 +123,54 @@ namespace Prism.API
         internal ContentHandler CreateContentHandlerInternally()
         {
             return CreateContentHandler();
-        }
-
-        T GetResourceInternal<T>(Func<Stream> getStream)
-        {
-            if (ResourceLoader.ResourceReaders.ContainsKey(typeof(T)))
-                return (T)ResourceLoader.ResourceReaders[typeof(T)].ReadResource(getStream());
-
-            throw new InvalidOperationException("No resource reader found for type " + typeof(T) + ".");
-        }
-
-        /// <summary>
-        /// Gets the specified resource loaded by the mod.
-        /// </summary>
-        /// <typeparam name="T">The type of resource.</typeparam>
-        /// <param name="path">The path to the resource.</param>
-        /// <returns>The resource</returns>
-        public T GetResource<T>(string path)
-        {
-            path = ResourceLoader.NormalizeResourceFilePath(path);
-
-            if (!resources.ContainsKey(path))
-                throw new FileNotFoundException("Resource '" + path + "' not found.");
-
-            return GetResourceInternal<T>(() => resources[path]);
-        }
-        /// <summary>
-        /// Returns the specified resource embedded in the mod's assembly.
-        /// </summary>
-        /// <typeparam name="T">The type of resource.</typeparam>
-        /// <param name="path">The path to the resource.</param>
-        /// <param name="containing">The assembly that contains the embedded resource. Leave it to null for the calling assembly.</param>
-        /// <returns>The resource</returns>
-        public T GetEmbeddedResource<T>(string path, Assembly containing = null)
-        {
-            var c = containing ?? Assembly.GetCallingAssembly();
-
-            var asmNamePfix = c.GetName().Name + ".";
-            var path_ = ResourceLoader.NormalizeResourceFilePath(path, asmNamePfix);
-
-            var fromFilePath  = Path.GetDirectoryName(path ).Replace('/', '.').Replace('\\', '.') + "." + Path.GetFileName(path );
-            var fromFilePath_ = Path.GetDirectoryName(path_).Replace('/', '.').Replace('\\', '.') + "." + Path.GetFileName(path_);
-
-            var tries = new[]
-            {
-                path,
-                asmNamePfix + path,
-                fromFilePath,
-                asmNamePfix + fromFilePath,
-
-                path_,
-                asmNamePfix + path_,
-                fromFilePath_,
-                asmNamePfix + fromFilePath_
-            };
-
-            for (int i = 0; i < tries.Length; i++)
-                if (Array.IndexOf(c.GetManifestResourceNames(), tries[i]) != -1)
-                    return GetResourceInternal<T>(() => c.GetManifestResourceStream(tries[i])); // passing 'i' directly here is ok, because the function is called before GetResourceInternal returns (and i increases)
-
-            throw new FileNotFoundException("Embedded resource '" + path + "' not found.");
-        }
+        }        
 
         /// <summary>
         /// Disposes of resources.
         /// </summary>
         internal void Unload()
         {
-            foreach (var v in resources.Values)
-                v.Dispose();
+            if (contentHandler != null)
+            {
+                contentHandler.Unload();
+                contentHandler = null;
+            }
 
-            resources.Clear();
+            if (BgmEntries != null)
+            {
+                BgmEntries.Clear();
+                BgmEntries = null;
+            }
 
-            BgmEntries.Clear();
-            BgmEntries = null;
+            if (ItemDefs != null)
+            {
+                ItemDefs.Clear();
+                ItemDefs = null;
+            }
 
-            ItemDefs      .Clear();
-            NpcDefs       .Clear();
-            ProjectileDefs.Clear();
-            TileDefs      .Clear();
+            if (NpcDefs != null)
+            {
+                NpcDefs.Clear();
+                NpcDefs = null;
+            }
 
-            ItemDefs       = null;
-            NpcDefs        = null;
-            ProjectileDefs = null;
-            TileDefs       = null;
+            if (ProjectileDefs != null)
+            {
+                ProjectileDefs.Clear();
+                ProjectileDefs = null;
+            }
 
-            RecipeDefs = null;
+            if (TileDefs != null)
+            {
+                TileDefs.Clear();
+                TileDefs = null;
+            }
+
+            if (RecipeDefs != null)
+            {
+                RecipeDefs.Clear();
+                RecipeDefs = null;
+            }
         }
     }
 }

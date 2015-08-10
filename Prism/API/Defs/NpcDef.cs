@@ -369,7 +369,7 @@ namespace Prism.API.Defs
         {
             Width = Height = 16;
             MaxLife = lifeMax;
-            //SoundOnHit = SoundOnDeath = 1;
+            SoundOnHit = SoundOnDeath = 1;
 
             TrailCacheLength = 10;
             FrameCount = 1;

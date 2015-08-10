@@ -79,9 +79,9 @@ namespace Prism.API.Defs
     }
     public enum ItemExtractinatorMode
     {
-        Unextractable = -1,
-        SiltAndSlush,
-        Fossil
+        None = -1,
+        SiltAndSlush = 0,
+        Fossil = 1
     }
 
     /// <summary>

@@ -513,7 +513,7 @@ namespace Prism.API.Defs
 
             Scale = 1f;
 
-            ExtractinatorMode = ItemExtractinatorMode.Unextractable;
+            ExtractinatorMode = ItemExtractinatorMode.None;
             MountType = -1;
 
             Colour = Color.White;
@@ -567,7 +567,7 @@ namespace Prism.API.Defs
 
             IsSoul = (bool)json["soul"];
             IsStrangePlant = (bool)json["strangePlant"];
-            ExtractinatorMode = json["extractinatorMode"].ParseAsEnum<ItemExtractinatorMode>();
+            ExtractinatorMode = json.Has("extractinatorMode") ? json["extractinatorMode"].ParseAsEnum<ItemExtractinatorMode>() : ItemExtractinatorMode.None;
             IsBullet = (bool)json["bullet"];
             Pulses = (bool)json["pulses"];
             NoGravity = (bool)json["noGravity"];

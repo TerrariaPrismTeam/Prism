@@ -17,13 +17,13 @@ namespace Prism.Mods.DefHandlers
             DefMaxRecipes = Recipe.maxRecipes,
             DefNumRecipes = -1;
 
-        internal static IEnumerable<RecipeDef> SetRecipeModDefs(ModDef mod, IEnumerable<RecipeDef> defs)
+        internal static List<RecipeDef> SetRecipeModDefs(ModDef mod, IEnumerable<RecipeDef> defs)
         {
             return defs.Select(d =>
             {
                 d.Mod = mod.Info;
                 return d;
-            });
+            }).ToList();
         }
 
         static void CopyDefToVanilla(RecipeDef def, Recipe r)

@@ -22,48 +22,55 @@ namespace Prism.Mods.DefHandlers
 
         internal static void OnSetDefaults(Projectile p, int type)
         {
-            ProjectileBHandler h = null; // will be set to <non-null> only if a behaviour handler will be attached
-
-            p.RealSetDefaults(type);
-
-            if (Handler.ProjDef.DefsByType.ContainsKey(type))
+            try
             {
-                var d = Handler.ProjDef.DefsByType[type];
+                ProjectileBHandler h = null; // will be set to <non-null> only if a behaviour handler will be attached
 
-                p.type = type;
-                p.width = p.height = 16;
+                p.RealSetDefaults(type);
 
-                Handler.ProjDef.CopyDefToEntity(d, p);
-
-                if (d.CreateBehaviour != null)
+                if (Handler.ProjDef.DefsByType.ContainsKey(type))
                 {
-                    h = new ProjectileBHandler();
+                    var d = Handler.ProjDef.DefsByType[type];
 
-                    var b = d.CreateBehaviour();
+                    p.type = type;
+                    p.width = p.height = 16;
 
-                    if (b != null)
-                        h.behaviours.Add(b);
+                    Handler.ProjDef.CopyDefToEntity(d, p);
+
+                    if (d.CreateBehaviour != null)
+                    {
+                        h = new ProjectileBHandler();
+
+                        var b = d.CreateBehaviour();
+
+                        if (b != null)
+                            h.behaviours.Add(b);
+                    }
+
+                    p.active = true;
                 }
 
-                p.active = true;
+                var bs = ModData.mods.Values.Select(m => m.contentHandler.CreateGlobalProjBInternally()).Where(b => b != null);
+
+                if (!bs.IsEmpty() && h == null)
+                    h = new ProjectileBHandler();
+
+                if (h != null)
+                {
+                    h.behaviours.AddRange(bs);
+
+                    h.Create();
+                    p.P_BHandler = h;
+
+                    foreach (var b in h.Behaviours)
+                        b.Entity = p;
+
+                    h.OnInit();
+                }
             }
-
-            var bs = ModData.mods.Values.Select(m => m.contentHandler.CreateGlobalProjBInternally()).Where(b => b != null);
-
-            if (!bs.IsEmpty() && h == null)
-                h = new ProjectileBHandler();
-
-            if (h != null)
+            catch (NullReferenceException)
             {
-                h.behaviours.AddRange(bs);
-
-                h.Create();
-                p.P_BHandler = h;
-
-                foreach (var b in h.Behaviours)
-                    b.Entity = p;
-
-                h.OnInit();
+                p.RealSetDefaults(type);
             }
         }
 

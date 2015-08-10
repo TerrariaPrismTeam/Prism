@@ -23,49 +23,56 @@ namespace Prism.Mods.DefHandlers
 
         internal static void OnSetDefaults(Item item, int type, bool noMatCheck)
         {
-            ItemBHandler h = null; // will be set to <non-null> only if a behaviour handler will be attached
-
-            item.RealSetDefaults(0, noMatCheck);
-
-            if (Handler.ItemDef.DefsByType.ContainsKey(type))
+            try
             {
-                var d = Handler.ItemDef.DefsByType[type];
+                ItemBHandler h = null; // will be set to <non-null> only if a behaviour handler will be attached
 
-                item.type = item.netID = type;
-                item.width = item.height = 16;
-                item.stack = item.maxStack = 1;
+                item.RealSetDefaults(0, noMatCheck);
 
-                Handler.ItemDef.CopyDefToEntity(d, item);
-
-                if (d.CreateBehaviour != null)
+                if (Handler.ItemDef.DefsByType.ContainsKey(type))
                 {
+                    var d = Handler.ItemDef.DefsByType[type];
+
+                    item.type = item.netID = type;
+                    item.width = item.height = 16;
+                    item.stack = item.maxStack = 1;
+
+                    Handler.ItemDef.CopyDefToEntity(d, item);
+
+                    if (d.CreateBehaviour != null)
+                    {
+                        h = new ItemBHandler();
+
+                        var b = d.CreateBehaviour();
+
+                        if (b != null)
+                            h.behaviours.Add(b);
+                    }
+                }
+                else
+                    item.RealSetDefaults(type, noMatCheck);
+
+                var bs = ModData.mods.Values.Select(m => m.contentHandler.CreateGlobalItemBInternally()).Where(b => b != null);
+
+                if (!bs.IsEmpty() && h == null)
                     h = new ItemBHandler();
 
-                    var b = d.CreateBehaviour();
+                if (h != null)
+                {
+                    h.behaviours.AddRange(bs);
 
-                    if (b != null)
-                        h.behaviours.Add(b);
+                    h.Create();
+                    item.P_BHandler = h;
+
+                    foreach (var b in h.Behaviours)
+                        b.Entity = item;
+
+                    h.OnInit();
                 }
             }
-            else
-                item.RealSetDefaults(type, noMatCheck);
-
-            var bs = ModData.mods.Values.Select(m => m.contentHandler.CreateGlobalItemBInternally()).Where(b => b != null);
-
-            if (!bs.IsEmpty() && h == null)
-                h = new ItemBHandler();
-
-            if (h != null)
+            catch (NullReferenceException) //Just in case an entity spawns RIGHT as Prism unloads lol (personal experience)
             {
-                h.behaviours.AddRange(bs);
-
-                h.Create();
-                item.P_BHandler = h;
-
-                foreach (var b in h.Behaviours)
-                    b.Entity = item;
-
-                h.OnInit();
+                item.RealSetDefaults(type, noMatCheck);
             }
         }
 
