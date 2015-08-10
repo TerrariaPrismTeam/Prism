@@ -247,13 +247,13 @@ rem in order to build, one must provide their own .exe.
 rem this will create a patched terraria assembly, which is referenced by Prism.csproj.
 rem a shell script is used in unix environments.
 
-"$(SolutionDir)Patcher\Prism.TerrariaPatcher\bin\Debug\Prism.TerrariaPatcher.exe" "$(SolutionDir)References\Terraria.exe" "$(SolutionDir)References\Prism.Terraria.dll"</PreBuildEvent>
+"..\Patcher\Prism.TerrariaPatcher\bin\Debug\Prism.TerrariaPatcher.exe" "..\References\Terraria.exe" "..\References\Prism.Terraria.dll"</PreBuildEvent>
     <PreBuildEvent Condition="'$(OS)' != 'Windows_NT'"># this patches the Terraria assembly
 # in order to build, one must provide their own .exe.
 # this will create a patched terraria assembly, which is referenced by Prism.csproj.
 # a batch script is used in windows environments.
 
-mono "$(SolutionDir)Patcher/Prism.TerrariaPatcher/bin/Debug/Prism.TerrariaPatcher.exe" "$(SolutionDir)References/Terraria.exe" "$(SolutionDir)References/Prism.Terraria.dll"</PreBuildEvent>
+mono "../Patcher/Prism.TerrariaPatcher/bin/Debug/Prism.TerrariaPatcher.exe" "../References/Terraria.exe" "../References/Prism.Terraria.dll"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
