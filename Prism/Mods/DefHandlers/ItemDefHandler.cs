@@ -50,7 +50,7 @@ namespace Prism.Mods.DefHandlers
             else
                 item.RealSetDefaults(type, noMatCheck);
 
-            var bs = ModData.mods.Values.Select(m => m.CreateGlobalItemBInternally()).Where(b => b != null);
+            var bs = ModData.mods.Values.Select(m => m.contentHandler.CreateGlobalItemBInternally()).Where(b => b != null);
 
             if (!bs.IsEmpty() && h == null)
                 h = new ItemBHandler();
@@ -314,8 +314,9 @@ namespace Prism.Mods.DefHandlers
             def.NoGravity                = ItemID.Sets.ItemNoGravity            [def.Type];
             def.IsNebulaPickup           = ItemID.Sets.NebulaPickup             [def.Type];
             def.NeverShiny               = ItemID.Sets.NeverShiny               [def.Type];
-            def.ExtractinatorMode        = ItemID.Sets.ExtractinatorMode        [def.Type];
             def.RequiredStaffMinionSlots = ItemID.Sets.StaffMinionSlotsRequired [def.Type];
+
+            def.ExtractinatorMode = (ItemExtractinatorMode)ItemID.Sets.ExtractinatorMode[def.Type];
         }
         protected override void CopyDefToEntity(ItemDef def, Item item)
         {
@@ -527,8 +528,9 @@ namespace Prism.Mods.DefHandlers
             ItemID.Sets.ItemNoGravity           [def.Type] = def.NoGravity               ;
             ItemID.Sets.NebulaPickup            [def.Type] = def.IsNebulaPickup          ;
             ItemID.Sets.NeverShiny              [def.Type] = def.NeverShiny              ;
-            ItemID.Sets.ExtractinatorMode       [def.Type] = def.ExtractinatorMode       ;
             ItemID.Sets.StaffMinionSlotsRequired[def.Type] = def.RequiredStaffMinionSlots;
+
+            ItemID.Sets.ExtractinatorMode[def.Type] = (int)def.ExtractinatorMode;
         }
     }
 }

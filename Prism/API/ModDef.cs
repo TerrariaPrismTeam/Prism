@@ -21,6 +21,9 @@ namespace Prism.API
     public abstract class ModDef : HookContainer
     {
         internal Dictionary<string, Stream> resources = new Dictionary<string, Stream>();
+        internal ContentHandler contentHandler;
+
+        internal GameBehaviour gameBehaviour;
 
         /// <summary>
         /// Gets the <see cref="ModInfo"/> of this mod.
@@ -118,118 +121,10 @@ namespace Prism.API
         [Hook]
         public virtual void OnAllModsLoaded() { }
 
-        //TODO: move this to a separate class containing game- or world-related hooks... later
-        /// <summary>
-        /// A hook called at the beginning of the game's Update method.
-        /// </summary>
-        [Hook]
-        public virtual void PreUpdate () { }
-        /// <summary>
-        /// A hook called at the end of the game's Update method.
-        /// </summary>
-        [Hook]
-        public virtual void PostUpdate() { }
-
-        /// <summary>
-        /// A hook used to change the current music last-minute.
-        /// </summary>
-        /// <param name="current">The inner value can be changed.</param>
-        [Hook]
-        public virtual void UpdateMusic(Ref<KeyValuePair<ObjectRef, BgmEntry>> current) { }
-
-#if DEV_BUILD
-        /// <summary>
-        /// Remember that this will only work on this dev build. Be sure to remove this override (or comment it out) and retarget to the release build before releasing the mod.
-        /// </summary>
-        [Hook]
-        public virtual void UpdateDebug() { }
-#endif
-
-        //TODO: move these somewhere else? (it might get crowded with these ~~soon~~ it's already becoming quite annoying imo)
-        //! don't forget the def dicts
-        /// <summary>
-        /// Gets all BGM entries created by the mod.
-        /// </summary>
-        /// <returns>
-        /// A dictionary containing all BGM entry definitions.
-        /// The key of each key/value pair is the internal name of the entry.
-        /// </returns>
-        protected virtual Dictionary<string, BgmEntry> GetBgms()
+        protected abstract ContentHandler CreateContentHandler();
+        internal ContentHandler CreateContentHandlerInternally()
         {
-            return Empty<string, BgmEntry>.Dictionary;
-        }
-
-        /// <summary>
-        /// Gets all item definitions created by the mod.
-        /// </summary>
-        /// <returns>
-        /// A dictionary containing all item definitions.
-        /// The key of each key/value pair is the internal name of the item.
-        /// </returns>
-        protected virtual Dictionary<string, ItemDef      > GetItemDefs      ()
-        {
-            return Empty<string, ItemDef      >.Dictionary;
-        }
-        /// <summary>
-        /// Gets all NPC definitions created by the mod.
-        /// </summary>
-        /// <returns>
-        /// A dictionary containing all NPC definitions.
-        /// The key of each key/value pair is the internal name of the NPC.
-        /// </returns>
-        protected virtual Dictionary<string, NpcDef       > GetNpcDefs       ()
-        {
-            return Empty<string, NpcDef       >.Dictionary;
-        }
-        /// <summary>
-        /// Gets all projectile definitions created by the mod.
-        /// </summary>
-        /// <returns>
-        /// A dictionary containing all projectile definitions.
-        /// The key of each key/value pair is the internal name of the projectile.
-        /// </returns>
-        protected virtual Dictionary<string, ProjectileDef> GetProjectileDefs()
-        {
-            return Empty<string, ProjectileDef>.Dictionary;
-        }
-        /// <summary>
-        /// Gets all tile definitions created by the mod.
-        /// </summary>
-        /// <returns>
-        /// A dictionary containing all tile definitions.
-        /// The key of each key/value pair is the internal name of the tile.
-        /// </returns>
-        protected virtual Dictionary<string, TileDef      > GetTileDefs      ()
-        {
-            return Empty<string, TileDef>.Dictionary;
-        }
-
-        /// <summary>
-        /// Gets all recipe definitions created by the mod.
-        /// </summary>
-        /// <returns>
-        /// A collection containing all recipe definitions.
-        /// </returns>
-        protected virtual IEnumerable<RecipeDef> GetRecipeDefs()
-        {
-            return Empty<RecipeDef>.Array;
-        }
-
-        protected virtual ItemBehaviour       CreateGlobalItemBehaviour      ()
-        {
-            return null;
-        }
-        protected virtual NpcBehaviour        CreateGlobalNpcBehaviour       ()
-        {
-            return null;
-        }
-        protected virtual ProjectileBehaviour CreateGlobalProjectileBehaviour()
-        {
-            return null;
-        }
-        protected virtual TileBehaviour       CreateGlobalTileBehaviour      ()
-        {
-            return null;
+            return CreateContentHandler();
         }
 
         T GetResourceInternal<T>(Func<Stream> getStream)
@@ -316,74 +211,6 @@ namespace Prism.API
             TileDefs       = null;
 
             RecipeDefs = null;
-        }
-
-        /// <summary>
-        /// Gets teh BGM entry defs by calling the proteced version of <see cref="GetBgms" />.
-        /// </summary>
-        /// <returns><see cref="GetBgms"/></returns>
-        internal Dictionary<string, BgmEntry> GetBgmsInternally()
-        {
-            return GetBgms();
-        }
-
-        /// <summary>
-        /// Gets the item defs by calling the protected version of <see cref="GetItemDefs" />.
-        /// </summary>
-        /// <returns><see cref="GetItemDefs"/></returns>
-        internal Dictionary<string, ItemDef      > GetItemDefsInternally()
-        {
-            return GetItemDefs();
-        }
-        /// <summary>
-        /// Gets the NPC defs by calling the protected version of <see cref="GetNpcDefs" />.
-        /// </summary>
-        /// <returns><see cref="GetNpcDefs"/></returns>
-        internal Dictionary<string, NpcDef       > GetNpcDefsInternally ()
-        {
-            return GetNpcDefs();
-        }
-        /// <summary>
-        /// Gets the projectile defs by calling the protected version of <see cref="GetProjectileDefs" />.
-        /// </summary>
-        /// <returns><see cref="GetProjectileDefs"/></returns>
-        internal Dictionary<string, ProjectileDef> GetProjDefsInternally()
-        {
-            return GetProjectileDefs();
-        }
-        /// <summary>
-        /// Gets the tile defs by calling the protected version of <see cref="GetTileDefs" />.
-        /// </summary>
-        /// <returns><see cref="GetProjectileDefs"/></returns>
-        internal Dictionary<string, TileDef      > GetTileDefsInternally()
-        {
-            return GetTileDefs();
-        }
-
-        /// <summary>
-        /// Gets the recipe defs by calling the protected version of <see cref="GetRecipeDefsInternally" />.
-        /// </summary>
-        /// <returns></returns>
-        internal IEnumerable<RecipeDef> GetRecipeDefsInternally()
-        {
-            return GetRecipeDefs();
-        }
-
-        internal virtual ItemBehaviour       CreateGlobalItemBInternally()
-        {
-            return CreateGlobalItemBehaviour      ();
-        }
-        internal virtual NpcBehaviour        CreateGlobalNpcBInternally ()
-        {
-            return CreateGlobalNpcBehaviour       ();
-        }
-        internal virtual ProjectileBehaviour CreateGlobalProjBInternally()
-        {
-            return CreateGlobalProjectileBehaviour();
-        }
-        internal virtual TileBehaviour       CreateGlobalTileBInternally()
-        {
-            return CreateGlobalTileBehaviour();
         }
     }
 }

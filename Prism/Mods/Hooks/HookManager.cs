@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Prism.API;
+using Prism.API.Behaviours;
 
 namespace Prism.Mods.Hooks
 {
@@ -29,7 +30,8 @@ namespace Prism.Mods.Hooks
 
         internal static void Create()
         {
-            RegisterManager(typeof(ModDef), ModDef = new ModDefHooks());
+            RegisterManager(typeof(ModDef       ), ModDef        = new ModDefHooks());
+            RegisterManager(typeof(GameBehaviour), GameBehaviour = new GameHooks  ());
 
             foreach (var v in managers.Values)
                 v.Create();
@@ -41,7 +43,8 @@ namespace Prism.Mods.Hooks
 
             managers.Clear();
 
-            ModDef = null;
+            ModDef        = null;
+            GameBehaviour = null;
         }
 
         /// <summary>
@@ -110,5 +113,6 @@ namespace Prism.Mods.Hooks
         }
 
         internal static ModDefHooks ModDef;
+        internal static GameHooks GameBehaviour;
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using LitJson;
+using Microsoft.Xna.Framework;
 using Prism.API.Behaviours;
 using Prism.Mods;
 using Prism.Util;
@@ -70,6 +71,43 @@ namespace Prism.API.Defs
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Gets or sets the size of this entity.
+        /// </summary>
+        public virtual Point Size
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets the width of this entity.
+        /// </summary>
+        public virtual int Width
+        {
+            get
+            {
+                return Size.X;
+            }
+            set
+            {
+                Size = new Point(value, Size.Y);
+            }
+        }
+        /// <summary>
+        /// Gets or sets the height of this entity.
+        /// </summary>
+        public virtual int Height
+        {
+            get
+            {
+                return Size.Y;
+            }
+            set
+            {
+                Size = new Point(Size.X, value);
+            }
         }
 
         /// <summary>

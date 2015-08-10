@@ -104,10 +104,12 @@
     <Compile Include="API\Audio\NpcMusicBgm.cs" />
     <Compile Include="API\Audio\VanillaBgms.cs" />
     <Compile Include="API\Behaviours\EntityBehaviour.cs" />
+    <Compile Include="API\Behaviours\GameBehaviour.cs" />
     <Compile Include="API\Behaviours\ItemBehaviour.cs" />
     <Compile Include="API\Behaviours\ProjectileBehaviour.cs" />
     <Compile Include="API\Behaviours\NpcBehaviour.cs" />
     <Compile Include="API\Behaviours\TileBehaviour.cs" />
+    <Compile Include="API\ContentHandler.cs" />
     <Compile Include="API\_Defs.cs" />
     <Compile Include="API\Defs\EntityDef.cs" />
     <Compile Include="API\DefIndexer.cs" />
@@ -132,6 +134,7 @@
     <Compile Include="Mods\ContentLoader.cs" />
     <Compile Include="Mods\DefHandlers\RecipeDefHandler.cs" />
     <Compile Include="Mods\DefHandlers\TileDefHandler.cs" />
+    <Compile Include="Mods\Hooks\GameHooks.cs" />
     <Compile Include="Mods\Hooks\NpcHooks.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -189,9 +192,9 @@
     <Compile Include="WinFormDialogs\HastebinResultDialogForm.Designer.cs">
       <DependentUpon>HastebinResultDialogForm.cs</DependentUpon>
     </Compile>
-	<Compile Include="Debugging\TraceDrawer.cs" />
-	<Compile Include="Debugging\PrismDebug.cs" />
-	<Compile Include="Debugging\PrismTraceListener.cs" />
+    <Compile Include="Debugging\TraceDrawer.cs" />
+    <Compile Include="Debugging\PrismDebug.cs" />
+    <Compile Include="Debugging\PrismTraceListener.cs" />
     <Compile Include="_LitJson\IJsonWrapper.cs" />
     <Compile Include="_LitJson\JsonData.cs" />
     <Compile Include="_LitJson\JsonException.cs" />

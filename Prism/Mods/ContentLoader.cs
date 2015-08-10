@@ -21,7 +21,9 @@ namespace Prism.Mods
         {
             var ret = new List<LoaderError>();
 
-            mod.BgmEntries = mod.GetBgmsInternally();
+            mod.gameBehaviour = mod.contentHandler.CreateGameBInternally();
+
+            mod.BgmEntries = mod.contentHandler.GetBgmsInternally();
 
             return ret;
         }

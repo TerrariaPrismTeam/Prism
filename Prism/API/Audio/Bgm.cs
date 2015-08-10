@@ -332,7 +332,7 @@ namespace Prism.API.Audio
 
             Main.engine.Update();
 
-            HookManager.ModDef.UpdateMusic(ref newCurrent);
+            HookManager.GameBehaviour.UpdateMusic(ref newCurrent);
 
             var newEntry = newCurrent.Value;
 

@@ -48,7 +48,7 @@ namespace Prism.Mods.DefHandlers
                 p.active = true;
             }
 
-            var bs = ModData.mods.Values.Select(m => m.CreateGlobalProjBInternally()).Where(b => b != null);
+            var bs = ModData.mods.Values.Select(m => m.contentHandler.CreateGlobalProjBInternally()).Where(b => b != null);
 
             if (!bs.IsEmpty() && h == null)
                 h = new ProjectileBHandler();

@@ -77,6 +77,12 @@ namespace Prism.API.Defs
         Red = 10,
         Purple = 11
     }
+    public enum ItemExtractinatorMode
+    {
+        Unextractable = -1,
+        SiltAndSlush,
+        Fossil
+    }
 
     /// <summary>
     /// Container for the properties of the item which determine its use as armour.

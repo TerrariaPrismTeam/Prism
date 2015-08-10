@@ -71,12 +71,14 @@ namespace Prism.Mods
         {
             var ret = new List<LoaderError>();
 
-            mod.ItemDefs       = SetEntityModDefs<ItemDef      , ItemBehaviour      , Item      >(mod, mod.GetItemDefsInternally());
-            mod.NpcDefs        = SetEntityModDefs<NpcDef       , NpcBehaviour       , NPC       >(mod, mod.GetNpcDefsInternally ());
-            mod.ProjectileDefs = SetEntityModDefs<ProjectileDef, ProjectileBehaviour, Projectile>(mod, mod.GetProjDefsInternally());
-            mod.TileDefs       = SetEntityModDefs<TileDef      , TileBehaviour      , Tile      >(mod, mod.GetTileDefsInternally());
+            var ch = mod.contentHandler;
 
-            mod.RecipeDefs = RecipeDefHandler.SetRecipeModDefs(mod, mod.GetRecipeDefsInternally());
+            mod.ItemDefs       = SetEntityModDefs<ItemDef      , ItemBehaviour      , Item      >(mod, ch.GetItemDefsInternally());
+            mod.NpcDefs        = SetEntityModDefs<NpcDef       , NpcBehaviour       , NPC       >(mod, ch.GetNpcDefsInternally ());
+            mod.ProjectileDefs = SetEntityModDefs<ProjectileDef, ProjectileBehaviour, Projectile>(mod, ch.GetProjDefsInternally());
+            mod.TileDefs       = SetEntityModDefs<TileDef      , TileBehaviour      , Tile      >(mod, ch.GetTileDefsInternally());
+
+            mod.RecipeDefs = RecipeDefHandler.SetRecipeModDefs(mod, ch.GetRecipeDefsInternally());
 
             ret.AddRange(Handler.ItemDef.Load(mod.ItemDefs      ));
             ret.AddRange(Handler.NpcDef .Load(mod.NpcDefs       ));

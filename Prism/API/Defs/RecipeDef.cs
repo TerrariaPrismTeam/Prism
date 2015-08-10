@@ -51,9 +51,8 @@ namespace Prism.API.Defs
             get;
             set;
         }
-        //TODO: change to TileRef when tiles are supported
         //TODO: add TileGroups and change it to another discriminated union
-        public virtual ushort[] RequiredTiles
+        public virtual TileRef[] RequiredTiles
         {
             get;
             set;
@@ -70,7 +69,7 @@ namespace Prism.API.Defs
             ItemRef createItem,
             int stack = 1,
             IDictionary<ItemRef, int> reqItems = null,
-            ushort[] reqTiles = null,
+            TileRef[] reqTiles = null,
             RecipeLiquids reqLiquids = RecipeLiquids.None
             #endregion
             )
@@ -79,7 +78,7 @@ namespace Prism.API.Defs
             CreateStack = stack;
 
             RequiredItems = reqItems ?? new Dictionary<ItemRef, int>();
-            RequiredTiles = reqTiles ?? Empty<ushort>.Array;
+            RequiredTiles = reqTiles ?? Empty<TileRef>.Array;
 
             RequiredLiquids = reqLiquids;
         }

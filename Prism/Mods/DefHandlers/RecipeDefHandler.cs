@@ -50,7 +50,7 @@ namespace Prism.Mods.DefHandlers
                 if (i >= Recipe.maxRequirements)
                     break;
 
-                r.requiredTile[i] = t;
+                r.requiredTile[i] = t.Resolve().Type;
 
                 i++;
             }
@@ -59,7 +59,7 @@ namespace Prism.Mods.DefHandlers
             r.needLava  = (def.RequiredLiquids & RecipeLiquids.Lava ) != 0;
             r.needHoney = (def.RequiredLiquids & RecipeLiquids.Honey) != 0;
 
-            r.alchemy = def.RequiredTiles.Any(id => id == TileID.Bottles);
+            r.alchemy = def.RequiredTiles.Any(t => t.Resolve().Type == TileID.Bottles);
 
             //TODO: set any* to true when TileGroups are defined & implemented
         }
@@ -103,7 +103,7 @@ namespace Prism.Mods.DefHandlers
                     new ItemRef(r.createItem.netID),
                     r.createItem.stack,
                     r.requiredItem.TakeWhile(it => it.type != 0).Select(it => new KeyValuePair<ItemRef, int>(new ItemRef(it.netID), it.stack)).ToDictionary(),
-                    r.requiredTile.TakeWhile(t => t >= 0).Select(t => (ushort)t).ToArray(),
+                    r.requiredTile.TakeWhile(t => t >= 0).Select(t => new TileRef(t)).ToArray(),
                     (r.needWater ? RecipeLiquids.Water : 0) |
                     (r.needLava  ? RecipeLiquids.Lava  : 0) |
                     (r.needHoney ? RecipeLiquids.Honey : 0)));

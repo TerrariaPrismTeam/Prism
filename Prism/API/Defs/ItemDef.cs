@@ -59,25 +59,6 @@ namespace Prism.API.Defs
             get;
             set;
         }
-        //TODO: move this to EntityDef?
-        /// <summary>
-        /// Gets or sets the width of this item once it is freed as drop in the game world.
-        /// </summary>
-        /// <remarks>Item.width</remarks>
-        public virtual int Width
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// Gets or sets the height of this item once it is freed as drop in the game world.
-        /// </summary>
-        /// <remarks>Item.height</remarks>
-        public virtual int Height
-        {
-            get;
-            set;
-        }
         /// <summary>
         /// Gets or sets this item's max stack.
         /// </summary>
@@ -332,7 +313,7 @@ namespace Prism.API.Defs
         /// Gets or sets what the extractinator can use this item to produce.
         /// <remarks>TODO: Make an enum for the types?</remarks>
         /// </summary>
-        public virtual int ExtractinatorMode
+        public virtual ItemExtractinatorMode ExtractinatorMode
         {
             get;
             set;
@@ -532,7 +513,8 @@ namespace Prism.API.Defs
 
             Scale = 1f;
 
-            ExtractinatorMode = MountType = -1;
+            ExtractinatorMode = ItemExtractinatorMode.Unextractable;
+            MountType = -1;
 
             Colour = Color.White;
 
@@ -585,7 +567,7 @@ namespace Prism.API.Defs
 
             IsSoul = (bool)json["soul"];
             IsStrangePlant = (bool)json["strangePlant"];
-            ExtractinatorMode = (int)json["extractinatorMode"];
+            ExtractinatorMode = json["extractinatorMode"].ParseAsEnum<ItemExtractinatorMode>();
             IsBullet = (bool)json["bullet"];
             Pulses = (bool)json["pulses"];
             NoGravity = (bool)json["noGravity"];

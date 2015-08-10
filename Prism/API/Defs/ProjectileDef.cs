@@ -22,24 +22,6 @@ namespace Prism.API.Defs
             set;
         }
         /// <summary>
-        /// Gets or sets the width of this projectile.
-        /// </summary>
-        /// <remarks>Projectile.width</remarks>
-        public virtual int Width
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// Gets or sets the height of this projectile.
-        /// </summary>
-        /// <remarks>Projectile.height</remarks>
-        public virtual int Height
-        {
-            get;
-            set;
-        }
-        /// <summary>
         /// Gets or sets the opacity at which the projectile's sprite is rendered (0 = fully opaque, 255 = fully transparent).
         /// </summary>
         /// <remarks>Projectile.alpha</remarks>

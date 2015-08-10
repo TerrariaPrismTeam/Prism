@@ -23,24 +23,6 @@ namespace Prism.API.Defs
             set;
         }
         /// <summary>
-        /// Gets or sets the width of this NPC.
-        /// </summary>
-        /// <remarks>NPC.width</remarks>
-        public virtual int Width
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// Gets or sets the height of this NPC.
-        /// </summary>
-        /// <remarks>NPC.height</remarks>
-        public virtual int Height
-        {
-            get;
-            set;
-        }
-        /// <summary>
         /// Gets or sets the defense of this NPC.
         /// </summary>
         /// <remarks>NPC.defense</remarks>

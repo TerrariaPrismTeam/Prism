@@ -44,16 +44,20 @@ namespace Prism
             Configuration = new Preferences(SavePath + "\\config.json", false, false);
         }
 
-        protected override void Initialize()
+        static void HookWrappedMethods()
         {
-            //TODO: might move this somewhere else, too
             P_OnUpdateMusic += Bgm.Update;
 
-            Item .P_OnSetDefaults += ItemDefHandler.OnSetDefaults;
-            NPC .P_OnSetDefaults += NpcDefHandler .OnSetDefaults;
+            Item      .P_OnSetDefaults += ItemDefHandler.OnSetDefaults;
+            NPC       .P_OnSetDefaults += NpcDefHandler .OnSetDefaults;
             Projectile.P_OnSetDefaults += ProjDefHandler.OnSetDefaults;
 
             NPC.P_OnNewNPC += NpcHooks.OnNewNPC;
+        }
+
+        protected override void Initialize()
+        {
+            HookWrappedMethods();
 
             base.Initialize(); // terraria init and LoadContent happen here
 
@@ -117,7 +121,7 @@ namespace Prism
         {
             try
             {
-                HookManager.ModDef.PreUpdate();
+                HookManager.GameBehaviour.PreUpdate();
 
                 ApplyHotfixes(); //The array is initialized every time new Player() is called. Until we have like InitPlayer or something we just have to ghettohack it like this.
 
@@ -126,7 +130,7 @@ namespace Prism
                 if (!gameMenu && prevGameMenu)
                     Helpers.Main.RandColorText("Welcome to " + PrismApi.NiceVersionString + ".", true);
 
-                HookManager.ModDef.PostUpdate();
+                HookManager.GameBehaviour.PostUpdate();
 
                 PrismDebug.Update();
             }
