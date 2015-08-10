@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("Prism.ExampleMod")]
-[assembly: AssemblyDescription("Prism example mod")]
+[assembly: AssemblyDescription("Prism Example Mod")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Terraria Prism Team")]
 [assembly: AssemblyProduct("Prism.ExampleMod")]
