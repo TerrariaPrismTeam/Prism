@@ -69,6 +69,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Content.cs" />
+    <Compile Include="DebugConsole\ChatCommand.cs" />
+    <Compile Include="DebugConsole\ChatCommands\ChatCommandCS.cs" />
+    <Compile Include="DebugConsole\ChatCommands\ChatCommandGet.cs" />
+    <Compile Include="DebugConsole\ChatCommands\ChatCommandSet.cs" />
+    <Compile Include="DebugConsole\ChatCommands\ChatCommandSpawn.cs" />
+    <Compile Include="DebugConsole\ChatConsole.cs" />
+    <Compile Include="DebugMenu\DbgMenuStructs.cs" />
+    <Compile Include="DebugMenu\DebugMenu.cs" />
+    <Compile Include="DebugMenu\DebugMenuNode.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -85,9 +94,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
