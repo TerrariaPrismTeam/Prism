@@ -101,6 +101,18 @@ namespace Prism
             }
         }
 
+        // See MainPatcher.Patch()...
+
+        //public override bool IsChatAllowedHook()
+        //{
+        //    return base.IsChatAllowedHook();
+        //}
+
+        //public override bool PlayerChatLocalHook()
+        //{
+        //    return base.PlayerChatLocalHook();
+        //}
+
         protected override void Update(GameTime gt)
         {
             try

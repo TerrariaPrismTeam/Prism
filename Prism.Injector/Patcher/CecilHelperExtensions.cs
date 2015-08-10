@@ -48,6 +48,10 @@ namespace Prism.Injector.Patcher
 
             return delegateType;
         }        
+        public static Instruction[] FindInstrSeq(this MethodBody body, OpCode[] instrs)
+        {
+            return body.FindInstrSeq(instrs, instrs.Length);
+        }
         public static Instruction[] FindInstrSeq(this MethodBody body, OpCode[] instrs, int amt)
         {
             Instruction[] result = new Instruction[amt];
