@@ -57,6 +57,8 @@ namespace Prism
 
         protected override void Initialize()
         {
+            Logging.Init();
+
             HookWrappedMethods();
 
             base.Initialize(); // terraria init and LoadContent happen here
@@ -88,6 +90,8 @@ namespace Prism
 
             WhitePixel.Dispose();
             WhitePixel = null;
+
+            Logging.Close();
 
             base.UnloadContent();
         }
