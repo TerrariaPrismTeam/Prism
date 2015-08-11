@@ -279,7 +279,6 @@ namespace Prism.Injector.Patcher
 
             RemoveVanillaNpcDrawLimitation();
             WrapUpdateMusic();
-            WrapSetDisplayMode();
 
             //These are causing System.InvalidProgramExceptions so I'm just commenting them out (pls don't remove them)
             //AddIsChatAllowedHook();
