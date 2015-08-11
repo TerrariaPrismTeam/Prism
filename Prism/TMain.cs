@@ -57,13 +57,10 @@ namespace Prism
 
         protected override void Initialize()
         {
-            Logging.Init();
-
             HookWrappedMethods();
 
             base.Initialize(); // terraria init and LoadContent happen here
 
-            EntityDefLoader.SetupEntityHandlers();
             ModLoader.Load();
 
 #if DEV_BUILD
@@ -73,7 +70,7 @@ namespace Prism
             ApplyHotfixes();
 
             versionNumber += ", mods loaded: " + ModData.Mods.Count +
-                (ModLoader.errors.Count > 0 ? ", load errors: " + ModLoader.errors.Count : "");
+                (ModLoader.errors.Count > 0 ? ", load errors: " + ModLoader.errors.Count : String.Empty);
         }
 
         protected override void LoadContent()
@@ -90,8 +87,6 @@ namespace Prism
 
             WhitePixel.Dispose();
             WhitePixel = null;
-
-            Logging.Close();
 
             base.UnloadContent();
         }
@@ -162,7 +157,10 @@ namespace Prism
             catch (Exception e)
             {
                 if (justDrawCrashed)
+                {
+                    Logging.LogWarning("Crashed during critical drawing operation, drawing state got messed up.");
                     ExceptionHandler.HandleFatal(new AggregateException(lastDrawExn, e)); // drawing state got fucked up
+                }
                 else
                 {
                     justDrawCrashed = true;

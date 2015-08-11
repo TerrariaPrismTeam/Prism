@@ -42,12 +42,12 @@ namespace Prism.Mods
         /// </summary>
         internal static void ResetEntityHandlers()
         {
+            Handler.RecipeDef.Reset();
+
             Handler.ItemDef.Reset();
-            Handler.NpcDef.Reset();
+            Handler.NpcDef .Reset();
             Handler.ProjDef.Reset();
             Handler.TileDef.Reset();
-
-            Handler.RecipeDef.Reset();
         }
         /// <summary>
         /// Sets up this EntityDefLoader for loading mods, creating/adding all of the vanilla content defs, etc.
@@ -55,7 +55,7 @@ namespace Prism.Mods
         internal static void SetupEntityHandlers()
         {
             Handler.ItemDef.FillVanilla();
-            Handler.NpcDef.FillVanilla();
+            Handler.NpcDef .FillVanilla();
             Handler.ProjDef.FillVanilla();
             Handler.TileDef.FillVanilla();
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
+using Prism.Debugging;
 using Prism.Mods.Behaviours;
 using Prism.Util;
 using Terraria;
@@ -25,6 +26,10 @@ namespace Prism.Mods.DefHandlers
             if (ModLoader.Reloading)
             {
                 p.RealSetDefaults(type);
+
+                if (!FillingVanilla)
+                    Logging.LogWarning("Tried to call SetDefaults on a Projectile while [re|un]?loading mods.");
+
                 return;
             }
 

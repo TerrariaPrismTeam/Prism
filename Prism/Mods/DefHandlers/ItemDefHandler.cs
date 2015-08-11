@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
+using Prism.Debugging;
 using Prism.Mods.Behaviours;
 using Prism.Util;
 using Terraria;
@@ -23,9 +24,13 @@ namespace Prism.Mods.DefHandlers
 
         internal static void OnSetDefaults(Item item, int type, bool noMatCheck)
         {
-            if (ModLoader.Reloading)
+            if (ModLoader.Reloading && !RecipeDefHandler.SettingUpRecipes)
             {
                 item.RealSetDefaults(type, noMatCheck);
+
+                if (!FillingVanilla)
+                    Logging.LogWarning("Tried to call SetDefaults on an Item while [re|un]?loading mods.");
+
                 return;
             }
 
@@ -43,7 +48,7 @@ namespace Prism.Mods.DefHandlers
 
                 Handler.ItemDef.CopyDefToEntity(d, item);
 
-                if (d.CreateBehaviour != null)
+                if (!ModLoader.Reloading && d.CreateBehaviour != null)
                 {
                     h = new ItemBHandler();
 
@@ -56,12 +61,12 @@ namespace Prism.Mods.DefHandlers
             else
                 item.RealSetDefaults(type, noMatCheck);
 
-            var bs = ModData.mods.Values.Select(m => m.contentHandler.CreateGlobalItemBInternally()).Where(b => b != null);
+            var bs = ModLoader.Reloading ? Empty<ItemBehaviour>.Array : ModData.mods.Values.Select(m => m.contentHandler.CreateGlobalItemBInternally()).Where(b => b != null);
 
-            if (!bs.IsEmpty() && h == null)
+            if (!ModLoader.Reloading && !bs.IsEmpty() && h == null)
                 h = new ItemBHandler();
 
-            if (h != null)
+            if (!ModLoader.Reloading && h != null)
             {
                 h.behaviours.AddRange(bs);
 

@@ -19,7 +19,7 @@ namespace Prism.API
     /// Every mod must have exactly one type that inherits from <see cref="ModDef"/>.
     /// </summary>
     public abstract class ModDef : HookContainer
-    {        
+    {
         internal ContentHandler contentHandler;
         internal GameBehaviour gameBehaviour;
 
@@ -123,7 +123,7 @@ namespace Prism.API
         internal ContentHandler CreateContentHandlerInternally()
         {
             return CreateContentHandler();
-        }        
+        }
 
         /// <summary>
         /// Disposes of resources.

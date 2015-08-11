@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Prism.API;
 using Prism.API.Behaviours;
+using Prism.Debugging;
+using Prism.Util;
 
 namespace Prism.Mods.Hooks
 {
@@ -61,42 +64,50 @@ namespace Prism.Mods.Hooks
         /// <summary>
         /// Create a hook delegate list from a collection of HookContainers.
         /// </summary>
-        /// <param name="types">The hook containers to add hooks from.</param>
+        /// <param name="containers">The hook containers to add hooks from.</param>
         /// <param name="methodName">The name of the hook.</param>
         /// <typeparam name="THookContainer">The type of the hook container.</typeparam>
         /// <typeparam name="TDelegate">The delegate type of the hook.</typeparam>
         /// <returns>The sorted hook list.</returns>
-        public static IEnumerable<TDelegate> CreateHooks<THookContainer, TDelegate>(IEnumerable<THookContainer> types, string methodName)
+        public static IEnumerable<TDelegate> CreateHooks<THookContainer, TDelegate>(IEnumerable<THookContainer> containers, string methodName)
             where THookContainer : HookContainer
             where TDelegate : class
         {
             if (!typeof(TDelegate).IsSubclassOf(typeof(Delegate)))
                 throw new ArgumentException("TDelegate must be a delegate type, but it's a " + typeof(TDelegate) + "!", "TDelegate");
 
-            List<Tuple<double, Delegate>> nonSorted = new List<Tuple<double, Delegate>>();
+            List<Tuple<double, Delegate>> unsorted = new List<Tuple<double, Delegate>>();
 
-            foreach (THookContainer container in types)
+            var hookMtdDecls = typeof(THookContainer).GetMethods(HookContainer.HookFlags);
+            if (!hookMtdDecls.Any(m => m.Name == methodName))
             {
-                MethodInfo[] methods = container.GetHooks();
+                Logging.LogWarning("Hook container " + typeof(THookContainer) + " does not contain hook " + methodName + ".");
 
-                for (int i = 0; i < methods.Length; i++)
+                return Empty<TDelegate>.Array;
+            }
+
+            foreach (THookContainer container in containers)
+            {
+                MethodInfo[] hooks = container.GetHooks<THookContainer>();
+
+                for (int i = 0; i < hooks.Length; i++)
                 {
-                    if (methods[i].Name != methodName)
+                    if (hooks[i].Name != methodName)
                         continue;
 
                     double priority = 0d;
 
                     object[] attrs;
-                    if ((attrs = methods[i].GetCustomAttributes(typeof(CallPriorityAttribute), true)) != null && attrs.Length == 1)
+                    if ((attrs = hooks[i].GetCustomAttributes(typeof(CallPriorityAttribute), true)) != null && attrs.Length == 1)
                         priority = ((CallPriorityAttribute)attrs[0]).Priority;
 
-                    Delegate del = Delegate.CreateDelegate(typeof(TDelegate), container, methods[i], false);
+                    Delegate del = Delegate.CreateDelegate(typeof(TDelegate), container, hooks[i], false);
                     if (del != null)
-                        nonSorted.Add(new Tuple<double, Delegate>(priority, del));
+                        unsorted.Add(new Tuple<double, Delegate>(priority, del));
                 }
             }
 
-            return nonSorted.OrderBy(t => t.Item1).Select(t => t.Item2 as TDelegate).Where(d => d != null);
+            return unsorted.OrderBy(t => t.Item1).Select(t => t.Item2 as TDelegate).Where(d => d != null);
         }
 
         /// <summary>
@@ -108,7 +119,15 @@ namespace Prism.Mods.Hooks
         public static object[] Call(IEnumerable<Delegate> delegates, params object[] args)
         {
             if (!CanCallHooks)
-                return new object[0];
+            {
+                var stackTrace = new StackTrace(1);
+                var mtd = stackTrace.GetFrame(0).GetMethod();
+
+                Logging.LogWarning("Tried to call hook '" + mtd.DeclaringType + "." + mtd + "' when hooks are disabled!");
+                Logging.LogWarning(String.Join(String.Empty, stackTrace.GetFrames().Take(3)));
+
+                return Empty<object>.Array;
+            }
 
             return delegates.Select(del => del.DynamicInvoke(args)).ToArray();
         }

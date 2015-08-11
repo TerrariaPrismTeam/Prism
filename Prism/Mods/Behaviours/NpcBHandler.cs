@@ -15,7 +15,7 @@ namespace Prism.Mods.Behaviours
         {
             base.Create();
 
-            onUpdate = HookManager.CreateHooks<NpcBehaviour, Action>(Behaviours, "OnUsed");
+            onUpdate = HookManager.CreateHooks<NpcBehaviour, Action>(Behaviours, "OnUpdate");
         }
         public override void Clear ()
         {

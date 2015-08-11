@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Prism.Debugging;
 using Prism.Mods;
 using Prism.Util;
 
@@ -66,7 +67,14 @@ namespace Prism
 
                 // LINQ uses lazy evaluation, thus it doesn't try to load the assembly from all assemblies in DllContainingAssemblies,
                 // but the loop breaks when the predicate in Find returns true.
-                return DllContainingAssemblies.Select(c => ResolveFromResources(c, displayName)).First(a => a != null);
+                var ret = DllContainingAssemblies.Select(c => ResolveFromResources(c, displayName)).First(a => a != null);
+
+                if (ret == null)
+                    Logging.LogWarning("Could not resolve assembly " + rea.Name);
+                else
+                    Logging.LogInfo("Resolved assembly " + rea.Name + " from embedded resources.");
+
+                return ret;
             };
         }
 
@@ -92,6 +100,8 @@ namespace Prism
                         if (File.Exists(v))
                             throw new DirectoryNotFoundException("The path to the mod to debug is a file, not a directory.");
 
+                        Logging.LogInfo("Debugging mod " + Path.GetFileName(v));
+
                         ModLoader.DebugModDir = v;
                         break;
                 }
@@ -102,6 +112,8 @@ namespace Prism
             try
             {
                 Init();
+
+                Logging.Init();
 
                 try
                 {
@@ -118,13 +130,17 @@ namespace Prism
                 TerrariaLauncher.Launch(); // having it in this class would cause a TypeInitializationException before Main is called.
                                            // this happens because all types in Prism.Terraria.dll still refer to Terraria.exe, but this is
                                            // fixed in Init() by resolving Terraria.exe as Prism.Terraria.dll.
+
+                return 0;
             }
             catch (Exception e)
             {
                 return ExceptionHandler.HandleFatal(e, false /* Environment.Exit is not needed here */);
             }
-
-            return 0;
+            finally
+            {
+                Logging.Close();
+            }
         }
     }
 }

@@ -12,6 +12,8 @@ namespace Prism.Mods.DefHandlers
     //TODO: we might need to rethink this
     sealed class RecipeDefHandler
     {
+        internal static bool SettingUpRecipes = false;
+
         internal List<RecipeDef> recipes = new List<RecipeDef>(Recipe.maxRecipes);
         static int
             DefMaxRecipes = Recipe.maxRecipes,
@@ -28,6 +30,8 @@ namespace Prism.Mods.DefHandlers
 
         static void CopyDefToVanilla(RecipeDef def, Recipe r)
         {
+            SettingUpRecipes = true;
+
             r.createItem.netDefaults(def.CreateItem.Resolve().NetID);
             r.createItem.stack = def.CreateStack;
 
@@ -62,6 +66,8 @@ namespace Prism.Mods.DefHandlers
             r.alchemy = def.RequiredTiles.Any(t => t.Resolve().Type == TileID.Bottles);
 
             //TODO: set any* to true when TileGroups are defined & implemented
+
+            SettingUpRecipes = false;
         }
 
         static void ExtendVanillaArrays(int amt = 1)
@@ -88,7 +94,11 @@ namespace Prism.Mods.DefHandlers
             ExtendVanillaArrays(-1);
 
             Recipe.numRecipes = 0;
+
+            SettingUpRecipes = true ;
             Recipe.SetupRecipes();
+            SettingUpRecipes = false;
+
             DefNumRecipes = Recipe.numRecipes;
         }
 

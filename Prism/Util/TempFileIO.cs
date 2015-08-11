@@ -1,12 +1,11 @@
-﻿using Microsoft.Xna.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
-using Microsoft.Xna.Framework.Content;
-using Terraria;
+using System.Linq;
 using System.Reflection;
+using Microsoft.Xna.Framework.Content;
+using Prism.Debugging;
+using Terraria;
 
 namespace Prism.Util
 {
@@ -40,7 +39,7 @@ namespace Prism.Util
         public TempFile(string resourceName, bool dontOverrite = false, StreamFate contentFate = StreamFate.CloseAndDispose)
             : this(dontOverrite, contentFate)
         {
-            ContentStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName);
+            ContentStream = Assembly.GetCallingAssembly().GetManifestResourceStream(resourceName);
         }
 
         public TempFile(string path, Stream contents, bool dontOverrite = false, StreamFate contentFate = StreamFate.CloseAndDispose)
@@ -59,12 +58,12 @@ namespace Prism.Util
 
         public void Init()
         {
-            string dir = new FileInfo(FilePath).Directory.FullName;
+            string dir = Path.GetDirectoryName(FilePath);
 
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
             else
-                foreach (var f in Directory.GetFiles(dir))
+                foreach (var f in Directory.EnumerateFiles(dir))
                     File.Delete(f);
 
             if (File.Exists(FilePath))
@@ -74,6 +73,8 @@ namespace Prism.Util
                 else
                     File.Delete(FilePath);
             }
+
+            Logging.LogInfo("Creating temp file " + FilePath);
 
             FStream = File.Create(FilePath);
             ContentStream.CopyTo(FStream);
@@ -93,6 +94,8 @@ namespace Prism.Util
 
         public void Dispose()
         {
+            Logging.LogInfo("Deleting temp file " + FilePath);
+
             if (FStream != null)
             {
                 FStream.Dispose();

@@ -21,6 +21,8 @@ namespace Prism.Mods.DefHandlers
         /// </summary>
         internal int NextTypeIndex;
 
+        protected static bool FillingVanilla = false;
+
         public Dictionary<int   , TEntityDef> DefsByType        = new Dictionary<int   , TEntityDef>();
         public Dictionary<string, TEntityDef> VanillaDefsByName = new Dictionary<string, TEntityDef>();
 
@@ -115,6 +117,8 @@ namespace Prism.Mods.DefHandlers
 
         internal void FillVanilla()
         {
+            FillingVanilla = true;
+
             int id = 0;
 
             var def = NewDefFromVanilla(GetVanillaEntityFromID(id));
@@ -157,6 +161,8 @@ namespace Prism.Mods.DefHandlers
                     VanillaDefsByName.Add(kvp.Key, kvp.Value);
 
             PostFillVanilla();
+
+            FillingVanilla = false;
         }
 
         internal void Reset()

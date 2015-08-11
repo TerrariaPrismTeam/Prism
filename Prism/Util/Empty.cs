@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Terraria;
 
 namespace Prism.Util
 {
@@ -17,6 +18,7 @@ namespace Prism.Util
         public readonly static T Value = default(T);
         public readonly static T[] Array = new T[0];
         public readonly static List<T> List = new List<T>();
+        public readonly static Ref<T> Ref = new Ref<T>(default(T));
 
         public readonly static Action<T> Action = _  => {        };
         public readonly static Func  <T> Func   = () => default(T);

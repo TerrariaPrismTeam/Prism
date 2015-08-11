@@ -23,6 +23,7 @@ namespace Prism
             }
             catch
             {
+                Logging.LogWarning("Exception.HResult could not be read: " + e.Message);
                 return 1; // fuckfuckfuckfuckfuckfuck
                 //RIP D:
             }
@@ -49,6 +50,9 @@ namespace Prism
             MessageBox.Show("A fatal error occured:\n" + e, e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             var hr = GetHResult(e);
+
+            Logging.LogInfo("Forcing shut down.");
+            Logging.Close();
 
             if (exitImmediately)
                 Environment.Exit(hr);

@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Windows.Forms;
 using LitJson;
 using Prism.API;
+using Prism.Debugging;
 using Prism.Mods.Hooks;
 using Prism.Mods.Resources;
-using System.Text;
 using Prism.WinFormDialogs;
 
 namespace Prism.Mods
@@ -23,28 +25,37 @@ namespace Prism.Mods
         internal static List<LoaderError> errors = new List<LoaderError>();
         static List<string> circRefList = new List<string>();
 
-        public static bool Reloading
+        public static bool Loading
         {
             get;
             private set;
         }
+        public static bool Unloading
+        {
+            get;
+            private set;
+        }
+        public static bool Reloading
+        {
+            get
+            {
+                return Loading || Unloading;
+            }
+        }
 
+        [Conditional("DEV_BUILD")] // using this instead of an #if will ensure the usings are there, even when using a different configuration
         internal static void Debug_ShowAllErrors()
         {
-#if DEV_BUILD
             if (errors.Count > 0)
             {
-                StringBuilder errorDump = new StringBuilder(string.Format("Encountered {0} errors while loading mods:\n\n\n", errors.Count));
+                var errorDump = new StringBuilder(String.Format("Encountered {0} errors while loading mods:\n\n\n", errors.Count));
 
                 for (int i = 0; i < errors.Count; i++)
-                {
-                    errorDump.AppendLine(string.Format("[{0} of {1}] ", i + 1, errors.Count) + errors[i].ToString());
-                }
+                    errorDump.AppendLine(String.Format("[{0} of {1}] ", i + 1, errors.Count) + errors[i].ToString());
 
-                var dialog = new ExceptionDialogForm(string.Format("{0} Error(s)", errors.Count), errorDump.ToString());
+                var dialog = new ExceptionDialogForm(String.Format("{0} Error(s)", errors.Count), errorDump.ToString());
                 dialog.ShowDialog();
             }
-#endif
         }
 
         /// <summary>
@@ -246,14 +257,16 @@ namespace Prism.Mods
         /// <returns>Any <see cref="LoaderError"/>'s encountered while loading.</returns>
         internal static IEnumerable<LoaderError> Load()
         {
-            Reloading = true;
+            Loading = true;
+
+            Logging.LogInfo("Loading mods...");
 
             errors.Clear();
 
             if (!Directory.Exists(PrismApi.ModDirectory))
                 Directory.CreateDirectory(PrismApi.ModDirectory);
 
-            // the EntityDefLoader setup is called in TMain.Initialize
+            EntityDefLoader.SetupEntityHandlers();
             ResourceLoader.Setup();
             ContentLoader .Setup();
 
@@ -306,9 +319,14 @@ namespace Prism.Mods
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
             GC.WaitForPendingFinalizers();
 
+            Loading = false;
+
+            Logging.LogInfo("Mods finished loading.");
+
             HookManager.ModDef.OnAllModsLoaded();
 
-            Reloading = false;
+            for (int i = 0; i < errors.Count; i++)
+                Logging.LogError(errors[i].ToString());
 
             return errors;
         }
@@ -318,21 +336,23 @@ namespace Prism.Mods
         /// </summary>
         internal static void Unload()
         {
-            Reloading = true;
-
             if (HookManager.ModDef != null)
                 HookManager.ModDef.OnUnload();
+
+            Unloading = true;
+
+            Logging.LogInfo("Unloading mods...");
 
             HookManager.CanCallHooks = false;
 
             HookManager.Clear();
 
-            foreach (var v in ModData.mods.Values)
-                v.Unload();
-
             EntityDefLoader.ResetEntityHandlers();
             ResourceLoader .Unload();
             ContentLoader  .Reset();
+
+            foreach (var v in ModData.mods.Values)
+                v.Unload();
 
             ModData.mods.Clear();
 
@@ -341,7 +361,9 @@ namespace Prism.Mods
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
             GC.WaitForPendingFinalizers();
 
-            Reloading = false;
+            Logging.LogInfo("Mods finished unloading.");
+
+            Unloading = false;
         }
 
         /// <summary>

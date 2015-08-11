@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Prism.API;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
+using Prism.Debugging;
 using Prism.Mods.Behaviours;
 using Prism.Util;
 using Terraria;
@@ -29,6 +30,10 @@ namespace Prism.Mods.DefHandlers
             if (ModLoader.Reloading)
             {
                 n.RealSetDefaults(type, scaleOverride);
+
+                if (!FillingVanilla)
+                    Logging.LogWarning("Tried to call SetDefaults on an NPC while [re|un]?loading mods.");
+
                 return;
             }
 

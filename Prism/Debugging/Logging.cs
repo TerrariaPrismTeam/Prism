@@ -13,26 +13,37 @@ namespace Prism.Debugging
     {
         const char
             Info    = 'i',
-            Warning = '!',
-            Error   = 'E';
+            Warning = '?',
+            Error   = '!';
 
-        static FileStream fs = null;
+        readonly static string
+            Fatal   = "FATAL ERROR: ",
+            Warn    = "Warning: "    ,
+            UTC     = "UTC "         ,
+
+            LogFile = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\prism.log";
+
         static StreamWriter sw = null;
 
         internal static void Init ()
         {
-            fs = File.Open("prism.log", FileMode.Append);
+            if (sw != null)
+                return;
 
-            sw = new StreamWriter(fs);
+            sw = new StreamWriter(LogFile, true);
+
+            LogInfo(PrismApi.NiceVersionString + " launched, logger started.");
         }
         internal static void Close()
         {
-            sw.Flush();
+            if (sw == null)
+                return;
+
+            LogInfo("Logger shutting down, Prism will follow in a few milliseconds...");
+
+            sw.Flush  ();
             sw.Dispose();
             sw = null;
-
-            fs.Dispose();
-            fs = null;
         }
 
         static string GetExnMessage(ref Exception e)
@@ -69,18 +80,18 @@ namespace Prism.Debugging
 
         static void Log(char severity, string text)
         {
-            if (fs == null || sw == null)
+            if (sw == null)
                 return;
 
             var sb = new StringBuilder();
 
-            sb.Append('[').Append(DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)).Append(']');
-            sb.Append('[').Append(severity).Append(']');
-            sb.Append(' ').Append(text);
+            var utc = DateTime.UtcNow;
+            sb.Append('[').Append(UTC).Append(utc.ToShortDateString()).Append(' ').Append(utc.ToLongTimeString()).Append(']')
+              .Append('[').Append(severity).Append(']')
+              .Append(' ').Append(text);
 
             sw.WriteLine(sb.ToString());
             sw.Flush();
-            fs.Flush();
         }
 
         internal static void LogInfo(string message)
@@ -89,6 +100,9 @@ namespace Prism.Debugging
         }
         internal static void LogWarning(string warning)
         {
+            if (Debugger.IsAttached)
+                Debug.WriteLine(Warn + warning);
+
             Log(Warning, warning);
         }
         internal static void LogError(string error)
@@ -112,7 +126,7 @@ namespace Prism.Debugging
         }
         internal static void LogFatal(string error)
         {
-            Log(Error, "FATAL ERROR: " + error);
+            Log(Error, Fatal + error);
         }
         internal static void LogFatal(Exception e)
         {
