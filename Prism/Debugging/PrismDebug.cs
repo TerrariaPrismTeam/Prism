@@ -6,15 +6,19 @@ using System.Text;
 
 namespace Prism.Debugging
 {
-    struct TraceLine
+    struct TraceLine : IEquatable<TraceLine>
     {
         public string Text;
         public int Timeleft;
+
+        internal int times;
 
         public TraceLine(string text, int timeLeft)
         {
             Text = text;
             Timeleft = timeLeft;
+
+            times = 0;
         }
         public TraceLine(int indent, string message, string category = null, int timeLeft = 0)
         {
@@ -31,6 +35,41 @@ namespace Prism.Debugging
 
             Text = sb.ToString();
             Timeleft = timeLeft <= 0 ? 180 : timeLeft;
+
+            times = 0;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(obj, null))
+                return false;
+
+            if (obj is TraceLine)
+                return Equals((TraceLine)obj);
+
+            return false;
+        }
+        public override int GetHashCode()
+        {
+            return Text.GetHashCode() | Timeleft.GetHashCode();
+        }
+        public override string ToString()
+        {
+            return Text ?? String.Empty;
+        }
+
+        public bool Equals(TraceLine other)
+        {
+            return Timeleft == other.Timeleft && (Text == other.Text || Timeleft == 0);
+        }
+
+        public static bool operator ==(TraceLine a, TraceLine b)
+        {
+            return  a.Equals(b);
+        }
+        public static bool operator !=(TraceLine a, TraceLine b)
+        {
+            return !a.Equals(b);
         }
     }
 
@@ -59,6 +98,17 @@ namespace Prism.Debugging
         {
             lock (@lock)
             {
+                if (lines.Any(l => l.Text == line.Text))
+                {
+                    var toEdit = lines.Last(l => l.Text == line.Text);
+                    var index = lines.LastIndexOf(toEdit);
+
+                    lines.RemoveAt(index);
+
+                    line.times = toEdit.times + 1;
+                    line.Text += " (" + line.times + " times)";
+                }
+
                 if (lines.Count == MAX_LINES)
                     lines.RemoveAt(0);
 

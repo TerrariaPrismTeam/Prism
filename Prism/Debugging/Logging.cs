@@ -114,7 +114,9 @@ namespace Prism.Debugging
             var readable = GetExnMessage(ref e);
             var text = e.ToString();
 
-            Trace.TraceError(readable);
+            PrismTraceListener.RanLogger = true ;
+            Trace.Fail(readable, text);
+            PrismTraceListener.RanLogger = false;
 
             if (Console.OpenStandardError() != Stream.Null)
                 Console.Error.WriteLine(text);

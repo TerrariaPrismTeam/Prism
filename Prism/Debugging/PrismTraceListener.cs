@@ -5,9 +5,11 @@ using System.Linq;
 
 namespace Prism.Debugging
 {
-    public class PrismTraceListener : TraceListener
+    public sealed class PrismTraceListener : TraceListener
     {
         readonly static string NAME = "Prism trace listener.";
+
+        internal static bool RanLogger = false;
 
         public override bool IsThreadSafe
         {
@@ -40,6 +42,22 @@ namespace Prism.Debugging
         public override void WriteLine(string message)
         {
             Write(message + Environment.NewLine);
+        }
+
+        public override void Fail(string message)
+        {
+            PrismDebug.AddLine(new TraceLine(IndentLevel * IndentSize , message + Environment.NewLine, "!", 600));
+        }
+        public override void Fail(string message, string detailMessage)
+        {
+            if (RanLogger)
+                return;
+
+            RanLogger = true ;
+            Logging.LogError(detailMessage);
+            RanLogger = false;
+
+            Fail(message);
         }
     }
 }

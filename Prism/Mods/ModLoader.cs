@@ -326,7 +326,10 @@ namespace Prism.Mods
             HookManager.ModDef.OnAllModsLoaded();
 
             for (int i = 0; i < errors.Count; i++)
-                Logging.LogError(errors[i].ToString());
+                Logging.LogWarning(errors[i].ToString());
+
+            if (errors.Count > 0)
+                Trace.WriteLine("Some problems occured when loading mods. See the prism.log file for details.");
 
             return errors;
         }
