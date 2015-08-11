@@ -45,7 +45,7 @@ namespace Prism.Injector.Patcher
         }
         static void WrapUpdateMusic()
         {
-            WrapperHelper.WrapMethod(context, typeDef_Main.GetMethod("UpdateMusic"));
+            typeDef_Main.GetMethod("UpdateMusic").Wrap(context);
         }
         static void AddIsChatAllowedHook()
         {

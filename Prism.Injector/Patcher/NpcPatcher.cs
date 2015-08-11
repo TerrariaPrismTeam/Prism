@@ -16,14 +16,7 @@ namespace Prism.Injector.Patcher
 
         static void WrapSetDefaults()
         {
-            MethodDefinition invokeOnSetDefaults;
-            var onSetDefaultsDel = context.CreateDelegate("Terraria.PrismInjections", "NPC_OnSetDefaultsDelegate", typeSys.Void, out invokeOnSetDefaults, typeDef_NPC, typeSys.Int32, typeSys.Single);
-
-            var setDefaults = typeDef_NPC.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32, typeSys.Single);
-
-            var newSetDefaults = WrapperHelper.ReplaceAndHook(setDefaults, invokeOnSetDefaults);
-
-            WrapperHelper.ReplaceAllMethodRefs(context, setDefaults, newSetDefaults);
+            typeDef_NPC.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32, typeSys.Single).Wrap(context);
         }
         static void AddFieldForBHandler()
         {
@@ -35,6 +28,11 @@ namespace Prism.Injector.Patcher
         }
         static void InsertInitialize()
         {
+            typeDef_NPC.GetMethod("NewNPC", MethodFlags.Public | MethodFlags.Static,
+                typeSys.Int32, typeSys.Int32, typeSys.Int32, typeSys.Int32,
+                typeSys.Single, typeSys.Single, typeSys.Single, typeSys.Single,
+                typeSys.Int32).Wrap(context);
+            /*
             MethodDefinition invokeOnNewNPC;
             var onNewNPCDel = context.CreateDelegate("Terraria.PrismInjections", "NPC_OnNewNPCDelegate", typeSys.Int32, out invokeOnNewNPC,
                 typeSys.Int32, typeSys.Int32, typeSys.Int32, typeSys.Int32,
@@ -46,9 +44,12 @@ namespace Prism.Injector.Patcher
                 typeSys.Single, typeSys.Single, typeSys.Single, typeSys.Single,
                 typeSys.Int32);
 
-            var newNewNPC = WrapperHelper.ReplaceAndHook(newNPC, invokeOnNewNPC);
+            var newNewNPC = newNPC.ReplaceAndHook(invokeOnNewNPC);
 
-            WrapperHelper.ReplaceAllMethodRefs(context, newNPC, newNewNPC);
+            WrapperHelperExtensions.ReplaceAllMethodRefs(context, newNPC, newNewNPC);
+
+            */
+
 
             //? I tried the code below, but it somehow borked the IL code (InvalidProgramException, ILSpy wouldn't disassemble (even in IL mode)),
             //? so I did this.
