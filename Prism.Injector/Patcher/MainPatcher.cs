@@ -45,7 +45,7 @@ namespace Prism.Injector.Patcher
         }
         static void WrapUpdateMusic()
         {
-            WrapperHelper.WrapInstanceMethod(context, typeDef_Main, typeSys.Void, "UpdateMusic");
+            WrapperHelper.WrapMethod(context, typeDef_Main.GetMethod("UpdateMusic"));
         }
         static void AddIsChatAllowedHook()
         {
@@ -55,7 +55,7 @@ namespace Prism.Injector.Patcher
                 //IL_2a88: ldc.i4.s 13
                 //IL_2a8a: call instance bool [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.KeyboardState::IsKeyDown(valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.Keys)
                 //IL_2a8f: brfalse IL_2b20
-                                
+
                 OpCodes.Ldsfld,     //IL_2a94: ldsfld int32 Terraria.Main::netMode
                 OpCodes.Ldc_I4_1,   //IL_2a99: ldc.i4.1
                 OpCodes.Bne_Un,     //IL_2a9a: bne.un IL_2b20
@@ -78,7 +78,7 @@ namespace Prism.Injector.Patcher
 
             //public virtual bool IsChatAllowedHook() { return Main.netMode == 1; }
             var chatCheckHook = new MethodDefinition("IsChatAllowedHook", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, typeSys.Boolean);
-            var proc = chatCheckHook.Body.GetILProcessor();                   
+            var proc = chatCheckHook.Body.GetILProcessor();
 
             proc.Append(Instruction.Create(OpCodes.Ldsfld, typeDef_Main.GetField("netMode")));
             proc.Append(Instruction.Create(OpCodes.Ldc_I4_1));
@@ -111,19 +111,19 @@ namespace Prism.Injector.Patcher
             {
                 Instruction.Create(OpCodes.Call, chatCheckHook),
                 Instruction.Create(OpCodes.Brfalse, skipToOffset)
-            });            
+            });
         }
         static void AddLocalChatHook()
         {
             #region VERY LONG OPCODE SEARCH
-            OpCode[] searchSeq = new[]
+            OpCode[] searchSeq =
             {
                 OpCodes.Ldsfld      ,//IL_293b: ldsfld bool Terraria.Main::chatRelease
-		        OpCodes.Brfalse     ,//IL_2940: brfalse IL_2a83
+                OpCodes.Brfalse     ,//IL_2940: brfalse IL_2a83
 
-		        OpCodes.Ldsfld      ,//IL_2945: ldsfld string Terraria.Main::chatText
-		        OpCodes.Ldstr       ,//IL_294a: ldstr ""
-		        OpCodes.Call        ,//IL_294f: call bool [mscorlib]System.String::op_Inequality(string, string)
+                OpCodes.Ldsfld      ,//IL_2945: ldsfld string Terraria.Main::chatText
+                OpCodes.Ldstr       ,//IL_294a: ldstr ""
+                OpCodes.Call        ,//IL_294f: call bool [mscorlib]System.String::op_Inequality(string, string)
                 OpCodes.Brfalse_S   ,//IL_2954: brfalse.s IL_297b
 
                 OpCodes.Ldc_I4_S    ,//IL_2956: ldc.i4.s 25
@@ -138,15 +138,15 @@ namespace Prism.Injector.Patcher
                 OpCodes.Ldc_I4_0    ,//IL_2974: ldc.i4.0
                 OpCodes.Ldc_I4_0    ,//IL_2975: ldc.i4.0
                 OpCodes.Call        ,//IL_2976: call void Terraria.NetMessage::SendData(int32, int32, int32, string, int32, float32, float32,    float32,        int32,   int32, int32)
-            
+
                 OpCodes.Ldsfld      ,//IL_297b: ldsfld int32 Terraria.Main::netMode
                 OpCodes.Brtrue      ,//IL_2980: brtrue IL_2a41
-            
+
                 OpCodes.Ldsfld      ,//IL_2985: ldsfld string Terraria.Main::chatText
                 OpCodes.Ldstr       ,//IL_298a: ldstr ""
                 OpCodes.Call        ,//IL_298f: call bool [mscorlib]System.String::op_Inequality(string, string)
                 OpCodes.Brfalse     ,//IL_2994: brfalse IL_2a41
-            
+
                 OpCodes.Call        ,//IL_2999: call valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Color [Microsoft.Xna.Framework]            OpCodes.Ldelem_R   ef,Microsoft.Xna.Framework.Color::get_White/()
                 OpCodes.Stloc_S     ,//IL_299e: stloc.s 10
                 OpCodes.Ldsfld      ,//IL_29a0: ldsfld class Terraria.Player[] Terraria.Main::player
@@ -155,21 +155,21 @@ namespace Prism.Injector.Patcher
                 OpCodes.Ldfld       ,//IL_29ab: ldfld uint8 Terraria.Player::difficulty
                 OpCodes.Ldc_I4_2    ,//IL_29b0: ldc.i4.2
                 OpCodes.Bne_Un_S    ,//IL_29b1: bne.un.s IL_29bc
-            
+
                 OpCodes.Ldsfld      ,//IL_29b3: ldsfld valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Color Terraria.Main::hcColor
                 OpCodes.Stloc_S     ,//IL_29b8: stloc.s 10
                 OpCodes.Br_S        ,//IL_29ba: br.s IL_29d6
-            
+
                 OpCodes.Ldsfld      ,//IL_29bc: ldsfld class Terraria.Player[] Terraria.Main::player
                 OpCodes.Ldsfld      ,//IL_29c1: ldsfld int32 Terraria.Main::myPlayer
                 OpCodes.Ldelem_Ref  ,//IL_29c6: ldelem.ref
                 OpCodes.Ldfld       ,//IL_29c7: ldfld uint8 Terraria.Player::difficulty
                 OpCodes.Ldc_I4_1    ,//IL_29cc: ldc.i4.1
                 OpCodes.Bne_Un_S    ,//IL_29cd: bne.un.s IL_29d6
-            
+
                 OpCodes.Ldsfld      ,//IL_29cf: ldsfld valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Color Terraria.Main::mcColor
                 OpCodes.Stloc_S     ,//IL_29d4: stloc.s 10
-            
+
                 OpCodes.Ldsfld      ,//IL_29d6: ldsfld string Terraria.Main::chatText
                 OpCodes.Stloc_S     ,//IL_29db: stloc.s 11
                 OpCodes.Ldsfld      ,//IL_29dd: ldsfld class Terraria.Player[] Terraria.Main::player
@@ -199,7 +199,7 @@ namespace Prism.Injector.Patcher
                 OpCodes.Call        ,//IL_2a36: call instance uint8 [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Color::get_B()
                 OpCodes.Ldc_I4_0    ,//IL_2a3b: ldc.i4.0
                 OpCodes.Call        ,//IL_2a3c: call void Terraria.Main::NewText(string, uint8, uint8, uint8, bool)
-            
+
                 /*
                     if (Main.inputTextEnter && Main.chatRelease)
                     {
@@ -241,12 +241,12 @@ namespace Prism.Injector.Patcher
 
             //public virtual bool PlayerChatLocalHook() { return true; }
             var localChatHook = new MethodDefinition("PlayerChatLocalHook", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, typeSys.Boolean);
-            var proc = localChatHook.Body.GetILProcessor(); 
-                  
+            var proc = localChatHook.Body.GetILProcessor();
+
             // Return true;
             proc.Emit(OpCodes.Ldc_I4_1);
             proc.Emit(OpCodes.Ret);
-            
+
 
             typeDef_Main.Methods.Add(localChatHook);
 
@@ -269,7 +269,6 @@ namespace Prism.Injector.Patcher
             }
         }
 
-
         internal static void Patch()
         {
             context = TerrariaPatcher.context;
@@ -280,6 +279,7 @@ namespace Prism.Injector.Patcher
 
             RemoveVanillaNpcDrawLimitation();
             WrapUpdateMusic();
+            WrapSetDisplayMode();
 
             //These are causing System.InvalidProgramExceptions so I'm just commenting them out (pls don't remove them)
             //AddIsChatAllowedHook();

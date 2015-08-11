@@ -23,6 +23,12 @@ namespace Prism.Mods
         internal static List<LoaderError> errors = new List<LoaderError>();
         static List<string> circRefList = new List<string>();
 
+        public static bool Reloading
+        {
+            get;
+            private set;
+        }
+
         internal static void Debug_ShowAllErrors()
         {
 #if DEV_BUILD
@@ -240,6 +246,8 @@ namespace Prism.Mods
         /// <returns>Any <see cref="LoaderError"/>'s encountered while loading.</returns>
         internal static IEnumerable<LoaderError> Load()
         {
+            Reloading = true;
+
             errors.Clear();
 
             if (!Directory.Exists(PrismApi.ModDirectory))
@@ -300,6 +308,8 @@ namespace Prism.Mods
 
             HookManager.ModDef.OnAllModsLoaded();
 
+            Reloading = false;
+
             return errors;
         }
 
@@ -308,11 +318,10 @@ namespace Prism.Mods
         /// </summary>
         internal static void Unload()
         {
+            Reloading = true;
+
             if (HookManager.ModDef != null)
-            {
                 HookManager.ModDef.OnUnload();
-                // other hookmgrs here
-            }
 
             HookManager.CanCallHooks = false;
 
@@ -331,6 +340,8 @@ namespace Prism.Mods
 
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
             GC.WaitForPendingFinalizers();
+
+            Reloading = false;
         }
 
         /// <summary>

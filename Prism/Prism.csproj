@@ -92,6 +92,7 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\SharedAssemblyInfo.cs">
@@ -130,6 +131,7 @@
     <Compile Include="API\Defs\TileDefStructs.cs" />
     <Compile Include="API\Defs\TileRef.cs" />
     <Compile Include="API\ObjectRef.cs" />
+    <Compile Include="Debugging\Logging.cs" />
     <Compile Include="Mods\Behaviours\TileBHandler.cs" />
     <Compile Include="Mods\ContentLoader.cs" />
     <Compile Include="Mods\DefHandlers\RecipeDefHandler.cs" />

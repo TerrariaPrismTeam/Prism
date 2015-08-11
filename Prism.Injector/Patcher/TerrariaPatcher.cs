@@ -10,10 +10,6 @@ namespace Prism.Injector.Patcher
 {
     public static class TerrariaPatcher
     {
-        //readonly static Version
-        //    V7_0_0_0 = new Version(7, 0, 0, 0),
-        //    V4_5_0_0 = new Version(4, 5, 0, 0);
-
         internal static CecilContext   context;
         internal static MemberResolver  memRes;
 
@@ -52,12 +48,6 @@ namespace Prism.Injector.Patcher
 
             context.PrimaryAssembly.CustomAttributes.Add(new CustomAttribute(ivt_ctor, Encoding.UTF8.GetBytes("Prism")));
         }
-        //static void FixNewtonsoftJsonReferenceVersion()
-        //{
-        //    foreach (var ar in c.PrimaryAssembly.MainModule.AssemblyReferences)
-        //        if (ar.Name == "Newtonsoft.Json" && ar.Version == V7_0_0_0)
-        //            ar.Version = V4_5_0_0;
-        //}
         static void RemoveConsoleWriteLineInWndProcHook()
         {
             var kbi_t = memRes.GetType("Terraria.keyBoardInput");
@@ -88,7 +78,6 @@ namespace Prism.Injector.Patcher
 
             Publicify();
             //AddInternalsVisibleToAttr();
-            //FixNewtonsoftJsonReferenceVersion();
             RemoveConsoleWriteLineInWndProcHook();
 
             ItemPatcher      .Patch();

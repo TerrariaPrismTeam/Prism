@@ -26,64 +26,63 @@ namespace Prism.Mods.DefHandlers
 
         internal static void OnSetDefaults(NPC n, int type, float scaleOverride)
         {
-            try
-            {
-                NpcBHandler h = null; // will be set to <non-null> only if a behaviour handler will be attached
-
-                n.RealSetDefaults(0, scaleOverride);
-
-                if (Handler.NpcDef.DefsByType.ContainsKey(type))
-                {
-                    var d = Handler.NpcDef.DefsByType[type];
-
-                    n.type = n.netID = type;
-                    n.width = n.height = 16;
-
-                    Handler.NpcDef.CopyDefToEntity(d, n);
-
-                    if (Main.expertMode)
-                        n.scaleStats();
-
-                    n.life = n.lifeMax; //! BEEP BOOP
-                    n.defDamage = n.damage;
-                    n.defDefense = n.defense;
-
-                    if (scaleOverride > -1f)
-                        n.scale = scaleOverride;
-
-                    if (d.CreateBehaviour != null)
-                    {
-                        h = new NpcBHandler();
-
-                        var b = d.CreateBehaviour();
-
-                        if (b != null)
-                            h.behaviours.Add(b);
-                    }
-                }
-                else
-                    n.RealSetDefaults(type, scaleOverride);
-
-                var bs = ModData.mods.Values.Select(m => m.contentHandler.CreateGlobalNpcBInternally()).Where(b => b != null);
-                if (!bs.IsEmpty() && h == null)
-                    h = new NpcBHandler();
-
-                if (h != null)
-                {
-                    h.behaviours.AddRange(bs);
-
-                    h.Create();
-                    n.P_BHandler = h;
-
-                    foreach (var b in h.Behaviours)
-                        b.Entity = n;
-
-                    h.OnInit();
-                }
-            }
-            catch (NullReferenceException)
+            if (ModLoader.Reloading)
             {
                 n.RealSetDefaults(type, scaleOverride);
+                return;
+            }
+
+            NpcBHandler h = null; // will be set to <non-null> only if a behaviour handler will be attached
+
+            n.RealSetDefaults(0, scaleOverride);
+
+            if (Handler.NpcDef.DefsByType.ContainsKey(type))
+            {
+                var d = Handler.NpcDef.DefsByType[type];
+
+                n.type = n.netID = type;
+                n.width = n.height = 16;
+
+                Handler.NpcDef.CopyDefToEntity(d, n);
+
+                if (Main.expertMode)
+                    n.scaleStats();
+
+                n.life = n.lifeMax; //! BEEP BOOP
+                n.defDamage = n.damage;
+                n.defDefense = n.defense;
+
+                if (scaleOverride > -1f)
+                    n.scale = scaleOverride;
+
+                if (d.CreateBehaviour != null)
+                {
+                    h = new NpcBHandler();
+
+                    var b = d.CreateBehaviour();
+
+                    if (b != null)
+                        h.behaviours.Add(b);
+                }
+            }
+            else
+                n.RealSetDefaults(type, scaleOverride);
+
+            var bs = ModData.mods.Values.Select(m => m.contentHandler.CreateGlobalNpcBInternally()).Where(b => b != null);
+            if (!bs.IsEmpty() && h == null)
+                h = new NpcBHandler();
+
+            if (h != null)
+            {
+                h.behaviours.AddRange(bs);
+
+                h.Create();
+                n.P_BHandler = h;
+
+                foreach (var b in h.Behaviours)
+                    b.Entity = n;
+
+                h.OnInit();
             }
         }
 

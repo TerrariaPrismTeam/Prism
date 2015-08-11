@@ -8,6 +8,10 @@ namespace Prism.Injector.Patcher
 {
     public static class WrapperHelper
     {
+        static TypeReference[]
+            EmptyTRArr     = new TypeReference[0],
+            SingletonTRArr = new TypeReference[1];
+
         /// <summary>
         /// Gets the ldarg instruction of the specified index using the smallest value type it can (because we're targeting the Sega Genesis and need to save memory).
         /// </summary>
@@ -59,44 +63,42 @@ namespace Prism.Injector.Patcher
                 }
         }
 
-        public static string[] DefDelTypeName(TypeDefinition typeDef, string methodName)
+        static string[] DefDelTypeName(TypeDefinition typeDef, string methodName)
         {
             return new[] { "Terraria.PrismInjections", typeDef.Name + "_" + methodName + "Delegate" };
         }
-
         /// <summary>
-        /// Wraps a method using a fancy delegate. Replaces all references of the method with the wrapped one and creates an "On[MethodName]" hook which passes the method's parent type followed by the type parameters of the original method
+        /// Wraps a method using a fancy delegate. Replaces all references of the method with the wrapped one and creates an "On[MethodName]" hook which passes the method's parent type followed by the type parameters of the original method.
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="typeDef"></param>
-        /// <param name="methodName"></param>
-        /// <param name="methodFlags"></param>
-        /// <param name="delegateNS"></param>
-        /// <param name="delegateTypeName"></param>
-        /// <param name="returnType"></param>
-        /// <param name="args"></param>
-        public static void WrapInstanceMethod(CecilContext context, string delegateNS, string delegateTypeName, TypeDefinition typeDef, TypeReference returnType, string methodName, MethodFlags methodFlags = MethodFlags.All, params TypeReference[] args)
+        /// <param name="context">The current Cecil context.</param>
+        /// <param name="delegateNS">The namespace of the delegate type to create.</param>
+        /// <param name="delegateTypeName">The name of the delegate type to create.</param>
+        /// <param name="origMethod">The method to wrap.</param>
+        public static void WrapMethod(CecilContext context, string delegateNS, string delegateTypeName, MethodDefinition origMethod)
         {
             MethodDefinition invokeDelegate;
 
+            SingletonTRArr[0] = origMethod.DeclaringType;
+
             //If anyone knows a better way to insert one element at the beginning of an array and scoot
             //all the other elements down one index then go ahead and do it lol. I dunno how2array.
-            var delegateArgs = (new TypeReference[] { typeDef }).Concat(args).ToArray();
+            var delegateArgs = (origMethod.IsStatic ? EmptyTRArr : SingletonTRArr).Concat(origMethod.Parameters.Select(p => p.ParameterType)).ToArray();
 
-            var newDelegateType = context.CreateDelegate(delegateNS, delegateTypeName, returnType, out invokeDelegate, delegateArgs);
+            var newDelegateType = context.CreateDelegate(delegateNS, delegateTypeName, origMethod.ReturnType, out invokeDelegate, delegateArgs);
 
-            var origMethod = typeDef.GetMethod(methodName, methodFlags, args);
+            var newMethod = ReplaceAndHook(origMethod, invokeDelegate);
 
-            var newMethod = WrapperHelper.ReplaceAndHook(origMethod, invokeDelegate);
-
-            WrapperHelper.ReplaceAllMethodRefs(context, origMethod, newMethod);
+            ReplaceAllMethodRefs(context, origMethod, newMethod);
         }
-
-        //TODO: Finish the XmlDoc for the original method then copy it to this overload (underload?)...
-        public static void WrapInstanceMethod(CecilContext context, TypeDefinition typeDef, TypeReference returnType, string methodName, MethodFlags methodFlags = MethodFlags.All, params TypeReference[] args)
+        /// <summary>
+        /// Wraps a method using a fancy delegate. Replaces all references of the method with the wrapped one and creates an "On[MethodName]" hook which passes the method's parent type followed by the type parameters of the original method.
+        /// </summary>
+        /// <param name="context">The current Cecil context.</param>
+        /// <param name="origMethod">The method to wrap.</param>
+        public static void WrapMethod(CecilContext context, MethodDefinition method)
         {
-            var delTypeName = DefDelTypeName(typeDef, methodName);
-            WrapInstanceMethod(context, delTypeName[0], delTypeName[1], typeDef, returnType, methodName, methodFlags, args);
+            var delTypeName = DefDelTypeName(method.DeclaringType, method.Name);
+            WrapMethod(context, delTypeName[0], delTypeName[1], method);
         }
 
         public static MethodDefinition ReplaceAndHook(MethodDefinition toHook, MethodReference invokeHook)

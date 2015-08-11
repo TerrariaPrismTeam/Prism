@@ -64,9 +64,9 @@ namespace Prism
             EntityDefLoader.SetupEntityHandlers();
             ModLoader.Load();
 
-            #if DEV_BUILD
+#if DEV_BUILD
             ModLoader.Debug_ShowAllErrors();
-            #endif
+#endif
 
             ApplyHotfixes();
 

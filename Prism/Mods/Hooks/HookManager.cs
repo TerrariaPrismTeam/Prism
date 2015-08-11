@@ -26,7 +26,18 @@ namespace Prism.Mods.Hooks
     {
         internal static Dictionary<Type, IHookManager> managers = new Dictionary<Type, IHookManager>();
 
-        internal static bool CanCallHooks = false; // see ModLoader
+        static bool canCallHooks = false; // see ModLoader
+        internal static bool CanCallHooks
+        {
+            get
+            {
+                return canCallHooks && !ModLoader.Reloading;
+            }
+            set
+            {
+                canCallHooks = value;
+            }
+        }
 
         internal static void Create()
         {

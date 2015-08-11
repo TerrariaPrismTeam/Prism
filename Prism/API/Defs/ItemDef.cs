@@ -311,7 +311,6 @@ namespace Prism.API.Defs
 
         /// <summary>
         /// Gets or sets what the extractinator can use this item to produce.
-        /// <remarks>TODO: Make an enum for the types?</remarks>
         /// </summary>
         public virtual ItemExtractinatorMode ExtractinatorMode
         {
