@@ -2,16 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Prism.API.Behaviours;
 using Prism.Mods;
 
 namespace Prism.API.Defs
 {
-    //TODO: (?) remove some/most/all generic constraints so this can be used for more things than only EntityDefs (and maybe rename this, too, then nuke ObjectRef?)
-    public abstract class EntityRef<TEntityDef, TBehaviour, TEntity> : IEquatable<EntityRef<TEntityDef, TBehaviour, TEntity>>
-        where TEntity : class
-        where TBehaviour : EntityBehaviour<TEntity>
-        where TEntityDef : EntityDef<TBehaviour, TEntity>
+    public abstract class EntityRef<T> : IEquatable<EntityRef<T>>
     {
         Lazy<string> resName;
 
@@ -70,9 +65,9 @@ namespace Prism.API.Defs
             Requesting = ModData.ModFromAssembly(calling);
         }
 
-        public abstract TEntityDef Resolve();
+        public abstract T Resolve();
 
-        public bool Equals(EntityRef<TEntityDef, TBehaviour, TEntity> other)
+        public bool Equals(EntityRef<T> other)
         {
             return ResourceName == other.ResourceName && Mod == other.Mod;
         }
@@ -82,8 +77,8 @@ namespace Prism.API.Defs
             if (ReferenceEquals(obj, null))
                 return false;
 
-            if (obj is EntityRef<TEntityDef, TBehaviour, TEntity>)
-                return Equals((EntityRef<TEntityDef, TBehaviour, TEntity>)obj);
+            if (obj is EntityRef<T>)
+                return Equals((EntityRef<T>)obj);
 
             return false;
         }
@@ -96,7 +91,7 @@ namespace Prism.API.Defs
             return (ResourceID.HasValue ? ("#" + ResourceID.Value + " ") : String.Empty) + (String.IsNullOrEmpty(ResourceName) ? "<empty>" : ("{" + Mod.InternalName + "." + ResourceName + "}"));
         }
 
-        public static implicit operator ObjectRef(EntityRef<TEntityDef, TBehaviour, TEntity> e)
+        public static implicit operator ObjectRef(EntityRef<T> e)
         {
             return new ObjectRef(e.ResourceName, e.Mod)
             {

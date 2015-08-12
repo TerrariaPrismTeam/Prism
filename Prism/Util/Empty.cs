@@ -7,6 +7,11 @@ namespace Prism.Util
 {
     // use these instead of allocating a new object every time
 
+    /// <summary>
+    /// A value type that holds nothing, a <see cref="void" /> that can be used as a type argument.
+    /// </summary>
+    public enum Unit : byte { Value }
+
     public static class Empty
     {
         [Obsolete("Please use String.Empty instead.")]

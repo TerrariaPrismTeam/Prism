@@ -143,6 +143,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Util\Either.cs" />
     <Compile Include="Util\Empty.cs" />
     <Compile Include="API\ModDef.cs" />
     <Compile Include="Mods\Behaviours\EntityBHandler.cs" />
@@ -180,6 +181,8 @@
     <Compile Include="Util\JsonExtensions.cs" />
     <Compile Include="Util\LinqExt.cs" />
     <Compile Include="Util\Helpers.cs" />
+    <Compile Include="Util\Maybe.cs" />
+    <Compile Include="Util\MiscExtensions.cs" />
     <Compile Include="Util\ReadOnlyDictionary.cs" />
     <Compile Include="Util\TempFileIO.cs" />
     <Compile Include="WinFormDialogs\ExceptionDialogForm.cs">
