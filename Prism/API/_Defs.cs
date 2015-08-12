@@ -166,7 +166,7 @@ namespace Prism.API
                     case 35:
                         return VanillaBgms.Pirates;
                     case 36:
-                        return VanillaBgms.Underground;
+                        return VanillaBgms.Underworld;
                     case 37:
                         return VanillaBgms.MartianMadness;
                     case 38:

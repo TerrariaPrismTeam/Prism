@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Prism.API.Defs;
 using Prism.API;
+using Prism.API.Audio;
 
 namespace Prism.Util
 {
@@ -132,6 +132,11 @@ namespace Prism.Util
         public static TileRef ParseTileRef(this JsonData j)
         {
             return j.ParseAsIntOrObjectRef().Bind(i => new TileRef(i), or => new TileRef(or)).Right;
+        }
+
+        public static BgmRef ParseBgmRef(this JsonData j)
+        {
+            return j.ParseAsIntOrObjectRef().Bind(i => new BgmRef(VanillaBgms.RefOfId(i)), or => new BgmRef(or)).Right;
         }
     }
 }

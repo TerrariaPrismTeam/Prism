@@ -8,7 +8,7 @@ using Terraria.ID;
 
 namespace Prism.API.Defs
 {
-    public class NpcRef : EntityRef<NpcDef>
+    public class NpcRef : EntityRefWithId<NpcDef>
     {
         public NpcRef(int resourceId)
             : base(resourceId, id => Handler.NpcDef.DefsByType.ContainsKey(id) ? Handler.NpcDef.DefsByType[id].InternalName : String.Empty)

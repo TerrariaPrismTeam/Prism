@@ -8,7 +8,7 @@ using Terraria.ID;
 
 namespace Prism.API.Defs
 {
-    public class ItemRef : EntityRef<ItemDef>
+    public class ItemRef : EntityRefWithId<ItemDef>
     {
         public ItemRef(int resourceId)
             : base(resourceId, id => Handler.ItemDef.DefsByType.ContainsKey(id) ? Handler.ItemDef.DefsByType[id].InternalName : String.Empty)

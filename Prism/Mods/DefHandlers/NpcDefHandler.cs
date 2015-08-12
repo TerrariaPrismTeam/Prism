@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.API;
+using Prism.API.Audio;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Prism.Debugging;
@@ -181,8 +182,8 @@ namespace Prism.Mods.DefHandlers
                 HeadId = NPC.TypeToNum(npc.type)
             };
 
-            if (npc.P_Music != null && npc.P_Music is ObjectRef)
-                def.Music = (ObjectRef)npc.P_Music;
+            if (npc.P_Music != null && npc.P_Music is BgmRef)
+                def.Music = (BgmRef)npc.P_Music;
 
             def.DisplayName                         = Main.npcName                     [def.Type];
             def.FrameCount                          = Main.npcFrameCount               [def.Type];

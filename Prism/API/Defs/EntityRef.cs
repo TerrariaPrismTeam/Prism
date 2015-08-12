@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Prism.Mods;
+using Prism.Util;
 
 namespace Prism.API.Defs
 {
@@ -10,11 +11,6 @@ namespace Prism.API.Defs
     {
         Lazy<string> resName;
 
-        public int? ResourceID
-        {
-            get;
-            private set;
-        }
         public string ResourceName
         {
             get
@@ -50,13 +46,12 @@ namespace Prism.API.Defs
             }
         }
 
-        protected EntityRef(int resourceId, Func<int, string> toResName)
+        protected internal EntityRef(Func<string> toResName)
         {
-            ResourceID = resourceId;
-
-            resName = new Lazy<string>(() => resourceId == 0 ? String.Empty : toResName(resourceId));
+            resName = new Lazy<string>(toResName ?? Empty<string>.Func);
         }
         protected EntityRef(ObjectRef objRef, Assembly calling)
+            : this(() => objRef.Name)
         {
             resName = new Lazy<string>(() => objRef.Name);
 
@@ -67,7 +62,7 @@ namespace Prism.API.Defs
 
         public abstract T Resolve();
 
-        public bool Equals(EntityRef<T> other)
+        public virtual bool Equals(EntityRef<T> other)
         {
             return ResourceName == other.ResourceName && Mod == other.Mod;
         }
@@ -88,7 +83,7 @@ namespace Prism.API.Defs
         }
         public override string ToString()
         {
-            return (ResourceID.HasValue ? ("#" + ResourceID.Value + " ") : String.Empty) + (String.IsNullOrEmpty(ResourceName) ? "<empty>" : ("{" + Mod.InternalName + "." + ResourceName + "}"));
+            return String.IsNullOrEmpty(ResourceName) ? "<empty>" : ("{" + Mod.InternalName + "." + ResourceName + "}");
         }
 
         public static implicit operator ObjectRef(EntityRef<T> e)
@@ -97,6 +92,47 @@ namespace Prism.API.Defs
             {
                 requesting = e.Requesting
             };
+        }
+    }
+    public abstract class EntityRefWithId<T> : EntityRef<T>
+    {
+        public int? ResourceID
+        {
+            get;
+            private set;
+        }
+
+        protected EntityRefWithId(int resourceId, Func<int, string> toResName)
+            : base(() => resourceId == 0 ? String.Empty : toResName(resourceId))
+        {
+            ResourceID = resourceId;
+        }
+        protected EntityRefWithId(ObjectRef objRef, Assembly calling)
+            : base(objRef, calling)
+        {
+
+        }
+
+        public override bool Equals(EntityRef<T> other)
+        {
+            if (ResourceID.HasValue && other is EntityRefWithId<T>)
+            {
+                var erid = (EntityRefWithId<T>)other;
+
+                if (erid.ResourceID.HasValue)
+                    return ResourceID.Value == erid.ResourceID.Value;
+            }
+
+            return base.Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return ResourceID.HasValue ? ResourceID.GetHashCode() : base.GetHashCode();
+        }
+        public override string ToString()
+        {
+            return (ResourceID.HasValue ? ("#" + ResourceID.Value + " ") : String.Empty) + base.ToString();
         }
     }
 }

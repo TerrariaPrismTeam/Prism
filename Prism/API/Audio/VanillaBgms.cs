@@ -162,5 +162,95 @@ namespace Prism.API.Audio
             foreach (var fi in typeof(VanillaBgms).GetFields(BindingFlags.Public | BindingFlags.Static).Where(fi => fi.Name != "Title" && fi.FieldType == typeof(BgmEntry)))
                 Bgm.VanillaDict.Add(fi.Name, (BgmEntry)fi.GetValue(null));
         }
+
+        public static ObjectRef RefOfId(int id)
+        {
+            switch (id)
+            {
+                case 1:
+                    return new ObjectRef("Day");
+                case 2:
+                    return new ObjectRef("BloodMoon");
+                case 3:
+                    return new ObjectRef("Night");
+                case 4:
+                    return new ObjectRef("Underground");
+                case 5:
+                    return new ObjectRef("Boss1");
+                case 6:
+                    return new ObjectRef("Title");
+                case 7:
+                    return new ObjectRef("Jungle");
+                case 8:
+                    return new ObjectRef("Corruption");
+
+                case 9:
+                    return new ObjectRef("Hallow");
+                case 10:
+                    return new ObjectRef("UgCorruption");
+                case 11:
+                    return new ObjectRef("UgHallow");
+                case 12:
+                    return new ObjectRef("Boss2");
+                case 13:
+                    return new ObjectRef("Boss3");
+
+                case 14:
+                    return new ObjectRef("Ice");
+                case 15:
+                    return new ObjectRef("Space");
+                case 16:
+                    return new ObjectRef("Crimson");
+                case 17:
+                    return new ObjectRef("Golem");
+                case 18:
+                    return new ObjectRef("Day");
+                case 19:
+                    return new ObjectRef("Rain");
+                case 20:
+                    return new ObjectRef("Snow");
+                case 21:
+                    return new ObjectRef("Desert");
+                case 22:
+                    return new ObjectRef("Ocean");
+                case 23:
+                    return new ObjectRef("Dungeon");
+                case 24:
+                    return new ObjectRef("Plantera");
+                case 25:
+                    return new ObjectRef("QueenBee");
+                case 26:
+                    return new ObjectRef("Lihzahrd");
+                case 27:
+                    return new ObjectRef("Eclipse");
+                case 28:
+                    return new ObjectRef("Ambient");
+                case 29:
+                    return new ObjectRef("Mushrooms");
+                case 30:
+                    return new ObjectRef("PumpkinMoon");
+                case 31:
+                    return new ObjectRef("Underground");
+                case 32:
+                    return new ObjectRef("FrostMoon");
+
+                case 33:
+                    return new ObjectRef("UgCrimson");
+                case 34:
+                    return new ObjectRef("LunarPillar");
+                case 35:
+                    return new ObjectRef("Pirates");
+                case 36:
+                    return new ObjectRef("Underworld");
+                case 37:
+                    return new ObjectRef("MartianMadness");
+                case 38:
+                    return new ObjectRef("MoonLord");
+                case 39:
+                    return new ObjectRef("GoblinArmy");
+            }
+
+            throw new ArgumentOutOfRangeException("id");
+        }
     }
 }

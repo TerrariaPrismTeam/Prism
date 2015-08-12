@@ -101,6 +101,7 @@
     <Compile Include="API\Audio\AltSupportingBgm.cs" />
     <Compile Include="API\Audio\Bgm.cs" />
     <Compile Include="API\Audio\BgmEntry.cs" />
+    <Compile Include="API\Audio\BgmRef.cs" />
     <Compile Include="API\Audio\IBgm.cs" />
     <Compile Include="API\Audio\NpcMusicBgm.cs" />
     <Compile Include="API\Audio\VanillaBgms.cs" />

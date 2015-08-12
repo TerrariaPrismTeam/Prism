@@ -5,6 +5,7 @@ using LitJson;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.API;
+using Prism.API.Audio;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Terraria.ID;
@@ -95,7 +96,7 @@ namespace Prism.ExampleMod
                     AiStyle = NpcAiStyle.FlyingHead,
                     IsBoss = true,
                     IsSummonableBoss = true,
-                    Music = new ObjectRef("MoonLord")
+                    Music = new BgmRef("MoonLord")
                 } }
             };
         }

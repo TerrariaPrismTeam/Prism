@@ -9,6 +9,7 @@ using Terraria.ID;
 
 namespace Prism.API.Audio
 {
+    [Flags]
     enum BossBgms
     {
         Custom = 65536,
@@ -35,7 +36,7 @@ namespace Prism.API.Audio
         internal static Dictionary<string, BgmEntry> VanillaDict = new Dictionary<string, BgmEntry>();
 
         internal static BossBgms bossMusicId = BossBgms.None;
-        internal static ObjectRef bossMusic_custom;
+        internal static BgmRef bossMusic_custom;
         internal static bool justScanned = false; // if NPCs might be updated, scan using AnyNPCsForMusic.
                                                   // using the bossMusicId will only use 1 main.npc iteration per tick, instead of {Defs.Values.Select(e => e.Priority == BgmPriority.Boss).Count()}
 
@@ -155,7 +156,7 @@ namespace Prism.API.Audio
         static void ScanForVanillaBossMusics()
         {
             bossMusicId = BossBgms.None;
-            bossMusic_custom = default(ObjectRef);
+            bossMusic_custom = null;
 
             var screen = new Rectangle((int)Main.screenPosition.X, (int)Main.screenPosition.Y, Main.screenWidth, Main.screenHeight);
 
@@ -248,14 +249,14 @@ namespace Prism.API.Audio
 
                     default:
                         if (musicSelector == BossBgms.None)
-                            if (Main.npc[i].P_Music != null && Main.npc[i].P_Music is ObjectRef)
+                            if (Main.npc[i].P_Music != null && Main.npc[i].P_Music is BgmRef)
                             {
-                                var or = (ObjectRef)Main.npc[i].P_Music;
+                                var r = (BgmRef)Main.npc[i].P_Music;
 
-                                if (!or.IsNull)
+                                if (r != null)
                                 {
                                     musicSelector = BossBgms.Custom;
-                                    bossMusic_custom = or;
+                                    bossMusic_custom = r;
                                 }
                             }
                             else if (Main.npc[i].boss)
@@ -326,7 +327,7 @@ namespace Prism.API.Audio
 
             if (newCurrent.Value.Priority < BgmPriority.Boss && bossMusicId != BossBgms.None)
                 if (bossMusicId == BossBgms.Custom)
-                    newCurrent = new KeyValuePair<ObjectRef, BgmEntry>(bossMusic_custom, Entries[bossMusic_custom]);
+                    newCurrent = new KeyValuePair<ObjectRef, BgmEntry>(bossMusic_custom, bossMusic_custom.Resolve());
                 //else // not really needed
                 //    newCurrent = new KeyValuePair<ObjectRef, BgmEntry>(ObjectRefOfBossMusicId(bossMusicId), Entries[bossMusicId     ]);
 

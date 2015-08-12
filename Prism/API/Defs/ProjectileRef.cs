@@ -8,7 +8,7 @@ using Terraria.ID;
 
 namespace Prism.API.Defs
 {
-    public class ProjectileRef : EntityRef<ProjectileDef>
+    public class ProjectileRef : EntityRefWithId<ProjectileDef>
     {
         public ProjectileRef(int resourceId)
             : base(resourceId, id => Handler.ProjDef.DefsByType.ContainsKey(id) ? Handler.ProjDef.DefsByType[id].InternalName : String.Empty)
