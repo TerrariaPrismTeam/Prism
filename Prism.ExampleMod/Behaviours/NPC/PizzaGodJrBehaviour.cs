@@ -1,8 +1,10 @@
-﻿using Prism.API.Behaviours;
+﻿using Microsoft.Xna.Framework;
+using Prism.API.Behaviours;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Terraria;
 
 namespace Prism.ExampleMod.Behaviours.NPC
 {
@@ -11,7 +13,9 @@ namespace Prism.ExampleMod.Behaviours.NPC
 
         public override void OnAI()
         {
-            Entity.TargetClosest();            
+            Entity.TargetClosest();  
+            
+            Lighting.AddLight(Entity.Center, new Vector3(20, 20, 0) * 0.5f * (Entity.scale / 8));          
         }
 
     }

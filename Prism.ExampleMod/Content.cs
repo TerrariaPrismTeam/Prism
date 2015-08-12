@@ -84,11 +84,12 @@ namespace Prism.ExampleMod
                     AiStyle = NpcAiStyle.FlyingWeapon,
                     IgnoreGravity = true
                 } },
-                { "PizzaBoss", new NpcDef("Pizza God", () => new PizzaGodBehaviour(), 10000, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"), () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                { "PizzaBoss", new NpcDef("Pizza God", () => new PizzaGodBehaviour(), 66666, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"), () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
                 {   FrameCount = 1,
-                    Damage = 25,
-                    Width = 64 * 4,
-                    Height = 64 * 4,
+                    Damage = 166,
+                    Defense = 66,
+                    Width = 48 * 4,
+                    Height = 48 * 4,
                     Alpha = 0,
                     Scale = 4f,
                     IgnoreTileCollision = true,
@@ -103,18 +104,20 @@ namespace Prism.ExampleMod
                     SoundOnHit = 13,
                     SoundOnDeath = 11
                 } },
-                { "PizzaGodJr", new NpcDef("Pizza God Jr.", () => new PizzaGodJrBehaviour(), 250, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                { "PizzaGodJr", new NpcDef("Pizza God Jr.", () => new PizzaGodJrBehaviour(), 266, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
                 {   FrameCount = 1,
-                    Damage = 5,
-                    Width = 64,
-                    Height = 64,
+                    Damage = 137,
+                    Defense = 66,
+                    Width = 48 * 3 / 4,
+                    Height = 48 * 3 / 4,
                     Alpha = 0,
                     Scale = 0.75f,
-                    IgnoreTileCollision = true,
+                    IgnoreTileCollision = false,
                     Colour = Color.White,
                     Value = NpcValue.Zero,
                     AiStyle = NpcAiStyle.None,
-                    IgnoreGravity = true
+                    IgnoreGravity = false,
+                    SoundOnDeath = 6
                 } },
             };
         }

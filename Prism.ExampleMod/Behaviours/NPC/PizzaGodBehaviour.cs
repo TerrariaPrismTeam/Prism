@@ -17,6 +17,7 @@ namespace Prism.ExampleMod.Behaviours.NPC
         Dash
     }
 
+    //If anyone wants to make this work using Entity.ai[] then go ahead .-.
     public class PizzaGodBehaviour : NpcBehaviour
     {
         public static readonly float MaxRotSpeed = 9; //rot/sec
@@ -24,7 +25,24 @@ namespace Prism.ExampleMod.Behaviours.NPC
         public static readonly float DashInitSpeed = 80; //tile/sec
         public static readonly float DashWaitDur = 2; //sec
         public static readonly float DashSlowdownAcc = 20; //tile/sec/sec
-        public static readonly float MinionSpawnDelay = 0.25f;
+        public static readonly float MinionSpawnDelayMin = 0.5f;
+        public static readonly float MinionSpawnDelayMax = 1.5f;
+
+        public static float MinionSpawnDelay
+        {
+            get
+            {
+                return MinionSpawnDelayMin + (float)(Main.rand.NextDouble() * MinionSpawnDelayMax - MinionSpawnDelayMin);
+            }
+        }
+
+        public Player Target
+        {
+            get
+            {
+                return Main.player[Entity.target];
+            }
+        }
 
         PizzaGodState State = PizzaGodState.SpinStart;
         float RotationSpeed = 0;
@@ -94,9 +112,6 @@ namespace Prism.ExampleMod.Behaviours.NPC
             int n = Terraria.NPC.NewNPC(c.X, c.Y, NpcDef.Defs["PizzaGodJr"].Type, 0, 0, 0, 0, 0, Entity.target);
             Main.npc[n].velocity = Main.npc[n].DirectionTo(Main.player[Main.npc[n].target].Center) * 20;
 
-            Main.PlaySound(2, Entity.Center, 42);
-            Main.soundInstanceItem[42].Volume = MathHelper.Clamp(Main.soundInstanceItem[42].Volume * 1.5f, 0, 1);
-
             MinionSpawnTimer = MinionSpawnDelay;
         }
 
@@ -117,6 +132,8 @@ namespace Prism.ExampleMod.Behaviours.NPC
             Entity.TargetClosest(false);
             if (Entity.target >= 0)
             {
+                Entity.timeLeft = Terraria.NPC.activeTime;
+
                 if (State == PizzaGodState.SpinStart)
                 {
                     CheckMinionSpawns();
@@ -182,13 +199,18 @@ namespace Prism.ExampleMod.Behaviours.NPC
                 if (Dash > 0 && !ReachedPlayerWithDash)
                     CurrentDashDir = Entity.DirectionTo(Main.player[Entity.target].Center);
 
-                Entity.scale = 8 - (4 * (RotationSpeed / MaxRotSpeed));
-                Entity.width = Entity.height = (int)(64 * Entity.scale);
-
-                Lighting.AddLight(Entity.Center, new Vector3(255, 255, 0) * 0.5f * (Entity.scale / 8));
+                Entity.scale = 6 - (2 * (RotationSpeed / MaxRotSpeed));
+                Entity.width = Entity.height = (int)(48 * Entity.scale);                
 
                 prevRot = Entity.rotation;
-            }            
+
+                Lighting.AddLight(Entity.Center, new Vector3(20, 20, 0) * 0.5f * (Entity.scale / 8));
+
+                if ((Target.Center - Entity.Center).Length() >= (256 * 16))
+                {
+                    Entity.Teleport(Target.Center);
+                }
+            }                            
         }
 
         public override void OnInit()
