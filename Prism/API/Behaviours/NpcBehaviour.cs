@@ -10,5 +10,11 @@ namespace Prism.API.Behaviours
     {
         [Hook]
         public virtual void OnUpdate() { }
+
+        [Hook]
+        public virtual void OnAI() { }
+
+        [Hook]
+        public virtual bool PreAI() { return true; }
     }
 }

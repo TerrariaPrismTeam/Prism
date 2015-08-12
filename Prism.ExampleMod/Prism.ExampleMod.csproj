@@ -68,6 +68,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Behaviours\NPC\PizzaGodBehaviour.cs" />
+    <Compile Include="Behaviours\NPC\PizzaGodJrBehaviour.cs" />
     <Compile Include="Content.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="Mod.cs" />

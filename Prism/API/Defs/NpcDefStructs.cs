@@ -208,10 +208,15 @@ namespace Prism.API.Defs
     public enum NpcAiStyle
     {
         /// <summary>
+            /// Doesn't do anything at all.
+            /// <para/><b>Used By: Nothing
+        /// </summary>
+        None = -1,
+        /// <summary>
             /// Doesn't move.
             /// <para/><b>Used By: </b>Bound Goblin, Bound Wizard, Bound Mechanic, Webbed Stylist, Sleeping Angler, Turkor The Ungrateful's Body (console-exclusive boss)
         /// </summary>
-        None = 0,
+        BoundNPC = 0,
         /// <summary>
             /// Hops in one direction, slides on slopes, floats in water, follows player if damaged or it's nighttime.
             /// <para/><b>Used By: </b>All Slimes (except King Slime), Hoppin' Jack, Grasshopper

@@ -26,6 +26,10 @@ namespace Prism.Injector.Patcher
         {
             typeDef_NPC.Fields.Add(new FieldDefinition("P_Music", FieldAttributes.Public, typeSys.Object));
         }
+        static void WrapAI()
+        {
+            typeDef_NPC.GetMethod("AI", MethodFlags.Public | MethodFlags.Instance).Wrap(context);
+        }
         static void InsertInitialize()
         {
             typeDef_NPC.GetMethod("NewNPC", MethodFlags.Public | MethodFlags.Static,
@@ -100,6 +104,7 @@ namespace Prism.Injector.Patcher
             WrapSetDefaults();
             AddFieldForBHandler();
             AddFieldForMusic();
+            WrapAI();
             InsertInitialize();
         }
     }
