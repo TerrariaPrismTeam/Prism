@@ -64,17 +64,17 @@ namespace Prism.API.Audio
             FrostMoon   = new BgmEntry(Bgm.VanillaBgmOf(32), BgmPriority.Event, () => Main.snowMoon   ),
             PumpkinMoon = new BgmEntry(Bgm.VanillaBgmOf(30), BgmPriority.Event, () => Main.pumpkinMoon),
 
-            MoonLord       = new BgmEntry(Bgm.VanillaBgmOf(38), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.MoonLord) != 0 : Bgm.AnyNPCsForMusic(MoonLordNPCs      )),
+            MoonLord       = new BgmEntry(Bgm.VanillaBgmOf(38), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.MoonLord      ) != 0 : Bgm.AnyNPCsForMusic(MoonLordNPCs      )),
             MartianMadness = new BgmEntry(Bgm.VanillaBgmOf(37), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.MartianMadness) != 0 : Bgm.AnyNPCsForMusic(MartianMadnessNPCs)),
-            LunarPillar    = new BgmEntry(Bgm.VanillaBgmOf(34), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.LunarPillar) != 0 : Bgm.AnyNPCsForMusic(LunarPillarNPCs   )),
-            Plantera       = new BgmEntry(Bgm.VanillaBgmOf(24), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Plantera) != 0 : Bgm.AnyNPCsForMusic(PlanteraNPCs      )),
-            Boss2          = new BgmEntry(Bgm.VanillaBgmOf(12), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Boss2) != 0 : Bgm.AnyNPCsForMusic(Boss2NPCs         )),
-            Boss1          = new BgmEntry(Bgm.VanillaBgmOf( 5), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Boss1) != 0 : Bgm.AnyNPCsForMusic(IsBoss1Boss       )),
-            Boss3          = new BgmEntry(Bgm.VanillaBgmOf(13), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Boss3) != 0 : Bgm.AnyNPCsForMusic(Boss3NPCs         )),
-            Golem          = new BgmEntry(Bgm.VanillaBgmOf(17), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Golem) != 0 : Bgm.AnyNPCsForMusic(GolemNPCs         )),
-            QueenBee       = new BgmEntry(Bgm.VanillaBgmOf(25), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.QueenBee) != 0 : Bgm.AnyNPCsForMusic(QueenBeeNPCs      )),
-            Pirates        = new BgmEntry(Bgm.VanillaBgmOf(35), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Pirates) != 0 : Bgm.AnyNPCsForMusic(PiratesNPCs       )),
-            GoblinArmy     = new BgmEntry(Bgm.VanillaBgmOf(39), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.GoblinArmy) != 0 : Bgm.AnyNPCsForMusic(GoblinArmyNPCs    )),
+            LunarPillar    = new BgmEntry(Bgm.VanillaBgmOf(34), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.LunarPillar   ) != 0 : Bgm.AnyNPCsForMusic(LunarPillarNPCs   )),
+            Plantera       = new BgmEntry(Bgm.VanillaBgmOf(24), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Plantera      ) != 0 : Bgm.AnyNPCsForMusic(PlanteraNPCs      )),
+            Boss2          = new BgmEntry(Bgm.VanillaBgmOf(12), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Boss2         ) != 0 : Bgm.AnyNPCsForMusic(Boss2NPCs         )),
+            Boss1          = new BgmEntry(Bgm.VanillaBgmOf( 5), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Boss1         ) != 0 : Bgm.AnyNPCsForMusic(IsBoss1Boss       )),
+            Boss3          = new BgmEntry(Bgm.VanillaBgmOf(13), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Boss3         ) != 0 : Bgm.AnyNPCsForMusic(Boss3NPCs         )),
+            Golem          = new BgmEntry(Bgm.VanillaBgmOf(17), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Golem         ) != 0 : Bgm.AnyNPCsForMusic(GolemNPCs         )),
+            QueenBee       = new BgmEntry(Bgm.VanillaBgmOf(25), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.QueenBee      ) != 0 : Bgm.AnyNPCsForMusic(QueenBeeNPCs      )),
+            Pirates        = new BgmEntry(Bgm.VanillaBgmOf(35), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Pirates       ) != 0 : Bgm.AnyNPCsForMusic(PiratesNPCs       )),
+            GoblinArmy     = new BgmEntry(Bgm.VanillaBgmOf(39), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.GoblinArmy    ) != 0 : Bgm.AnyNPCsForMusic(GoblinArmyNPCs    )),
 
             Underworld   = new BgmEntry(Bgm.VanillaBgmOf(36), BgmPriority.Biome, () => Main.player[Main.myPlayer].position.Y > (Main.maxTilesY - 200) * 16),
             Eclipse      = new BgmEntry(Bgm.VanillaBgmOf(27), BgmPriority.Biome, () => Main.eclipse && Main.player[Main.myPlayer].position.Y < Main.worldSurface * 16 + Main.screenHeight / 2),
@@ -161,6 +161,13 @@ namespace Prism.API.Audio
             // will be in the order of definitions above, but Title is excluded (it is more important than the musicboxes)
             foreach (var fi in typeof(VanillaBgms).GetFields(BindingFlags.Public | BindingFlags.Static).Where(fi => fi.Name != "Title" && fi.FieldType == typeof(BgmEntry)))
                 Bgm.VanillaDict.Add(fi.Name, (BgmEntry)fi.GetValue(null));
+
+            // only vanilla BGMs are in the dictionary atm
+            foreach (var kvp in Bgm.VanillaDict)
+            {
+                kvp.Value.InternalName = kvp.Key;
+                kvp.Value.Mod = PrismApi.VanillaInfo;
+            }
         }
 
         public static ObjectRef RefOfId(int id)

@@ -43,7 +43,9 @@ namespace Prism
                     TMain.OnEngineLoad += () =>
                     {
                         TProgram.ForceLoadAssembly(typeof(TProgram).Assembly /* Terraria */, true);
+#if !DEV_BUILD
                         TProgram.ForceLoadAssembly(Assembly.GetExecutingAssembly() /* Prism */, true);
+#endif
                     };
 
                     m.Run();

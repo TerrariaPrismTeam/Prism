@@ -62,7 +62,7 @@ namespace Prism.API.Audio
             current = Regular;
         }
 
-        public void Play()
+        public void Play ()
         {
             if (current == null || current.State == SoundState.Stopped)
                 switch (SwitchMode)
@@ -81,7 +81,7 @@ namespace Prism.API.Audio
         {
             current.Pause();
         }
-        public void Stop()
+        public void Stop ()
         {
             current.Stop();
         }

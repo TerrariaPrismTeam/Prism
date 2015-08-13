@@ -103,7 +103,6 @@
     <Compile Include="API\Audio\BgmEntry.cs" />
     <Compile Include="API\Audio\BgmRef.cs" />
     <Compile Include="API\Audio\IBgm.cs" />
-    <Compile Include="API\Audio\NpcMusicBgm.cs" />
     <Compile Include="API\Audio\VanillaBgms.cs" />
     <Compile Include="API\Behaviours\EntityBehaviour.cs" />
     <Compile Include="API\Behaviours\GameBehaviour.cs" />

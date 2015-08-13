@@ -24,7 +24,6 @@ namespace Prism.API.Defs
             get;
             internal set;
         }
-
         /// <summary>
         /// Gets Information about the mod to which this entity belongs.
         /// </summary>
