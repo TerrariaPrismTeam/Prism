@@ -15,7 +15,7 @@ namespace Prism.Mods.Behaviours
         {
             base.Create();
 
-            onUpdate = HookManager.CreateHooks<ProjectileBehaviour, Action>(Behaviours, "OnUsed");
+            onUpdate = HookManager.CreateHooks<ProjectileBehaviour, Action>(Behaviours, "OnUpdate");
         }
         public override void Clear ()
         {

@@ -67,6 +67,27 @@ namespace Prism.Injector.Patcher
             pfmilp.Remove(callWriteLine.Previous);
             pfmilp.Remove(callWriteLine);
         }
+        static void Fix1308AssemblyVersion()
+        {
+            // only applies to 1.3.0.7 assemblies (atm)
+            if (context.PrimaryAssembly.Name.Version != new Version(1, 3, 0, 7))
+                return;
+            // this type has been added in 1.3.0.8
+            if (memRes.GetType("Terraria.Utilities.PlatformUtilties") == null)
+                return;
+
+            context.PrimaryAssembly.Name.Version = new Version(1, 3, 0, 8);
+
+            var fileVer = context.PrimaryAssembly.CustomAttributes.FirstOrDefault(ca => ca.AttributeType.FullName == "System.Reflection.AssemblyFileVersionAttribute");
+
+            if (fileVer != null)
+            {
+                int index = context.PrimaryAssembly.CustomAttributes.IndexOf(fileVer);
+
+                var fileVer_ = context.PrimaryAssembly.CustomAttributes[index] = new CustomAttribute(fileVer.Constructor);
+                fileVer_.ConstructorArguments.Add(new CustomAttributeArgument(fileVer.ConstructorArguments[0].Type, context.PrimaryAssembly.Name.Version.ToString()));
+            }
+        }
 
         public static void Patch(CecilContext context, string outputPath)
         {
@@ -79,6 +100,7 @@ namespace Prism.Injector.Patcher
             Publicify();
             //AddInternalsVisibleToAttr();
             RemoveConsoleWriteLineInWndProcHook();
+            Fix1308AssemblyVersion();
 
             ItemPatcher      .Patch();
             NpcPatcher       .Patch();

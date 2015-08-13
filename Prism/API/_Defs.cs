@@ -15,194 +15,54 @@ namespace Prism.API
     {
         public partial class ItemDef
         {
+            static EntityDIH<Item, ItemBehaviour, ItemDef> helper = new EntityDIH<Item, ItemBehaviour, ItemDef>(
+                ItemID.Count, "Item", md => md.ItemDefs, Handler.ItemDef.VanillaDefsByName, Handler.ItemDef.DefsByType);
+
             public static DefIndexer<ItemDef> Defs
             {
                 get
                 {
-                    var vanillaDefs = Handler.ItemDef.DefsByType.Values.Select(id => new KeyValuePair<ObjectRef, ItemDef>(new ObjectRef(id.InternalName), id));
-                    var modDefs = ModData.Mods.Select(kvp => GetModDefs(kvp)).Flatten();
-
-                    return new DefIndexer<ItemDef>(vanillaDefs.Concat(modDefs), ByObjRef, ById);
+                    return new DefIndexer<ItemDef>(helper.GetEnumerable(), helper.ByObjRef, helper.ById);
                 }
-            }
-
-            static IEnumerable<KeyValuePair<ObjectRef, ItemDef>> GetModDefs(KeyValuePair<ModInfo, ModDef> kvp)
-            {
-                return kvp.Value.ItemDefs.SafeSelect(kvp_ => new KeyValuePair<ObjectRef, ItemDef>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
-            }
-
-            static ItemDef ByObjRef(ObjectRef or, ModDef requesting)
-            {
-                var req = requesting ?? or.requesting;
-
-                if (String.IsNullOrEmpty(or.ModName) && req != null && req.ItemDefs.ContainsKey(or.Name))
-                    return req.ItemDefs[or.Name];
-
-                if (or.Mod == PrismApi.VanillaInfo)
-                {
-                    if (!Handler.ItemDef.VanillaDefsByName.ContainsKey(or.Name))
-                        throw new InvalidOperationException("Vanilla item definition '" + or.Name + "' is not found.");
-
-                    return Handler.ItemDef.VanillaDefsByName[or.Name];
-                }
-
-                if (!ModData.ModsFromInternalName.ContainsKey(or.ModName))
-                    throw new InvalidOperationException("Item definition '" + or.Name + "' in mod '" + or.ModName + "' could not be returned because the mod is not loaded.");
-                if (!ModData.ModsFromInternalName[or.ModName].ItemDefs.ContainsKey(or.Name))
-                    throw new InvalidOperationException("Item definition '" + or.Name + "' in mod '" + or.ModName + "' could not be resolved because the item is not loaded.");
-
-                return ModData.ModsFromInternalName[or.ModName].ItemDefs[or.Name];
-            }
-            static ItemDef ById(int id)
-            {
-                if (id >= ItemID.Count)
-                    throw new ArgumentOutOfRangeException("id", "The id must be a vanilla item type or netID.");
-
-                return Handler.ItemDef.DefsByType[id];
             }
         }
         public partial class NpcDef
         {
+            static EntityDIH<NPC, NpcBehaviour, NpcDef> helper = new EntityDIH<NPC, NpcBehaviour, NpcDef>(
+                NPCID.Count, "NPC", md => md.NpcDefs, Handler.NpcDef.VanillaDefsByName, Handler.NpcDef.DefsByType);
+
             public static DefIndexer<NpcDef> Defs
             {
                 get
                 {
-                    var vanillaDefs = Handler.NpcDef.DefsByType.Values.Select(nd => new KeyValuePair<ObjectRef, NpcDef>(new ObjectRef(nd.InternalName), nd));
-                    var modDefs = ModData.Mods.Select(kvp => GetModDefs(kvp)).Flatten();
-
-                    return new DefIndexer<NpcDef>(vanillaDefs.Concat(modDefs), ByObjRef, ById);
+                    return new DefIndexer<NpcDef>(helper.GetEnumerable(), helper.ByObjRef, helper.ById);
                 }
-            }
-
-            static IEnumerable<KeyValuePair<ObjectRef, NpcDef>> GetModDefs(KeyValuePair<ModInfo, ModDef> kvp)
-            {
-                return kvp.Value.NpcDefs.SafeSelect(kvp_ => new KeyValuePair<ObjectRef, NpcDef>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
-            }
-
-            static NpcDef ByObjRef(ObjectRef or, ModDef requesting)
-            {
-                var req = requesting ?? or.requesting;
-
-                if (String.IsNullOrEmpty(or.ModName) && req != null && req.NpcDefs.ContainsKey(or.Name))
-                    return req.NpcDefs[or.Name];
-
-                if (or.Mod == PrismApi.VanillaInfo)
-                {
-                    if (!Handler.NpcDef.VanillaDefsByName.ContainsKey(or.Name))
-                        throw new InvalidOperationException("Vanilla NPC definition '" + or.Name + "' is not found.");
-
-                    return Handler.NpcDef.VanillaDefsByName[or.Name];
-                }
-
-                if (!ModData.ModsFromInternalName.ContainsKey(or.ModName))
-                    throw new InvalidOperationException("NPC definition '" + or.Name + "' in mod '" + or.ModName + "' could not be returned because the mod is not loaded.");
-                if (!ModData.ModsFromInternalName[or.ModName].NpcDefs.ContainsKey(or.Name))
-                    throw new InvalidOperationException("NPC definition '" + or.Name + "' in mod '" + or.ModName + "' could not be resolved because the NPC is not loaded.");
-
-                return ModData.ModsFromInternalName[or.ModName].NpcDefs[or.Name];
-            }
-            static NpcDef ById(int id)
-            {
-                if (id >= NPCID.Count)
-                    throw new ArgumentOutOfRangeException("id", "The id must be a vanilla NPC type or netID.");
-
-                return Handler.NpcDef.DefsByType[id];
             }
         }
         public partial class ProjectileDef
         {
+            static EntityDIH<Projectile, ProjectileBehaviour, ProjectileDef> helper = new EntityDIH<Projectile, ProjectileBehaviour, ProjectileDef>(
+                ProjectileID.Count, "Projectile", md => md.ProjectileDefs, Handler.ProjDef.VanillaDefsByName, Handler.ProjDef.DefsByType);
+
             public static DefIndexer<ProjectileDef> Defs
             {
                 get
                 {
-                    var vanillaDefs = Handler.ProjDef.DefsByType.Values.Select(pd => new KeyValuePair<ObjectRef, ProjectileDef>(new ObjectRef(pd.InternalName), pd));
-                    var modDefs = ModData.Mods.Select(kvp => GetModDefs(kvp)).Flatten();
-
-                    return new DefIndexer<ProjectileDef>(vanillaDefs.Concat(modDefs), ByObjRef, ById);
+                    return new DefIndexer<ProjectileDef>(helper.GetEnumerable(), helper.ByObjRef, helper.ById);
                 }
-            }
-
-            static IEnumerable<KeyValuePair<ObjectRef, ProjectileDef>> GetModDefs(KeyValuePair<ModInfo, ModDef> kvp)
-            {
-                return kvp.Value.ProjectileDefs.SafeSelect(kvp_ => new KeyValuePair<ObjectRef, ProjectileDef>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
-            }
-
-            static ProjectileDef ByObjRef(ObjectRef or, ModDef requesting)
-            {
-                var req = requesting ?? or.requesting;
-
-                if (String.IsNullOrEmpty(or.ModName) && req != null && req.ProjectileDefs.ContainsKey(or.Name))
-                    return req.ProjectileDefs[or.Name];
-
-                if (or.Mod == PrismApi.VanillaInfo)
-                {
-                    if (!Handler.ProjDef.VanillaDefsByName.ContainsKey(or.Name))
-                        throw new InvalidOperationException("Vanilla projectile definition '" + or.Name + "' is not found.");
-
-                    return Handler.ProjDef.VanillaDefsByName[or.Name];
-                }
-
-                if (!ModData.ModsFromInternalName.ContainsKey(or.ModName))
-                    throw new InvalidOperationException("Projectile definition '" + or.Name + "' in mod '" + or.ModName + "' could not be returned because the mod is not loaded.");
-                if (!ModData.ModsFromInternalName[or.ModName].ProjectileDefs.ContainsKey(or.Name))
-                    throw new InvalidOperationException("Projectile definition '" + or.Name + "' in mod '" + or.ModName + "' could not be resolved because the projectile is not loaded.");
-
-                return ModData.ModsFromInternalName[or.ModName].ProjectileDefs[or.Name];
-            }
-            static ProjectileDef ById(int id)
-            {
-                if (id >= ProjectileID.Count || id < 0)
-                    throw new ArgumentOutOfRangeException("id", "The id must be a vanilla projectile type.");
-
-                return Handler.ProjDef.DefsByType[id];
             }
         }
         public partial class TileDef
         {
+            static EntityDIH<Tile, TileBehaviour, TileDef> helper = new EntityDIH<Tile, TileBehaviour, TileDef>(
+                TileID.Count, "Tile", md => md.TileDefs, Handler.TileDef.VanillaDefsByName, Handler.TileDef.DefsByType);
+
             public static DefIndexer<TileDef> Defs
             {
                 get
                 {
-                    var vanillaDefs = Handler.TileDef.DefsByType.Values.Select(td => new KeyValuePair<ObjectRef, TileDef>(new ObjectRef(td.InternalName), td));
-                    var modDefs = ModData.Mods.Select(kvp => GetModDefs(kvp)).Flatten();
-
-                    return new DefIndexer<TileDef>(vanillaDefs.Concat(modDefs), ByObjRef, ById);
+                    return new DefIndexer<TileDef>(helper.GetEnumerable(), helper.ByObjRef, helper.ById);
                 }
-            }
-
-            static IEnumerable<KeyValuePair<ObjectRef, TileDef>> GetModDefs(KeyValuePair<ModInfo, ModDef> kvp)
-            {
-                return kvp.Value.TileDefs.SafeSelect(kvp_ => new KeyValuePair<ObjectRef, TileDef>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
-            }
-
-            static TileDef ByObjRef(ObjectRef or, ModDef requesting)
-            {
-                var req = requesting ?? or.requesting;
-
-                if (String.IsNullOrEmpty(or.ModName) && req != null && req.TileDefs.ContainsKey(or.Name))
-                    return req.TileDefs[or.Name];
-
-                if (or.Mod == PrismApi.VanillaInfo)
-                {
-                    if (!Handler.TileDef.VanillaDefsByName.ContainsKey(or.Name))
-                        throw new InvalidOperationException("Vanilla tile definition '" + or.Name + "' is not found.");
-
-                    return Handler.TileDef.VanillaDefsByName[or.Name];
-                }
-
-                if (!ModData.ModsFromInternalName.ContainsKey(or.ModName))
-                    throw new InvalidOperationException("Tile definition '" + or.Name + "' in mod '" + or.ModName + "' could not be returned because the mod is not loaded.");
-                if (!ModData.ModsFromInternalName[or.ModName].TileDefs.ContainsKey(or.Name))
-                    throw new InvalidOperationException("Tile definition '" + or.Name + "' in mod '" + or.ModName + "' could not be resolved because the tile is not loaded.");
-
-                return ModData.ModsFromInternalName[or.ModName].TileDefs[or.Name];
-            }
-            static TileDef ById(int id)
-            {
-                if (id >= TileID.Count || id < 0)
-                    throw new ArgumentOutOfRangeException("id", "The id must be a vanilla tile type.");
-
-                return Handler.TileDef.DefsByType[id];
             }
         }
     }
@@ -210,16 +70,16 @@ namespace Prism.API
     {
         public partial class Bgm
         {
+            static DIHelper<BgmEntry> helper = new DIHelper<BgmEntry>(40, "BGM entry", md => md.BgmEntries, VanillaDict, null);
+
             public static DefIndexer<BgmEntry> Entries
             {
                 get
                 {
-                    // welcome to VERY GODDAMN VERBOSE functional programming
-                    // seriously, type inferrence FTW
                     var vanillaDefs = VanillaDict.Select(kvp => new KeyValuePair<ObjectRef, BgmEntry>(new ObjectRef(kvp.Key), kvp.Value));
                     var modDefs = ModData.Mods.Select(kvp => GetModDefs(kvp)).Flatten();
 
-                    return new DefIndexer<BgmEntry>(vanillaDefs.Concat(modDefs), ByObjRef, ById);
+                    return new DefIndexer<BgmEntry>(vanillaDefs.Concat(modDefs), helper.ByObjRef, ById);
                 }
             }
 
@@ -228,28 +88,6 @@ namespace Prism.API
                 return kvp.Value.BgmEntries.SafeSelect(kvp_ => new KeyValuePair<ObjectRef, BgmEntry>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
             }
 
-            static BgmEntry ByObjRef(ObjectRef or, ModDef requesting)
-            {
-                var req = requesting ?? or.requesting;
-
-                if (String.IsNullOrEmpty(or.ModName) && req != null && req.BgmEntries.ContainsKey(or.Name))
-                    return req.BgmEntries[or.Name];
-
-                if (or.Mod == PrismApi.VanillaInfo)
-                {
-                    if (!VanillaDict.ContainsKey(or.Name))
-                        throw new InvalidOperationException("Vanilla BGM entry '" + or.Name + "' is not found.");
-
-                    return VanillaDict[or.Name];
-                }
-
-                if (!ModData.ModsFromInternalName.ContainsKey(or.ModName))
-                    throw new InvalidOperationException("BGM entry '" + or.Name + "' in mod '" + or.ModName + "' could not be returned because the mod is not loaded.");
-                if (!ModData.ModsFromInternalName[or.ModName].BgmEntries.ContainsKey(or.Name))
-                    throw new InvalidOperationException("BGM entry '" + or.Name + "' in mod '" + or.ModName + "' could not be resolved because the BGM entry is not loaded.");
-
-                return ModData.ModsFromInternalName[or.ModName].BgmEntries[or.Name];
-            }
             static BgmEntry ById(int id)
             {
                 switch (id)
@@ -328,7 +166,7 @@ namespace Prism.API
                     case 35:
                         return VanillaBgms.Pirates;
                     case 36:
-                        return VanillaBgms.Underground;
+                        return VanillaBgms.Underworld;
                     case 37:
                         return VanillaBgms.MartianMadness;
                     case 38:

@@ -26,6 +26,13 @@ namespace Prism.Mods.Resources
             get;
             private set;
         }
+        protected virtual bool ResetStream
+        {
+            get
+            {
+                return true;
+            }
+        }
 
         public Type ResourceType
         {
@@ -41,7 +48,8 @@ namespace Prism.Mods.Resources
 
             var r = ReadTypedResource(resourceStream);
 
-            resourceStream.Position = origPos;
+            if (ResetStream)
+                resourceStream.Position = origPos;
 
             read.Add(r);
 

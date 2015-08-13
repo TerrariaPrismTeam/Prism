@@ -5,9 +5,11 @@ using LitJson;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.API;
+using Prism.API.Audio;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Terraria.ID;
+using Prism.ExampleMod.Behaviours.NPC;
 
 namespace Prism.ExampleMod
 {
@@ -79,24 +81,44 @@ namespace Prism.ExampleMod
                     IgnoreTileCollision = true,
                     Colour = Color.White,
                     Value = NpcValue.Zero,
-                    AiStyle = NpcAiStyle.FlyingWeapon
+                    AiStyle = NpcAiStyle.FlyingWeapon,
+                    IgnoreGravity = true
                 } },
-                { "PizzaBoss", new NpcDef("Pizza God", null, 1000, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"), () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                { "PizzaBoss", new NpcDef("Pizza God", () => new PizzaGodBehaviour(), 66666, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"), () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
                 {   FrameCount = 1,
-                    Damage = 5,
-                    Width = 64 * 4,
-                    Height = 64 * 4,
+                    Damage = 166,
+                    Defense = 66,
+                    Width = 48 * 4,
+                    Height = 48 * 4,
                     Alpha = 0,
                     Scale = 4f,
                     IgnoreTileCollision = true,
                     KnockbackResistance = 0f,
                     Colour = Color.White,
                     Value = NpcValue.Zero,
-                    AiStyle = NpcAiStyle.FlyingHead,
+                    AiStyle = NpcAiStyle.None,
                     IsBoss = true,
                     IsSummonableBoss = true,
-                    Music = new ObjectRef("MoonLord")
-                } }
+                    Music = new BgmRef("QueenBee"),                    
+                    IgnoreGravity = true, //!!! BEEEEP BOOOOP
+                    SoundOnHit = 13,
+                    SoundOnDeath = 11
+                } },
+                { "PizzaGodJr", new NpcDef("Pizza God Jr.", () => new PizzaGodJrBehaviour(), 266, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                {   FrameCount = 1,
+                    Damage = 137,
+                    Defense = 66,
+                    Width = 48 * 3 / 4,
+                    Height = 48 * 3 / 4,
+                    Alpha = 0,
+                    Scale = 0.75f,
+                    IgnoreTileCollision = false,
+                    Colour = Color.White,
+                    Value = NpcValue.Zero,
+                    AiStyle = NpcAiStyle.None,
+                    IgnoreGravity = false,
+                    SoundOnDeath = 6
+                } },
             };
         }
         protected override Dictionary<string, ProjectileDef> GetProjectileDefs()

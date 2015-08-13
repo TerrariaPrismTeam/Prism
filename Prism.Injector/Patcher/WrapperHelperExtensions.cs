@@ -6,7 +6,7 @@ using Mono.Cecil.Cil;
 
 namespace Prism.Injector.Patcher
 {
-    public static class WrapperHelper
+    public static class WrapperHelperExtensions
     {
         static TypeReference[]
             EmptyTRArr     = new TypeReference[0],
@@ -17,7 +17,7 @@ namespace Prism.Injector.Patcher
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        static Instruction GetLdargOf(ushort index, IList<ParameterDefinition> @params, bool isInstance = true)
+        static Instruction GetLdargOf(this IList<ParameterDefinition> @params, ushort index, bool isInstance = true)
         {
             int offset = isInstance ? 1 : 0;
 
@@ -46,7 +46,7 @@ namespace Prism.Injector.Patcher
         /// <param name="targetRef">The <see cref="MethodReference"/> to replace.</param>
         /// <param name="newRef">The <see cref="MethodReference"/> to replace targetRef with.</param>
         /// <param name="exitRecursion">Excludes recursive method calls from the replacement operation (may have undesired consequences with recursive methods).</param>
-        public static void ReplaceAllMethodRefs(CecilContext context, MethodReference targetRef, MethodReference newRef, bool exitRecursion = true)
+        public static void ReplaceAllMethodRefs(this MethodReference targetRef, MethodReference newRef, CecilContext context, bool exitRecursion = true)
         {
             foreach (TypeDefinition tDef in context.PrimaryAssembly.MainModule.Types)
                 foreach (MethodDefinition mDef in tDef.Methods)
@@ -74,7 +74,7 @@ namespace Prism.Injector.Patcher
         /// <param name="delegateNS">The namespace of the delegate type to create.</param>
         /// <param name="delegateTypeName">The name of the delegate type to create.</param>
         /// <param name="origMethod">The method to wrap.</param>
-        public static void WrapMethod(CecilContext context, string delegateNS, string delegateTypeName, MethodDefinition origMethod)
+        public static void Wrap(this MethodDefinition origMethod, CecilContext context, string delegateNS, string delegateTypeName)
         {
             MethodDefinition invokeDelegate;
 
@@ -86,22 +86,22 @@ namespace Prism.Injector.Patcher
 
             var newDelegateType = context.CreateDelegate(delegateNS, delegateTypeName, origMethod.ReturnType, out invokeDelegate, delegateArgs);
 
-            var newMethod = ReplaceAndHook(origMethod, invokeDelegate);
+            var newMethod = origMethod.ReplaceAndHook(invokeDelegate);
 
-            ReplaceAllMethodRefs(context, origMethod, newMethod);
+            origMethod.ReplaceAllMethodRefs(newMethod, context);
         }
         /// <summary>
         /// Wraps a method using a fancy delegate. Replaces all references of the method with the wrapped one and creates an "On[MethodName]" hook which passes the method's parent type followed by the type parameters of the original method.
         /// </summary>
         /// <param name="context">The current Cecil context.</param>
         /// <param name="origMethod">The method to wrap.</param>
-        public static void WrapMethod(CecilContext context, MethodDefinition method)
+        public static void Wrap(this MethodDefinition method, CecilContext context)
         {
             var delTypeName = DefDelTypeName(method.DeclaringType, method.Name);
-            WrapMethod(context, delTypeName[0], delTypeName[1], method);
+            method.Wrap(context, delTypeName[0], delTypeName[1]);
         }
 
-        public static MethodDefinition ReplaceAndHook(MethodDefinition toHook, MethodReference invokeHook)
+        public static MethodDefinition ReplaceAndHook(this MethodDefinition toHook, MethodReference invokeHook)
         {
             //! no delegate type checking is done, runtime errors might happen if it doesn't match exactly
 
@@ -137,7 +137,7 @@ namespace Prism.Injector.Patcher
             ilproc.Emit(OpCodes.Ldsfld, hookField);
 
             for (ushort i = 0; i < toHook.Parameters.Count + (toHook.IsStatic ? 0 : 1); i++)
-                ilproc.Append(GetLdargOf(i, toHook.Parameters, !toHook.IsStatic));
+                ilproc.Append(toHook.Parameters.GetLdargOf(i, !toHook.IsStatic));
 
             ilproc.Emit(OpCodes.Callvirt, invokeHook);
 

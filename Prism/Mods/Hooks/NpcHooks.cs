@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Prism.Mods.Behaviours;
 using Terraria;
+using Terraria.ID;
 
 namespace Prism.Mods.Hooks
 {
@@ -20,6 +21,16 @@ namespace Prism.Mods.Hooks
                 h.OnInit();
 
             return id;
+        }
+
+        internal static void OnAI(NPC n)
+        {
+            var bh = ((NpcBHandler)n.P_BHandler);
+            if (n.P_BHandler != null && bh.PreAI())
+            {
+                bh.OnAI();
+                n.RealAI();
+            }            
         }
     }
 }

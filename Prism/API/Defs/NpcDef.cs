@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Prism.API.Audio;
 using Prism.API.Behaviours;
 using Prism.Mods;
 using Prism.Mods.DefHandlers;
@@ -341,7 +342,7 @@ namespace Prism.API.Defs
             get;
             set;
         }
-        public virtual ObjectRef Music
+        public virtual BgmRef Music
         {
             get;
             set;

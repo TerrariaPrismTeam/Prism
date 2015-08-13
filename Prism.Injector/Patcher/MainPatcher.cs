@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Microsoft.Xna.Framework;
 
 namespace Prism.Injector.Patcher
 {
@@ -45,7 +44,7 @@ namespace Prism.Injector.Patcher
         }
         static void WrapUpdateMusic()
         {
-            WrapperHelper.WrapMethod(context, typeDef_Main.GetMethod("UpdateMusic"));
+            typeDef_Main.GetMethod("UpdateMusic").Wrap(context);
         }
         static void AddIsChatAllowedHook()
         {
@@ -268,6 +267,11 @@ namespace Prism.Injector.Patcher
                 proc.InsertBefore(instrSeq[1], newInstrCall);
             }
         }
+        static void FixOnEngineLoadField()
+        {
+            // wtf?
+            typeDef_Main.GetField("OnEngineLoad").Name = "_onEngineLoad_backingField";
+        }
 
         internal static void Patch()
         {
@@ -279,6 +283,7 @@ namespace Prism.Injector.Patcher
 
             RemoveVanillaNpcDrawLimitation();
             WrapUpdateMusic();
+            FixOnEngineLoadField();
 
             //These are causing System.InvalidProgramExceptions so I'm just commenting them out (pls don't remove them)
             //AddIsChatAllowedHook();

@@ -17,14 +17,7 @@ namespace Prism.Injector.Patcher
 
         static void WrapSetDefaults()
         {
-            MethodDefinition invokeOnSetDefaults;
-            var onSetDefaultsDel = context.CreateDelegate("Terraria.PrismInjections", "Item_OnSetDefaultsDelegate", typeSys.Void, out invokeOnSetDefaults, typeDef_Item, typeSys.Int32, typeSys.Boolean);
-
-            var setDefaults = typeDef_Item.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32, typeSys.Boolean);
-
-            var newSetDefaults = WrapperHelper.ReplaceAndHook(setDefaults, invokeOnSetDefaults);
-
-            WrapperHelper.ReplaceAllMethodRefs(context, setDefaults, newSetDefaults);
+            typeDef_Item.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32, typeSys.Boolean).Wrap(context);
         }
         static void AddFieldForBHandler()
         {

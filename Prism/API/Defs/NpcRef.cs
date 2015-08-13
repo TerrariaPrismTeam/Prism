@@ -2,15 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Prism.API.Behaviours;
 using Prism.Mods;
 using Prism.Mods.DefHandlers;
-using Terraria;
 using Terraria.ID;
 
 namespace Prism.API.Defs
 {
-    public class NpcRef : EntityRef<NpcDef, NpcBehaviour, NPC>
+    public class NpcRef : EntityRefWithId<NpcDef>
     {
         public NpcRef(int resourceId)
             : base(resourceId, id => Handler.NpcDef.DefsByType.ContainsKey(id) ? Handler.NpcDef.DefsByType[id].InternalName : String.Empty)

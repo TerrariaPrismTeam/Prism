@@ -39,14 +39,14 @@ namespace Prism.Util
         {
             return s.Any(c => Char.IsLetterOrDigit(c) || c == '_' || c == '-');
         }
-        static Tuple<string, string> GetKvp(string arg)
+        static KeyValuePair<string, string> GetKvp(string arg)
         {
             var split = arg.TrimStart(ARG_PREFIXES).Split(KVP_SEPARATORS, StringSplitOptions.RemoveEmptyEntries);
 
             if (split.Length == 1)
-                return Tuple.Create<string, string>(split[0], null);
+                return new KeyValuePair<string, string>(split[0], null);
             else if (split.Length == 2)
-                return Tuple.Create(split[0], split[1]);
+                return new KeyValuePair<string, string>(split[0], split[1]);
 
             throw new FormatException("Invalid argument passed in the command-line: \"" + arg + "\"");
         }
@@ -67,10 +67,10 @@ namespace Prism.Util
                 {
                     var t = GetKvp(args[i]);
 
-                    var fu = Char.ToUpperInvariant(t.Item1[0]);
-                    var n = (t.Item1.Length == 1 && shortToLong.ContainsKey(fu) ? shortToLong[fu] : t.Item1).ToUpperInvariant();
+                    var fu = Char.ToUpperInvariant(t.Key[0]);
+                    var n = (t.Key.Length == 1 && shortToLong.ContainsKey(fu) ? shortToLong[fu] : t.Key).ToUpperInvariant();
 
-                    ret.Add(t.Item2 == null ? new Argument()
+                    ret.Add(t.Value == null ? new Argument()
                     {
                         Type = ArgType.Flag,
                         Name = n
@@ -78,15 +78,15 @@ namespace Prism.Util
                     {
                         Type = ArgType.KeyValuePair,
                         Name = n,
-                        Value = t.Item2
+                        Value = t.Value
                     });
                 }
                 else if (args[i].StartsWith(DOUBLE_DASH, StringComparison.Ordinal))
                 {
                     var t = GetKvp(args[i]);
-                    var n = t.Item1.ToUpperInvariant();
+                    var n = t.Key.ToUpperInvariant();
 
-                    ret.Add(t.Item2 == null ? new Argument()
+                    ret.Add(t.Value == null ? new Argument()
                     {
                         Type = ArgType.Flag,
                         Name = n
@@ -94,19 +94,19 @@ namespace Prism.Util
                     {
                         Type = ArgType.KeyValuePair,
                         Name = n,
-                        Value = t.Item2
+                        Value = t.Value
                     });
                 }
                 else if (args[i].StartsWith(SINGLE_DASH, StringComparison.Ordinal))
                 {
                     var t = GetKvp(args[i]);
 
-                    var fu = Char.ToUpperInvariant(t.Item1[0]);
-                    if (t.Item1.Length != 1 || !shortToLong.ContainsKey(fu))
+                    var fu = Char.ToUpperInvariant(t.Key[0]);
+                    if (t.Key.Length != 1 || !shortToLong.ContainsKey(fu))
                         throw new FormatException("Command-line option shorthand '" + fu + "' does not exist.");
                     var n = shortToLong[fu].ToUpperInvariant();
 
-                    ret.Add(t.Item2 == null ? new Argument()
+                    ret.Add(t.Value == null ? new Argument()
                     {
                         Type = ArgType.Flag,
                         Name = n
@@ -114,7 +114,7 @@ namespace Prism.Util
                     {
                         Type = ArgType.KeyValuePair,
                         Name = n,
-                        Value = t.Item2
+                        Value = t.Value
                     });
                 }
                 else if (IsWord(args[i]))

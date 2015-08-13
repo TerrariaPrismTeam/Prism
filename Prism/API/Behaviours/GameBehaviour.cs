@@ -25,7 +25,7 @@ namespace Prism.API.Behaviours
         /// </summary>
         /// <param name="current">The inner value can be changed.</param>
         [Hook]
-        public virtual void UpdateMusic(Ref<KeyValuePair<ObjectRef, BgmEntry>> current) { }
+        public virtual void UpdateMusic(Ref<BgmEntry> current) { }
 
 #if DEV_BUILD
         /// <summary>

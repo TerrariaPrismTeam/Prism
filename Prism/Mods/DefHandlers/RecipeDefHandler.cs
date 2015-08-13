@@ -116,7 +116,10 @@ namespace Prism.Mods.DefHandlers
                     r.requiredTile.TakeWhile(t => t >= 0).Select(t => new TileRef(t)).ToArray(),
                     (r.needWater ? RecipeLiquids.Water : 0) |
                     (r.needLava  ? RecipeLiquids.Lava  : 0) |
-                    (r.needHoney ? RecipeLiquids.Honey : 0)));
+                    (r.needHoney ? RecipeLiquids.Honey : 0))
+                {
+                    Mod = PrismApi.VanillaInfo
+                });
             }
 
             DefNumRecipes = Recipe.numRecipes;

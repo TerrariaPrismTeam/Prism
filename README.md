@@ -1,7 +1,8 @@
 # Prism
 Modding API for Terraria 1.3.0.* (Yet Another Mod To Make Mods!)
 
-Prism files are placed in the ```My Games\Terraria\Prism\``` folder (Located in `Documents\` on windows or `~/` on Unix platforms), so it doesn't mess with vanilla files.
+Prism files are placed in the ```My Games\Terraria\Prism\``` folder (Located in `Documents\` on windows, `~/.local/share/Terraria/` on Linux and `~/Library/Application Support/Terraria/` on OS X,
+but the Windows notation will be used here), so it doesn't mess with vanilla files.
 
 Prism is licensed under the Artistic License.
 

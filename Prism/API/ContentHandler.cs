@@ -15,7 +15,7 @@ namespace Prism.API
     public abstract class ContentHandler
     {
         internal ModInfo? Mod;
-        internal Dictionary<string, Stream> resources = new Dictionary<string, Stream>();        
+        internal Dictionary<string, Stream> resources = new Dictionary<string, Stream>();
 
         public void Adopt(ModInfo owner)
         {

@@ -17,6 +17,14 @@ namespace Prism
     public sealed class TMain : Main
     {
         internal static Texture2D WhitePixel;
+        /// <summary>
+        /// The amount of time elapsed since the previous frame (in seconds).
+        /// </summary>
+        public static float ElapsedTime
+        {
+            get;
+            private set;
+        }
 
         static bool justDrawCrashed = false;
         static Exception lastDrawExn = null;
@@ -42,6 +50,8 @@ namespace Prism
             CloudFavoritesData = new FavoritesFile("/favorites_Prism.json", false);
 
             Configuration = new Preferences(SavePath + "\\config.json", false, false);
+
+            ElapsedTime = 0;
         }
 
         static void HookWrappedMethods()
@@ -50,10 +60,11 @@ namespace Prism
 
             Item      .P_OnSetDefaults += ItemDefHandler.OnSetDefaults;
             NPC       .P_OnSetDefaults += NpcDefHandler .OnSetDefaults;
-            Projectile.P_OnSetDefaults += ProjDefHandler.OnSetDefaults;
+            Projectile.P_OnSetDefaults += ProjDefHandler.OnSetDefaults;            
 
             NPC.P_OnNewNPC += NpcHooks.OnNewNPC;
-        }
+            NPC.P_OnAI     += NpcHooks.OnAI;
+        }        
 
         protected override void Initialize()
         {
@@ -120,6 +131,8 @@ namespace Prism
         {
             try
             {
+                ElapsedTime = (float)gt.ElapsedGameTime.TotalSeconds;
+
                 HookManager.GameBehaviour.PreUpdate();
 
                 ApplyHotfixes(); //The array is initialized every time new Player() is called. Until we have like InitPlayer or something we just have to ghettohack it like this.

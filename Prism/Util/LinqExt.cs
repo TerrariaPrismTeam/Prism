@@ -30,12 +30,12 @@ namespace Prism.Util
 
         public static IEnumerable<T> Flatten   <T>(this IEnumerable<IEnumerable<T>> coll)
         {
-            return coll.DefaultIfEmpty(new T[0]).Aggregate((a, b) => a.SafeConcat(b));
+            return coll.DefaultIfEmpty(Empty<T>.Array).Aggregate((a, b) => a.SafeConcat(b));
         }
         public static IEnumerable<T> SafeConcat<T>(this IEnumerable<T> coll, IEnumerable<T> other)
         {
             if (coll == null && other == null)
-                return new T[0];
+                return Empty<T>.Array;
 
             if (coll == null)
                 return other;

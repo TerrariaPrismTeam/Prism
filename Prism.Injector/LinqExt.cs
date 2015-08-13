@@ -53,5 +53,32 @@ namespace Prism.Injector
 
             return coll.Concat(other);
         }
+
+        static bool Equality<T>(T a, T b)
+        {
+            if (ReferenceEquals(a, null))
+                return ReferenceEquals(b, null);
+            if (ReferenceEquals(b, null))
+                return false;
+
+            if (a is IEquatable<T>)
+                return ((IEquatable<T>)a).Equals(b);
+            if (b is IEquatable<T>)
+                return ((IEquatable<T>)b).Equals(a);
+
+            return a.Equals(b);
+        }
+        [DebuggerStepThrough]
+        public static bool Equals<T>(this IList<T> a, IList<T> b)
+        {
+            if (a.Count != b.Count)
+                return false;
+
+            for (int i = 0; i < a.Count; i++)
+                if (!Equality(a[i], b[i]))
+                    return false;
+
+            return true;
+        }
     }
 }

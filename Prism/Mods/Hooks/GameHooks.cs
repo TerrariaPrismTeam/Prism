@@ -11,16 +11,16 @@ namespace Prism.Mods.Hooks
     class GameHooks : IHookManager
     {
         IEnumerable<Action> preUpdate, postUpdate;
-        IEnumerable<Action<Ref<KeyValuePair<ObjectRef, BgmEntry>>>> updateMusic;
+        IEnumerable<Action<Ref<BgmEntry>>> updateMusic;
 
         public void Create()
         {
             var gbs = ModData.mods.Values.Select(m => m.gameBehaviour);
 
-            preUpdate   = HookManager.CreateHooks<GameBehaviour, Action>(gbs, "PreUpdate");
+            preUpdate   = HookManager.CreateHooks<GameBehaviour, Action>(gbs, "PreUpdate" );
             postUpdate  = HookManager.CreateHooks<GameBehaviour, Action>(gbs, "PostUpdate");
 
-            updateMusic = HookManager.CreateHooks<GameBehaviour, Action<Ref<KeyValuePair<ObjectRef, BgmEntry>>>>(gbs, "UpdateMusic");
+            updateMusic = HookManager.CreateHooks<GameBehaviour, Action<Ref<BgmEntry>>>(gbs, "UpdateMusic");
         }
         public void Clear ()
         {
@@ -39,11 +39,11 @@ namespace Prism.Mods.Hooks
             HookManager.Call(postUpdate);
         }
 
-        public void UpdateMusic(ref KeyValuePair<ObjectRef, BgmEntry> kvp)
+        public void UpdateMusic(ref BgmEntry e)
         {
-            var kvp_ = new Ref<KeyValuePair<ObjectRef, BgmEntry>>(kvp);
-            HookManager.Call(updateMusic, kvp_);
-            kvp = kvp_.Value;
+            var pe = new Ref<BgmEntry>(e);
+            HookManager.Call(updateMusic, pe);
+            e = pe.Value;
         }
     }
 }

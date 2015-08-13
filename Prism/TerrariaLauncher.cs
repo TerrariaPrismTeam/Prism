@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Prism.Debugging;
 using Steamworks;
 using Terraria.Social;
+
+using TProgram = Terraria.Program;
 
 namespace Prism
 {
@@ -37,6 +40,14 @@ namespace Prism
 
                 try
                 {
+                    TMain.OnEngineLoad += () =>
+                    {
+                        TProgram.ForceLoadAssembly(typeof(TProgram).Assembly /* Terraria */, true);
+#if !DEV_BUILD
+                        TProgram.ForceLoadAssembly(Assembly.GetExecutingAssembly() /* Prism */, true);
+#endif
+                    };
+
                     m.Run();
                 }
                 catch (Exception e)

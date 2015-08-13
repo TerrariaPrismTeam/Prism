@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Prism.Mods;
 
 namespace Prism.API.Audio
 {
@@ -44,6 +45,17 @@ namespace Prism.API.Audio
     {
         internal float fade;
 
+        public string InternalName
+        {
+            get;
+            internal set;
+        }
+        public ModInfo Mod
+        {
+            get;
+            internal set;
+        }
+
         public IBgm Music
         {
             get;
@@ -65,6 +77,15 @@ namespace Prism.API.Audio
             Music = music;
             Priority = priority;
             ShouldPlay = play;
+        }
+
+        public static implicit operator BgmRef(BgmEntry e)
+        {
+            return new BgmRef(e.InternalName, e.Mod);
+        }
+        public static explicit operator BgmEntry(BgmRef r)
+        {
+            return r.Resolve();
         }
     }
 }

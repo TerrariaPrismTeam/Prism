@@ -2,15 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Prism.API.Behaviours;
 using Prism.Mods;
 using Prism.Mods.DefHandlers;
-using Terraria;
 using Terraria.ID;
 
 namespace Prism.API.Defs
 {
-    public class TileRef : EntityRef<TileDef, TileBehaviour, Tile>
+    public class TileRef : EntityRefWithId<TileDef>
     {
         public TileRef(int resourceId)
             : base(resourceId, id => Handler.TileDef.DefsByType.ContainsKey(id) ? Handler.TileDef.DefsByType[id].InternalName : String.Empty)

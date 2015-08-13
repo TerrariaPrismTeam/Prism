@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Prism.API.Defs;
 using Prism.API;
+using Prism.API.Audio;
 
 namespace Prism.Util
 {
@@ -33,6 +33,7 @@ namespace Prism.Util
 
             throw new InvalidCastException();
         }
+
         public static T CastTo<T>(this JsonData from)
         {
             return from.CastToObj().CastTo<T>();
@@ -44,6 +45,7 @@ namespace Prism.Util
 
             return (T)Convert.ChangeType(o, typeof(T));
         }
+
         /// <summary>
         /// Gets the property from the Json data or throws an exception if it fails (See <see cref="GetOrDef{T}(JsonData, string, T)"/> to return a default on failure)."/>
         /// </summary>
@@ -58,7 +60,6 @@ namespace Prism.Util
 
             throw new FormatException("Could not find property '" + key + "'.");
         }
-
         /// <summary>
         /// Gets the property from the Json data or returns a specified default if it fails (See <see cref="GetOrExn{T}(JsonData, string)"/> to throw an exception on failure)."/>
         /// </summary>
@@ -75,12 +76,12 @@ namespace Prism.Util
             return def;
         }
 
-        public static object ParseAsIntOrObjectRef(this JsonData j)
+        public static Either<int, ObjectRef> ParseAsIntOrObjectRef(this JsonData j)
         {
             if (j.IsInt)
-                return (int)j;
+                return Either.Right<int, ObjectRef>((int)j);
             else if (j.IsString || j.IsObject)
-                return j.ParseAsObjectRef();
+                return Either.Left<int, ObjectRef>(j.ParseAsObjectRef());
 
             throw new FormatException("Invalid entity reference type " + j.GetJsonType() + ", must be either int or {string}.");
         }
@@ -118,39 +119,24 @@ namespace Prism.Util
 
         public static ItemRef ParseItemRef(this JsonData j)
         {
-            var o = ParseAsIntOrObjectRef(j);
-
-            if (o is int)
-                return new ItemRef((int)o);
-            else
-                return new ItemRef((ObjectRef)o);
+            return j.ParseAsIntOrObjectRef().Bind(i => new ItemRef(i), or => new ItemRef(or)).Right;
         }
         public static NpcRef ParseNpcRef(this JsonData j)
         {
-            var o = ParseAsIntOrObjectRef(j);
-
-            if (o is int)
-                return new NpcRef((int)o);
-            else
-                return new NpcRef((ObjectRef)o);
+            return j.ParseAsIntOrObjectRef().Bind(i => new NpcRef(i), or => new NpcRef(or)).Right;
         }
         public static ProjectileRef ParseProjectileRef(this JsonData j)
         {
-            var o = ParseAsIntOrObjectRef(j);
-
-            if (o is int)
-                return new ProjectileRef((int)o);
-            else
-                return new ProjectileRef((ObjectRef)o);
+            return j.ParseAsIntOrObjectRef().Bind(i => new ProjectileRef(i), or => new ProjectileRef(or)).Right;
         }
         public static TileRef ParseTileRef(this JsonData j)
         {
-            var o = ParseAsIntOrObjectRef(j);
+            return j.ParseAsIntOrObjectRef().Bind(i => new TileRef(i), or => new TileRef(or)).Right;
+        }
 
-            if (o is int)
-                return new TileRef((int)o);
-            else
-                return new TileRef((ObjectRef)o);
+        public static BgmRef ParseBgmRef(this JsonData j)
+        {
+            return j.ParseAsIntOrObjectRef().Bind(i => new BgmRef(VanillaBgms.RefOfId(i)), or => new BgmRef(or)).Right;
         }
     }
 }

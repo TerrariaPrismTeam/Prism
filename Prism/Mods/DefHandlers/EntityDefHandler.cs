@@ -151,6 +151,8 @@ namespace Prism.Mods.DefHandlers
                 if (!byDisplayName.ContainsKey(n) && !VanillaDefsByName.ContainsKey(n))
                     byDisplayName.Add(n, def);
 
+                def.Mod = PrismApi.VanillaInfo;
+
                 CopyEntityToDef(entity, def); // TEntityDef is a class -> dictionary entries are updated, too
 
                 def.InternalName = iname;

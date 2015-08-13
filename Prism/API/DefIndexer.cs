@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Prism.API.Behaviours;
+using Prism.API.Defs;
 using Prism.Mods;
+using Prism.Util;
 
 namespace Prism.API
 {
@@ -73,6 +75,80 @@ namespace Prism.API
         IEnumerator IEnumerable.GetEnumerator()
         {
             return allDefs.GetEnumerator();
+        }
+    }
+    public class DIHelper<T>
+    {
+        protected int maxIdValue;
+        protected string objName;
+
+        protected Func<ModDef, IDictionary<string, T>> GetModDefs;
+        protected IDictionary<string, T> VanillaDefsByName;
+        protected IDictionary<int, T> VanillaDefsById;
+
+        public DIHelper(int maxIdValue, string objName, Func<ModDef, IDictionary<string, T>> getModDefs, IDictionary<string, T> vByName, IDictionary<int, T> vById)
+        {
+            this.maxIdValue = maxIdValue;
+            this.objName = objName;
+
+            GetModDefs = getModDefs;
+            VanillaDefsByName = vByName;
+            VanillaDefsById = vById;
+        }
+
+        public T ByObjRef(ObjectRef or, ModDef requesting)
+        {
+            var req = requesting ?? or.requesting;
+
+            if (String.IsNullOrEmpty(or.ModName) && req != null && GetModDefs(req).ContainsKey(or.Name))
+                return GetModDefs(req)[or.Name];
+
+            if (or.Mod == PrismApi.VanillaInfo)
+            {
+                if (!VanillaDefsByName.ContainsKey(or.Name))
+                    throw new InvalidOperationException("Vanilla " + objName + " definition '" + or.Name + "' is not found.");
+
+                return VanillaDefsByName[or.Name];
+            }
+
+            if (!ModData.ModsFromInternalName.ContainsKey(or.ModName))
+                throw new InvalidOperationException(objName + " definition '" + or.Name + "' in mod '" + or.ModName + "' could not be returned because the mod is not loaded.");
+            if (!ModData.ModsFromInternalName[or.ModName].ItemDefs.ContainsKey(or.Name))
+                throw new InvalidOperationException(objName + " definition '" + or.Name + "' in mod '" + or.ModName + "' could not be resolved because the " + objName + " is not loaded.");
+
+            return GetModDefs(ModData.ModsFromInternalName[or.ModName])[or.Name];
+        }
+        public T ById(int id)
+        {
+            if (id >= maxIdValue || !VanillaDefsById.ContainsKey(id))
+                throw new ArgumentOutOfRangeException("id", "The id must be a vanilla " + objName + " id.");
+
+            return VanillaDefsById[id];
+        }
+    }
+    public sealed class EntityDIH<TEntity, TBehaviour, TEntityDef> : DIHelper<TEntityDef>
+        where TEntity : class
+        where TBehaviour : EntityBehaviour<TEntity>
+        where TEntityDef : EntityDef<TBehaviour, TEntity>
+    {
+        public EntityDIH(int maxIdValue, string objName, Func<ModDef, IDictionary<string, TEntityDef>> getModDefs, IDictionary<string, TEntityDef> vByName, IDictionary<int, TEntityDef> vById)
+            : base(maxIdValue, objName, getModDefs, vByName, vById)
+        {
+
+        }
+
+        public IEnumerable<KeyValuePair<ObjectRef, TEntityDef>> GetEnumerable()
+        {
+            // welcome to VERY GODDAMN VERBOSE functional programming
+            // seriously, type inferrence FTW
+            var vanillaDefs = VanillaDefsByName.Values.Select(id => new KeyValuePair<ObjectRef, TEntityDef>(new ObjectRef(id.InternalName), id));
+            var modDefs = ModData.mods.Select(GetModDefsInUsefulFormat).Flatten();
+
+            return vanillaDefs.Concat(modDefs);
+        }
+        IEnumerable<KeyValuePair<ObjectRef, TEntityDef>> GetModDefsInUsefulFormat(KeyValuePair<ModInfo, ModDef> kvp)
+        {
+            return GetModDefs(kvp.Value).SafeSelect(kvp_ => new KeyValuePair<ObjectRef, TEntityDef>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
         }
     }
 }
