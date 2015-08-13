@@ -38,7 +38,7 @@ namespace Prism.API.Audio
         internal static BossBgms bossMusicId = BossBgms.None;
         internal static BgmRef bossMusic_custom;
         internal static bool justScanned = false; // if NPCs might be updated, scan using AnyNPCsForMusic.
-                                                  // using the bossMusicId will only use 1 main.npc iteration per tick, instead of {Defs.Values.Select(e => e.Priority == BgmPriority.Boss).Count()}
+                                                  // using the bossMusicId will only use 1 main.npc iteration per tick, instead of {Defs.Values.Where(e => e.Priority == BgmPriority.Boss).Count()}
 
         static BgmEntry current;
 

@@ -10,7 +10,6 @@ using Terraria.ID;
 
 namespace Prism.API
 {
-    //TODO: (?) put most of the stuff in ByObjRef and ById in DefIndexer -> less code repetition (=> less c/p errors)
     namespace Defs
     {
         public partial class ItemDef

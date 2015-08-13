@@ -23,7 +23,7 @@ static partial class AssemblyInfo
     public const string VERSION = "1.0.0.0";
     public const string TERRARIA_VERSION = "1.3.0.8";
 
-    internal const string DEV_BUILD_VERSION = "0.0.0.0"; //Max version value possible lol.
+    internal const string DEV_BUILD_VERSION = "0.0.0.0";
 }
 static partial class GitInfo
 {

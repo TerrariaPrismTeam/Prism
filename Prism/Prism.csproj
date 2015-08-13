@@ -139,6 +139,7 @@
     <Compile Include="Mods\DefHandlers\TileDefHandler.cs" />
     <Compile Include="Mods\Hooks\GameHooks.cs" />
     <Compile Include="Mods\Hooks\NpcHooks.cs" />
+    <Compile Include="Mods\Resources\DSEIReader.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
