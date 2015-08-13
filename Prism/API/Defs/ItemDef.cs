@@ -534,8 +534,8 @@ namespace Prism.API.Defs
         [Obsolete("JSON files aren't supported for now, please use the other constructor and/or a custom deserializer.")]
         public ItemDef(string displayName, JsonData json,
             Func<Texture2D> getTexture = null,
-            ItemArmourData armour = default(ItemArmourData), //TODO: support this in JSON
-            ItemAccessoryData accessoryStuff = default(ItemAccessoryData), //TODO: this, too
+            ItemArmourData armour = default(ItemArmourData),
+            ItemAccessoryData accessoryStuff = default(ItemAccessoryData),
             Func<ItemBehaviour> newBehaviour = null)
             : this(displayName, newBehaviour)
         {
@@ -543,8 +543,6 @@ namespace Prism.API.Defs
             ArmourData = armour;
             AccessoryData = accessoryStuff;
 
-            //TODO: check if the fields exist
-            //TODO: use error handling, exceptions shouldn't be thrown from a constructor
             Damage = (int)json["damage"];
             UseAnimation = (int)json["useAnimation"];
             UseTime = (int)json["useTime"];
