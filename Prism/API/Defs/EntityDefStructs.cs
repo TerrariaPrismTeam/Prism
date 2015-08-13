@@ -188,7 +188,11 @@ namespace Prism.API.Defs
 
         public string ToString(IFormatProvider provider)
         {
-            return Copper.ToString(provider) + "c " + Silver.ToString(provider) + "s " + Gold.ToString(provider) + "g " + Platinum.ToString(provider) + "p";
+            return
+                Platinum.ToString(provider) + "p " +
+                Gold    .ToString(provider) + "g " +
+                Silver  .ToString(provider) + "s " +
+                Copper  .ToString(provider) + "c"  ;
         }
         #endregion
 

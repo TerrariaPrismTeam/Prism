@@ -1,10 +1,9 @@
-﻿using Microsoft.Xna.Framework;
-using Prism.API.Behaviours;
-using Prism.API.Defs;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using Microsoft.Xna.Framework;
+using Prism.API.Behaviours;
+using Prism.API.Defs;
 using Terraria;
 
 namespace Prism.ExampleMod.Behaviours.NPC
@@ -51,8 +50,8 @@ namespace Prism.ExampleMod.Behaviours.NPC
         float DashWaitTimer = 0;
         bool ReachedPlayerWithDash = false;
         Vector2 CurrentDashDir = Vector2.Zero;
-        float prevRot = 0;   
-        float MinionSpawnTimer = 0;     
+        float prevRot = 0;
+        float MinionSpawnTimer = 0;
 
         void Rotate(float speed)
         {
@@ -183,7 +182,7 @@ namespace Prism.ExampleMod.Behaviours.NPC
                     {
                         if (!ReachedPlayerWithDash && Entity.getRect().Intersects(Entity.targetRect))
                             ReachedPlayerWithDash = true;
-                        
+
                         Dash -= GetDistDelta(DashSlowdownAcc);
                     }
                     else
@@ -191,7 +190,7 @@ namespace Prism.ExampleMod.Behaviours.NPC
                         Dash = 0;
                         State = PizzaGodState.SpinStop;
                     }
-                }                
+                }
 
                 Rotate(MathHelper.TwoPi * GetDistDelta(RotationSpeed * (RotatingCCW ? -1 : 1)));
                 Entity.SimpleFlyMovement(CurrentDashDir * GetDistDelta(Dash * 16), GetDistDelta(Dash * 16));
@@ -200,7 +199,7 @@ namespace Prism.ExampleMod.Behaviours.NPC
                     CurrentDashDir = Entity.DirectionTo(Main.player[Entity.target].Center);
 
                 Entity.scale = 6 - (2 * (RotationSpeed / MaxRotSpeed));
-                Entity.width = Entity.height = (int)(48 * Entity.scale);                
+                Entity.width = Entity.height = (int)(48 * Entity.scale);
 
                 prevRot = Entity.rotation;
 
@@ -210,7 +209,7 @@ namespace Prism.ExampleMod.Behaviours.NPC
                 {
                     Entity.Teleport(Target.Center);
                 }
-            }                            
+            }
         }
 
         public override void OnInit()

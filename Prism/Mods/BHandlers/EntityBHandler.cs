@@ -4,7 +4,7 @@ using System.Linq;
 using Prism.API.Behaviours;
 using Prism.Mods.Hooks;
 
-namespace Prism.Mods.Behaviours
+namespace Prism.Mods.BHandlers
 {
     public abstract class EntityBHandler<TBehaviour, TEntity> : IHookManager
         where TEntity : class

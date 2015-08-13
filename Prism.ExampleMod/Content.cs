@@ -99,7 +99,7 @@ namespace Prism.ExampleMod
                     AiStyle = NpcAiStyle.None,
                     IsBoss = true,
                     IsSummonableBoss = true,
-                    Music = new BgmRef("QueenBee"),                    
+                    Music = new BgmRef("QueenBee"),
                     IgnoreGravity = true, //!!! BEEEEP BOOOOP
                     SoundOnHit = 13,
                     SoundOnDeath = 11

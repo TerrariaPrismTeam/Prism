@@ -58,13 +58,15 @@ namespace Prism
         {
             P_OnUpdateMusic += Bgm.Update;
 
-            Item      .P_OnSetDefaults += ItemDefHandler.OnSetDefaults;
-            NPC       .P_OnSetDefaults += NpcDefHandler .OnSetDefaults;
-            Projectile.P_OnSetDefaults += ProjDefHandler.OnSetDefaults;            
+            Item      .P_OnSetDefaultsById   += ItemDefHandler.OnSetDefaults      ;
+            Item      .P_OnSetDefaultsByName += ItemDefHandler.OnSetDefaultsByName;
+            NPC       .P_OnSetDefaultsById   += NpcDefHandler .OnSetDefaults      ;
+            NPC       .P_OnSetDefaultsByName += NpcDefHandler .OnSetDefaultsByName;
+            Projectile.P_OnSetDefaults       += ProjDefHandler.OnSetDefaults      ;
 
             NPC.P_OnNewNPC += NpcHooks.OnNewNPC;
             NPC.P_OnAI     += NpcHooks.OnAI;
-        }        
+        }
 
         protected override void Initialize()
         {

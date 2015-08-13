@@ -4,79 +4,18 @@ using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
-using Prism.Debugging;
-using Prism.Mods.Behaviours;
-using Prism.Util;
 using Terraria;
 using Terraria.ID;
 
 namespace Prism.Mods.DefHandlers
 {
-    sealed class ItemDefHandler : TEntityDefHandler<ItemDef, ItemBehaviour, Item>
+    sealed partial class ItemDefHandler : TEntityDefHandler<ItemDef, ItemBehaviour, Item>
     {
         protected override Type IDContainerType
         {
             get
             {
                 return typeof(ItemID);
-            }
-        }
-
-        internal static void OnSetDefaults(Item item, int type, bool noMatCheck)
-        {
-            if (ModLoader.Reloading && !RecipeDefHandler.SettingUpRecipes)
-            {
-                item.RealSetDefaults(type, noMatCheck);
-
-                if (!FillingVanilla)
-                    Logging.LogWarning("Tried to call SetDefaults on an Item while [re|un]?loading mods.");
-
-                return;
-            }
-
-            ItemBHandler h = null; // will be set to <non-null> only if a behaviour handler will be attached
-
-            item.RealSetDefaults(0, noMatCheck);
-
-            if (Handler.ItemDef.DefsByType.ContainsKey(type))
-            {
-                var d = Handler.ItemDef.DefsByType[type];
-
-                item.type = item.netID = type;
-                item.width = item.height = 16;
-                item.stack = item.maxStack = 1;
-
-                Handler.ItemDef.CopyDefToEntity(d, item);
-
-                if (!ModLoader.Reloading && d.CreateBehaviour != null)
-                {
-                    h = new ItemBHandler();
-
-                    var b = d.CreateBehaviour();
-
-                    if (b != null)
-                        h.behaviours.Add(b);
-                }
-            }
-            else
-                item.RealSetDefaults(type, noMatCheck);
-
-            var bs = ModLoader.Reloading ? Empty<ItemBehaviour>.Array : ModData.mods.Values.Select(m => m.contentHandler.CreateGlobalItemBInternally()).Where(b => b != null);
-
-            if (!ModLoader.Reloading && !bs.IsEmpty() && h == null)
-                h = new ItemBHandler();
-
-            if (!ModLoader.Reloading && h != null)
-            {
-                h.behaviours.AddRange(bs);
-
-                h.Create();
-                item.P_BHandler = h;
-
-                foreach (var b in h.Behaviours)
-                    b.Entity = item;
-
-                h.OnInit();
             }
         }
 
@@ -124,7 +63,7 @@ namespace Prism.Mods.DefHandlers
 
         protected override void CopyEntityToDef(Item item, ItemDef def)
         {
-            def.DisplayName         = Main.itemName[item.type];
+            def.DisplayName         = item.name;
             def.Type                = item.type;
             def.NetID               = item.netID;
             def.Damage              = item.damage;

@@ -5,7 +5,7 @@ using Prism.API.Behaviours;
 using Prism.Mods.Hooks;
 using Terraria;
 
-namespace Prism.Mods.Behaviours
+namespace Prism.Mods.BHandlers
 {
     public sealed class ItemBHandler : EntityBHandler<ItemBehaviour, Item>
     {

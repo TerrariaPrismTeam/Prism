@@ -47,7 +47,7 @@ namespace Prism.Injector.Patcher
             context.PrimaryAssembly.MainModule.Types.Add(delegateType);
 
             return delegateType;
-        }        
+        }
         public static Instruction[] FindInstrSeq(this MethodBody body, OpCode[] instrs)
         {
             return body.FindInstrSeq(instrs, instrs.Length);
@@ -86,7 +86,7 @@ namespace Prism.Injector.Patcher
             {
                 Console.Error.WriteLine("Error: Both sequences in CecilHelper.ReplaceInstructions(ILProcessor, IEnumerable<Instruction>, IEnumerable<Instruction>) must be chronological.");
             }
-            Instruction firstOrig = orig.First();            
+            Instruction firstOrig = orig.First();
 
             foreach (var i in repl)
             {

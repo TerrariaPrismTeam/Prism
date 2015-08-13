@@ -4,7 +4,7 @@ using System.Linq;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Prism.Debugging;
-using Prism.Mods.Behaviours;
+using Prism.Mods.BHandlers;
 using Prism.Util;
 using Terraria;
 using Terraria.ID;

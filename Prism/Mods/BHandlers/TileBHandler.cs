@@ -1,13 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Prism.API.Behaviours;
 using Prism.Mods.Hooks;
 using Terraria;
 
-namespace Prism.Mods.Behaviours
+namespace Prism.Mods.BHandlers
 {
-    public sealed class ProjectileBHandler : EntityBHandler<ProjectileBehaviour, Projectile>
+    public sealed class TileBHandler : EntityBHandler<TileBehaviour, Tile>
     {
         IEnumerable<Action> onUpdate;
 
@@ -15,7 +15,7 @@ namespace Prism.Mods.Behaviours
         {
             base.Create();
 
-            onUpdate = HookManager.CreateHooks<ProjectileBehaviour, Action>(Behaviours, "OnUpdate");
+            onUpdate = HookManager.CreateHooks<TileBehaviour, Action>(Behaviours, "OnUpdate");
         }
         public override void Clear ()
         {

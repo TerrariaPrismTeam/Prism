@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
-using Mono.Cecil.Cil;
-using Mono.Collections.Generic;
 
 namespace Prism.Injector.Patcher
 {
@@ -17,7 +15,8 @@ namespace Prism.Injector.Patcher
 
         static void WrapSetDefaults()
         {
-            typeDef_Item.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32, typeSys.Boolean).Wrap(context);
+            typeDef_Item.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32 , typeSys.Boolean).Wrap(context, "Terraria.PrismInjections", "Item_SetDefaultsDel_Id"  , "P_OnSetDefaultsById"  );
+            typeDef_Item.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, typeSys.String                 ).Wrap(context, "Terraria.PrismInjections", "Item_SetDefaultsDel_Name", "P_OnSetDefaultsByName");
         }
         static void AddFieldForBHandler()
         {

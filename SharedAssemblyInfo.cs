@@ -12,13 +12,12 @@ using System.Runtime.InteropServices;
 [assembly: Guid(AssemblyInfo.GUID)]
 #if DEV_BUILD
 [assembly: AssemblyVersion(AssemblyInfo.DEV_BUILD_VERSION)]
-[assembly: AssemblyFileVersion(AssemblyInfo.DEV_BUILD_VERSION)]
 #else
 [assembly: AssemblyVersion(AssemblyInfo.VERSION)]
-[assembly: AssemblyFileVersion(AssemblyInfo.VERSION)]
 #endif
+[assembly: AssemblyFileVersion(AssemblyInfo.VERSION)]
 
-static class AssemblyInfo
+static partial class AssemblyInfo
 {
     public const string GUID = "fa53dc38-9b2b-45d3-818e-3e60f69143f6";
     public const string VERSION = "1.0.0.0";
@@ -26,7 +25,7 @@ static class AssemblyInfo
 
     internal const string DEV_BUILD_VERSION = "0.0.0.0"; //Max version value possible lol.
 }
-static class GitInfo
+static partial class GitInfo
 {
     public const string REPO = "Prism";
     public const string BRANCH = "master";
