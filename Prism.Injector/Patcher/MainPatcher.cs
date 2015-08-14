@@ -27,7 +27,7 @@ namespace Prism.Injector.Patcher
                 // ldc.i4 540
                 // bge <end-of-if-body>
 
-                // in 1.3.0.7, this starts at address 0x006f
+                // in 1.3.0.7 & 1.3.0.8, this starts at address 0x006f
 
                 OpCodes.Ldsfld,
                 OpCodes.Ldloc_2,
@@ -272,6 +272,10 @@ namespace Prism.Injector.Patcher
             // wtf?
             typeDef_Main.GetField("OnEngineLoad").Name = "_onEngineLoad_backingField";
         }
+        static void WrapPlaySound()
+        {
+            typeDef_Main.GetMethod("PlaySound", MethodFlags.Static | MethodFlags.Public, typeSys.Int32, typeSys.Int32, typeSys.Int32, typeSys.Int32).Wrap(context);
+        }
 
         internal static void Patch()
         {
@@ -284,6 +288,7 @@ namespace Prism.Injector.Patcher
             RemoveVanillaNpcDrawLimitation();
             WrapUpdateMusic();
             FixOnEngineLoadField();
+            WrapPlaySound();
 
             //These are causing System.InvalidProgramExceptions so I'm just commenting them out (pls don't remove them)
             //AddIsChatAllowedHook();

@@ -59,6 +59,9 @@ namespace Prism
         {
             Environment.CurrentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
+            if (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX)
+                Environment.SetEnvironmentVariable("FNA_WORKAROUND_WINDOW_RESIZABLE", "1");
+
             AppDomain.CurrentDomain.AssemblyResolve += (_, rea) =>
             {
                 string displayName = new AssemblyName(rea.Name).Name;

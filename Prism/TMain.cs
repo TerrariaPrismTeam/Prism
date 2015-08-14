@@ -57,6 +57,7 @@ namespace Prism
         static void HookWrappedMethods()
         {
             P_OnUpdateMusic += Bgm.Update;
+            P_OnPlaySound_Int32_Int32_Int32_Int32 += Sfx.OnPlaySound;
 
             Item      .P_OnSetDefaultsById   += ItemDefHandler.OnSetDefaults      ;
             Item      .P_OnSetDefaultsByName += ItemDefHandler.OnSetDefaultsByName;
