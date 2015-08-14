@@ -11,6 +11,8 @@ namespace Prism.API.Audio
 
     public static partial class Sfx
     {
+        const string OBS_REASON = "Please use an overload that takes an SfxEntry instead.";
+
         internal static Dictionary<string, SfxEntry> VanillaDict = new Dictionary<string, SfxEntry>();
 
         static Dictionary<KeyValuePair<SfxEntry, int>, SoundEffectInstance> instanceMap = new Dictionary<KeyValuePair<SfxEntry, int>, SoundEffectInstance>();
@@ -105,7 +107,7 @@ namespace Prism.API.Audio
             toR.Clear();
         }
 
-        public static SoundEffectInstance Play(SfxEntry entry, Vector2 position, int variant = -1, PlaySoundEvent onPlay = null)
+        public static SoundEffectInstance Play(SfxEntry entry, Vector2 position, int variant, PlaySoundEvent onPlay)
         {
             if (Main.dedServ || WorldGen.gen || Main.netMode == 2)
                 return null;
@@ -172,10 +174,52 @@ namespace Prism.API.Audio
 
             return inst;
         }
-
-        internal static void OnPlaySound(int type, int x = -1, int y = -1 , int style = -1)
+        public static SoundEffectInstance Play(SfxEntry entry, Vector2 position, int variant, float volMod = Single.NaN, float pitch = Single.NaN, float panMod = Single.NaN)
         {
-            Play(ById(type), new Vector2(x, y), style, (SfxEntry e, Vector2 p, ref int v, ref float vol, ref float pitch, ref float pan) =>
+            return Play(entry, position, variant, (SfxEntry e, Vector2 p, ref int v, ref float vol, ref float pi, ref float pan) =>
+            {
+                if (!Single.IsNaN(vol))
+                    vol *= volMod;
+                if (!Single.IsNaN(pi ))
+                    pi = pitch;
+                if (!Single.IsNaN(pan))
+                    pan *= panMod;
+
+                return true;
+            });
+        }
+        public static SoundEffectInstance Play(SfxEntry entry, Vector2 position)
+        {
+            return Play(entry, position, -1, null);
+        }
+
+        public static SoundEffectInstance Play(SfxEntry entry, Point tilePos, int variant, PlaySoundEvent onPlay)
+        {
+            return Play(entry, tilePos.ToVector2() * 16f, variant, onPlay);
+        }
+        public static SoundEffectInstance Play(SfxEntry entry, Point tilePos, int variant, float volMod = Single.NaN, float pitch = Single.NaN, float panMod = Single.NaN)
+        {
+            return Play(entry, tilePos.ToVector2() * 16f, variant, (SfxEntry e, Vector2 p, ref int v, ref float vol, ref float pi, ref float pan) =>
+            {
+                if (!Single.IsNaN(vol))
+                    vol *= volMod;
+                if (!Single.IsNaN(pi))
+                    pi = pitch;
+                if (!Single.IsNaN(pan))
+                    pan *= panMod;
+
+                return true;
+            });
+        }
+        public static SoundEffectInstance Play(SfxEntry entry, Point tilePos)
+        {
+            return Play(entry, tilePos.ToVector2() * 16f, -1, null);
+        }
+
+        [Obsolete(OBS_REASON)]
+        public static SoundEffectInstance Play(int type, Vector2 position, int style = -1)
+        {
+            return Play(ById(type), position, style, (SfxEntry e, Vector2 p, ref int v, ref float vol, ref float pitch, ref float pan) =>
             {
                 switch (type)
                 {
@@ -330,6 +374,16 @@ namespace Prism.API.Audio
 
                 return true;
             });
+        }
+        [Obsolete(OBS_REASON)]
+        public static SoundEffectInstance Play(int type, Point tilePos, int style = -1)
+        {
+            return Play(type, tilePos.ToVector2() * 16f, style);
+        }
+        [Obsolete(OBS_REASON)]
+        public static SoundEffectInstance Play(int type, int x = -1, int y = -1, int style = -1)
+        {
+            return Play(type, new Vector2(x, y), style);
         }
     }
 }
