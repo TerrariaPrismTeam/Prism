@@ -17,13 +17,7 @@ namespace Prism.API.Audio
             ZombieIdle, NpcAttackSound, DoubleJump, Run, Buy, Splash, FemaleHit,
             DigOre, Unlock, Drown, Chat, MaxMana, MummyIdle, PixieIdle,
             MechBuzz, NpcIdleSound, DuckIdle, FrogIdle, NpcIdleSoundQuiet, BeetleIdle, AmbientWater,
-            AmbientLava, NpcAttackSoundExpert, Meowmere, CoinPickup, Drip, Camera, MoonLordCry;
-
-        public static SfxEntry AmbientDrip
-        {
-            get;
-            internal set;
-        }
+            AmbientLava, NpcAttackSoundExpert, Meowmere, CoinPickup, AmbientDrip, Camera, MoonLordCry;
 
         static SfxEntry GetVanilla(SoundEffect   e , SfxPlayBehaviour b = SfxPlayBehaviour.Singleton, bool ambient = false)
         {
@@ -58,7 +52,7 @@ namespace Prism.API.Audio
                 = ZombieIdle = NpcAttackSound = DoubleJump = Run = Buy = Splash = FemaleHit
                 = DigOre = Unlock = Drown = Chat = MaxMana = MummyIdle = PixieIdle
                 = MechBuzz = NpcIdleSound = DuckIdle = FrogIdle = NpcIdleSoundQuiet = BeetleIdle = AmbientWater
-                = AmbientLava = NpcAttackSoundExpert = Meowmere = CoinPickup = Drip = Camera = MoonLordCry
+                = AmbientLava = NpcAttackSoundExpert = Meowmere = CoinPickup = AmbientDrip = Camera = MoonLordCry
                 = null;
         }
         internal static void FillVanilla()
@@ -146,7 +140,7 @@ namespace Prism.API.Audio
             Meowmere   = GetVanilla(Main.soundItem.Subarray(57, 2), SfxPlayBehaviour.MultipleInstances);
             CoinPickup = GetVanilla(Main.soundCoin, SfxPlayBehaviour.MultipleInstances                );
 
-            Drip = GetVanilla(Main.soundDrip, SfxPlayBehaviour.MultipleInstances, true);
+            AmbientDrip = GetVanilla(Main.soundDrip, SfxPlayBehaviour.MultipleInstances, true);
 
             Camera = GetVanilla(Main.soundCamera);
 
