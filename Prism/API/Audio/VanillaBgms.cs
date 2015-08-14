@@ -55,54 +55,13 @@ namespace Prism.API.Audio
 
         static int[] TempNpcArray = new int[1];
 
-        public readonly static BgmEntry[] MusicBoxes = Enumerable.Range(1, 37) // do not include ambient background
-                .Select(c => new BgmEntry(Bgm.VanillaBgmOf(MusicBoxIdToCueId(c)), BgmPriority.MusicBox, () => Main.musicBox == c)).ToArray();
-
-        public readonly static BgmEntry
-            Title = new BgmEntry(Bgm.VanillaBgmOf(6), BgmPriority.Title, () => Main.gameMenu),
-
-            FrostMoon   = new BgmEntry(Bgm.VanillaBgmOf(32), BgmPriority.Event, () => Main.snowMoon   ),
-            PumpkinMoon = new BgmEntry(Bgm.VanillaBgmOf(30), BgmPriority.Event, () => Main.pumpkinMoon),
-
-            MoonLord       = new BgmEntry(Bgm.VanillaBgmOf(38), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.MoonLord      ) != 0 : Bgm.AnyNPCsForMusic(MoonLordNPCs      )),
-            MartianMadness = new BgmEntry(Bgm.VanillaBgmOf(37), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.MartianMadness) != 0 : Bgm.AnyNPCsForMusic(MartianMadnessNPCs)),
-            LunarPillar    = new BgmEntry(Bgm.VanillaBgmOf(34), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.LunarPillar   ) != 0 : Bgm.AnyNPCsForMusic(LunarPillarNPCs   )),
-            Plantera       = new BgmEntry(Bgm.VanillaBgmOf(24), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Plantera      ) != 0 : Bgm.AnyNPCsForMusic(PlanteraNPCs      )),
-            Boss2          = new BgmEntry(Bgm.VanillaBgmOf(12), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Boss2         ) != 0 : Bgm.AnyNPCsForMusic(Boss2NPCs         )),
-            Boss1          = new BgmEntry(Bgm.VanillaBgmOf( 5), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Boss1         ) != 0 : Bgm.AnyNPCsForMusic(IsBoss1Boss       )),
-            Boss3          = new BgmEntry(Bgm.VanillaBgmOf(13), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Boss3         ) != 0 : Bgm.AnyNPCsForMusic(Boss3NPCs         )),
-            Golem          = new BgmEntry(Bgm.VanillaBgmOf(17), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Golem         ) != 0 : Bgm.AnyNPCsForMusic(GolemNPCs         )),
-            QueenBee       = new BgmEntry(Bgm.VanillaBgmOf(25), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.QueenBee      ) != 0 : Bgm.AnyNPCsForMusic(QueenBeeNPCs      )),
-            Pirates        = new BgmEntry(Bgm.VanillaBgmOf(35), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Pirates       ) != 0 : Bgm.AnyNPCsForMusic(PiratesNPCs       )),
-            GoblinArmy     = new BgmEntry(Bgm.VanillaBgmOf(39), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.GoblinArmy    ) != 0 : Bgm.AnyNPCsForMusic(GoblinArmyNPCs    )),
-
-            Underworld   = new BgmEntry(Bgm.VanillaBgmOf(36), BgmPriority.Biome, () => Main.player[Main.myPlayer].position.Y > (Main.maxTilesY - 200) * 16),
-            Eclipse      = new BgmEntry(Bgm.VanillaBgmOf(27), BgmPriority.Biome, () => Main.eclipse && Main.player[Main.myPlayer].position.Y < Main.worldSurface * 16 + Main.screenHeight / 2),
-            Space        = new BgmEntry(Bgm.VanillaBgmOf(15), BgmPriority.Biome, IsInSpace),
-            Lihzahrd     = new BgmEntry(Bgm.VanillaBgmOf(26), BgmPriority.Biome, () => Main.tile[(int)(Main.player[Main.myPlayer].Center.X / 16f), (int)(Main.player[Main.myPlayer].Center.Y / 16f)].wall == WallID.LihzahrdBrickUnsafe),
-            Mushrooms    = new BgmEntry(Bgm.VanillaBgmOf(29), BgmPriority.Biome, () => (Main.bgStyle == 9 && Main.player[Main.myPlayer].position.Y < Main.worldSurface * 16 + Main.screenHeight / 2) || Main.ugBack == 2),
-            UgCorruption = new BgmEntry(Bgm.VanillaBgmOf(10), BgmPriority.Biome, () => Main.player[Main.myPlayer].ZoneCorrupt && IsUnderground()),
-            Corruption   = new BgmEntry(Bgm.VanillaBgmOf( 8), BgmPriority.Biome, () => Main.player[Main.myPlayer].ZoneCorrupt),
-            UgCrimson    = new BgmEntry(Bgm.VanillaBgmOf(33), BgmPriority.Biome, () => Main.player[Main.myPlayer].ZoneCrimson && IsUnderground()),
-            Crimson      = new BgmEntry(Bgm.VanillaBgmOf(16), BgmPriority.Biome, () => Main.player[Main.myPlayer].ZoneCrimson),
-            Dungeon      = new BgmEntry(Bgm.VanillaBgmOf(23), BgmPriority.Biome, () => Main.player[Main.myPlayer].ZoneDungeon),
-            Meteor       = new BgmEntry(Bgm.VanillaBgmOf( 2), BgmPriority.Biome, () => Main.player[Main.myPlayer].ZoneMeteor),
-            Jungle       = new BgmEntry(Bgm.VanillaBgmOf( 7), BgmPriority.Biome, () => Main.player[Main.myPlayer].ZoneJungle),
-            Snow         = new BgmEntry(Bgm.VanillaBgmOf(20), BgmPriority.Biome, () => Main.player[Main.myPlayer].ZoneSnow && IsUnderground()),
-            Ice          = new BgmEntry(Bgm.VanillaBgmOf(14), BgmPriority.Biome, () => Main.player[Main.myPlayer].ZoneSnow),
-
-            UgHallow    = new BgmEntry(Bgm.VanillaBgmOf(11), BgmPriority.Environment, () => IsUnderground() && Main.player[Main.myPlayer].ZoneHoly),
-            UgDesert    = new BgmEntry(Bgm.VanillaBgmOf(21), BgmPriority.Environment, () => IsUnderground() && Main.sandTiles > 2200),
-            Underground = new BgmEntry(new AltSupportingBgm(Bgm.VanillaBgmOf(4), Bgm.VanillaBgmOf(31), SwitchMode.Alternate), BgmPriority.Environment, IsUnderground),
-            BloodMoon   = new BgmEntry(Bgm.VanillaBgmOf( 2), BgmPriority.Environment, () => Main.bloodMoon),
-            Rain        = new BgmEntry(Bgm.VanillaBgmOf(19), BgmPriority.Environment, () => Main.cloudAlpha > 0f && !Main.gameMenu),
-            Night       = new BgmEntry(Bgm.VanillaBgmOf( 3), BgmPriority.Environment, () => !Main.dayTime),
-            Hallow      = new BgmEntry(Bgm.VanillaBgmOf( 9), BgmPriority.Environment, () => Main.player[Main.myPlayer].ZoneHoly),
-            Ocean       = new BgmEntry(Bgm.VanillaBgmOf(22), BgmPriority.Environment, IsInOcean),
-            Desert      = new BgmEntry(Bgm.VanillaBgmOf(21), BgmPriority.Environment, () => Main.sandTiles > 2200),
-            Day         = new BgmEntry(new AltSupportingBgm(Bgm.VanillaBgmOf(1), Bgm.VanillaBgmOf(18), SwitchMode.Random), BgmPriority.Environment, () => Main.dayTime),
-
-            Ambient = new BgmEntry(Bgm.VanillaBgmOf(28), BgmPriority.Ambient, () => Main.cloudAlpha > 0f && Main.player[Main.myPlayer].position.Y < Main.worldSurface * 16 + Main.screenHeight / 2 && !Main.player[Main.myPlayer].ZoneSnow);
+        public static BgmEntry[] MusicBoxes;
+        public static BgmEntry
+            Title, FrostMoon, PumpkinMoon,
+            MoonLord, MartianMadness, LunarPillar, Plantera, Boss2, Boss1, Boss3, Golem, QueenBee, Pirates, GoblinArmy,
+            Underworld, Eclipse, Space, Lihzahrd, Mushrooms, UgCorruption, Corruption, UgCrimson, Crimson, Dungeon, Meteor, Jungle, Snow, Ice,
+            UgHallow, UgDesert, Underground, BloodMoon, Rain, Night, Hallow, Ocean, Desert, Day,
+            Ambient;
 
         static int MusicBoxIdToCueId(int boxId)
         {
@@ -151,7 +110,7 @@ namespace Prism.API.Audio
             return Main.screenPosition.Y / 16f < Main.worldSurface + 10.0 && (px < 380 || px > Main.maxTilesX - 380);
         }
 
-        internal static void FillVanilla()
+        static void PopulateDict()
         {
             Bgm.VanillaDict.Add("Title", Title);
 
@@ -168,6 +127,67 @@ namespace Prism.API.Audio
                 kvp.Value.InternalName = kvp.Key;
                 kvp.Value.Mod = PrismApi.VanillaInfo;
             }
+        }
+
+        internal static void Reset()
+        {
+            Title = FrostMoon = PumpkinMoon
+                = MoonLord = MartianMadness = LunarPillar = Plantera = Boss2 = Boss1 = Boss3 = Golem = QueenBee = Pirates = GoblinArmy
+                = Underworld = Eclipse = Space = Lihzahrd = Mushrooms = UgCorruption = Corruption = UgCrimson = Crimson = Dungeon = Meteor = Jungle = Snow = Ice
+                = UgHallow = UgDesert = Underground = BloodMoon = Rain = Night = Hallow = Ocean = Desert = Day
+                = Ambient = null;
+        }
+        internal static void FillVanilla()
+        {
+                                          // do not include ambient background
+            MusicBoxes = Enumerable.Range(1, 37).Select(c => new BgmEntry(Bgm.VanillaBgmOf(MusicBoxIdToCueId(c)), BgmPriority.MusicBox, () => Main.musicBox == c)).ToArray();
+
+            Title = new BgmEntry(Bgm.VanillaBgmOf(6), BgmPriority.Title, () => Main.gameMenu);
+
+            FrostMoon   = new BgmEntry(Bgm.VanillaBgmOf(32), BgmPriority.Event, () => Main.snowMoon   );
+            PumpkinMoon = new BgmEntry(Bgm.VanillaBgmOf(30), BgmPriority.Event, () => Main.pumpkinMoon);
+
+            MoonLord       = new BgmEntry(Bgm.VanillaBgmOf(38), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.MoonLord      ) != 0 : Bgm.AnyNPCsForMusic(MoonLordNPCs      ));
+            MartianMadness = new BgmEntry(Bgm.VanillaBgmOf(37), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.MartianMadness) != 0 : Bgm.AnyNPCsForMusic(MartianMadnessNPCs));
+            LunarPillar    = new BgmEntry(Bgm.VanillaBgmOf(34), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.LunarPillar   ) != 0 : Bgm.AnyNPCsForMusic(LunarPillarNPCs   ));
+            Plantera       = new BgmEntry(Bgm.VanillaBgmOf(24), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Plantera      ) != 0 : Bgm.AnyNPCsForMusic(PlanteraNPCs      ));
+            Boss2          = new BgmEntry(Bgm.VanillaBgmOf(12), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Boss2         ) != 0 : Bgm.AnyNPCsForMusic(Boss2NPCs         ));
+            Boss1          = new BgmEntry(Bgm.VanillaBgmOf( 5), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Boss1         ) != 0 : Bgm.AnyNPCsForMusic(IsBoss1Boss       ));
+            Boss3          = new BgmEntry(Bgm.VanillaBgmOf(13), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Boss3         ) != 0 : Bgm.AnyNPCsForMusic(Boss3NPCs         ));
+            Golem          = new BgmEntry(Bgm.VanillaBgmOf(17), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Golem         ) != 0 : Bgm.AnyNPCsForMusic(GolemNPCs         ));
+            QueenBee       = new BgmEntry(Bgm.VanillaBgmOf(25), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.QueenBee      ) != 0 : Bgm.AnyNPCsForMusic(QueenBeeNPCs      ));
+            Pirates        = new BgmEntry(Bgm.VanillaBgmOf(35), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Pirates       ) != 0 : Bgm.AnyNPCsForMusic(PiratesNPCs       ));
+            GoblinArmy     = new BgmEntry(Bgm.VanillaBgmOf(39), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.GoblinArmy    ) != 0 : Bgm.AnyNPCsForMusic(GoblinArmyNPCs    ));
+
+            Underworld   = new BgmEntry(Bgm.VanillaBgmOf(36), BgmPriority.Biome, () => Main.player[Main.myPlayer].position.Y > (Main.maxTilesY - 200) * 16);
+            Eclipse      = new BgmEntry(Bgm.VanillaBgmOf(27), BgmPriority.Biome, () => Main.eclipse && Main.player[Main.myPlayer].position.Y < Main.worldSurface * 16 + Main.screenHeight / 2);
+            Space        = new BgmEntry(Bgm.VanillaBgmOf(15), BgmPriority.Biome, IsInSpace);
+            Lihzahrd     = new BgmEntry(Bgm.VanillaBgmOf(26), BgmPriority.Biome, () => Main.tile[(int)(Main.player[Main.myPlayer].Center.X / 16f), (int)(Main.player[Main.myPlayer].Center.Y / 16f)].wall == WallID.LihzahrdBrickUnsafe);
+            Mushrooms    = new BgmEntry(Bgm.VanillaBgmOf(29), BgmPriority.Biome, () => (Main.bgStyle == 9 && Main.player[Main.myPlayer].position.Y < Main.worldSurface * 16 + Main.screenHeight / 2) || Main.ugBack == 2);
+            UgCorruption = new BgmEntry(Bgm.VanillaBgmOf(10), BgmPriority.Biome, () => Main.player[Main.myPlayer].ZoneCorrupt && IsUnderground());
+            Corruption   = new BgmEntry(Bgm.VanillaBgmOf( 8), BgmPriority.Biome, () => Main.player[Main.myPlayer].ZoneCorrupt);
+            UgCrimson    = new BgmEntry(Bgm.VanillaBgmOf(33), BgmPriority.Biome, () => Main.player[Main.myPlayer].ZoneCrimson && IsUnderground());
+            Crimson      = new BgmEntry(Bgm.VanillaBgmOf(16), BgmPriority.Biome, () => Main.player[Main.myPlayer].ZoneCrimson);
+            Dungeon      = new BgmEntry(Bgm.VanillaBgmOf(23), BgmPriority.Biome, () => Main.player[Main.myPlayer].ZoneDungeon);
+            Meteor       = new BgmEntry(Bgm.VanillaBgmOf( 2), BgmPriority.Biome, () => Main.player[Main.myPlayer].ZoneMeteor);
+            Jungle       = new BgmEntry(Bgm.VanillaBgmOf( 7), BgmPriority.Biome, () => Main.player[Main.myPlayer].ZoneJungle);
+            Snow         = new BgmEntry(Bgm.VanillaBgmOf(20), BgmPriority.Biome, () => Main.player[Main.myPlayer].ZoneSnow && IsUnderground());
+            Ice          = new BgmEntry(Bgm.VanillaBgmOf(14), BgmPriority.Biome, () => Main.player[Main.myPlayer].ZoneSnow);
+
+            UgHallow    = new BgmEntry(Bgm.VanillaBgmOf(11), BgmPriority.Environment, () => IsUnderground() && Main.player[Main.myPlayer].ZoneHoly);
+            UgDesert    = new BgmEntry(Bgm.VanillaBgmOf(21), BgmPriority.Environment, () => IsUnderground() && Main.sandTiles > 2200);
+            Underground = new BgmEntry(new AltSupportingBgm(Bgm.VanillaBgmOf(4), Bgm.VanillaBgmOf(31), SwitchMode.Alternate), BgmPriority.Environment, IsUnderground);
+            BloodMoon   = new BgmEntry(Bgm.VanillaBgmOf( 2), BgmPriority.Environment, () => Main.bloodMoon);
+            Rain        = new BgmEntry(Bgm.VanillaBgmOf(19), BgmPriority.Environment, () => Main.cloudAlpha > 0f && !Main.gameMenu);
+            Night       = new BgmEntry(Bgm.VanillaBgmOf( 3), BgmPriority.Environment, () => !Main.dayTime);
+            Hallow      = new BgmEntry(Bgm.VanillaBgmOf( 9), BgmPriority.Environment, () => Main.player[Main.myPlayer].ZoneHoly);
+            Ocean       = new BgmEntry(Bgm.VanillaBgmOf(22), BgmPriority.Environment, IsInOcean);
+            Desert      = new BgmEntry(Bgm.VanillaBgmOf(21), BgmPriority.Environment, () => Main.sandTiles > 2200);
+            Day         = new BgmEntry(new AltSupportingBgm(Bgm.VanillaBgmOf(1), Bgm.VanillaBgmOf(18), SwitchMode.Random), BgmPriority.Environment, () => Main.dayTime);
+
+            Ambient = new BgmEntry(Bgm.VanillaBgmOf(28), BgmPriority.Ambient, () => Main.cloudAlpha > 0f && Main.player[Main.myPlayer].position.Y < Main.worldSurface * 16 + Main.screenHeight / 2 && !Main.player[Main.myPlayer].ZoneSnow);
+
+            PopulateDict();
         }
 
         public static ObjectRef RefOfId(int id)

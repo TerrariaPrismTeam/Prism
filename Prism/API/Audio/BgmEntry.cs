@@ -41,32 +41,21 @@ namespace Prism.API.Audio
         Title
     }
 
-    public class BgmEntry
+    public class BgmEntry : AudioEntry<BgmEntry, BgmRef>
     {
         internal float fade;
 
-        public string InternalName
-        {
-            get;
-            internal set;
-        }
-        public ModInfo Mod
-        {
-            get;
-            internal set;
-        }
-
-        public IBgm Music
+        public virtual IBgm Music
         {
             get;
             private set;
         }
-        public BgmPriority Priority
+        public virtual BgmPriority Priority
         {
             get;
             private set;
         }
-        public Func<bool> ShouldPlay
+        public virtual Func<bool> ShouldPlay
         {
             get;
             private set;
@@ -82,10 +71,6 @@ namespace Prism.API.Audio
         public static implicit operator BgmRef(BgmEntry e)
         {
             return new BgmRef(e.InternalName, e.Mod);
-        }
-        public static explicit operator BgmEntry(BgmRef r)
-        {
-            return r.Resolve();
         }
     }
 }

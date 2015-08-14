@@ -106,6 +106,17 @@ namespace Prism.API
         {
             return Empty<string, BgmEntry>.Dictionary;
         }
+        /// <summary>
+        /// Gets all SFX entries created by the mod.
+        /// </summary>
+        /// <returns>
+        /// A dictionary containing all SFX entry definitions.
+        /// The key of each key/value pair is the internal name of the entry.
+        /// </returns>
+        protected virtual Dictionary<string, SfxEntry> GetSfxes()
+        {
+            return Empty<string, SfxEntry>.Dictionary;
+        }
 
         /// <summary>
         /// Gets all item definitions created by the mod.
@@ -190,6 +201,10 @@ namespace Prism.API
         internal Dictionary<string, BgmEntry> GetBgmsInternally()
         {
             return GetBgms();
+        }
+        internal Dictionary<string, SfxEntry> GetSfxesInternally()
+        {
+            return GetSfxes();
         }
 
         internal Dictionary<string, ItemDef> GetItemDefsInternally()

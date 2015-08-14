@@ -52,7 +52,7 @@ namespace Prism.Mods.Resources
 
                 try
                 {
-                    mod.contentHandler.resources.Add(nf, File.OpenRead(f));
+                    mod.ContentHandler.resources.Add(nf, File.OpenRead(f));
                 }
                 catch (Exception e)
                 {

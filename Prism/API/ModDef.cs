@@ -20,7 +20,6 @@ namespace Prism.API
     /// </summary>
     public abstract class ModDef : HookContainer
     {
-        internal ContentHandler contentHandler;
         internal GameBehaviour gameBehaviour;
 
         /// <summary>
@@ -41,10 +40,28 @@ namespace Prism.API
         }
 
         /// <summary>
+        /// Gets the mod's content handler.
+        /// </summary>
+        public ContentHandler ContentHandler
+        {
+            get;
+            internal set;
+        }
+
+        /// <summary>
         /// Gets the mod's BGM entries.
         /// </summary>
         /// <remarks>The key of the dictionary is the BGM's internal name (without mod internal name).</remarks>
         public Dictionary<string, BgmEntry> BgmEntries
+        {
+            get;
+            internal set;
+        }
+        /// <summary>
+        /// Gets the mod's SFX entries.
+        /// </summary>
+        /// <remarks>The key of the dictionary is the SFX's internal name (without mod internal name).</remarks>
+        public Dictionary<string, SfxEntry> SfxEntries
         {
             get;
             internal set;
@@ -130,10 +147,10 @@ namespace Prism.API
         /// </summary>
         internal void Unload()
         {
-            if (contentHandler != null)
+            if (ContentHandler != null)
             {
-                contentHandler.Unload();
-                contentHandler = null;
+                ContentHandler.Unload();
+                ContentHandler = null;
             }
 
             if (BgmEntries != null)

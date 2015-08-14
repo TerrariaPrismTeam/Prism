@@ -71,7 +71,7 @@ namespace Prism.Mods
         {
             var ret = new List<LoaderError>();
 
-            var ch = mod.contentHandler;
+            var ch = mod.ContentHandler;
 
             mod.ItemDefs = SetEntityModDefs<ItemDef, ItemBehaviour, Item>(mod, ch.GetItemDefsInternally());
             mod.NpcDefs = SetEntityModDefs<NpcDef, NpcBehaviour, NPC>(mod, ch.GetNpcDefsInternally());

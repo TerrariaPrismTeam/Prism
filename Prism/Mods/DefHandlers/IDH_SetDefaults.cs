@@ -51,7 +51,7 @@ namespace Prism.Mods.DefHandlers
             else
                 item.RealSetDefaults(type, noMatCheck);
 
-            var bs = ModLoader.Reloading ? Empty<ItemBehaviour>.Array : ModData.mods.Values.Select(m => m.contentHandler.CreateGlobalItemBInternally()).Where(b => b != null);
+            var bs = ModLoader.Reloading ? Empty<ItemBehaviour>.Array : ModData.mods.Values.Select(m => m.ContentHandler.CreateGlobalItemBInternally()).Where(b => b != null);
 
             if (!ModLoader.Reloading && !bs.IsEmpty() && h == null)
                 h = new ItemBHandler();

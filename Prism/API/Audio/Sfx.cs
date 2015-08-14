@@ -7,9 +7,14 @@ using Terraria;
 
 namespace Prism.API.Audio
 {
-    public static class Sfx
+    public static partial class Sfx
     {
-        internal static void OnPlaySound(int type, int x, int y, int style)
+        internal static Dictionary<string, SfxEntry> VanillaDict = new Dictionary<string, SfxEntry>();
+
+        static Dictionary<SfxEntry, SoundEffectInstance> instanceMap = new Dictionary<SfxEntry, SoundEffectInstance>();
+        static List<SoundEffectInstance> instancePool = new List<SoundEffectInstance>();
+
+        static void PlaySoundVanilla(int type, int x, int y, int style)
         {
             int newStyle = style;
 
@@ -416,7 +421,7 @@ namespace Prism.API.Audio
                         Main.soundInstanceZombie[newStyle].Play();
                     }
                 }
-                else if (type == 30)
+                else if (type == 30) // ambient
                 {
                     newStyle = Main.rand.Next(10, 12);
                     if (Main.rand.Next(300) == 0)
@@ -437,7 +442,7 @@ namespace Prism.API.Audio
 
                     Main.soundInstanceZombie[newStyle].Play();
                 }
-                else if (type == 31)
+                else if (type == 31) // ambient
                 {
                     newStyle = 13;
                     Main.soundInstanceZombie[newStyle] = Main.soundZombie[newStyle].CreateInstance();
@@ -446,7 +451,7 @@ namespace Prism.API.Audio
                     Main.soundInstanceZombie[newStyle].Pitch = Main.rand.Next(-40, 21) * 0.01f;
                     Main.soundInstanceZombie[newStyle].Play();
                 }
-                else if (type == 32)
+                else if (type == 32) // ambient
                 {
                     if (Main.soundInstanceZombie[newStyle].State != SoundState.Playing)
                     {
@@ -457,7 +462,7 @@ namespace Prism.API.Audio
                         Main.soundInstanceZombie[newStyle].Play();
                     }
                 }
-                else if (type == 33)
+                else if (type == 33) // ambient
                 {
                     newStyle = 15;
                     if (Main.soundInstanceZombie[newStyle].State != SoundState.Playing)
@@ -469,7 +474,7 @@ namespace Prism.API.Audio
                         Main.soundInstanceZombie[newStyle].Play();
                     }
                 }
-                else if (type == 34)
+                else if (type == 34) // ambient
                 {
                     float volMult = Math.Min(newStyle / 50f, 1f);
 
@@ -479,21 +484,21 @@ namespace Prism.API.Audio
                         if (Main.soundInstanceLiquid[0].State == SoundState.Playing)
                             Main.soundInstanceLiquid[0].Stop();
 
-                    else if (Main.soundInstanceLiquid[0].State == SoundState.Playing)
-                    {
-                        Main.soundInstanceLiquid[0].Volume = vol;
-                        Main.soundInstanceLiquid[0].Pan = pan;
-                        Main.soundInstanceLiquid[0].Pitch = -0.2f;
-                    }
-                    else
-                    {
-                        Main.soundInstanceLiquid[0] = Main.soundLiquid[0].CreateInstance();
-                        Main.soundInstanceLiquid[0].Volume = vol;
-                        Main.soundInstanceLiquid[0].Pan = pan;
-                        Main.soundInstanceLiquid[0].Play();
-                    }
+                        else if (Main.soundInstanceLiquid[0].State == SoundState.Playing)
+                        {
+                            Main.soundInstanceLiquid[0].Volume = vol;
+                            Main.soundInstanceLiquid[0].Pan = pan;
+                            Main.soundInstanceLiquid[0].Pitch = -0.2f;
+                        }
+                        else
+                        {
+                            Main.soundInstanceLiquid[0] = Main.soundLiquid[0].CreateInstance();
+                            Main.soundInstanceLiquid[0].Volume = vol;
+                            Main.soundInstanceLiquid[0].Pan = pan;
+                            Main.soundInstanceLiquid[0].Play();
+                        }
                 }
-                else if (type == 35)
+                else if (type == 35) // ambient
                 {
                     float volMult = Math.Min(newStyle / 50f, 1f);
 
@@ -503,19 +508,19 @@ namespace Prism.API.Audio
                         if (Main.soundInstanceLiquid[1].State == SoundState.Playing)
                             Main.soundInstanceLiquid[1].Stop();
 
-                    else if (Main.soundInstanceLiquid[1].State == SoundState.Playing)
-                    {
-                        Main.soundInstanceLiquid[1].Volume = vol;
-                        Main.soundInstanceLiquid[1].Pan = pan;
-                        Main.soundInstanceLiquid[1].Pitch = -0f;
-                    }
-                    else
-                    {
-                        Main.soundInstanceLiquid[1] = Main.soundLiquid[1].CreateInstance();
-                        Main.soundInstanceLiquid[1].Volume = vol;
-                        Main.soundInstanceLiquid[1].Pan = pan;
-                        Main.soundInstanceLiquid[1].Play();
-                    }
+                        else if (Main.soundInstanceLiquid[1].State == SoundState.Playing)
+                        {
+                            Main.soundInstanceLiquid[1].Volume = vol;
+                            Main.soundInstanceLiquid[1].Pan = pan;
+                            Main.soundInstanceLiquid[1].Pitch = -0f;
+                        }
+                        else
+                        {
+                            Main.soundInstanceLiquid[1] = Main.soundLiquid[1].CreateInstance();
+                            Main.soundInstanceLiquid[1].Volume = vol;
+                            Main.soundInstanceLiquid[1].Pan = pan;
+                            Main.soundInstanceLiquid[1].Play();
+                        }
                 }
                 else if (type == 36)
                 {
@@ -549,7 +554,7 @@ namespace Prism.API.Audio
                     Main.soundInstanceCoin[n].Pitch = Main.rand.Next(-40, 41) * 0.002f;
                     Main.soundInstanceCoin[n].Play();
                 }
-                else if (type == 39)
+                else if (type == 39) // ambient
                 {
                     Main.soundInstanceDrip[style] = Main.soundDrip[style].CreateInstance();
                     Main.soundInstanceDrip[style].Volume = vol * 0.5f;
@@ -574,6 +579,10 @@ namespace Prism.API.Audio
                     Main.soundInstanceMoonlordCry.Play();
                 }
             }
+        }
+        internal static void OnPlaySound(int type, int x, int y, int style)
+        {
+
         }
     }
 }

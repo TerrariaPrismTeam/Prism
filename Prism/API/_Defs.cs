@@ -177,5 +177,118 @@ namespace Prism.API
                 throw new ArgumentOutOfRangeException("id", "The id must be a vanilla BGM ID.");
             }
         }
+        public partial class Sfx
+        {
+            static DIHelper<SfxEntry> helper = new DIHelper<SfxEntry>(40, "SFX entry", md => md.SfxEntries, VanillaDict, null);
+
+            public static DefIndexer<SfxEntry> Entries
+            {
+                get
+                {
+                    var vanillaDefs = VanillaDict.Select(kvp => new KeyValuePair<ObjectRef, SfxEntry>(new ObjectRef(kvp.Key), kvp.Value));
+                    var modDefs = ModData.Mods.Select(kvp => GetModDefs(kvp)).Flatten();
+
+                    return new DefIndexer<SfxEntry>(vanillaDefs.Concat(modDefs), helper.ByObjRef, ById);
+                }
+            }
+
+            static IEnumerable<KeyValuePair<ObjectRef, SfxEntry>> GetModDefs(KeyValuePair<ModInfo, ModDef> kvp)
+            {
+                return kvp.Value.SfxEntries.SafeSelect(kvp_ => new KeyValuePair<ObjectRef, SfxEntry>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
+            }
+
+            static SfxEntry ById(int id)
+            {
+                switch (id)
+                {
+                    case 0:
+                        return VanillaSfxes.DigBlock;
+                    case 1:
+                        return VanillaSfxes.PlayerHit;
+                    case 2:
+                        return VanillaSfxes.UseItem;
+                    case 3:
+                        return VanillaSfxes.NpcHit;
+                    case 4:
+                        return VanillaSfxes.NpcKilled;
+                    case 5:
+                        return VanillaSfxes.PlayerKilled;
+                    case 6:
+                        return VanillaSfxes.CutGrass;
+                    case 7:
+                        return VanillaSfxes.GrabItem;
+                    case 8:
+                        return VanillaSfxes.DoorOpen;
+                    case 9:
+                        return VanillaSfxes.DoorClose;
+                    case 10:
+                        return VanillaSfxes.MenuOpen;
+                    case 11:
+                        return VanillaSfxes.MenuClose;
+                    case 12:
+                        return VanillaSfxes.MenuTick;
+                    case 13:
+                        return VanillaSfxes.Shatter;
+                    case 14:
+                        return VanillaSfxes.ZombieIdle;
+                    case 15:
+                        return VanillaSfxes.NpcAttackSound;
+                    case 16:
+                        return VanillaSfxes.DoubleJump;
+                    case 17:
+                        return VanillaSfxes.Run;
+                    case 18:
+                        return VanillaSfxes.Buy;
+                    case 19:
+                        return VanillaSfxes.Splash;
+                    case 20:
+                        return VanillaSfxes.FemaleHit;
+                    case 21:
+                        return VanillaSfxes.DigOre;
+                    case 22:
+                        return VanillaSfxes.Unlock;
+                    case 23:
+                        return VanillaSfxes.Drown;
+                    case 24:
+                        return VanillaSfxes.Chat;
+                    case 25:
+                        return VanillaSfxes.MaxMana;
+                    case 26:
+                        return VanillaSfxes.MummyIdle;
+                    case 27:
+                        return VanillaSfxes.PixieIdle;
+                    case 28:
+                        return VanillaSfxes.MechBuzz;
+                    case 29:
+                        return VanillaSfxes.NpcIdleSound;
+                    case 30:
+                        return VanillaSfxes.DuckIdle;
+                    case 31:
+                        return VanillaSfxes.FrogIdle;
+                    case 32:
+                        return VanillaSfxes.NpcIdleSoundQuiet;
+                    case 33:
+                        return VanillaSfxes.BeetleIdle;
+                    case 34:
+                        return VanillaSfxes.AmbientWater;
+                    case 35:
+                        return VanillaSfxes.AmbientLava;
+                    case 36:
+                        return VanillaSfxes.NpcAttackSoundExpert;
+                    case 37:
+                        return VanillaSfxes.Meowmere;
+                    case 38:
+                        return VanillaSfxes.CoinPickup;
+                    case 39:
+                        return VanillaSfxes.AmbientDrip;
+                    case 40:
+                        return VanillaSfxes.Camera;
+                    case 41:
+                        return VanillaSfxes.MoonLordCry;
+                }
+
+                throw new ArgumentOutOfRangeException("id", "The id must be a vanilla SFX ID.");
+            }
+        }
     }
 }

@@ -67,5 +67,20 @@ namespace Prism.Util
 
             return ret;
         }
+
+        public static T[] Subarray<T>(this T[] arr, int s, int l)
+        {
+            if (s == 0 && l == arr.Length)
+                return arr;
+
+            if (s < 0 || s + l >= arr.Length)
+                throw new ArgumentOutOfRangeException();
+
+            var ret = new T[l];
+
+            Array.Copy(arr, s, ret, 0, l);
+
+            return ret;
+        }
     }
 }

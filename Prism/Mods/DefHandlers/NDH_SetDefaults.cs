@@ -61,7 +61,7 @@ namespace Prism.Mods.DefHandlers
             else
                 n.RealSetDefaults(type, scaleOverride);
 
-            var bs = ModLoader.Reloading ? Empty<NpcBehaviour>.Array : ModData.mods.Values.Select(m => m.contentHandler.CreateGlobalNpcBInternally()).Where(b => b != null);
+            var bs = ModLoader.Reloading ? Empty<NpcBehaviour>.Array : ModData.mods.Values.Select(m => m.ContentHandler.CreateGlobalNpcBInternally()).Where(b => b != null);
 
             if (!ModLoader.Reloading && !bs.IsEmpty() && h == null)
                 h = new NpcBHandler();

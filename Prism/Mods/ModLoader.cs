@@ -158,8 +158,8 @@ namespace Prism.Mods
             ModData.mods                .Add(mod.Info             , mod);
             ModData.modsFromInternalName.Add(mod.Info.InternalName, mod);
 
-            mod.contentHandler = mod.CreateContentHandlerInternally();
-            mod.contentHandler.Adopt(mod.Info);
+            mod.ContentHandler = mod.CreateContentHandlerInternally();
+            mod.ContentHandler.Adopt(mod.Info);
 
             errors.AddRange(ResourceLoader .Load(mod));
             errors.AddRange(ContentLoader  .Load(mod));
