@@ -127,7 +127,11 @@ namespace Prism.Mods.DefHandlers
                                     ? ProjectileDamageType.Ranged
                                     : proj.magic
                                         ? ProjectileDamageType.Magic
-                                        : ProjectileDamageType.None;
+                                        : proj.minion
+                                            ? ProjectileDamageType.Summoner
+                                            : proj.thrown
+                                                ? ProjectileDamageType.Thrown
+                                                : ProjectileDamageType.None;
 
             def.TotalFrameCount = Main.projFrames [def.Type];
             def.IsHook          = Main.projHook   [def.Type];
@@ -156,6 +160,8 @@ namespace Prism.Mods.DefHandlers
             proj.melee   = def.DamageType == ProjectileDamageType.Melee;
             proj.ranged  = def.DamageType == ProjectileDamageType.Ranged;
             proj.magic   = def.DamageType == ProjectileDamageType.Magic;
+            proj.minion  = def.DamageType == ProjectileDamageType.Summoner;
+            proj.thrown  = def.DamageType == ProjectileDamageType.Thrown;
             proj.hostile = def.IsHostile;
             proj.aiStyle = (int)def.AiStyle;
             //tar.counterweight;

@@ -21,8 +21,8 @@ namespace Prism.API.Defs
         /// </summary>
         Arrow = 1,
         /// <summary>
-        /// Shuriken projectile AI. Affected by gravity. 
-        /// <para/><b>Used by:</b>Shuriken, Throwing Knife, Holy Water 
+        /// Shuriken projectile AI. Affected by gravity.
+        /// <para/><b>Used by:</b>Shuriken, Throwing Knife, Holy Water
         /// </summary>
         Shuriken = 2,
         /// <summary>
@@ -47,7 +47,7 @@ namespace Prism.API.Defs
         Powder = 6,
         /// <summary>
         /// Grappling Hook AI. Projectile attaches to blocks.
-        /// <para/><b>Used by:</b>Grappling Hook, the Gem Hooks, Dual Hook 
+        /// <para/><b>Used by:</b>Grappling Hook, the Gem Hooks, Dual Hook
         /// </summary>
         Hook = 7,
         /// <summary>
@@ -493,7 +493,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Flying piggy bank AI. (NeedDesc)
         /// <para/><b>Used by:</b>Money Through
-        /// </summary> 
+        /// </summary>
         FlyingPiggyBank = 97,
         /// <summary>
         /// (NeedDesc)
@@ -613,7 +613,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Stardust Dragon AI. Projectile will fly around you and home into enemies.
         /// <para/><b>Used by:</b>
-        /// </summary>        
+        /// </summary>
         StardustDragon = 121,
         /// <summary>
         /// (NeedsDesc)
@@ -623,7 +623,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Lunar Portal AI. Projectile will stay stationary in the sky.
         /// <para/><b>Used by:</b>Lunar Portal
-        /// </summary>        
+        /// </summary>
         LunarPortal = 123,
         /// <summary>
         /// Suspicious Looking Tentacle AI. Projectile will fly around you and (maybe?) light nearby ores and treasure.
@@ -657,7 +657,6 @@ namespace Prism.API.Defs
     /// </summary>
     public enum TrailingMode
     {
-
         None = -1,
         /// <summary>
         /// ?TrailingMode0?
