@@ -25,11 +25,11 @@ namespace Prism.API.Audio
         }
         static SfxEntry GetVanilla(SoundEffect[] es, SfxPlayBehaviour b = SfxPlayBehaviour.Singleton, bool ambient = false)
         {
-            return new SfxEntry(i => es[i == -1 ? Main.rand.Next(es.Length) : i].CreateInstance(), es.Length, _ => b, ambient);
+            return new SfxEntry(i => es[i == -1 || i >= es.Length ? Main.rand.Next(es.Length) : i].CreateInstance(), es.Length, _ => b, ambient);
         }
         static SfxEntry GetVanilla(SoundEffect[] es, Func<int, SfxPlayBehaviour> b, bool ambient = false)
         {
-            return new SfxEntry(i => es[i == -1 ? Main.rand.Next(es.Length) : i].CreateInstance(), es.Length,      b, ambient);
+            return new SfxEntry(i => es[i == -1 || i >= es.Length ? Main.rand.Next(es.Length) : i].CreateInstance(), es.Length,      b, ambient);
         }
 
         static void PopulateDict()

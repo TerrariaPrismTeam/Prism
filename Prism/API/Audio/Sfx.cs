@@ -114,7 +114,7 @@ namespace Prism.API.Audio
 
             var t = CalcParams(entry, position, variant, onPlay);
 
-            if (t == null)
+            if (t == null || t.Item2 <= 0f)
                 return null;
 
             SoundEffectInstance inst;
@@ -138,7 +138,11 @@ namespace Prism.API.Audio
                             return null;
                     }
                     else
+                    {
                         inst = entry.GetInstance(variant);
+
+                        instanceMap.Add(kvp, inst);
+                    }
                     break;
                 case SfxPlayBehaviour.Singleton:
                     if (instanceMap.ContainsKey(kvp))
@@ -146,9 +150,13 @@ namespace Prism.API.Audio
                         var inst_ = instanceMap[kvp];
 
                         inst_.Stop();
+
+                        instanceMap.Remove(kvp);
                     }
 
                     inst = entry.GetInstance(variant);
+
+                    instanceMap.Add(kvp, inst);
                     break;
                 // required, compiler will complain about 'inst' not being assigned to otherwise
                 // and this is more foolproof than setting 'inst' to null.
@@ -156,8 +164,7 @@ namespace Prism.API.Audio
                     return null;
             }
 
-            if (b != SfxPlayBehaviour.PlayIfStopped)
-                ApplyParams(inst, t);
+            ApplyParams(inst, t);
 
             inst.Play(); // !
 
