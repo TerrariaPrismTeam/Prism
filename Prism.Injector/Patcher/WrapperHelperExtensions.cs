@@ -14,33 +14,6 @@ namespace Prism.Injector.Patcher
             SingletonTRArr = new TypeReference[1];
 
         /// <summary>
-        /// Gets the ldarg instruction of the specified index using the smallest value type it can (because we're targeting the Sega Genesis and need to save memory).
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        static Instruction GetLdargOf(this IList<ParameterDefinition> @params, ushort index, bool isInstance = true)
-        {
-            int offset = isInstance ? 1 : 0;
-
-            switch (index)
-            {
-                case 0:
-                    return Instruction.Create(OpCodes.Ldarg_0);
-                case 1:
-                    return Instruction.Create(OpCodes.Ldarg_1);
-                case 2:
-                    return Instruction.Create(OpCodes.Ldarg_2);
-                case 3:
-                    return Instruction.Create(OpCodes.Ldarg_3);
-                default:
-                    if (index <= Byte.MaxValue)
-                        return Instruction.Create(OpCodes.Ldarg_S, @params[index - offset]);
-                    //Y U NO HAVE USHORT
-                    return Instruction.Create(OpCodes.Ldarg, @params[index]);
-            }
-        }
-
-        /// <summary>
         /// Replaces all method references with the specified reference within the specified context.
         /// </summary>
         /// <param name="context">The current <see cref="CecilContext"/>.</param>
@@ -171,6 +144,8 @@ namespace Prism.Injector.Patcher
 
             ilproc.Emit(OpCodes.Ldsfld, hookField);
 
+            //ilproc.EmitWrapperCall(toHook);
+
             for (ushort i = 0; i < toHook.Parameters.Count + (toHook.IsStatic ? 0 : 1); i++)
                 ilproc.Append(toHook.Parameters.GetLdargOf(i, !toHook.IsStatic));
 
@@ -179,6 +154,8 @@ namespace Prism.Injector.Patcher
             ilproc.Emit(OpCodes.Ret);
 
             ilproc.Append(VANILLA);
+
+            //ilproc.EmitWrapperCall(realMethod.Resolve());
 
             for (ushort i = 0; i < toHook.Parameters.Count + (toHook.IsStatic ? 0 : 1); i++)
                 ilproc.Append(toHook.Parameters.GetLdargOf(i, !toHook.IsStatic));

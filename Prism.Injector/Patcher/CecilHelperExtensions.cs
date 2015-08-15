@@ -8,6 +8,33 @@ namespace Prism.Injector.Patcher
 {
     public static class CecilHelperExtensions
     {
+        /// <summary>
+        /// Gets the ldarg instruction of the specified index using the smallest value type it can (because we're targeting the Sega Genesis and need to save memory).
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        internal static Instruction GetLdargOf(this IList<ParameterDefinition> @params, ushort index, bool isInstance = true)
+        {
+            int offset = isInstance ? 1 : 0;
+
+            switch (index)
+            {
+                case 0:
+                    return Instruction.Create(OpCodes.Ldarg_0);
+                case 1:
+                    return Instruction.Create(OpCodes.Ldarg_1);
+                case 2:
+                    return Instruction.Create(OpCodes.Ldarg_2);
+                case 3:
+                    return Instruction.Create(OpCodes.Ldarg_3);
+                default:
+                    if (index <= Byte.MaxValue)
+                        return Instruction.Create(OpCodes.Ldarg_S, @params[index - offset]);
+                    //Y U NO HAVE USHORT
+                    return Instruction.Create(OpCodes.Ldarg, @params[index]);
+            }
+        }
+
         public static TypeDefinition CreateDelegate(this CecilContext context, string @namespace, string name, TypeReference returnType, out MethodDefinition invoke, params TypeReference[] parameters)
         {
             var cResolver = context.Resolver;
@@ -83,26 +110,27 @@ namespace Prism.Injector.Patcher
         public static void ReplaceInstructions(this ILProcessor p, IEnumerable<Instruction> orig, IEnumerable<Instruction> repl)
         {
             if (!orig.Chronological(null, i => i.Next) || !repl.Chronological(null, i => i.Next))
-            {
                 Console.Error.WriteLine("Error: Both sequences in CecilHelper.ReplaceInstructions(ILProcessor, IEnumerable<Instruction>, IEnumerable<Instruction>) must be chronological.");
-            }
+
             Instruction firstOrig = orig.First();
 
             foreach (var i in repl)
-            {
                 p.InsertBefore(firstOrig, i);
-            }
 
             p.RemoveInstructions(orig);
         }
-        public static void RemoveInstructions(this ILProcessor p, IEnumerable<Instruction> instrs)
+        public static Instruction RemoveInstructions(this ILProcessor p, IEnumerable<Instruction> instrs)
         {
+            Instruction n = null;
             foreach (var i in instrs)
             {
+                n = i.Next;
                 p.Remove(i);
             }
+
+            return n;
         }
-        public static void RemoveInstructions(this ILProcessor p, Instruction first, int count)
+        public static Instruction RemoveInstructions(this ILProcessor p, Instruction first, int count)
         {
             var cur = first;
             for (int i = 0; i < count; i++)
@@ -114,6 +142,26 @@ namespace Prism.Injector.Patcher
                 p.Remove(cur);
                 cur = n;
             }
+
+            return cur;
+        }
+        // callee must have the same args as the calling method
+        // if the callee is an instance method, the object must be placed on the stack first
+        public static void EmitWrapperCall(this ILProcessor proc, MethodDefinition toCall, Instruction before = null)
+        {
+            //var caller = proc.Body.Method;
+
+            for (ushort i = 0; i < toCall.Parameters.Count /*+ (toCall.IsStatic ? 0 : 1)*/; i++)
+                if (before == null)
+                    proc.Append(toCall.Parameters.GetLdargOf(i, !toCall.IsStatic/*false*/));
+                else
+                    proc.InsertBefore(before, toCall.Parameters.GetLdargOf(i, !toCall.IsStatic/*false*/));
+
+            var c = toCall.IsVirtual ? OpCodes.Callvirt : OpCodes.Call;
+            if (before == null)
+                proc.Emit(c, toCall);
+            else
+                proc.InsertBefore(before, Instruction.Create(c, toCall));
         }
     }
 }

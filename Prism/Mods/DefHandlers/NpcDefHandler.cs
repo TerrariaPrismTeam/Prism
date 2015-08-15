@@ -98,11 +98,11 @@ namespace Prism.Mods.DefHandlers
             if (npc.P_SoundOnHit as SfxRef != null)
                 def.SoundOnHit = (SfxRef)npc.P_SoundOnHit;
             else
-                def.SoundOnHit = VanillaSfxes.NpcHit[npc.soundHit];
+                def.SoundOnHit = new SfxRef("NpcHit", variant: npc.soundHit);
             if (npc.P_SoundOnDeath as SfxRef != null)
                 def.SoundOnDeath = (SfxRef)npc.P_SoundOnDeath;
             else
-                def.SoundOnDeath = VanillaSfxes.NpcKilled[npc.soundKilled];
+                def.SoundOnDeath = new SfxRef("NpcKilled", variant: npc.soundKilled);
 
             def.BuffImmunities.Clear();
             for (int i = 0; i < npc.buffImmune.Length; i++)
@@ -174,8 +174,8 @@ namespace Prism.Mods.DefHandlers
 
             npc.P_SoundOnHit   = def.SoundOnHit  ;
             npc.P_SoundOnDeath = def.SoundOnDeath;
-            npc.soundHit    = def.SoundOnHit   == null ? 1 : def.SoundOnHit  .VariantID;
-            npc.soundKilled = def.SoundOnDeath == null ? 1 : def.SoundOnDeath.VariantID;
+            npc.soundHit    = def.SoundOnHit   == null ? 0 : def.SoundOnHit  .VariantID;
+            npc.soundKilled = def.SoundOnDeath == null ? 0 : def.SoundOnDeath.VariantID;
 
             for (int i = 0; i < def.BuffImmunities.Count; i++)
                 npc.buffImmune[i] = true;

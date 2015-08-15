@@ -520,7 +520,8 @@ namespace Prism.API.Defs
 
             CreateWall = -1;
 
-            UseSound = VanillaSfxes.UseItem[1];
+            // null when filling vanilla items
+            UseSound = new SfxRef("UseItem", variant: 1);
         }
 
         public ItemDef(string displayName, JsonData json,

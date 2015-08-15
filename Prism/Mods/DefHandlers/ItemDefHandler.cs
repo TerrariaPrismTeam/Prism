@@ -120,7 +120,7 @@ namespace Prism.Mods.DefHandlers
             if (item.P_UseSound as SfxRef != null)
                 def.UseSound = (SfxRef)item.P_UseSound;
             else
-                def.UseSound = VanillaSfxes.UseItem[item.useSound];
+                def.UseSound = new SfxRef("UseItem", variant: item.useSound);
 
             #region ArmourData
             def.ArmourData = new ItemArmourData(() =>

@@ -54,6 +54,41 @@ namespace Prism
             ElapsedTime = 0;
         }
 
+        static void PlayUseSound(Item i, Player p)
+        {
+            if (i.P_UseSound as SfxRef != null)
+            {
+                var r = (SfxRef)i.P_UseSound;
+
+                Sfx.Play(r.Resolve(), p.position, r.VariantID);
+            }
+            else if (i.useSound > 0)
+                Sfx.Play(VanillaSfxes.UseItem, p.position, i.useSound);
+        }
+
+        static void PlayHitSound   (NPC n)
+        {
+            if (n.P_SoundOnHit as SfxRef != null)
+            {
+                var r = (SfxRef)n.P_SoundOnHit;
+
+                Sfx.Play(r.Resolve(), n.position, r.VariantID);
+            }
+            else if (n.soundHit > 0)
+                Sfx.Play(VanillaSfxes.NpcHit, n.position, n.soundHit);
+        }
+        static void PlayKilledSound(NPC n)
+        {
+            if (n.P_SoundOnDeath as SfxRef != null)
+            {
+                var r = (SfxRef)n.P_SoundOnDeath;
+
+                Sfx.Play(r.Resolve(), n.position, r.VariantID);
+            }
+            else if (n.soundKilled > 0)
+                Sfx.Play(VanillaSfxes.NpcKilled, n.position, n.soundKilled);
+        }
+
         static void HookWrappedMethods()
         {
             P_OnUpdateMusic += Bgm.Update;
@@ -70,6 +105,11 @@ namespace Prism
 
             NPC.P_OnNewNPC += NpcHooks.OnNewNPC;
             NPC.P_OnAI     += NpcHooks.OnAI;
+
+            NPC.P_ReflectProjectile_PlaySoundHit += (n, _) => PlayHitSound(n);
+            NPC.P_StrikeNPC_PlaySoundHit += (n, _d, _kb, _hd, _c, _ne, _fn) => PlayHitSound(n);
+            NPC.P_checkDead_PlaySoundKilled += PlayKilledSound;
+            NPC.P_RealAI_PlaySoundKilled += PlayKilledSound;
         }
 
         protected override void Initialize()
@@ -89,7 +129,6 @@ namespace Prism
             versionNumber += ", mods loaded: " + ModData.Mods.Count +
                 (ModLoader.errors.Count > 0 ? ", load errors: " + ModLoader.errors.Count : String.Empty);
         }
-
         protected override void LoadContent()
         {
             WhitePixel = new Texture2D(GraphicsDevice, 1, 1);
@@ -97,7 +136,6 @@ namespace Prism
 
             base.LoadContent();
         }
-
         protected override void UnloadContent()
         {
             ModLoader.Unload();
@@ -159,7 +197,6 @@ namespace Prism
 
             prevGameMenu = gameMenu;
         }
-
         protected override void Draw  (GameTime gt)
         {
             try

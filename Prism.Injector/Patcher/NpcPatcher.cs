@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 
 namespace Prism.Injector.Patcher
 {
@@ -94,6 +95,155 @@ namespace Prism.Injector.Patcher
             for (int i = insertBefore.Length - 1; i >= 0; i--)
                 nnilp.InsertAfter(prev, insertBefore[i]);*/
         }
+        static void ReplaceSoundHitCalls()
+        {
+            #region ReflectProjectile
+            { // introduce a new scope level here so variables can be reused in the StrikeNPC part
+                var reflectProjectile = typeDef_NPC.GetMethod("ReflectProjectile");
+
+                // first statement in the method is "Main.PlaySound(...);"
+                // instruction after the "call Main.PlaySound" is a ldc.i4.0 (first one in the method)
+
+                MethodDefinition invokeSoundHit;
+                var onReflProjSoundHit = context.CreateDelegate("Terraria.PrismInjections", "NPC_ReflectProjectile_PlaySoundHitDel", typeSys.Void, out invokeSoundHit, typeDef_NPC, typeSys.Int32);
+
+                var reflectProjectile_PlaySoundHit = new FieldDefinition("P_ReflectProjectile_PlaySoundHit", FieldAttributes.Public | FieldAttributes.Static, onReflProjSoundHit);
+                typeDef_NPC.Fields.Add(reflectProjectile_PlaySoundHit);
+
+                var rpproc = reflectProjectile.Body.GetILProcessor();
+
+                rpproc.RemoveInstructions(reflectProjectile.Body.Instructions.TakeWhile(i => i.OpCode.Code != Code.Ldc_I4_0).ToArray() /* must enumerate this already, invalidoperation will be thrown otherwise */);
+
+                var first = reflectProjectile.Body.Instructions[0];
+
+                rpproc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, reflectProjectile_PlaySoundHit));
+                rpproc.EmitWrapperCall(invokeSoundHit, first);
+            }
+            #endregion
+
+            #region StrikeNPC
+            {
+                var strikeNpc = typeDef_NPC.GetMethod("StrikeNPC");
+
+                MethodDefinition invokeSoundHit;
+                var onStrikeNpcSoundHit = context.CreateDelegate("Terraria.PrismInjections", "NPC_StrikeNPC_PlaySoundHitDel", typeSys.Void, out invokeSoundHit,
+                    typeDef_NPC, typeSys.Int32, typeSys.Single, typeSys.Int32, typeSys.Boolean, typeSys.Boolean, typeSys.Boolean);
+
+                var strikeNpc_PlaySoundHit = new FieldDefinition("P_StrikeNPC_PlaySoundHit", FieldAttributes.Public | FieldAttributes.Static, onStrikeNpcSoundHit);
+                typeDef_NPC.Fields.Add(strikeNpc_PlaySoundHit);
+
+                OpCode[] toRem =
+                {
+                    OpCodes.Ldarg_0,
+                    OpCodes.Ldfld, // NPC.soundHit
+                    OpCodes.Ldc_I4_0,
+                    OpCodes.Ble_S, // <after the call>
+
+                    OpCodes.Ldc_I4_3, // soundHit ID
+                    OpCodes.Ldarg_0,
+                    OpCodes.Ldflda, // Entity.position
+                    OpCodes.Ldfld, // Vector2.X
+                    OpCodes.Conv_I4,
+                    OpCodes.Ldarg_0,
+                    OpCodes.Ldflda, // Entity.position
+                    OpCodes.Ldfld, // Vector2.X
+                    OpCodes.Conv_I4,
+                    OpCodes.Ldarg_0,
+                    OpCodes.Ldfld, // NPC.soundHit
+                    OpCodes.Call // Main.PlaySound(int, int, int, int)
+                };
+
+                var snproc = strikeNpc.Body.GetILProcessor();
+
+                var first = strikeNpc.Body.FindInstrSeqStart(toRem);
+                first = snproc.RemoveInstructions(first, toRem.Length);
+
+                snproc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, strikeNpc_PlaySoundHit));
+                snproc.EmitWrapperCall(invokeSoundHit, first);
+            }
+            #endregion
+        }
+        static void ReplaceSoundKilledCalls()
+        {
+            #region checkDead
+            {
+                var checkDead = typeDef_NPC.GetMethod("checkDead");
+
+                MethodDefinition invokeSoundKilled;
+                var onCheckDeadSoundKilled = context.CreateDelegate("Terraria.PrismInjections", "NPC_checkDead_PlaySoundKilledDel", typeSys.Void, out invokeSoundKilled, typeDef_NPC);
+
+                var checkDead_PlaySoundKilled = new FieldDefinition("P_checkDead_PlaySoundKilled", FieldAttributes.Public | FieldAttributes.Static, onCheckDeadSoundKilled);
+                typeDef_NPC.Fields.Add(checkDead_PlaySoundKilled);
+
+                OpCode[] toRem =
+                {
+                    OpCodes.Ldarg_0,
+                    OpCodes.Ldfld, // NPC.soundKilled
+                    OpCodes.Ldc_I4_0,
+                    OpCodes.Ble_S, // <after the call>
+
+                    OpCodes.Ldc_I4_4, // soundKilled ID
+                    OpCodes.Ldarg_0,
+                    OpCodes.Ldflda, // Entity.position
+                    OpCodes.Ldfld, // Vector2.X
+                    OpCodes.Conv_I4,
+                    OpCodes.Ldarg_0,
+                    OpCodes.Ldflda, // Entity.position
+                    OpCodes.Ldfld, // Vector2.X
+                    OpCodes.Conv_I4,
+                    OpCodes.Ldarg_0,
+                    OpCodes.Ldfld, // NPC.soundKilled
+                    OpCodes.Call // Main.PlaySound(int, int, int, int)
+                };
+
+                var cdproc = checkDead.Body.GetILProcessor();
+
+                var first = checkDead.Body.FindInstrSeqStart(toRem);
+                first = cdproc.RemoveInstructions(first, toRem.Length);
+
+                cdproc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, checkDead_PlaySoundKilled));
+                cdproc.EmitWrapperCall(invokeSoundKilled, first);
+            }
+            #endregion
+
+            #region RealAI
+            {
+                // this happens AFTER AI has been wrapped, thus RealAI has to be used instead of AI
+
+                var realAI = typeDef_NPC.GetMethod("RealAI");
+
+                MethodDefinition invokeSoundKilled;
+                var onRealAISoundKilled = context.CreateDelegate("Terraria.PrismInjections", "NPC_RealAI_PlaySoundKilledDel", typeSys.Void, out invokeSoundKilled, typeDef_NPC);
+
+                var realAI_PlaySoundKilled = new FieldDefinition("P_RealAI_PlaySoundKilled", FieldAttributes.Public | FieldAttributes.Static, onRealAISoundKilled);
+                typeDef_NPC.Fields.Add(realAI_PlaySoundKilled);
+
+                OpCode[] toRem =
+                {
+                    OpCodes.Ldc_I4_4, // soundKilled ID
+                    OpCodes.Ldarg_0,
+                    OpCodes.Ldflda, // Entity.position
+                    OpCodes.Ldfld, // Vector2.X
+                    OpCodes.Conv_I4,
+                    OpCodes.Ldarg_0,
+                    OpCodes.Ldflda, // Entity.position
+                    OpCodes.Ldfld, // Vector2.X
+                    OpCodes.Conv_I4,
+                    OpCodes.Ldarg_0,
+                    OpCodes.Ldfld, // NPC.soundKilled
+                    OpCodes.Call // Main.PlaySound(int, int, int, int)
+                };
+
+                var raproc = realAI.Body.GetILProcessor();
+
+                var first = realAI.Body.FindInstrSeqStart(toRem);
+                first = raproc.RemoveInstructions(first, toRem.Length);
+
+                raproc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, realAI_PlaySoundKilled));
+                raproc.EmitWrapperCall(invokeSoundKilled, first);
+            }
+            #endregion
+        }
 
         internal static void Patch()
         {
@@ -108,6 +258,8 @@ namespace Prism.Injector.Patcher
             AddFieldsForAudio();
             WrapAI();
             InsertInitialize();
+            ReplaceSoundHitCalls();
+            ReplaceSoundKilledCalls();
         }
     }
 }

@@ -178,11 +178,11 @@ namespace Prism.API.Audio
         {
             return Play(entry, position, variant, (SfxEntry e, Vector2 p, ref int v, ref float vol, ref float pi, ref float pan) =>
             {
-                if (!Single.IsNaN(vol))
+                if (!Single.IsNaN(volMod))
                     vol *= volMod;
-                if (!Single.IsNaN(pi ))
+                if (!Single.IsNaN(pitch ))
                     pi = pitch;
-                if (!Single.IsNaN(pan))
+                if (!Single.IsNaN(panMod))
                     pan *= panMod;
 
                 return true;

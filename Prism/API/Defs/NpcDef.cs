@@ -371,8 +371,7 @@ namespace Prism.API.Defs
             Width = Height = 16;
             MaxLife = lifeMax;
 
-            SoundOnHit   = VanillaSfxes.NpcHit   [1];
-            SoundOnDeath = VanillaSfxes.NpcKilled[1];
+            SoundOnHit = SoundOnDeath = null;
 
             TrailCacheLength = 10;
             FrameCount = 1;
