@@ -9,20 +9,26 @@ namespace Prism.API.Audio
 {
     public class SfxRef : EntityRef<SfxEntry>
     {
-        public SfxRef(ObjectRef objRef)
+        public int VariantID
+        {
+            get;
+            internal set;
+        }
+
+        public SfxRef(ObjectRef objRef, int variant = -1)
             : base(objRef, Assembly.GetCallingAssembly())
         {
-
+            VariantID = variant;
         }
-        public SfxRef(string resourceName, ModInfo mod)
+        public SfxRef(string resourceName, ModInfo mod, int variant = -1)
             : base(new ObjectRef(resourceName, mod), Assembly.GetCallingAssembly())
         {
-
+            VariantID = variant;
         }
-        public SfxRef(string resourceName, string modName = null)
+        public SfxRef(string resourceName, string modName = null, int variant = -1)
             : base(new ObjectRef(resourceName, modName), Assembly.GetCallingAssembly())
         {
-
+            VariantID = variant;
         }
 
         public override SfxEntry Resolve()

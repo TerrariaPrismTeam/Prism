@@ -34,7 +34,7 @@ namespace Prism.ExampleMod
                     UseAnimation = 8,
                     MaxStack = 1,
                     Rarity = ItemRarity.Yellow,
-                    UseSound = 1,
+                    UseSound = VanillaSfxes.UseItem[1],
                     Damage = 80,
                     Knockback = 4f,
                     Width = 30,
@@ -54,7 +54,7 @@ namespace Prism.ExampleMod
                     UseAnimation = 16,
                     MaxStack = 1,
                     Rarity = ItemRarity.Cyan,
-                    UseSound = 1,
+                    UseSound = VanillaSfxes.UseItem[1],
                     Damage = 150,
                     Knockback = 10f,
                     Width = 30,
@@ -101,8 +101,8 @@ namespace Prism.ExampleMod
                     IsSummonableBoss = true,
                     Music = new BgmRef("QueenBee"),
                     IgnoreGravity = true, //!!! BEEEEP BOOOOP
-                    SoundOnHit = 13,
-                    SoundOnDeath = 11
+                    SoundOnHit = VanillaSfxes.NpcHit[13],
+                    SoundOnDeath = VanillaSfxes.NpcKilled[11]
                 } },
                 { "PizzaGodJr", new NpcDef("Pizza God Jr.", () => new PizzaGodJrBehaviour(), 266, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
                 {   FrameCount = 1,
@@ -117,7 +117,7 @@ namespace Prism.ExampleMod
                     Value = NpcValue.Zero,
                     AiStyle = NpcAiStyle.None,
                     IgnoreGravity = false,
-                    SoundOnDeath = 6
+                    SoundOnDeath = VanillaSfxes.NpcKilled[11]
                 } },
             };
         }

@@ -4,6 +4,7 @@ using System.Linq;
 using LitJson;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Prism.API.Audio;
 using Prism.API.Behaviours;
 using Prism.Util;
 using Terraria;
@@ -445,7 +446,7 @@ namespace Prism.API.Defs
         /// Gets or sets the use sound effect of this item.
         /// </summary>
         /// <remarks>Item.useSound</remarks>
-        public virtual int UseSound
+        public virtual SfxRef UseSound
         {
             get;
             set;
@@ -505,7 +506,7 @@ namespace Prism.API.Defs
         {
             GetTexture = getTexture ?? Empty<Texture2D>.Func;
 
-            ArmourData = new ItemArmourData(null, null, null);
+            ArmourData = new ItemArmourData(null, null, null, null);
 
             Width = Height = 16;
             MaxStack = 1;
@@ -518,6 +519,8 @@ namespace Prism.API.Defs
             Colour = Color.White;
 
             CreateWall = -1;
+
+            UseSound = VanillaSfxes.UseItem[1];
         }
 
         public ItemDef(string displayName, JsonData json,
@@ -625,7 +628,7 @@ namespace Prism.API.Defs
             if (json.Has("createTile"))
                 CreateTile = json["createTile"].ParseTileRef();
 
-            UseSound = json.Has("useSound") ? (int)json["useSound"] : 1;
+            UseSound = VanillaSfxes.NpcHit[json.Has("useSound") ? (int)json["useSound"] : 1];
             CreateWall = json.Has("createWall") ? (int)json["createWall"] : -1;
         }
 

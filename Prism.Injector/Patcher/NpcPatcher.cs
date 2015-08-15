@@ -22,9 +22,11 @@ namespace Prism.Injector.Patcher
         {
             typeDef_NPC.Fields.Add(new FieldDefinition("P_BHandler", FieldAttributes.Public, typeSys.Object));
         }
-        static void AddFieldForMusic()
+        static void AddFieldsForAudio()
         {
-            typeDef_NPC.Fields.Add(new FieldDefinition("P_Music", FieldAttributes.Public, typeSys.Object));
+            typeDef_NPC.Fields.Add(new FieldDefinition("P_Music"       , FieldAttributes.Public, typeSys.Object));
+            typeDef_NPC.Fields.Add(new FieldDefinition("P_SoundOnHit"  , FieldAttributes.Public, typeSys.Object));
+            typeDef_NPC.Fields.Add(new FieldDefinition("P_SoundOnDeath", FieldAttributes.Public, typeSys.Object));
         }
         static void WrapAI()
         {
@@ -103,7 +105,7 @@ namespace Prism.Injector.Patcher
 
             WrapSetDefaults();
             AddFieldForBHandler();
-            AddFieldForMusic();
+            AddFieldsForAudio();
             WrapAI();
             InsertInitialize();
         }

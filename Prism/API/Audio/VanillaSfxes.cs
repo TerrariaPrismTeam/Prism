@@ -83,8 +83,8 @@ namespace Prism.API.Audio
             NpcKilled = GetVanilla(Main.soundNPCKilled, v => v == 10 /* wall of flesh  */ ? SfxPlayBehaviour.PlayIfStopped : SfxPlayBehaviour.MultipleInstances);
 
             PlayerKilled = GetVanilla(Main.soundPlayerKilled);
-            CutGrass        = GetVanilla(Main.soundGrass       );
-            GrabItem         = GetVanilla(Main.soundGrab        );
+            CutGrass     = GetVanilla(Main.soundGrass       );
+            GrabItem     = GetVanilla(Main.soundGrab        );
             DoorOpen     = GetVanilla(Main.soundDoorOpen    );
             DoorClose    = GetVanilla(Main.soundDoorClosed  );
             MenuClose    = GetVanilla(Main.soundMenuClose   );

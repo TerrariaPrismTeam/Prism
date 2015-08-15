@@ -274,7 +274,7 @@ namespace Prism.Injector.Patcher
         }
         static void WrapPlaySound()
         {
-            typeDef_Main.GetMethod("PlaySound", MethodFlags.Static | MethodFlags.Public, typeSys.Int32, typeSys.Int32, typeSys.Int32, typeSys.Int32).Wrap(context);
+            typeDef_Main.GetMethod("PlaySound", MethodFlags.Static | MethodFlags.Public, typeSys.Int32, typeSys.Int32, typeSys.Int32, typeSys.Int32).Wrap(context, "Terraria.PrismInjections", "Main_PlaySoundDel", "P_OnPlaySound");
         }
 
         internal static void Patch()

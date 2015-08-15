@@ -79,8 +79,6 @@ namespace Prism.Mods.DefHandlers
             def.Defense             = npc.defense;
             def.Alpha               = npc.alpha;
             def.MaxLife             = npc.lifeMax;
-            def.SoundOnHit          = npc.soundHit;
-            def.SoundOnDeath        = npc.soundKilled;
             def.IgnoreTileCollision = npc.noTileCollide;
             def.IgnoreGravity       = npc.noGravity;
             def.IsBoss              = npc.boss;
@@ -96,6 +94,15 @@ namespace Prism.Mods.DefHandlers
             def.MaxLife             = npc.lifeMax;
             def.GetTexture          = () => Main.npcTexture[npc.type];
             def.IsImmortal          = npc.immortal;
+
+            if (npc.P_SoundOnHit as SfxRef != null)
+                def.SoundOnHit = (SfxRef)npc.P_SoundOnHit;
+            else
+                def.SoundOnHit = VanillaSfxes.NpcHit[npc.soundHit];
+            if (npc.P_SoundOnDeath as SfxRef != null)
+                def.SoundOnDeath = (SfxRef)npc.P_SoundOnDeath;
+            else
+                def.SoundOnDeath = VanillaSfxes.NpcKilled[npc.soundKilled];
 
             def.BuffImmunities.Clear();
             for (int i = 0; i < npc.buffImmune.Length; i++)
@@ -150,8 +157,6 @@ namespace Prism.Mods.DefHandlers
             npc.defense         = def.Defense;
             npc.alpha           = def.Alpha;
             npc.lifeMax         = def.MaxLife;
-            npc.soundHit        = def.SoundOnHit;
-            npc.soundKilled     = def.SoundOnDeath;
             npc.noTileCollide   = def.IgnoreTileCollision;
             npc.noGravity       = def.IgnoreGravity;
             npc.boss            = def.IsBoss;
@@ -166,6 +171,11 @@ namespace Prism.Mods.DefHandlers
             npc.value           = (def.Value.Min.Value + def.Value.Max.Value) / 2; //Main.rand.Next(def.Value.Min.Value, def.Value.Max.Value); // close enough
             npc.aiStyle         = (int)def.AiStyle;
             npc.immortal        = def.IsImmortal;
+
+            npc.P_SoundOnHit   = def.SoundOnHit  ;
+            npc.P_SoundOnDeath = def.SoundOnDeath;
+            npc.soundHit    = def.SoundOnHit   == null ? 1 : def.SoundOnHit  .VariantID;
+            npc.soundKilled = def.SoundOnDeath == null ? 1 : def.SoundOnDeath.VariantID;
 
             for (int i = 0; i < def.BuffImmunities.Count; i++)
                 npc.buffImmune[i] = true;

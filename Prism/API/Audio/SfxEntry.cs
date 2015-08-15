@@ -47,6 +47,18 @@ namespace Prism.API.Audio
             private set;
         }
 
+        public SfxRef this[int variant]
+        {
+            get
+            {
+                SfxRef r = this;
+
+                r.VariantID = variant;
+
+                return r;
+            }
+        }
+
         public SfxEntry(Func<int, SoundEffectInstance> getInstance, int variants, Func<int, SfxPlayBehaviour> behaviour, bool ambient = false)
         {
             PlayBehaviour = behaviour;
@@ -63,6 +75,10 @@ namespace Prism.API.Audio
         public static implicit operator SfxRef(SfxEntry e)
         {
             return new SfxRef(e.InternalName, e.Mod);
+        }
+        public static explicit operator SfxEntry(SfxRef r)
+        {
+            return r.Resolve();
         }
     }
 }

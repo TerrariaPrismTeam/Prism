@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
+using Prism.API.Audio;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Terraria;
@@ -112,10 +113,14 @@ namespace Prism.Mods.DefHandlers
             def.UsedAmmo            = item.useAmmo    ==  0 ? null : new ItemRef      (item.useAmmo   );
             def.ShootProjectile     = item.shoot      ==  0 ? null : new ProjectileRef(item.shoot     );
             def.AmmoType            = item.ammo       ==  0 ? null : new ItemRef      (item.ammo      );
-            def.UseSound            = item.useSound;
             def.CreateTile          = item.createTile == -1 ? null : new TileRef      (item.createTile);
             def.CreateWall          = item.createWall;
             def.GetTexture          = () => Main.itemTexture[item.type];
+
+            if (item.P_UseSound as SfxRef != null)
+                def.UseSound = (SfxRef)item.P_UseSound;
+            else
+                def.UseSound = VanillaSfxes.UseItem[item.useSound];
 
             #region ArmourData
             def.ArmourData = new ItemArmourData(() =>
@@ -328,10 +333,12 @@ namespace Prism.Mods.DefHandlers
             item.buffType     = def.Buff.Type;
             item.shoot        = def.ShootProjectile == null ?  0 : def.ShootProjectile.Resolve().Type ;
             item.ammo         = def.AmmoType        == null ?  0 : def.AmmoType       .Resolve().NetID;
-            item.useSound     = def.UseSound;
             item.createTile   = def.CreateTile      == null ? -1 : def.CreateTile     .Resolve().Type ;
             item.createWall   = def.CreateWall;
             item.useAmmo      = def.UsedAmmo        == null ?  0 : def.UsedAmmo       .Resolve().Type ;
+
+            item.P_UseSound = def.UseSound;
+            item.useSound = def.UseSound == null ? 1 : def.UseSound.VariantID;
 
             item.headSlot = def.ArmourData.headId    ;
             item.bodySlot = def.ArmourData.maleBodyId;

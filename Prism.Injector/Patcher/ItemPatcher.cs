@@ -22,6 +22,10 @@ namespace Prism.Injector.Patcher
         {
             typeDef_Item.Fields.Add(new FieldDefinition("P_BHandler", FieldAttributes.Public, typeSys.Object));
         }
+        static void AddFieldForSound()
+        {
+            typeDef_Item.Fields.Add(new FieldDefinition("P_UseSound", FieldAttributes.Public, typeSys.Object));
+        }
 
         internal static void Patch()
         {
@@ -33,6 +37,7 @@ namespace Prism.Injector.Patcher
 
             WrapSetDefaults();
             AddFieldForBHandler();
+            AddFieldForSound();
         }
     }
 }

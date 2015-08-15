@@ -50,22 +50,6 @@ namespace Prism.API.Defs
             set;
         }
         /// <summary>
-        /// Gets or sets the ID of the sound effect this NPC plays upon getting hurt.
-        /// </summary>
-        public virtual int SoundOnHit
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// Gets or sets the ID of the sound effect this NPC plays upon dying.
-        /// </summary>
-        public virtual int SoundOnDeath
-        {
-            get;
-            set;
-        }
-        /// <summary>
         /// Gets or sets the rarity of the NPC. The NPC with the highest rarity is shown by the Lifeform Analyzer.
         /// </summary>
         /// <remarks>I don't know how this value is scaled.</remarks>
@@ -347,6 +331,22 @@ namespace Prism.API.Defs
             get;
             set;
         }
+        /// <summary>
+        /// Gets or sets the sound effect this NPC plays upon getting hurt.
+        /// </summary>
+        public virtual SfxRef SoundOnHit
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets the sound effect this NPC plays upon dying.
+        /// </summary>
+        public virtual SfxRef SoundOnDeath
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Gets or sets the NPC's texture function.
@@ -370,7 +370,9 @@ namespace Prism.API.Defs
         {
             Width = Height = 16;
             MaxLife = lifeMax;
-            SoundOnHit = SoundOnDeath = 1;
+
+            SoundOnHit   = VanillaSfxes.NpcHit   [1];
+            SoundOnDeath = VanillaSfxes.NpcKilled[1];
 
             TrailCacheLength = 10;
             FrameCount = 1;
