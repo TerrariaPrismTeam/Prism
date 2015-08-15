@@ -134,6 +134,13 @@ namespace Prism.Mods.DefHandlers
                 return Main.armorBodyTexture[item.bodySlot];
             }, () =>
             {
+                if (item.bodySlot == -1)
+                    return null;
+
+                Main.instance.LoadArmorBody(item.bodySlot);
+                return Main.armorArmTexture[item.bodySlot];
+            }, () =>
+            {
                 if (item.legSlot == -1)
                     return null;
 
@@ -148,10 +155,10 @@ namespace Prism.Mods.DefHandlers
                 return Main.femaleBodyTexture[item.bodySlot];
             })
             {
-                femaleBodyId = item.bodySlot,
                 headId = item.headSlot,
+                maleBodyId = item.bodySlot,
                 legsId = item.legSlot,
-                maleBodyId = item.bodySlot
+                femaleBodyId = item.bodySlot
             };
             #endregion
             #region AccessoryData
@@ -392,10 +399,11 @@ namespace Prism.Mods.DefHandlers
                 {
                     int id = Main.armorBodyTexture.Length;
                     Array.Resize(ref Main.armorBodyTexture, Main.armorBodyTexture.Length + 1);
-                    Array.Resize(ref Main.armorBodyLoaded, Main.armorBodyLoaded.Length + 1);
+                    Array.Resize(ref Main.armorBodyLoaded , Main.armorBodyLoaded.Length  + 1);
                     Main.armorBodyLoaded[id] = true;
                     Main.armorBodyTexture[id] = t;
                     ad.maleBodyId = id;
+
 
                     t = (ad.FemaleBodyArmour ?? ad.MaleBodyArmour)();
                     if (t == null) // will not execute if MaleBodyArmour returned null, that's handled already
@@ -408,6 +416,15 @@ namespace Prism.Mods.DefHandlers
                         Main.femaleBodyTexture[id] = t;
                         ad.femaleBodyId = id;
                     }
+
+                    t = ad.Arm();
+
+                    if (t == null)
+                        ret.Add(new LoaderError(def.Mod, "ArmourData.Arm return value is null for ItemDef " + def + "."));
+
+                    id = Main.armorArmTexture.Length;
+                    Array.Resize(ref Main.armorArmTexture, Main.armorArmTexture.Length + 1);
+                    Main.armorArmTexture[id] = ad.Arm();
                 }
             }
 
@@ -439,6 +456,9 @@ namespace Prism.Mods.DefHandlers
 
             if (def.GetTexture == null)
                 ret.Add(new LoaderError(def.Mod, "GetTexture of ItemDef " + def + " is null."));
+
+            if (def.ArmourData.MaleBodyArmour != null && def.ArmourData.Arm == null)
+                ret.Add(new LoaderError(def.Mod, "ArmourData.Arm of ItemDef " + def + " is null when ArmourData.MaleBodyArmour isn't."));
 
             return ret;
         }

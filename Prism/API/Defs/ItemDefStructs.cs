@@ -97,15 +97,19 @@ namespace Prism.API.Defs
         /// <remarks>Item.headSlot</remarks>
         public Func<Texture2D> Helmet;
         /// <summary>
-        /// Gets or sets whether the item can be used as body armour.
+        /// Gets or sets whether the item can be used as body armour and the male body armour texture.
         /// </summary>
         /// <remarks>Item.bodySlot</remarks>
         public Func<Texture2D> MaleBodyArmour;
         /// <summary>
-        /// Gets or sets whether the item can be used as body armour.
+        /// Gets or sets the female body armour texture.
         /// </summary>
         /// <remarks>Item.bodySlot</remarks>
         public Func<Texture2D> FemaleBodyArmour;
+        /// <summary>
+        /// Gets or sets the arm texture of the body armour.
+        /// </summary>
+        public Func<Texture2D> Arm;
         /// <summary>
         /// Gets or sets whether the item can be used as greaves.
         /// </summary>
@@ -147,12 +151,13 @@ namespace Prism.API.Defs
         /// <param name="head"><see cref="Helmet"/></param>
         /// <param name="body"><see cref="BodyArmour"/></param>
         /// <param name="legs"><see cref="Greaves"/></param>
-        public ItemArmourData(Func<Texture2D> head, Func<Texture2D> maleBody, Func<Texture2D> legs, Func<Texture2D> femaleBody = null)
+        public ItemArmourData(Func<Texture2D> head, Func<Texture2D> maleBody, Func<Texture2D> arm, Func<Texture2D> legs, Func<Texture2D> femaleBody = null)
         {
             headId = maleBodyId = femaleBodyId = legsId = -1;
 
             Helmet = head;
             MaleBodyArmour = maleBody;
+            Arm = arm;
             Greaves = legs;
 
             FemaleBodyArmour = femaleBody ?? maleBody;
