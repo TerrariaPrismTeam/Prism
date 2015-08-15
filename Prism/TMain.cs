@@ -110,6 +110,16 @@ namespace Prism
             NPC.P_StrikeNPC_PlaySoundHit += (n, _d, _kb, _hd, _c, _ne, _fn) => PlayHitSound(n);
             NPC.P_checkDead_PlaySoundKilled += PlayKilledSound;
             NPC.P_RealAI_PlaySoundKilled += PlayKilledSound;
+
+            Player.P_ItemCheck_PlayUseSound0     += PlayUseSound;
+            Player.P_ItemCheck_PlayUseSound1     += PlayUseSound;
+            Player.P_QuickBuff_PlayUseSound      += PlayUseSound;
+            Player.P_QuickGrapple_PlayUseSound   += PlayUseSound;
+            Player.P_QuickHeal_PlayUseSound      += PlayUseSound;
+            Player.P_QuickMana_PlayUseSound      += PlayUseSound;
+            Player.P_QuickMount_PlayUseSound     += PlayUseSound;
+            Player.P_UpdatePet_PlayUseSound      += PlayUseSound;
+            Player.P_UpdatePetLight_PlayUseSound += PlayUseSound;
         }
 
         protected override void Initialize()

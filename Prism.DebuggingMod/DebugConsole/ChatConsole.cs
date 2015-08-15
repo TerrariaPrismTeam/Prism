@@ -1,19 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Terraria;
-using Prism.API.Defs;
-using Prism.Mods.DefHandlers;
-using System.Reflection;
-using Prism.Util;
-using Prism.Mods;
-using Microsoft.Xna.Framework;
-using Terraria.ID;
 using Prism.DebuggingMod.ChatConsole.ChatCommands;
+using Prism.Util;
+using Terraria;
 
 namespace Prism.DebuggingMod.ChatConsole
-{   
+{
     public class ChatConsole
     {
         internal static Dictionary<string, ChatCommand> Commands = new List<ChatCommand>()

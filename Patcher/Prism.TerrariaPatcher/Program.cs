@@ -23,10 +23,10 @@ namespace Prism.TerrariaPatcher
         public static string TerrariaExecutable = "Terraria.exe";
         public static string PrismAssembly = "Prism.Terraria.dll";
 
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
             if (!ParseRuntimeArgs(args))
-                return;
+                return 1;
 
             Environment.CurrentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
@@ -36,6 +36,8 @@ namespace Prism.TerrariaPatcher
                 // the file is added in the .gitignore (and so is the patched file)
                 if (VsBuild)
                     Console.Error.WriteLine(@"In order to build Prism, you must place a copy of your own Terraria.exe file in the '.\References' directory.");
+
+                return 1;
             }
 
             var c = new CecilContext(TerrariaExecutable);
@@ -56,7 +58,11 @@ namespace Prism.TerrariaPatcher
             {
                 Console.Error.WriteLine("Something went wrong while patching " + Path.GetFileName(TerrariaExecutable) + ".");
                 Console.Error.WriteLine(e);
+
+                return 1;
             }
+
+            return 0;
         }
 
         public static bool ParseRuntimeArgs(string[] unparsedArgs)
