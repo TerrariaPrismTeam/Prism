@@ -141,28 +141,7 @@ namespace Prism.Injector.Patcher
                     OpCodes.Ldfld, // NPC.soundHit
                     OpCodes.Ldc_I4_0,
                     OpCodes.Ble_S, // <after the call>
-                };
 
-                var instrs = snb.FindInstrSeqStart(toRem);
-
-                // *nix version has 'ble' instead of 'ble.s'
-                if (instrs == null)
-                {
-                    toRem = new[]
-                    {
-                        OpCodes.Ldarg_0,
-                        OpCodes.Ldfld, // NPC.soundHit
-                        OpCodes.Ldc_I4_0,
-                        OpCodes.Ble, // <after the call>
-                    };
-
-                    instrs = snb.FindInstrSeqStart(toRem);
-                }
-
-                snproc.RemoveInstructions(instrs, toRem.Length);
-
-                toRem = new[]
-                {
                     OpCodes.Ldc_I4_3, // soundHit ID
                     OpCodes.Ldarg_0,
                     OpCodes.Ldflda, // Entity.position
@@ -177,7 +156,7 @@ namespace Prism.Injector.Patcher
                     OpCodes.Call // Main.PlaySound(int, int, int, int)
                 };
 
-                instrs = snb.FindInstrSeqStart(toRem);
+                var instrs = snb.FindInstrSeqStart(toRem);
                 instrs = snproc.RemoveInstructions(instrs, toRem.Length);
 
                 snproc.InsertBefore(instrs, Instruction.Create(OpCodes.Ldsfld, strikeNpc_PlaySoundHit));
@@ -206,28 +185,7 @@ namespace Prism.Injector.Patcher
                     OpCodes.Ldfld, // NPC.soundHit
                     OpCodes.Ldc_I4_0,
                     OpCodes.Ble_S, // <after the call>
-                };
 
-                var instrs = cdb.FindInstrSeqStart(toRem);
-
-                // *nix version has 'ble' instead of 'ble.s'
-                if (instrs == null)
-                {
-                    toRem = new[]
-                    {
-                        OpCodes.Ldarg_0,
-                        OpCodes.Ldfld, // NPC.soundHit
-                        OpCodes.Ldc_I4_0,
-                        OpCodes.Ble, // <after the call>
-                    };
-
-                    instrs = cdb.FindInstrSeqStart(toRem);
-                }
-
-                cdproc.RemoveInstructions(instrs, toRem.Length);
-
-                toRem = new[]
-                {
                     OpCodes.Ldc_I4_4, // soundKilled ID
                     OpCodes.Ldarg_0,
                     OpCodes.Ldflda, // Entity.position
@@ -242,7 +200,7 @@ namespace Prism.Injector.Patcher
                     OpCodes.Call // Main.PlaySound(int, int, int, int)
                 };
 
-                instrs = cdb.FindInstrSeqStart(toRem);
+                var instrs = cdb.FindInstrSeqStart(toRem);
                 instrs = cdproc.RemoveInstructions(instrs, toRem.Length);
 
                 cdproc.InsertBefore(instrs, Instruction.Create(OpCodes.Ldsfld, checkDead_PlaySoundKilled));

@@ -35,6 +35,81 @@ namespace Prism.Injector.Patcher
             }
         }
 
+        static bool CodeEqIgnoreS(Code a, Code b)
+        {
+            if (a == b)
+                return true;
+
+            switch (a)
+            {
+                case Code.Beq:
+                case Code.Beq_S:
+                    return b == Code.Beq || b == Code.Beq_S;
+                case Code.Bge:
+                case Code.Bge_S:
+                    return b == Code.Bge || b == Code.Bge_S;
+                case Code.Ble:
+                case Code.Ble_S:
+                    return b == Code.Ble || b == Code.Ble_S;
+                case Code.Bgt:
+                case Code.Bgt_S:
+                    return b == Code.Bgt || b == Code.Bgt_S;
+                case Code.Blt:
+                case Code.Blt_S:
+                    return b == Code.Blt || b == Code.Blt_S;
+                case Code.Bge_Un:
+                case Code.Bge_Un_S:
+                    return b == Code.Bge_Un || b == Code.Bge_Un_S;
+                case Code.Ble_Un:
+                case Code.Ble_Un_S:
+                    return b == Code.Ble_Un || b == Code.Ble_Un_S;
+                case Code.Bgt_Un:
+                case Code.Bgt_Un_S:
+                    return b == Code.Bgt_Un || b == Code.Bgt_Un_S;
+                case Code.Blt_Un:
+                case Code.Blt_Un_S:
+                    return b == Code.Blt_Un || b == Code.Blt_Un_S;
+                case Code.Bne_Un:
+                case Code.Bne_Un_S:
+                    return b == Code.Bne_Un || b == Code.Bne_Un_S;
+                case Code.Brfalse:
+                case Code.Brfalse_S:
+                    return b == Code.Brfalse || b == Code.Brfalse_S;
+                case Code.Brtrue:
+                case Code.Brtrue_S:
+                    return b == Code.Brtrue || b == Code.Brtrue_S;
+                case Code.Br:
+                case Code.Br_S:
+                    return b == Code.Br || b == Code.Br_S;
+                case Code.Ldarg:
+                case Code.Ldarg_S:
+                    return b == Code.Ldarg || b == Code.Ldarg_S;
+                case Code.Ldarga:
+                case Code.Ldarga_S:
+                    return b == Code.Ldarga || b == Code.Ldarga_S;
+                case Code.Ldc_I4:
+                case Code.Ldc_I4_S:
+                    return b == Code.Ldc_I4 || b == Code.Ldc_I4_S;
+                case Code.Ldloc:
+                case Code.Ldloc_S:
+                    return b == Code.Ldloc || b == Code.Ldloc_S;
+                case Code.Ldloca:
+                case Code.Ldloca_S:
+                    return b == Code.Ldloca || b == Code.Ldloca_S;
+                case Code.Leave:
+                case Code.Leave_S:
+                    return b == Code.Leave || b == Code.Leave_S;
+                case Code.Starg:
+                case Code.Starg_S:
+                    return b == Code.Starg || b == Code.Starg_S;
+                case Code.Stloc:
+                case Code.Stloc_S:
+                    return b == Code.Stloc || b == Code.Stloc_S;
+            }
+
+            return false;
+        }
+
         public static TypeDefinition CreateDelegate(this CecilContext context, string @namespace, string name, TypeReference returnType, out MethodDefinition invoke, params TypeReference[] parameters)
         {
             var cResolver = context.Resolver;
@@ -84,9 +159,7 @@ namespace Prism.Injector.Patcher
             Instruction[] result = new Instruction[amt];
 
             for (int i = 0; i < result.Length; i++)
-            {
                 result[i] = i == 0 ? body.FindInstrSeqStart(instrs) : result[i - 1] != null ? result[i - 1].Next : null;
-            }
 
             return result;
         }
@@ -96,7 +169,7 @@ namespace Prism.Injector.Patcher
             {
                 for (int j = 0; j < instrs.Length; j++)
                 {
-                    if (body.Instructions[i + j].OpCode.Code != instrs[j].Code)
+                    if (!CodeEqIgnoreS(body.Instructions[i + j].OpCode.Code, instrs[j].Code))
                         goto next_try;
                 }
 
