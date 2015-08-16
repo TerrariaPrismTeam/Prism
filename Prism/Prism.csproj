@@ -38,6 +38,9 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
+    <DefineConstants Condition="'$(OS)' != 'Windows_NT'">$(DefineConstants);UNIX</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup>
     <StartupObject>Prism.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
