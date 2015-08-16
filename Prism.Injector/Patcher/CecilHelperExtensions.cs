@@ -206,17 +206,19 @@ namespace Prism.Injector.Patcher
         public static Instruction RemoveInstructions(this ILProcessor p, Instruction first, int count)
         {
             var cur = first;
+            var prev = first.Previous;
             for (int i = 0; i < count; i++)
             {
                 if (cur == null)
                     break;
 
+                prev = cur;
                 var n = cur.Next;
                 p.Remove(cur);
                 cur = n;
             }
 
-            return cur;
+            return cur ?? prev;
         }
         // callee must have the same args as the calling method
         // if the callee is an instance method, the object must be placed on the stack first

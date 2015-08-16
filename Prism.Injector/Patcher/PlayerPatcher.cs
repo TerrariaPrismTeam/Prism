@@ -326,26 +326,51 @@ namespace Prism.Injector.Patcher
                 var quickMount_PlayUseSound = new FieldDefinition("P_QuickMount_PlayUseSound", FieldAttributes.Public | FieldAttributes.Static, onQuickMountUseSound);
                 typeDef_Player.Fields.Add(quickMount_PlayUseSound);
 
-                OpCode[] toRem =
-                {
-                    OpCodes.Ldloc_0,
-                    OpCodes.Ldfld, // Item.sound
-                    OpCodes.Ldc_I4_0,
-                    OpCodes.Ble_S, // <after the call>
+                OpCode[] toRem = TerrariaPatcher.Platform == Platform.Windows
+                    ? new[]
+                    {
+                        OpCodes.Ldloc_0,
+                        OpCodes.Ldfld, // Item.sound
+                        OpCodes.Ldc_I4_0,
+                        OpCodes.Ble_S, // <after the call>
 
-                    OpCodes.Ldc_I4_2, // UseItem ID
-                    OpCodes.Ldarg_0,
-                    OpCodes.Call, // Entity.Center
-                    OpCodes.Ldfld, // Vector2.X
-                    OpCodes.Conv_I4,
-                    OpCodes.Ldarg_0,
-                    OpCodes.Call, // Entity.Center
-                    OpCodes.Ldfld, // Vector2.Y
-                    OpCodes.Conv_I4,
-                    OpCodes.Ldloc_0,
-                    OpCodes.Ldfld, // Item.useSound
-                    OpCodes.Call // Main.PlaySound(int, int, int, int)
-                };
+                        OpCodes.Ldc_I4_2, // UseItem ID
+                        OpCodes.Ldarg_0,
+                        OpCodes.Call, // Entity.Center
+                        OpCodes.Ldfld, // Vector2.X
+                        OpCodes.Conv_I4,
+                        OpCodes.Ldarg_0,
+                        OpCodes.Call, // Entity.Center
+                        OpCodes.Ldfld, // Vector2.Y
+                        OpCodes.Conv_I4,
+                        OpCodes.Ldloc_0,
+                        OpCodes.Ldfld, // Item.useSound
+                        OpCodes.Call // Main.PlaySound(int, int, int, int)
+                    }
+                    : new[]
+                    {
+                        OpCodes.Ldloc_0,
+                        OpCodes.Ldfld, // Item.sound
+                        OpCodes.Ldc_I4_0,
+                        OpCodes.Ble_S, // <after the call>
+
+                        OpCodes.Ldc_I4_2, // UseItem ID
+                        OpCodes.Ldarg_0,
+                        OpCodes.Call, // Entity.Center
+                        OpCodes.Stloc_2,
+                        OpCodes.Ldloca_S,
+                        OpCodes.Ldfld, // Vector2.X
+                        OpCodes.Conv_I4,
+                        OpCodes.Ldarg_0,
+                        OpCodes.Call, // Entity.Center
+                        OpCodes.Stloc_2,
+                        OpCodes.Ldloca_S,
+                        OpCodes.Ldfld, // Vector2.Y
+                        OpCodes.Conv_I4,
+                        OpCodes.Ldloc_0,
+                        OpCodes.Ldfld, // Item.useSound
+                        OpCodes.Call // Main.PlaySound(int, int, int, int)
+                    };
 
                 var qmproc = quickMount.Body.GetILProcessor();
 
