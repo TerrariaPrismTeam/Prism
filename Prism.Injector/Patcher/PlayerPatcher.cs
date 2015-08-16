@@ -375,12 +375,15 @@ namespace Prism.Injector.Patcher
                 var qmproc = quickMount.Body.GetILProcessor();
 
                 var first = quickMount.Body.FindInstrSeqStart(toRem);
+                var index = quickMount.Body.Instructions.IndexOf(first);
+                var next = quickMount.Body.Instructions[index + toRem.Length];
+
                 first = qmproc.RemoveInstructions(first, toRem.Length);
 
-                qmproc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, quickMount_PlayUseSound));
-                qmproc.InsertBefore(first, Instruction.Create(OpCodes.Ldloc_0));
-                qmproc.InsertBefore(first, Instruction.Create(OpCodes.Ldarg_0));
-                qmproc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeUseSound));
+                qmproc.InsertBefore(next, Instruction.Create(OpCodes.Ldsfld, quickMount_PlayUseSound));
+                qmproc.InsertBefore(next, Instruction.Create(OpCodes.Ldloc_0));
+                qmproc.InsertBefore(next, Instruction.Create(OpCodes.Ldarg_0));
+                qmproc.InsertBefore(next, Instruction.Create(OpCodes.Call, invokeUseSound));
             }
             #endregion
 
