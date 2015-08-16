@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Prism.API;
 using Prism.API.Behaviours;
 using Prism.Debugging;
 using Prism.Mods.BHandlers;
@@ -48,25 +49,36 @@ namespace Prism.Mods.DefHandlers
                 if (scaleOverride > -1f)
                     n.scale = scaleOverride;
 
-                if (!ModLoader.Reloading && d.CreateBehaviour != null)
+                if (d.CreateBehaviour != null)
                 {
                     h = new NpcBHandler();
 
                     var b = d.CreateBehaviour();
 
                     if (b != null)
+                    {
+                        b.Mod = ModData.mods[d.Mod];
+
                         h.behaviours.Add(b);
+                    }
                 }
             }
             else
                 n.RealSetDefaults(type, scaleOverride);
 
-            var bs = ModLoader.Reloading ? Empty<NpcBehaviour>.Array : ModData.mods.Values.Select(m => m.ContentHandler.CreateGlobalNpcBInternally()).Where(b => b != null);
+            var bs = ModLoader.Reloading ? Empty<NpcBehaviour>.Array : ModData.mods.Values
+                .Select(m => new KeyValuePair<ModDef, NpcBehaviour>(m, m.ContentHandler.CreateGlobalNpcBInternally()))
+                .Where(kvp => kvp.Value != null)
+                .Select(kvp =>
+            {
+                kvp.Value.Mod = kvp.Key;
+                return kvp.Value;
+            });
 
-            if (!ModLoader.Reloading && !bs.IsEmpty() && h == null)
+            if (!bs.IsEmpty() && h == null)
                 h = new NpcBHandler();
 
-            if (!ModLoader.Reloading && h != null)
+            if (h != null)
             {
                 h.behaviours.AddRange(bs);
 

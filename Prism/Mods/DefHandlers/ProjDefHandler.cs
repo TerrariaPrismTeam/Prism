@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Prism.API;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Prism.Debugging;
@@ -53,13 +54,24 @@ namespace Prism.Mods.DefHandlers
                     var b = d.CreateBehaviour();
 
                     if (b != null)
+                    {
+                        b.Mod = ModData.mods[d.Mod];
+
                         h.behaviours.Add(b);
+                    }
                 }
 
                 p.active = true;
             }
 
-            var bs = ModData.mods.Values.Select(m => m.ContentHandler.CreateGlobalProjBInternally()).Where(b => b != null);
+            var bs = ModData.mods.Values
+                .Select(m => new KeyValuePair<ModDef, ProjectileBehaviour>(m, m.ContentHandler.CreateGlobalProjBInternally()))
+                .Where(kvp => kvp.Value != null)
+                .Select(kvp =>
+            {
+                kvp.Value.Mod = kvp.Key;
+                return kvp.Value;
+            });
 
             if (!bs.IsEmpty() && h == null)
                 h = new ProjectileBHandler();

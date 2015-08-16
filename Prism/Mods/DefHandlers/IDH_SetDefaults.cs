@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Prism.API;
 using Prism.API.Behaviours;
 using Prism.Debugging;
 using Prism.Mods.BHandlers;
@@ -38,25 +39,42 @@ namespace Prism.Mods.DefHandlers
 
                 Handler.ItemDef.CopyDefToEntity(d, item);
 
-                if (!ModLoader.Reloading && d.CreateBehaviour != null)
+                if (RecipeDefHandler.SettingUpRecipes)
+                    return;
+
+                if (d.CreateBehaviour != null)
                 {
                     h = new ItemBHandler();
 
                     var b = d.CreateBehaviour();
 
                     if (b != null)
+                    {
+                        b.Mod = ModData.mods[d.Mod];
+
                         h.behaviours.Add(b);
+                    }
                 }
             }
             else
                 item.RealSetDefaults(type, noMatCheck);
 
-            var bs = ModLoader.Reloading ? Empty<ItemBehaviour>.Array : ModData.mods.Values.Select(m => m.ContentHandler.CreateGlobalItemBInternally()).Where(b => b != null);
+            if (RecipeDefHandler.SettingUpRecipes)
+                return;
 
-            if (!ModLoader.Reloading && !bs.IsEmpty() && h == null)
+            var bs = ModData.mods.Values
+                .Select(m => new KeyValuePair<ModDef, ItemBehaviour>(m, m.ContentHandler.CreateGlobalItemBInternally()))
+                .Where(kvp => kvp.Value != null)
+                .Select(kvp =>
+                {
+                    kvp.Value.Mod = kvp.Key;
+                    return kvp.Value;
+                });
+
+            if (!bs.IsEmpty() && h == null)
                 h = new ItemBHandler();
 
-            if (!ModLoader.Reloading && h != null)
+            if (h != null)
             {
                 h.behaviours.AddRange(bs);
 
