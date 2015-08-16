@@ -5,7 +5,7 @@
   <PropertyGroup>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{6B42EB0B-AFA3-4449-ACDA-AA91C8A39DC0}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Prism.TerrariaPatcher</RootNamespace>
     <AssemblyName>Prism.TerrariaPatcher</AssemblyName>
@@ -42,6 +42,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
@@ -98,6 +101,26 @@
     <Content Include="..\..\res\Icons\PrismIcon_Misc.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent Condition="'$(OS)' == 'Windows_NT'">
+      rem this patches the Terraria assembly
+      rem in order to build, one must provide their own .exe.
+      rem this will create a patched terraria assembly, which is referenced by Prism.csproj.
+      rem a shell script is used in unix environments.
+      rem executing it here will make sure the assembly exists before the assembly resolution is started when building Prism.csproj.
+
+      "$(TargetPath)" "$(ProjectDir)..\..\References\Terraria.exe" "$(ProjectDir)..\..\References\Prism.Terraria.dll"
+    </PostBuildEvent>
+    <PostBuildEvent Condition="'$(OS)' != 'Windows_NT'">
+      # this patches the Terraria assembly
+      # in order to build, one must provide their own .exe.
+      # this will create a patched terraria assembly, which is referenced by Prism.csproj.
+      # a batch script is used in windows environments.
+      # executing it here will make sure the assembly exists before the assembly resolution is started when building Prism.csproj.
+
+      mono "$(TargetPath)" "$(ProjectDir)../../References/Terraria.exe" "$(ProjectDir)../../References/Prism.Terraria.dll"
+    </PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

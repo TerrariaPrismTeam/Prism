@@ -32,10 +32,10 @@ namespace Prism.TerrariaPatcher
 
             if (!File.Exists(TerrariaExecutable))
             {
-                Console.Error.WriteLine("Terraria.exe not found. (full path: \"" + TerrariaExecutable + "\")");
+                Console.WriteLine("Terraria.exe not found. (full path: \"" + TerrariaExecutable + "\")");
                 // the file is added in the .gitignore (and so is the patched file)
                 if (VsBuild)
-                    Console.Error.WriteLine(@"In order to build Prism, you must place a copy of your own Terraria.exe file in the '.\References' directory.");
+                    Console.WriteLine("In order to build Prism, you must place a copy of your own Terraria.exe file in the '.\\References' directory.");
 
                 return 1;
             }
@@ -56,8 +56,8 @@ namespace Prism.TerrariaPatcher
             }
             catch (Exception e)
             {
-                Console.Error.WriteLine("Something went wrong while patching " + Path.GetFileName(TerrariaExecutable) + ".");
-                Console.Error.WriteLine(e);
+                Console.WriteLine("Something went wrong while patching " + Path.GetFileName(TerrariaExecutable) + ".");
+                Console.WriteLine(e);
 
                 return 1;
             }
