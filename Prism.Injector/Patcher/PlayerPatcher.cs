@@ -22,16 +22,16 @@ namespace Prism.Injector.Patcher
         {
             OpCode[] seqToRemove =
             {
-                    OpCodes.Ldloc_S,
-                    OpCodes.Ldc_I4,
-                    OpCodes.Blt_S,
-                    OpCodes.Ldloc_1,
-                    OpCodes.Ldfld,
-                    OpCodes.Ldloc_S,
-                    OpCodes.Ldelem_Ref,
-                    OpCodes.Ldc_I4_0,
-                    OpCodes.Callvirt,
-                    OpCodes.Br_S,
+                OpCodes.Ldloc_S,
+                OpCodes.Ldc_I4,
+                OpCodes.Blt_S,
+                TerrariaPatcher.Platform == Platform.Windows ? OpCodes.Ldloc_1 : OpCodes.Ldloc_2,
+                OpCodes.Ldfld,
+                OpCodes.Ldloc_S,
+                OpCodes.Ldelem_Ref,
+                OpCodes.Ldc_I4_0,
+                OpCodes.Callvirt,
+                OpCodes.Br_S,
             };
 
             var loadPlayerBody = typeDef_Player.GetMethod("LoadPlayer", MethodFlags.Public | MethodFlags.Static, typeSys.String, typeSys.Boolean).Body;
@@ -157,21 +157,23 @@ namespace Prism.Injector.Patcher
                 // change local 0 to an item (instead of item.useSound int)
                 qbb.Variables[0].VariableType = typeDef_Item;
 
+                // windows build uses short form -> addresses get messed up, but they're too specific to use anything else
+
                 // remove .useSound
-                var inst = qbb.Instructions.First(i => i.Offset == 0x0247);
+                var inst = qbb.Instructions.First(i => i.Offset == (TerrariaPatcher.Platform == Platform.Windows ? 0x0247 : 0x02aa));
                 qbproc.Remove(inst);
 
                 // change ldc.i4.0 to ldnull
-                inst = qbb.Instructions.First(i => i.Offset == 0x02d2);
+                inst = qbb.Instructions.First(i => i.Offset == (TerrariaPatcher.Platform == Platform.Windows ? 0x02d2 : 0x033e));
                 var p = inst.Previous;
                 qbproc.Remove(inst);
                 qbproc.InsertAfter(p, Instruction.Create(OpCodes.Ldnull));
 
-                // change ble.s to beq.s
-                inst = qbb.Instructions.First(i => i.Offset == 0x02d3);
+                // change ble(.s) to beq(.s)
+                inst = qbb.Instructions.First(i => i.Offset == (TerrariaPatcher.Platform == Platform.Windows ? 0x02d3 : 0x033f));
                 p = inst.Previous;
                 qbproc.Remove(inst);
-                qbproc.InsertAfter(p, Instruction.Create(OpCodes.Beq_S, (Instruction)inst.Operand));
+                qbproc.InsertAfter(p, Instruction.Create(TerrariaPatcher.Platform == Platform.Windows ? OpCodes.Beq_S : OpCodes.Beq, (Instruction)inst.Operand));
 
                 OpCode[] toRem =
                 {

@@ -8,10 +8,29 @@ using Mono.Cecil.Cil;
 
 namespace Prism.Injector.Patcher
 {
+    public enum Platform
+    {
+        Windows,
+        Linux,
+        OSX
+    }
+
     public static class TerrariaPatcher
     {
+        internal static Platform Platform;
+
         internal static CecilContext   context;
         internal static MemberResolver  memRes;
+
+        static void FindPlatform()
+        {
+            if (memRes.GetType("Terraria.WindowsLaunch") != null)
+                Platform = Platform.Windows;
+            if (memRes.GetType("Terraria.LinuxLaunch") != null)
+                Platform = Platform.Linux;
+            if (memRes.GetType("Terraria.MacLaunch") != null)
+                Platform = Platform.OSX;
+        }
 
         static void PublicifyRec(TypeDefinition td)
         {
@@ -96,6 +115,8 @@ namespace Prism.Injector.Patcher
 
             TerrariaPatcher.context.PrimaryAssembly.Name.Name = "Prism.Terraria";
             TerrariaPatcher.context.PrimaryAssembly.MainModule.Name = TerrariaPatcher.context.PrimaryAssembly.Name.Name + ".dll";
+
+            FindPlatform();
 
             Publicify();
             //AddInternalsVisibleToAttr();
