@@ -132,13 +132,37 @@ namespace Prism.Injector.Patcher
                 var strikeNpc_PlaySoundHit = new FieldDefinition("P_StrikeNPC_PlaySoundHit", FieldAttributes.Public | FieldAttributes.Static, onStrikeNpcSoundHit);
                 typeDef_NPC.Fields.Add(strikeNpc_PlaySoundHit);
 
+                var snb = strikeNpc.Body;
+                var snproc = snb.GetILProcessor();
+
                 OpCode[] toRem =
                 {
                     OpCodes.Ldarg_0,
                     OpCodes.Ldfld, // NPC.soundHit
                     OpCodes.Ldc_I4_0,
                     OpCodes.Ble_S, // <after the call>
+                };
 
+                var instrs = snb.FindInstrSeqStart(toRem);
+
+                // *nix version has 'ble' instead of 'ble.s'
+                if (instrs == null)
+                {
+                    toRem = new[]
+                    {
+                        OpCodes.Ldarg_0,
+                        OpCodes.Ldfld, // NPC.soundHit
+                        OpCodes.Ldc_I4_0,
+                        OpCodes.Ble, // <after the call>
+                    };
+
+                    instrs = snb.FindInstrSeqStart(toRem);
+                }
+
+                snproc.RemoveInstructions(instrs, toRem.Length);
+
+                toRem = new[]
+                {
                     OpCodes.Ldc_I4_3, // soundHit ID
                     OpCodes.Ldarg_0,
                     OpCodes.Ldflda, // Entity.position
@@ -153,13 +177,11 @@ namespace Prism.Injector.Patcher
                     OpCodes.Call // Main.PlaySound(int, int, int, int)
                 };
 
-                var snproc = strikeNpc.Body.GetILProcessor();
+                instrs = snb.FindInstrSeqStart(toRem);
+                instrs = snproc.RemoveInstructions(instrs, toRem.Length);
 
-                var first = strikeNpc.Body.FindInstrSeqStart(toRem);
-                first = snproc.RemoveInstructions(first, toRem.Length);
-
-                snproc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, strikeNpc_PlaySoundHit));
-                snproc.EmitWrapperCall(invokeSoundHit, first);
+                snproc.InsertBefore(instrs, Instruction.Create(OpCodes.Ldsfld, strikeNpc_PlaySoundHit));
+                snproc.EmitWrapperCall(invokeSoundHit, instrs);
             }
             #endregion
         }
@@ -175,13 +197,37 @@ namespace Prism.Injector.Patcher
                 var checkDead_PlaySoundKilled = new FieldDefinition("P_checkDead_PlaySoundKilled", FieldAttributes.Public | FieldAttributes.Static, onCheckDeadSoundKilled);
                 typeDef_NPC.Fields.Add(checkDead_PlaySoundKilled);
 
+                var cdb = checkDead.Body;
+                var cdproc = cdb.GetILProcessor();
+
                 OpCode[] toRem =
                 {
                     OpCodes.Ldarg_0,
-                    OpCodes.Ldfld, // NPC.soundKilled
+                    OpCodes.Ldfld, // NPC.soundHit
                     OpCodes.Ldc_I4_0,
                     OpCodes.Ble_S, // <after the call>
+                };
 
+                var instrs = cdb.FindInstrSeqStart(toRem);
+
+                // *nix version has 'ble' instead of 'ble.s'
+                if (instrs == null)
+                {
+                    toRem = new[]
+                    {
+                        OpCodes.Ldarg_0,
+                        OpCodes.Ldfld, // NPC.soundHit
+                        OpCodes.Ldc_I4_0,
+                        OpCodes.Ble, // <after the call>
+                    };
+
+                    instrs = cdb.FindInstrSeqStart(toRem);
+                }
+
+                cdproc.RemoveInstructions(instrs, toRem.Length);
+
+                toRem = new[]
+                {
                     OpCodes.Ldc_I4_4, // soundKilled ID
                     OpCodes.Ldarg_0,
                     OpCodes.Ldflda, // Entity.position
@@ -196,13 +242,11 @@ namespace Prism.Injector.Patcher
                     OpCodes.Call // Main.PlaySound(int, int, int, int)
                 };
 
-                var cdproc = checkDead.Body.GetILProcessor();
+                instrs = cdb.FindInstrSeqStart(toRem);
+                instrs = cdproc.RemoveInstructions(instrs, toRem.Length);
 
-                var first = checkDead.Body.FindInstrSeqStart(toRem);
-                first = cdproc.RemoveInstructions(first, toRem.Length);
-
-                cdproc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, checkDead_PlaySoundKilled));
-                cdproc.EmitWrapperCall(invokeSoundKilled, first);
+                cdproc.InsertBefore(instrs, Instruction.Create(OpCodes.Ldsfld, checkDead_PlaySoundKilled));
+                cdproc.EmitWrapperCall(invokeSoundKilled, instrs);
             }
             #endregion
 
