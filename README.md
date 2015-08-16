@@ -12,7 +12,7 @@ Copy your `Terraria.exe` file into `.\References` before attempting to build.
  * Install Visual Studio 2015 if you don't have it (You can get the Community version for free).
  * Open the solution in Visual Studio.
  * Click "Build Solution" (you may have to additionally click "Rebuild Solution" in order for it to build properly).
- * Prism can also be built using MSBuild from the command-line: ```xbuild /m Prism.sln /p:Configuration=DevBuild```. (not including the /p switch will default to `PreRelease` instead of `DevBuild`).
+ * Prism can also be built using MSBuild from the command-line: ```msbuild /m Prism.sln /p:Configuration=DevBuild```. (not including the /p switch will default to `PreRelease` instead of `DevBuild`).
 * _OS X & Linux_:
  * Install the Mono Platform if you don't have it.
  * Execute ```xbuild Prism.sln /p:Configuration=DevBuild``` to build solution with XBuild. (not including the /p switch will default to `PreRelease` instead of `DevBuild`).
