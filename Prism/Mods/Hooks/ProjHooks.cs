@@ -44,7 +44,7 @@ namespace Prism.Mods.Hooks
 
             if (bh != null && bh.PreAI())
             {
-                pr.AI();
+                pr.RealAI();
                 bh.OnAI();
             }
         }
@@ -55,7 +55,7 @@ namespace Prism.Mods.Hooks
 
             if (bh != null && bh.PreDestroyed())
             {
-                pr.Kill();
+                pr.RealKill();
                 bh.OnDestroyed();
             }
         }

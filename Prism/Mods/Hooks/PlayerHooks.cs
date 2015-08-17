@@ -19,11 +19,14 @@ namespace Prism.Mods.Hooks
             {
                 var pb = d.ContentHandler.CreatePlayerBInternally();
 
-                pb.Mod = d;
-                pb.Entity = p;
+                if (pb != null)
+                {
+                    pb.Mod    = d;
+                    pb.Entity = p;
+                }
 
                 return pb;
-            });
+            }).Where(pb => pb != null);
 
             if (bs.Count() == 0)
                 return null;
@@ -38,7 +41,7 @@ namespace Prism.Mods.Hooks
 
         internal static PlayerFileData OnGetFiledata(string path, bool cloud)
         {
-            var fd = Player.GetFileData(path, cloud);
+            var fd = Player.RealGetFileData(path, cloud);
 
             if (fd.Player != null)
             {
