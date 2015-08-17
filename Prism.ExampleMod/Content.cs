@@ -8,8 +8,8 @@ using Prism.API;
 using Prism.API.Audio;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
-using Terraria.ID;
 using Prism.ExampleMod.Behaviours.NPC;
+using Terraria.ID;
 
 namespace Prism.ExampleMod
 {

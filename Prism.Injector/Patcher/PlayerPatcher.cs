@@ -20,6 +20,7 @@ namespace Prism.Injector.Patcher
             typeDef_Player.GetMethod("ItemCheck", MethodFlags.Public | MethodFlags.Instance).Wrap(context);
             typeDef_Player.GetMethod("KillMe", MethodFlags.Public | MethodFlags.Instance).Wrap(context);
             typeDef_Player.GetMethod("Update", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
+            typeDef_Player.GetMethod("UpdateEquips", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
 
             var typeDef_uiCharSelect = memRes.GetType("Terraria.GameContent.UI.States.UICharacterSelect");
 

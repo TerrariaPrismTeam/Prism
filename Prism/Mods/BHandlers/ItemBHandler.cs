@@ -16,27 +16,28 @@ namespace Prism.Mods.BHandlers
         IEnumerable<Func<Player, bool?>> useItem;
         IEnumerable<Func<Player, Vector2, Vector2, ProjectileRef, int, float, bool>> preShoot;
 
-        IEnumerable<Action<Player>> effects;
+        IEnumerable<Action<Player, int, EquipSlotKind>> effects, vanityEffects;
 
         public override void Create()
         {
             base.Create();
 
-            canUse = HookManager.CreateHooks<ItemBehaviour, Func<Player, bool>>(Behaviours, "CanUse");
-            useItem = HookManager.CreateHooks<ItemBehaviour, Func<Player, bool?>>(Behaviours, "UseItem");
+            canUse   = HookManager.CreateHooks<ItemBehaviour, Func<Player, bool>>(Behaviours, "CanUse");
+            useItem  = HookManager.CreateHooks<ItemBehaviour, Func<Player, bool?>>(Behaviours, "UseItem");
             preShoot = HookManager.CreateHooks<ItemBehaviour, Func<Player, Vector2, Vector2, ProjectileRef, int, float, bool>>(Behaviours, "PreShoot");
 
-            effects = HookManager.CreateHooks<ItemBehaviour, Action<Player>>(Behaviours, "Effects");
+            effects = HookManager.CreateHooks<ItemBehaviour, Action<Player, int, EquipSlotKind>>(Behaviours, "Effects");
+            vanityEffects = HookManager.CreateHooks<ItemBehaviour, Action<Player, int, EquipSlotKind>>(Behaviours, "VanityEffects");
         }
         public override void Clear ()
         {
             base.Clear();
 
-            canUse = null;
-            useItem = null;
+            canUse   = null;
+            useItem  = null;
             preShoot = null;
 
-            effects = null;
+            effects = vanityEffects = null;
         }
 
         public bool CanUse(Player p)
@@ -59,9 +60,13 @@ namespace Prism.Mods.BHandlers
             return r.Length == 0 || r.All(Convert.ToBoolean);
         }
 
-        public void Effects(Player p)
+        public void Effects(Player p, int slot, EquipSlotKind kind)
         {
-            HookManager.Call(effects, p);
+            HookManager.Call(effects, p, slot, kind);
+        }
+        public void VanityEffects(Player p, int slot, EquipSlotKind kind)
+        {
+            HookManager.Call(vanityEffects, p, slot, kind);
         }
     }
 }

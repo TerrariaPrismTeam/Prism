@@ -8,6 +8,34 @@ using Terraria;
 
 namespace Prism.API.Behaviours
 {
+    public enum EquipSlotKind
+    {
+        /// <summary>
+        /// <see cref="Player.armor" />[0..2]
+        /// </summary>
+        Armour,
+        /// <summary>
+        /// <see cref="Player.armor" />[3..8+<see cref="Player.extraAccessorySlots" />]
+        /// </summary>
+        Accessories,
+        /// <summary>
+        /// <see cref="Player.armor" />[10..12]
+        /// </summary>
+        VanityArmour,
+        /// <summary>
+        /// <see cref="Player.armor" />[13..18+<see cref="Player.extraAccessorySlots" />]
+        /// </summary>
+        VanityAccessories,
+        /// <summary>
+        /// <see cref="Player.miscEquips" />
+        /// </summary>
+        Misc,
+        /// <summary>
+        /// <see cref="Player.inventory" />
+        /// </summary>
+        Inventory
+    }
+
     public abstract class ItemBehaviour : EntityBehaviour<Item>
     {
         [Hook]
@@ -27,6 +55,8 @@ namespace Prism.API.Behaviours
         }
 
         [Hook]
-        public virtual void Effects(Player player) { }
+        public virtual void Effects(Player player, int slot, EquipSlotKind kind) { }
+        [Hook]
+        public virtual void VanityEffects(Player player, int slot, EquipSlotKind kind) { }
     }
 }
