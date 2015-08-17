@@ -87,10 +87,8 @@ namespace Prism.API.Defs
     /// <summary>
     /// Container for the properties of the item which determine its use as armour.
     /// </summary>
-    public struct ItemArmourData
+    public class ItemArmourData
     {
-        internal int headId, maleBodyId, femaleBodyId, legsId;
-
         /// <summary>
         /// Gets or sets whether the item can be used as a helmet.
         /// </summary>
@@ -118,31 +116,18 @@ namespace Prism.API.Defs
 
         public int HeadId
         {
-            get
-            {
-                return headId;
-            }
+            get;
+            internal set;
         }
         public int MaleBodyId
         {
-            get
-            {
-                return maleBodyId;
-            }
-        }
-        public int FemaleBodyId
-        {
-            get
-            {
-                return femaleBodyId;
-            }
+            get;
+            internal set;
         }
         public int LegsId
         {
-            get
-            {
-                return legsId;
-            }
+            get;
+            internal set;
         }
 
         /// <summary>
@@ -153,7 +138,7 @@ namespace Prism.API.Defs
         /// <param name="legs"><see cref="Greaves"/></param>
         public ItemArmourData(Func<Texture2D> head, Func<Texture2D> maleBody, Func<Texture2D> arm, Func<Texture2D> legs, Func<Texture2D> femaleBody = null)
         {
-            headId = maleBodyId = femaleBodyId = legsId = -1;
+            HeadId = MaleBodyId = LegsId = -1;
 
             Helmet = head;
             MaleBodyArmour = maleBody;
@@ -163,97 +148,73 @@ namespace Prism.API.Defs
             FemaleBodyArmour = femaleBody ?? maleBody;
         }
     }
-    public struct ItemAccessoryData
+    public class ItemAccessoryData
     {
-        internal int backId, balloonId, faceId, frontId, handsOffId, handsOnId, neckId, shieldId, shoesId, waistId, wingsId;
-
         public Func<Texture2D>
             Back   , Balloon, Face  , Front, HandsOff      ,
             HandsOn, Neck   , Shield, Shoes, Waist   , Wings;
 
         public int BackId
         {
-            get
-            {
-                return backId;
-            }
+            get;
+            internal set;
         }
         public int BalloonId
         {
-            get
-            {
-                return balloonId;
-            }
+            get;
+            internal set;
         }
         public int FaceId
         {
-            get
-            {
-                return faceId;
-            }
+            get;
+            internal set;
         }
         public int FrontId
         {
-            get
-            {
-                return frontId;
-            }
+            get;
+            internal set;
         }
         public int HandsOffId
         {
-            get
-            {
-                return handsOffId;
-            }
+            get;
+            internal set;
         }
         public int HandsOnId
         {
-            get
-            {
-                return handsOnId;
-            }
+            get;
+            internal set;
         }
-        public int NeckID
+        public int NeckId
         {
-            get
-            {
-                return neckId;
-            }
+            get;
+            internal set;
         }
         public int ShieldId
         {
-            get
-            {
-                return shieldId;
-            }
+            get;
+            internal set;
         }
         public int ShoesId
         {
-            get
-            {
-                return shoesId;
-            }
+            get;
+            internal set;
         }
         public int WaistId
         {
-            get
-            {
-                return waistId;
-            }
+            get;
+            internal set;
         }
         public int WingsId
         {
-            get
-            {
-                return wingsId;
-            }
+            get;
+            internal set;
         }
 
         public ItemAccessoryData(
             Func<Texture2D> back   , Func<Texture2D> balloon, Func<Texture2D> face  , Func<Texture2D> front, Func<Texture2D> handsOff,
             Func<Texture2D> handsOn, Func<Texture2D> neck   , Func<Texture2D> shield, Func<Texture2D> shoes, Func<Texture2D> waist   , Func<Texture2D> wings)
         {
-            backId = balloonId = faceId = frontId = handsOffId = handsOnId = neckId = shieldId = shoesId = waistId = wingsId = -1;
+            BackId = BalloonId = FaceId = FrontId = HandsOffId = HandsOnId = NeckId = ShieldId = ShoesId = WaistId = WingsId = -1;
 
             Back = back;
             Balloon = balloon;

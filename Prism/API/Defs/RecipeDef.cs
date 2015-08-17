@@ -34,31 +34,31 @@ namespace Prism.API.Defs
             internal set;
         }
 
-        public virtual ItemRef CreateItem
+        public ItemRef CreateItem
         {
             get;
             set;
         }
-        public virtual int CreateStack
+        public int CreateStack
         {
             get;
             set;
         }
 
         //TODO: add ItemGroups and change ItemRef to an ItemRef | ItemGroup discriminated union
-        public virtual IDictionary<ItemRef, int> RequiredItems
+        public IDictionary<ItemRef, int> RequiredItems
         {
             get;
             set;
         }
         //TODO: add TileGroups and change it to another discriminated union
-        public virtual TileRef[] RequiredTiles
+        public TileRef[] RequiredTiles
         {
             get;
             set;
         }
 
-        public virtual RecipeLiquids RequiredLiquids
+        public RecipeLiquids RequiredLiquids
         {
             get;
             set;

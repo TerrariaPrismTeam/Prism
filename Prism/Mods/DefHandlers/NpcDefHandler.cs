@@ -24,6 +24,9 @@ namespace Prism.Mods.DefHandlers
 
         protected override void ExtendVanillaArrays(int amt = 1)
         {
+            if (amt == 0)
+                return;
+
             int newLen = amt > 0 ? Main.npcName.Length + amt : NPCID.Count;
 
             if (!Main.dedServ)

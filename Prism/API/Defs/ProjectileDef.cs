@@ -16,7 +16,7 @@ namespace Prism.API.Defs
         /// Gets or sets the damage this projectile inflicts.
         /// </summary>
         /// <remarks>Projectile.damage</remarks>
-        public virtual int Damage
+        public int Damage
         {
             get;
             set;
@@ -25,7 +25,7 @@ namespace Prism.API.Defs
         /// Gets or sets the opacity at which the projectile's sprite is rendered (0 = fully opaque, 255 = fully transparent).
         /// </summary>
         /// <remarks>Projectile.alpha</remarks>
-        public virtual int Alpha
+        public int Alpha
         {
             get;
             set;
@@ -35,7 +35,7 @@ namespace Prism.API.Defs
         /// NeedsSummary
         /// </summary>
         /// <remarks>ProjectileID.Sets.TrailCacheLength[Type]</remarks>
-        public virtual int TrailCacheLength
+        public int TrailCacheLength
         {
             get;
             set;
@@ -44,7 +44,7 @@ namespace Prism.API.Defs
         /// Gets or sets the total number of animation frames in this projectile's sprite.
         /// </summary>
         /// <remarks>Main.projFrames[Type]</remarks>
-        public virtual int TotalFrameCount
+        public int TotalFrameCount
         {
             get;
             set;
@@ -54,7 +54,7 @@ namespace Prism.API.Defs
         /// Gets or sets the scale at which the projectile's sprite is rendered (1.0f = normal scale).
         /// </summary>
         /// <remarks>Projectile.scale</remarks>
-        public virtual float Scale
+        public float Scale
         {
             get;
             set;
@@ -64,7 +64,7 @@ namespace Prism.API.Defs
         /// NeedsSummary
         /// </summary>
         /// <remarks>ProjectileID.Sets.DontAttachHideToAlpha[Type]</remarks>
-        public virtual bool DontAttachHideToAlpha
+        public bool DontAttachHideToAlpha
         {
             get;
             set;
@@ -73,7 +73,7 @@ namespace Prism.API.Defs
         /// Gets or sets whether this projectile functions as a grappling hook.
         /// </summary>
         /// <remarks>Main.projHook[Type]</remarks>
-        public virtual bool IsHook
+        public bool IsHook
         {
             get;
             set;
@@ -82,7 +82,7 @@ namespace Prism.API.Defs
         /// Gets or sets whether this projectile is hostile.
         /// </summary>
         /// <remarks>Main.projHostile[Type]</remarks>
-        public virtual bool IsHostile
+        public bool IsHostile
         {
             get;
             set;
@@ -91,7 +91,7 @@ namespace Prism.API.Defs
         /// Gets or sets whether this projectile is a pet.
         /// </summary>
         /// <remarks>Main.projPet[Type]</remarks>
-        public virtual bool IsPet
+        public bool IsPet
         {
             get;
             set;
@@ -100,7 +100,7 @@ namespace Prism.API.Defs
         /// Gets or sets whether this projectile homes in on its target.
         /// </summary>
         /// <remarks>ProjectileID.Sets.Homing[Type]</remarks>
-        public virtual bool IsHoming
+        public bool IsHoming
         {
             get;
             set;
@@ -109,7 +109,7 @@ namespace Prism.API.Defs
         /// Gets or sets whether this projectile is a light pet.
         /// </summary>
         /// <remarks>ProjectileID.Sets.LightPet[Type]</remarks>
-        public virtual bool IsLightPet
+        public bool IsLightPet
         {
             get;
             set;
@@ -118,7 +118,7 @@ namespace Prism.API.Defs
         /// Gets or sets whether this projectile is a minion that can be sacrificed upon spawning another one.
         /// </summary>
         /// <remarks>ProjectileID.Sets.MinionSacrificable[Type]</remarks>
-        public virtual bool IsSacrificableMinion
+        public bool IsSacrificableMinion
         {
             get;
             set;
@@ -127,7 +127,7 @@ namespace Prism.API.Defs
         /// NeedsSummary
         /// </summary>
         /// <remarks>ProjectileID.Sets.NeedsUUID[Type]</remarks>
-        public virtual bool NeedsUUID
+        public bool NeedsUUID
         {
             get;
             set;
@@ -136,7 +136,7 @@ namespace Prism.API.Defs
         /// Gets or sets whether this projectile is used for Stardust Dragons.
         /// </summary>
         /// <remarks>ProjectileID.Sets.StardustDragon[Type]</remarks>
-        public virtual bool IsStartustDragon
+        public bool IsStartustDragon
         {
             get;
             set;
@@ -145,7 +145,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets the type of damage this projectile inflicts.
         /// </summary>
-        public virtual ProjectileDamageType DamageType
+        public ProjectileDamageType DamageType
         {
             get;
             set;
@@ -153,7 +153,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets the AI style of this projectile.
         /// </summary>
-        public virtual ProjectileAiStyle AiStyle
+        public ProjectileAiStyle AiStyle
         {
             get;
             set;
@@ -162,7 +162,7 @@ namespace Prism.API.Defs
         /// NeedsDescription
         /// </summary>
         /// <remarks>ProjectileID.Sets.TrailingMode[Type]</remarks>
-        public virtual TrailingMode TrailingMode
+        public TrailingMode TrailingMode
         {
             get;
             set;
@@ -171,7 +171,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets the projectile's texture.
         /// </summary>
-        public virtual Func<Texture2D> GetTexture
+        public Func<Texture2D> GetTexture
         {
             get;
             set;

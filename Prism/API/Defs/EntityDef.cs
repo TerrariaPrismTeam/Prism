@@ -66,7 +66,7 @@ namespace Prism.API.Defs
         /// <para/>
         /// Note: Although there exists one way to see a Projectile's name (in player death messages), they don't have a display name property in the vanilla game
         /// </summary>
-        public virtual string DisplayName
+        public string DisplayName
         {
             get;
             set;
@@ -75,7 +75,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets the size of this entity.
         /// </summary>
-        public virtual Point Size
+        public Point Size
         {
             get;
             set;
@@ -83,7 +83,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets the width of this entity.
         /// </summary>
-        public virtual int Width
+        public int Width
         {
             get
             {
@@ -97,7 +97,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets the height of this entity.
         /// </summary>
-        public virtual int Height
+        public int Height
         {
             get
             {

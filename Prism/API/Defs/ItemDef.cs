@@ -19,7 +19,7 @@ namespace Prism.API.Defs
         /// Gets or sets the damage this item inflicts.
         /// </summary>
         /// <remarks>Item.damage</remarks>
-        public virtual int Damage
+        public int Damage
         {
             get;
             set;
@@ -28,7 +28,7 @@ namespace Prism.API.Defs
         /// Gets or sets the length of this item's use animation.
         /// </summary>
         /// <remarks>Item.useAnimation</remarks>
-        public virtual int UseAnimation
+        public int UseAnimation
         {
             get;
             set;
@@ -37,7 +37,7 @@ namespace Prism.API.Defs
         /// Gets or sets the use time of this item (the amount of time, in frames, that it takes to use this item).
         /// </summary>
         /// <remarks>Item.useTime</remarks>
-        public virtual int UseTime
+        public int UseTime
         {
             get;
             set;
@@ -46,7 +46,7 @@ namespace Prism.API.Defs
         /// Gets or sets the the amount of time, in frames, which you must wait in order to reuse this item.
         /// </summary>
         /// <remarks>Item.resuseDelay</remarks>
-        public virtual int ReuseDelay
+        public int ReuseDelay
         {
             get;
             set;
@@ -55,7 +55,7 @@ namespace Prism.API.Defs
         /// Gets or sets the amount of mana this item consumes upon use.
         /// </summary>
         /// <remarks>Item.mana</remarks>
-        public virtual int ManaConsumption
+        public int ManaConsumption
         {
             get;
             set;
@@ -64,7 +64,7 @@ namespace Prism.API.Defs
         /// Gets or sets this item's max stack.
         /// </summary>
         /// <remarks>Item.maxStack</remarks>
-        public virtual int MaxStack
+        public int MaxStack
         {
             get;
             set;
@@ -73,7 +73,7 @@ namespace Prism.API.Defs
         /// Gets or sets the style in which this item places tiles.
         /// </summary>
         /// <remarks>Item.placeStyle</remarks>
-        public virtual int PlacementStyle
+        public int PlacementStyle
         {
             get;
             set;
@@ -82,7 +82,7 @@ namespace Prism.API.Defs
         /// Gets or sets the opacity at which the item's sprite is rendered (0 = fully opaque, 255 = fully transparent).
         /// </summary>
         /// <remarks>Item.alpha</remarks>
-        public virtual int Alpha
+        public int Alpha
         {
             get;
             set;
@@ -91,7 +91,7 @@ namespace Prism.API.Defs
         /// Gets or sets the defense which this item grants to the player while equipped.
         /// </summary>
         /// <remarks>Item.defense</remarks>
-        public virtual int Defense
+        public int Defense
         {
             get;
             set;
@@ -100,7 +100,7 @@ namespace Prism.API.Defs
         /// Gets or sets this item's critical strike chance modifier (in percent).
         /// </summary>
         /// <remarks>Item.crit</remarks>
-        public virtual int CritChanceModifier
+        public int CritChanceModifier
         {
             get;
             set;
@@ -108,7 +108,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets this item's pickaxe power (in percent).
         /// </summary>
-        public virtual int PickaxePower
+        public int PickaxePower
         {
             get;
             set;
@@ -116,7 +116,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets this item's axe power (in percent). <!-- needs modification when loading -->
         /// </summary>
-        public virtual int AxePower
+        public int AxePower
         {
             get;
             set;
@@ -124,7 +124,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets this item's hammer power (in percent).
         /// </summary>
-        public virtual int HammerPower
+        public int HammerPower
         {
             get;
             set;
@@ -132,7 +132,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets the amount of health restored when the item is used.
         /// </summary>
-        public virtual int LifeHeal
+        public int LifeHeal
         {
             get;
             set;
@@ -140,7 +140,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets the amount of mana restored when the item is used.
         /// </summary>
-        public virtual int ManaHeal
+        public int ManaHeal
         {
             get;
             set;
@@ -148,7 +148,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets the bait power the item has.
         /// </summary>
-        public virtual int BaitPower
+        public int BaitPower
         {
             get;
             set;
@@ -158,7 +158,7 @@ namespace Prism.API.Defs
         /// Gets or sets the velocity at which this item shoots projectiles (in pixels / game tick).
         /// </summary>
         /// <remarks>Item.shootSpeed</remarks>
-        public virtual float ShootVelocity
+        public float ShootVelocity
         {
             get;
             set;
@@ -167,7 +167,7 @@ namespace Prism.API.Defs
         /// Gets or sets the amount of knockback this item inflicts.
         /// </summary>
         /// <remarks>Item.knockBack</remarks>
-        public virtual float Knockback
+        public float Knockback
         {
             get;
             set;
@@ -176,7 +176,7 @@ namespace Prism.API.Defs
         /// Gets or sets the scale at which the item's sprite is rendered (1.0f = normal scale).
         /// </summary>
         /// <remarks>Item.scale</remarks>
-        public virtual float Scale
+        public float Scale
         {
             get;
             set;
@@ -186,7 +186,7 @@ namespace Prism.API.Defs
         /// Gets or sets whether this item should ignore melee contact/damage with enemies.
         /// </summary>
         /// <remarks>Item.noMelee</remarks>
-        public virtual bool NoMelee
+        public bool NoMelee
         {
             get;
             set;
@@ -195,7 +195,7 @@ namespace Prism.API.Defs
         /// Gets or sets whether this item is consumed upon use.
         /// </summary>
         /// <remarks>Item.consumable</remarks>
-        public virtual bool IsConsumable
+        public bool IsConsumable
         {
             get;
             set;
@@ -204,7 +204,7 @@ namespace Prism.API.Defs
         /// Gets or sets whether this item turns the player toward its direction upon use.
         /// </summary>
         /// <remarks>Item.useTurn</remarks>
-        public virtual bool TurnPlayerOnUse
+        public bool TurnPlayerOnUse
         {
             get;
             set;
@@ -213,7 +213,7 @@ namespace Prism.API.Defs
         /// Gets or sets whether this item automatically reuses itself while the mouse button is held down.
         /// </summary>
         /// <remarks>Item.autoReuse</remarks>
-        public virtual bool AutoReuse
+        public bool AutoReuse
         {
             get;
             set;
@@ -222,7 +222,7 @@ namespace Prism.API.Defs
         /// Gets or sets whether this item's use graphic is hidden.
         /// </summary>
         /// <remarks>Item.noUseGraphic</remarks>
-        public virtual bool HideUseGraphic
+        public bool HideUseGraphic
         {
             get;
             set;
@@ -231,7 +231,7 @@ namespace Prism.API.Defs
         /// Gets or sets whether this item can be equipped in players' accessory slots.
         /// </summary>
         /// <remarks>Item.accessory</remarks>
-        public virtual bool IsAccessory
+        public bool IsAccessory
         {
             get;
             set;
@@ -239,7 +239,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether this item can only be used in Expert Mode.
         /// </summary>
-        public virtual bool IsExpertModeOnly
+        public bool IsExpertModeOnly
         {
             get;
             set;
@@ -247,7 +247,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether the item is channeled, instead of used once or continuously used over and over again.
         /// </summary>
-        public virtual bool IsChanneled
+        public bool IsChanneled
         {
             get;
             set;
@@ -256,7 +256,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether the item behaves as a soul.
         /// </summary>
-        public virtual bool IsSoul
+        public bool IsSoul
         {
             get;
             set;
@@ -264,7 +264,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether the item can be traded as a strange plant.
         /// </summary>
-        public virtual bool IsStrangePlant
+        public bool IsStrangePlant
         {
             get;
             set;
@@ -272,7 +272,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether the item is a bullet kind of ammo.
         /// </summary>
-        public virtual bool IsBullet
+        public bool IsBullet
         {
             get;
             set;
@@ -280,7 +280,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether the item pulses.
         /// </summary>
-        public virtual bool Pulses
+        public bool Pulses
         {
             get;
             set;
@@ -288,7 +288,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether the item is affected by gravity.
         /// </summary>
-        public virtual bool NoGravity
+        public bool NoGravity
         {
             get;
             set;
@@ -296,7 +296,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether... idk, really.
         /// </summary>
-        public virtual bool IsNebulaPickup
+        public bool IsNebulaPickup
         {
             get;
             set;
@@ -304,7 +304,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether the item can shine or not.
         /// </summary>
-        public virtual bool NeverShiny
+        public bool NeverShiny
         {
             get;
             set;
@@ -313,7 +313,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets what the extractinator can use this item to produce.
         /// </summary>
-        public virtual ItemExtractinatorMode ExtractinatorMode
+        public ItemExtractinatorMode ExtractinatorMode
         {
             get;
             set;
@@ -321,7 +321,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets the amount of minion slots required to use the item.
         /// </summary>
-        public virtual int RequiredStaffMinionSlots
+        public int RequiredStaffMinionSlots
         {
             get;
             set;
@@ -331,7 +331,7 @@ namespace Prism.API.Defs
         /// Gets or sets the color to which the item's sprite is tinted (<see cref="Color.White"/> = no tinting applied).
         /// </summary>
         /// <remarks>Item.color</remarks>
-        public virtual Color Colour
+        public Color Colour
         {
             get;
             set;
@@ -340,7 +340,7 @@ namespace Prism.API.Defs
         /// Gets or sets the base rarity of this item.
         /// </summary>
         /// <remarks>Item.rare, Item.questItem, Item.expert</remarks>
-        public virtual ItemRarity Rarity
+        public ItemRarity Rarity
         {
             get;
             set;
@@ -349,7 +349,7 @@ namespace Prism.API.Defs
         /// Gets or sets the use style of this item.
         /// </summary>
         /// <remarks>Item.useStyle</remarks>
-        public virtual ItemUseStyle UseStyle
+        public ItemUseStyle UseStyle
         {
             get;
             set;
@@ -358,7 +358,7 @@ namespace Prism.API.Defs
         /// Gets or sets the style in which the player holds this item.
         /// </summary>
         /// <remarks>Item.holdStyle</remarks>
-        public virtual ItemHoldStyle HoldStyle
+        public ItemHoldStyle HoldStyle
         {
             get;
             set;
@@ -368,7 +368,7 @@ namespace Prism.API.Defs
         /// Gets or sets the type of damage this item does.
         /// </summary>
         /// <remarks>Item.melee, Item.ranged, Item.magic, Item.thrown, Item.</remarks>
-        public virtual ItemDamageType DamageType
+        public ItemDamageType DamageType
         {
             get;
             set;
@@ -377,7 +377,7 @@ namespace Prism.API.Defs
         /// Gets or sets this item's value in coins (PPGGSSCC).
         /// </summary>
         /// <remarks>Item.value</remarks>
-        public virtual CoinValue Value
+        public CoinValue Value
         {
             get;
             set;
@@ -385,7 +385,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets this item's description structure.
         /// </summary>
-        public virtual ItemDescription Description
+        public ItemDescription Description
         {
             get;
             set;
@@ -393,7 +393,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets this item's armor type structure.
         /// </summary>
-        public virtual ItemArmourData ArmourData
+        public ItemArmourData ArmourData
         {
             get;
             set;
@@ -401,7 +401,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets the buff this item grants to the player.
         /// </summary>
-        public virtual AppliedBuff Buff
+        public AppliedBuff Buff
         {
             get;
             set;
@@ -409,7 +409,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets the item's accessory texture stuff.
         /// </summary>
-        public virtual ItemAccessoryData AccessoryData
+        public ItemAccessoryData AccessoryData
         {
             get;
             set;
@@ -418,7 +418,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets the ammo item the item consumes when used.
         /// </summary>
-        public virtual ItemRef UsedAmmo
+        public ItemRef UsedAmmo
         {
             get;
             set;
@@ -428,7 +428,7 @@ namespace Prism.API.Defs
         /// Gets or sets the projectile which this item shoots upon use.
         /// </summary>
         /// <remarks>Item.shoot</remarks>
-        public virtual ProjectileRef ShootProjectile
+        public ProjectileRef ShootProjectile
         {
             get;
             set;
@@ -437,7 +437,7 @@ namespace Prism.API.Defs
         /// Gets or sets the type of ammo this item acts as.
         /// </summary>
         /// <remarks>Item.ammo</remarks>
-        public virtual ItemRef AmmoType
+        public ItemRef AmmoType
         {
             get;
             set;
@@ -446,7 +446,7 @@ namespace Prism.API.Defs
         /// Gets or sets the use sound effect of this item.
         /// </summary>
         /// <remarks>Item.useSound</remarks>
-        public virtual SfxRef UseSound
+        public SfxRef UseSound
         {
             get;
             set;
@@ -455,7 +455,7 @@ namespace Prism.API.Defs
         /// Gets or sets the tile which this item places upon use.
         /// </summary>
         /// <remarks>Item.createTile</remarks>
-        public virtual TileRef CreateTile
+        public TileRef CreateTile
         {
             get;
             set;
@@ -464,7 +464,7 @@ namespace Prism.API.Defs
         /// Gets or sets the wall which this item places upon use.
         /// </summary>
         /// <remarks>Item.createWall</remarks>
-        public virtual int CreateWall
+        public int CreateWall
         {
             get;
             set;
@@ -473,29 +473,29 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets the item's texture.
         /// </summary>
-        public virtual Func<Texture2D> GetTexture
+        public Func<Texture2D> GetTexture
         {
             get;
             set;
         }
 
         //TODO: add custom things for these... later
-        public virtual int Dye
+        public int Dye
         {
             get;
             set;
         }
-        public virtual int HairDye
+        public int HairDye
         {
             get;
             set;
         }
-        public virtual int MountType
+        public int MountType
         {
             get;
             set;
         }
-        public virtual int FishingPole
+        public int FishingPole
         {
             get;
             set;
@@ -506,7 +506,8 @@ namespace Prism.API.Defs
         {
             GetTexture = getTexture ?? Empty<Texture2D>.Func;
 
-            ArmourData = new ItemArmourData(null, null, null, null);
+            ArmourData    = new ItemArmourData(null, null, null, null);
+            AccessoryData = new ItemAccessoryData(null, null, null, null, null, null, null, null, null, null, null); // this was extremely boring to write
 
             Width = Height = 16;
             MaxStack = 1;

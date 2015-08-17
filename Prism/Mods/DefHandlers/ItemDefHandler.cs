@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Prism.API.Audio;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
+using Prism.Util;
 using Terraria;
 using Terraria.ID;
 
@@ -22,6 +23,9 @@ namespace Prism.Mods.DefHandlers
 
         protected override void ExtendVanillaArrays(int amt = 1)
         {
+            if (amt == 0)
+                return;
+
             int newLen = amt > 0 ? Main.itemAnimations.Length + amt : ItemID.Count;
 
             if (!Main.dedServ)
@@ -160,10 +164,9 @@ namespace Prism.Mods.DefHandlers
                 return Main.femaleBodyTexture[item.bodySlot];
             })
             {
-                headId = item.headSlot,
-                maleBodyId = item.bodySlot,
-                legsId = item.legSlot,
-                femaleBodyId = item.bodySlot
+                HeadId     = item.headSlot,
+                MaleBodyId = item.bodySlot,
+                LegsId     = item.legSlot
             };
             #endregion
             #region AccessoryData
@@ -246,17 +249,17 @@ namespace Prism.Mods.DefHandlers
                 return Main.wingsTexture[item.type];
             })
             {
-                backId     = item.backSlot   ,
-                balloonId  = item.balloonSlot,
-                faceId     = item.faceSlot   ,
-                frontId    = item.frontSlot  ,
-                handsOffId = item.handOffSlot,
-                handsOnId  = item.handOnSlot ,
-                neckId     = item.neckSlot   ,
-                shieldId   = item.shieldSlot ,
-                shoesId    = item.shoeSlot   ,
-                waistId    = item.waistSlot  ,
-                wingsId    = item.wingSlot
+                BackId     = item.backSlot   ,
+                BalloonId  = item.balloonSlot,
+                FaceId     = item.faceSlot   ,
+                FrontId    = item.frontSlot  ,
+                HandsOffId = item.handOffSlot,
+                HandsOnId  = item.handOnSlot ,
+                NeckId     = item.neckSlot   ,
+                ShieldId   = item.shieldSlot ,
+                ShoesId    = item.shoeSlot   ,
+                WaistId    = item.waistSlot  ,
+                WingsId    = item.wingSlot
             };
             #endregion
 
@@ -340,21 +343,31 @@ namespace Prism.Mods.DefHandlers
             item.P_UseSound = def.UseSound;
             item.useSound = def.UseSound == null ? 1 : def.UseSound.VariantID;
 
-            item.headSlot = def.ArmourData.headId    ;
-            item.bodySlot = def.ArmourData.maleBodyId;
-            item.legSlot  = def.ArmourData.legsId    ;
+            if (def.ArmourData != null)
+            {
+                item.headSlot = def.ArmourData.HeadId;
+                item.bodySlot = def.ArmourData.MaleBodyId;
+                item.legSlot  = def.ArmourData.LegsId;
+            }
+            else
+                item.headSlot = item.bodySlot = item.legSlot = -1;
 
-            item.backSlot    = (sbyte)def.AccessoryData.backId    ;
-            item.balloonSlot = (sbyte)def.AccessoryData.balloonId ;
-            item.faceSlot    = (sbyte)def.AccessoryData.faceId    ;
-            item.frontSlot   = (sbyte)def.AccessoryData.frontId   ;
-            item.handOffSlot = (sbyte)def.AccessoryData.handsOffId;
-            item.handOnSlot  = (sbyte)def.AccessoryData.handsOnId ;
-            item.neckSlot    = (sbyte)def.AccessoryData.neckId    ;
-            item.shieldSlot  = (sbyte)def.AccessoryData.shieldId  ;
-            item.shoeSlot    = (sbyte)def.AccessoryData.shoesId   ;
-            item.waistSlot   = (sbyte)def.AccessoryData.waistId   ;
-            item.wingSlot    = (sbyte)def.AccessoryData.wingsId   ;
+            if (def.AccessoryData != null)
+            {
+                item.backSlot    = (sbyte)def.AccessoryData.BackId    ;
+                item.balloonSlot = (sbyte)def.AccessoryData.BalloonId ;
+                item.faceSlot    = (sbyte)def.AccessoryData.FaceId    ;
+                item.frontSlot   = (sbyte)def.AccessoryData.FrontId   ;
+                item.handOffSlot = (sbyte)def.AccessoryData.HandsOffId;
+                item.handOnSlot  = (sbyte)def.AccessoryData.HandsOnId ;
+                item.neckSlot    = (sbyte)def.AccessoryData.NeckId    ;
+                item.shieldSlot  = (sbyte)def.AccessoryData.ShieldId  ;
+                item.shoeSlot    = (sbyte)def.AccessoryData.ShoesId   ;
+                item.waistSlot   = (sbyte)def.AccessoryData.WaistId   ;
+                item.wingSlot    = (sbyte)def.AccessoryData.WingsId   ;
+            }
+            else
+                item.backSlot = item.balloonSlot = item.faceSlot = item.handOffSlot = item.handOnSlot = item.neckSlot = item.shieldSlot = item.shoeSlot = item.waistSlot = item.wingSlot;
 
             item.toolTip   =  def.Description.Description     ;
             item.toolTip2  =  def.Description.ExtraDescription;
@@ -373,11 +386,12 @@ namespace Prism.Mods.DefHandlers
         }
 
         static int CheckAndPush<T>(Func<T> getter, ref T[] array, ref bool[] loadedArray)
+            where T : class
         {
             if (getter == null)
                 return -1;
             var t = getter();
-            if (t == null)
+            if (ReferenceEquals(t, null))
                 return -1;
 
             var ret = array.Length;
@@ -391,11 +405,14 @@ namespace Prism.Mods.DefHandlers
             return ret;
         }
 
-        static List<LoaderError> LoadArmourTextures(ItemDef def)
+        static IEnumerable<LoaderError> LoadArmourTextures(ItemDef def)
         {
-            var ret = new List<LoaderError>();
-
             var ad = def.ArmourData;
+
+            if (ad == null)
+                return Empty<LoaderError>.Array;
+
+            var ret = new List<LoaderError>();
 
             Texture2D t;
 
@@ -409,10 +426,9 @@ namespace Prism.Mods.DefHandlers
                     Array.Resize(ref Main.armorBodyLoaded , Main.armorBodyLoaded.Length  + 1);
                     Main.armorBodyLoaded[id] = true;
                     Main.armorBodyTexture[id] = t;
-                    ad.maleBodyId = id;
+                    ad.MaleBodyId = id;
 
-
-                    t = (ad.FemaleBodyArmour ?? ad.MaleBodyArmour)();
+                    t = ad.FemaleBodyArmour() ?? t;
                     if (t == null) // will not execute if MaleBodyArmour returned null, that's handled already
                         ret.Add(new LoaderError(def.Mod, "ArmourData.FemaleBodyArmour return value is null for ItemDef " + def + "."));
                     else
@@ -421,7 +437,6 @@ namespace Prism.Mods.DefHandlers
                         if (Main.femaleBodyTexture.Length <= id)
                             Array.Resize(ref Main.femaleBodyTexture, id + 1);
                         Main.femaleBodyTexture[id] = t;
-                        ad.femaleBodyId = id;
                     }
 
                     t = ad.Arm();
@@ -434,9 +449,8 @@ namespace Prism.Mods.DefHandlers
                     Main.armorArmTexture[id] = ad.Arm();
                 }
             }
-
-            ad.legsId = CheckAndPush(ad.Greaves, ref Main.armorLegTexture , ref Main.armorLegsLoaded);
-            ad.headId = CheckAndPush(ad.Helmet , ref Main.armorHeadTexture, ref Main.armorHeadLoaded);
+            ad.LegsId = CheckAndPush(ad.Greaves, ref Main.armorLegTexture , ref Main.armorLegsLoaded);
+            ad.HeadId = CheckAndPush(ad.Helmet , ref Main.armorHeadTexture, ref Main.armorHeadLoaded);
 
             return ret;
         }
@@ -444,17 +458,20 @@ namespace Prism.Mods.DefHandlers
         {
             var ad = def.AccessoryData;
 
-            ad.backId     = CheckAndPush(ad.Back    , ref Main.accBackTexture    , ref Main.accBackLoaded    );
-            ad.balloonId  = CheckAndPush(ad.Balloon , ref Main.accBalloonTexture , ref Main.accballoonLoaded );
-            ad.faceId     = CheckAndPush(ad.Face    , ref Main.accFaceTexture    , ref Main.accFaceLoaded    );
-            ad.frontId    = CheckAndPush(ad.Front   , ref Main.accFrontTexture   , ref Main.accFrontLoaded   );
-            ad.handsOffId = CheckAndPush(ad.HandsOff, ref Main.accHandsOffTexture, ref Main.accHandsOffLoaded);
-            ad.handsOnId  = CheckAndPush(ad.HandsOn , ref Main.accHandsOnTexture , ref Main.accHandsOnLoaded );
-            ad.neckId     = CheckAndPush(ad.Neck    , ref Main.accNeckTexture    , ref Main.accNeckLoaded    );
-            ad.shieldId   = CheckAndPush(ad.Shield  , ref Main.accShieldTexture  , ref Main.accShieldLoaded  );
-            ad.shoesId    = CheckAndPush(ad.Shoes   , ref Main.accShoesTexture   , ref Main.accShoesLoaded   );
-            ad.waistId    = CheckAndPush(ad.Waist   , ref Main.accWaistTexture   , ref Main.accWaistLoaded   );
-            ad.wingsId    = CheckAndPush(ad.Wings   , ref Main.   wingsTexture   , ref Main.   wingsLoaded   );
+            if (ad == null)
+                return;
+
+            ad.BackId     = CheckAndPush(ad.Back    , ref Main.accBackTexture    , ref Main.accBackLoaded    );
+            ad.BalloonId  = CheckAndPush(ad.Balloon , ref Main.accBalloonTexture , ref Main.accballoonLoaded );
+            ad.FaceId     = CheckAndPush(ad.Face    , ref Main.accFaceTexture    , ref Main.accFaceLoaded    );
+            ad.FrontId    = CheckAndPush(ad.Front   , ref Main.accFrontTexture   , ref Main.accFrontLoaded   );
+            ad.HandsOffId = CheckAndPush(ad.HandsOff, ref Main.accHandsOffTexture, ref Main.accHandsOffLoaded);
+            ad.HandsOnId  = CheckAndPush(ad.HandsOn , ref Main.accHandsOnTexture , ref Main.accHandsOnLoaded );
+            ad.NeckId     = CheckAndPush(ad.Neck    , ref Main.accNeckTexture    , ref Main.accNeckLoaded    );
+            ad.ShieldId   = CheckAndPush(ad.Shield  , ref Main.accShieldTexture  , ref Main.accShieldLoaded  );
+            ad.ShoesId    = CheckAndPush(ad.Shoes   , ref Main.accShoesTexture   , ref Main.accShoesLoaded   );
+            ad.WaistId    = CheckAndPush(ad.Waist   , ref Main.accWaistTexture   , ref Main.accWaistLoaded   );
+            ad.WingsId    = CheckAndPush(ad.Wings   , ref Main.   wingsTexture   , ref Main.   wingsLoaded   );
         }
 
         protected override List<LoaderError> CheckTextures(ItemDef def)
@@ -464,7 +481,7 @@ namespace Prism.Mods.DefHandlers
             if (def.GetTexture == null)
                 ret.Add(new LoaderError(def.Mod, "GetTexture of ItemDef " + def + " is null."));
 
-            if (def.ArmourData.MaleBodyArmour != null && def.ArmourData.Arm == null)
+            if (def.ArmourData != null && def.ArmourData.MaleBodyArmour != null && def.ArmourData.Arm == null)
                 ret.Add(new LoaderError(def.Mod, "ArmourData.Arm of ItemDef " + def + " is null when ArmourData.MaleBodyArmour isn't."));
 
             return ret;

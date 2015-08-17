@@ -276,6 +276,56 @@ namespace Prism.Injector.Patcher
             // wtf?
             typeDef_Main.GetField("OnEngineLoad").Name = "_onEngineLoad_backingField";
         }
+        static void RemoveArmourDrawLimitations()
+        {
+            #region DrawPlayerHead
+            {
+                var drawPlayerHead = typeDef_Main.GetMethod("DrawPlayerHead", MethodFlags.Public | MethodFlags.Instance);
+
+                while (true)
+                {
+                    OpCode[] toRem =
+                    {
+                        OpCodes.Ldarg_1,
+                        OpCodes.Ldfld,
+                        OpCodes.Ldc_I4,
+                        OpCodes.Bge
+                    };
+
+                    var i = drawPlayerHead.Body.FindInstrSeqStart(toRem);
+
+                    if (i == null)
+                        break;
+
+                    drawPlayerHead.Body.GetILProcessor().RemoveInstructions(i, toRem.Length);
+                }
+            }
+            #endregion
+
+            #region DrawPlayer
+            {
+                var drawPlayer = typeDef_Main.GetMethod("RealDrawPlayer", MethodFlags.Public | MethodFlags.Instance);
+
+                while (true)
+                {
+                    OpCode[] toRem =
+                    {
+                        OpCodes.Ldarg_1,
+                        OpCodes.Ldfld,
+                        OpCodes.Ldc_I4,
+                        OpCodes.Bge
+                    };
+
+                    var i = drawPlayer.Body.FindInstrSeqStart(toRem);
+
+                    if (i == null)
+                        break;
+
+                    drawPlayer.Body.GetILProcessor().RemoveInstructions(i, toRem.Length);
+                }
+            }
+            #endregion
+        }
 
         internal static void Patch()
         {
@@ -288,6 +338,7 @@ namespace Prism.Injector.Patcher
             WrapMethods();
             RemoveVanillaNpcDrawLimitation();
             FixOnEngineLoadField();
+            RemoveArmourDrawLimitations();
 
             //These are causing System.InvalidProgramExceptions so I'm just commenting them out (pls don't remove them)
             //AddIsChatAllowedHook();

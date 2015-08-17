@@ -23,7 +23,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets the tile's texture function.
         /// </summary>
-        public virtual Func<Texture2D> GetTexture
+        public Func<Texture2D> GetTexture
         {
             get;
             set;
@@ -32,7 +32,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets this tile's housing configuration.
         /// </summary>
-        public virtual TileHousingConfig HousingConfig
+        public TileHousingConfig HousingConfig
         {
             get;
             set;
@@ -40,7 +40,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets this tile's mining configuration.
         /// </summary>
-        public virtual TileMineConfig MineConfig
+        public TileMineConfig MineConfig
         {
             get;
             set;
@@ -48,7 +48,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets this tile's placement configuration.
         /// </summary>
-        public virtual TilePlaceConfig PlaceConfig
+        public TilePlaceConfig PlaceConfig
         {
             get;
             set;
@@ -56,7 +56,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets this tile's lighting configuration.
         /// </summary>
-        public virtual TileLightingConfig LightingConfig
+        public TileLightingConfig LightingConfig
         {
             get;
             set;
@@ -64,7 +64,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets this tile's lighting configuration.
         /// </summary>
-        public virtual TileFrameConfig FrameConfig
+        public TileFrameConfig FrameConfig
         {
             get;
             set;
@@ -73,7 +73,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether or not a tile has collision.
         /// </summary>
-        public virtual bool Solid
+        public bool Solid
         {
             get;
             set;
@@ -81,7 +81,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether or not the player can walk on this tile if it's non-solid. (such as tables, bookcases, etc.)
         /// </summary>
-        public virtual bool SolidTop
+        public bool SolidTop
         {
             get;
             set;
@@ -89,7 +89,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether or not this tile acts as a storage container
         /// </summary>
-        public virtual bool Chest
+        public bool Chest
         {
             get;
             set;
@@ -97,7 +97,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether or not this tile should behave similarly to a rope.
         /// </summary>
-        public virtual bool Rope
+        public bool Rope
         {
             get;
             set;
@@ -105,7 +105,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether or not this tile should be considered part of the dungeon.
         /// </summary>
-        public virtual bool TileDungeon
+        public bool TileDungeon
         {
             get;
             set;
@@ -113,7 +113,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether or not this tile should be considered a viable spawn point.
         /// </summary>
-        public virtual bool Spawn
+        public bool Spawn
         {
             get;
             set;
@@ -121,7 +121,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether or not this tile is unaffected by explosions
         /// </summary>
-        public virtual bool ExplosionResistant
+        public bool ExplosionResistant
         {
             get;
             set;
@@ -129,7 +129,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether or not this tile can be sloped
         /// </summary>
-        public virtual bool Slopable
+        public bool Slopable
         {
             get;
             set;
@@ -137,7 +137,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// NeedsSummary
         /// </summary>
-        public virtual bool NoFail
+        public bool NoFail
         {
             get;
             set;
@@ -146,7 +146,7 @@ namespace Prism.API.Defs
         /// NeedsSummary
         /// </summary>
         /// <remarks>obsidianKill</remarks>
-        public virtual bool ObsidianKill
+        public bool ObsidianKill
         {
             get;
             set;
@@ -154,7 +154,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether or not this tile should behave similarly to a platform
         /// </summary>
-        public virtual bool Platform
+        public bool Platform
         {
             get;
             set;
@@ -162,7 +162,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether or not this tile should behave similarly to a pile
         /// </summary>
-        public virtual bool Pile
+        public bool Pile
         {
             get;
             set;
@@ -170,7 +170,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether or not this tile should be considered bricks.
         /// </summary>
-        public virtual bool Brick
+        public bool Brick
         {
             get;
             set;
@@ -178,7 +178,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether or not this tile should be considered moss.
         /// </summary>
-        public virtual bool Moss
+        public bool Moss
         {
             get;
             set;
@@ -186,7 +186,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether or not this tile should be considered stone.
         /// </summary>
-        public virtual bool Stone
+        public bool Stone
         {
             get;
             set;
@@ -194,7 +194,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether or not the tile should be considered grass frame-wise.
         /// </summary>
-        public virtual bool Grass
+        public bool Grass
         {
             get;
             set;
@@ -202,7 +202,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether or not this tile should be considered sand. (does not grant gravity to the tile)
         /// </summary>
-        public virtual bool TileSand
+        public bool TileSand
         {
             get;
             set;
@@ -210,7 +210,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether or not this tile has a vanilla 'flame texture'. Almost all custom tiles will have this as false.
         /// </summary>
-        public virtual bool TileFlame
+        public bool TileFlame
         {
             get;
             set;
@@ -218,7 +218,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets whether or not this tile is considered a potion herb. Does nothing except change the default sound the tile makes.
         /// </summary>
-        public virtual bool AlchemyFlower
+        public bool AlchemyFlower
         {
             get;
             set;
@@ -227,7 +227,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// The color the tile uses on the map.
         /// </summary>
-        public virtual Color MapColor
+        public Color MapColor
         {
             get;
             set;
@@ -236,7 +236,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// The text used when the tile is hovered over.
         /// </summary>
-        public virtual string MapHoverText
+        public string MapHoverText
         {
             get;
             set;

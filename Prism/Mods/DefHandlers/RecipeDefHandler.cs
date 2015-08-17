@@ -72,6 +72,9 @@ namespace Prism.Mods.DefHandlers
 
         static void ExtendVanillaArrays(int amt = 1)
         {
+            if (amt == 0)
+                return;
+
             int newLen = amt > 0 ? Recipe.numRecipes + amt : DefMaxRecipes;
 
             // vanilla allocates 2000 elements, but only 1806 are used, so only resize when needed
