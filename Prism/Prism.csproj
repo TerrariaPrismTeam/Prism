@@ -39,6 +39,8 @@
   </PropertyGroup>
   <PropertyGroup>
     <DefineConstants Condition="'$(OS)' != 'Windows_NT'">$(DefineConstants);UNIX</DefineConstants>
+    <DefineConstants Condition="!'$(IsOSX)'">$(DefineConstants);LINUX</DefineConstants>
+    <DefineConstants Condition="'$(IsOSX)'">$(DefineConstants);OSX</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>Prism.Program</StartupObject>
@@ -114,6 +116,7 @@
     <Compile Include="API\Behaviours\EntityBehaviour.cs" />
     <Compile Include="API\Behaviours\GameBehaviour.cs" />
     <Compile Include="API\Behaviours\ItemBehaviour.cs" />
+    <Compile Include="API\Behaviours\PlayerBehaviour.cs" />
     <Compile Include="API\Behaviours\ProjectileBehaviour.cs" />
     <Compile Include="API\Behaviours\NpcBehaviour.cs" />
     <Compile Include="API\Behaviours\TileBehaviour.cs" />
@@ -139,6 +142,7 @@
     <Compile Include="API\Defs\TileRef.cs" />
     <Compile Include="API\ObjectRef.cs" />
     <Compile Include="Debugging\Logging.cs" />
+    <Compile Include="Mods\BHandlers\PlayerBHandler.cs" />
     <Compile Include="Mods\BHandlers\TileBHandler.cs" />
     <Compile Include="Mods\ContentLoader.cs" />
     <Compile Include="Mods\DefHandlers\IDH_SetDefaults.cs" />
@@ -147,6 +151,7 @@
     <Compile Include="Mods\DefHandlers\TileDefHandler.cs" />
     <Compile Include="Mods\Hooks\GameHooks.cs" />
     <Compile Include="Mods\Hooks\NpcHooks.cs" />
+    <Compile Include="Mods\Hooks\ProjHooks.cs" />
     <Compile Include="Mods\Resources\DSEIReader.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -158,7 +163,7 @@
     <Compile Include="API\ModDef.cs" />
     <Compile Include="Mods\BHandlers\EntityBHandler.cs" />
     <Compile Include="Mods\BHandlers\ItemBHandler.cs" />
-    <Compile Include="Mods\BHandlers\ProjectileBHandler.cs" />
+    <Compile Include="Mods\BHandlers\ProjBHandler.cs" />
     <Compile Include="Mods\BHandlers\NpcBHandler.cs" />
     <Compile Include="Mods\DefHandlers\ProjDefHandler.cs" />
     <Compile Include="Mods\DefHandlers\NpcDefHandler.cs" />

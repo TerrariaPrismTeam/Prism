@@ -6,7 +6,10 @@ namespace Prism.Util
 {
     public static class Maybe
     {
-        public static Maybe<T> Just<T>(T value) => new Maybe<T>(value);
+        public static Maybe<T> Just<T>(T value)
+        {
+            return new Maybe<T>(value);
+        }
     }
     public struct Maybe<T> : IEquatable<Maybe<T>>, IEquatable<T> // Nullable is only for structs, need support for any T
     {

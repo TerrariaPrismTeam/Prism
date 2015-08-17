@@ -13,6 +13,7 @@ namespace Prism.Mods.BHandlers
         internal List<TBehaviour> behaviours = new List<TBehaviour>();
 
         IEnumerable<Action> onInit, onDestroyed;
+        IEnumerable<Func<bool>> preDestroyed;
 
         public IEnumerable<TBehaviour> Behaviours
         {
@@ -25,18 +26,28 @@ namespace Prism.Mods.BHandlers
         public virtual void Create()
         {
             onInit      = HookManager.CreateHooks<TBehaviour, Action>(behaviours, "OnInit"     );
-            onDestroyed = HookManager.CreateHooks<TBehaviour, Action>(behaviours, "OnDestroyed");
+
+            preDestroyed = HookManager.CreateHooks<TBehaviour, Func<bool>>(behaviours, "PreDestroyed");
+            onDestroyed  = HookManager.CreateHooks<TBehaviour, Action    >(behaviours, "OnDestroyed" );
         }
         public virtual void Clear ()
         {
             onInit = onDestroyed = null;
+            preDestroyed = null;
         }
 
         public void OnInit     ()
         {
-            HookManager.Call(onInit     );
+            HookManager.Call(onInit);
         }
-        public void OnDestroyed()
+
+        public bool PreDestroyed()
+        {
+            var r = HookManager.Call(preDestroyed);
+
+            return r.Length == 0 || r.All(Convert.ToBoolean);
+        }
+        public void OnDestroyed ()
         {
             HookManager.Call(onDestroyed);
         }

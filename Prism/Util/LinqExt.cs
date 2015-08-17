@@ -68,6 +68,15 @@ namespace Prism.Util
             return ret;
         }
 
+        public static bool All(this IEnumerable<bool> coll)
+        {
+            return coll.All(MiscExtensions.Identity);
+        }
+        public static bool Any(this IEnumerable<bool> coll)
+        {
+            return coll.Any(MiscExtensions.Identity);
+        }
+
         public static T[] Subarray<T>(this T[] arr, int s, int l)
         {
             if (s == 0 && l == arr.Length)

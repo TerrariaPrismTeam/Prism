@@ -22,14 +22,49 @@ namespace Prism.Mods.Hooks
             return id;
         }
 
+        internal static void OnUpdateNPC(NPC n, int id)
+        {
+            n.whoAmI = id;
+
+            var bh = n.P_BHandler as NpcBHandler;
+
+            if (bh != null && bh.PreUpdate())
+            {
+                n.RealUpdateNPC(id);
+                bh.OnUpdate();
+            }
+        }
         internal static void OnAI(NPC n)
         {
-            var bh = (NpcBHandler)n.P_BHandler;
+            var bh = n.P_BHandler as NpcBHandler;
 
-            if (n.P_BHandler != null && bh.PreAI())
+            if (bh != null && bh.PreAI())
             {
-                bh.OnAI();
                 n.RealAI();
+                bh.OnAI();
+            }
+        }
+
+        internal static void OnNPCLoot(NPC n)
+        {
+            var bh = n.P_BHandler as NpcBHandler;
+
+            if (bh != null && bh.PreDestroyed())
+            {
+                n.RealNPCLoot();
+                bh.OnDestroyed();
+            }
+        }
+
+        internal static void OnDrawNPC(Main m, int nid, bool behindTiles)
+        {
+            var n = Main.npc[nid];
+            var bh = n.P_BHandler as NpcBHandler;
+
+            if (bh != null && bh.PreDraw(Main.spriteBatch, behindTiles))
+            {
+                m.RealDrawNPC(nid, behindTiles);
+                bh.OnDraw(Main.spriteBatch, behindTiles);
             }
         }
     }

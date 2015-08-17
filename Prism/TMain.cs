@@ -103,13 +103,17 @@ namespace Prism
             NPC       .P_OnSetDefaultsByName += NpcDefHandler .OnSetDefaultsByName;
             Projectile.P_OnSetDefaults       += ProjDefHandler.OnSetDefaults      ;
 
-            NPC.P_OnNewNPC += NpcHooks.OnNewNPC;
-            NPC.P_OnAI     += NpcHooks.OnAI;
+            NPC.P_OnNewNPC    += NpcHooks.OnNewNPC   ;
+            NPC.P_OnUpdateNPC += NpcHooks.OnUpdateNPC;
+            NPC.P_OnAI        += NpcHooks.OnAI       ;
+            NPC.P_OnNPCLoot   += NpcHooks.OnNPCLoot  ;
+
+            P_OnDrawNPC += NpcHooks.OnDrawNPC;
 
             NPC.P_ReflectProjectile_PlaySoundHit += (n, _) => PlayHitSound(n);
-            NPC.P_StrikeNPC_PlaySoundHit += (n, _d, _kb, _hd, _c, _ne, _fn) => PlayHitSound(n);
-            NPC.P_checkDead_PlaySoundKilled += PlayKilledSound;
-            NPC.P_RealAI_PlaySoundKilled += PlayKilledSound;
+            NPC.P_StrikeNPC_PlaySoundHit         += (n, _d, _kb, _hd, _c, _ne, _fn) => PlayHitSound(n);
+            NPC.P_checkDead_PlaySoundKilled      += PlayKilledSound;
+            NPC.P_RealAI_PlaySoundKilled         += PlayKilledSound;
 
             Player.P_ItemCheck_PlayUseSound0     += PlayUseSound;
             Player.P_ItemCheck_PlayUseSound1     += PlayUseSound;
@@ -120,6 +124,13 @@ namespace Prism
             Player.P_QuickMount_PlayUseSound     += PlayUseSound;
             Player.P_UpdatePet_PlayUseSound      += PlayUseSound;
             Player.P_UpdatePetLight_PlayUseSound += PlayUseSound;
+
+            Projectile.P_OnAI            += ProjHooks.OnAI           ;
+            Projectile.P_OnKill          += ProjHooks.OnKill         ;
+            Projectile.P_OnNewProjectile += ProjHooks.OnNewProjectile;
+            Projectile.P_OnUpdate        += ProjHooks.OnUpdate       ;
+
+            P_OnDrawProj += ProjHooks.OnDrawProj;
         }
 
         protected override void Initialize()

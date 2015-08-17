@@ -21,6 +21,12 @@ namespace Prism.API.Behaviours
 
         [Hook]
         public virtual void OnInit     () { }
+
+        [Hook]
+        public virtual bool PreDestroyed()
+        {
+            return true;
+        }
         [Hook]
         public virtual void OnDestroyed() { }
     }

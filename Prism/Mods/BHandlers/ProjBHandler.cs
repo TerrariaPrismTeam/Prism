@@ -8,29 +8,29 @@ using Terraria;
 
 namespace Prism.Mods.BHandlers
 {
-    sealed class NpcBHandler : EntityBHandler<NpcBehaviour, NPC>
+    sealed class ProjBHandler : EntityBHandler<ProjectileBehaviour, Projectile>
     {
         IEnumerable<Func<bool>> preUpdate, preAI;
         IEnumerable<Action> onUpdate, onAI;
 
-        IEnumerable<Func<SpriteBatch, bool, bool>> preDraw;
-        IEnumerable<Action<SpriteBatch, bool>> onDraw;
+        IEnumerable<Func<SpriteBatch, bool>> preDraw;
+        IEnumerable<Action<SpriteBatch>> onDraw;
 
         public override void Create()
         {
             base.Create();
 
-            preUpdate = HookManager.CreateHooks<NpcBehaviour, Func<bool>>(Behaviours, "PreUpdate");
-            onUpdate  = HookManager.CreateHooks<NpcBehaviour, Action    >(Behaviours, "OnUpdate" );
-            preAI     = HookManager.CreateHooks<NpcBehaviour, Func<bool>>(Behaviours, "PreAI"    );
-            onAI      = HookManager.CreateHooks<NpcBehaviour, Action    >(Behaviours, "OnAI"     );
+            preUpdate = HookManager.CreateHooks<ProjectileBehaviour, Func<bool>>(Behaviours, "PreUpdate");
+            onUpdate  = HookManager.CreateHooks<ProjectileBehaviour, Action    >(Behaviours, "OnUpdate" );
+            preAI     = HookManager.CreateHooks<ProjectileBehaviour, Func<bool>>(Behaviours, "PreAI"    );
+            onAI      = HookManager.CreateHooks<ProjectileBehaviour, Action    >(Behaviours, "OnAI"     );
 
-            preDraw = HookManager.CreateHooks<NpcBehaviour, Func  <SpriteBatch, bool, bool>>(Behaviours, "PreDraw");
-            onDraw  = HookManager.CreateHooks<NpcBehaviour, Action<SpriteBatch, bool      >>(Behaviours, "OnDraw" );
+            preDraw = HookManager.CreateHooks<ProjectileBehaviour, Func<SpriteBatch, bool>>(Behaviours, "PreDraw");
+            onDraw  = HookManager.CreateHooks<ProjectileBehaviour, Action<SpriteBatch    >>(Behaviours, "OnDraw" );
         }
         public override void Clear ()
         {
-            base.Clear ();
+            base.Clear();
 
             preUpdate = null;
             onUpdate  = null;
@@ -63,15 +63,15 @@ namespace Prism.Mods.BHandlers
             HookManager.Call(onAI);
         }
 
-        public bool PreDraw(SpriteBatch sb, bool bt)
+        public bool PreDraw(SpriteBatch sb)
         {
-            var r = HookManager.Call(preDraw, sb, bt);
+            var r = HookManager.Call(preDraw, sb);
 
             return r.Length == 0 || r.All(Convert.ToBoolean);
         }
-        public void OnDraw (SpriteBatch sb, bool bt)
+        public void OnDraw (SpriteBatch sb)
         {
-            HookManager.Call(onDraw, sb, bt);
+            HookManager.Call(onDraw, sb);
         }
     }
 }

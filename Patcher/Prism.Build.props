@@ -3,4 +3,8 @@
     <!-- XBuild specifies an OS property, but MSBuild doesn't. This sets the default value on MSBuild. -->
     <OS Condition="'$(OS)' == ''">Windows_NT</OS>
   </PropertyGroup>
+  <PropertyGroup>
+    <IsOSX>false</IsOSX>
+    <IsOSX Condition="'$(OS)' == 'Unix' And Exists('/Library/Frameworks')">true</IsOSX>
+  </PropertyGroup>
 </Project>

@@ -14,6 +14,13 @@ namespace Prism.Injector.Patcher
         static TypeSystem typeSys;
         static TypeDefinition typeDef_Main;
 
+        static void WrapMethods()
+        {
+            typeDef_Main.GetMethod("UpdateMusic").Wrap(context);
+            typeDef_Main.GetMethod("PlaySound", MethodFlags.Static | MethodFlags.Public, typeSys.Int32, typeSys.Int32, typeSys.Int32, typeSys.Int32).Wrap(context, "Terraria.PrismInjections", "Main_PlaySoundDel", "P_OnPlaySound");
+            typeDef_Main.GetMethod("DrawNPC", MethodFlags.Instance | MethodFlags.Public, typeSys.Int32, typeSys.Boolean).Wrap(context);
+            typeDef_Main.GetMethod("DrawProj", MethodFlags.Instance | MethodFlags.Public, typeSys.Int32).Wrap(context);
+        }
         static void RemoveVanillaNpcDrawLimitation()
         {
             OpCode[] seqToRemove =
@@ -41,10 +48,6 @@ namespace Prism.Injector.Patcher
 
             var firstInstr = drawNpcs.Body.FindInstrSeqStart(seqToRemove);
             drawNpcs.Body.GetILProcessor().RemoveInstructions(firstInstr, seqToRemove.Length);
-        }
-        static void WrapUpdateMusic()
-        {
-            typeDef_Main.GetMethod("UpdateMusic").Wrap(context);
         }
         static void AddIsChatAllowedHook()
         {
@@ -272,10 +275,6 @@ namespace Prism.Injector.Patcher
             // wtf?
             typeDef_Main.GetField("OnEngineLoad").Name = "_onEngineLoad_backingField";
         }
-        static void WrapPlaySound()
-        {
-            typeDef_Main.GetMethod("PlaySound", MethodFlags.Static | MethodFlags.Public, typeSys.Int32, typeSys.Int32, typeSys.Int32, typeSys.Int32).Wrap(context, "Terraria.PrismInjections", "Main_PlaySoundDel", "P_OnPlaySound");
-        }
 
         internal static void Patch()
         {
@@ -285,10 +284,9 @@ namespace Prism.Injector.Patcher
             typeSys = context.PrimaryAssembly.MainModule.TypeSystem;
             typeDef_Main = memRes.GetType("Terraria.Main");
 
+            WrapMethods();
             RemoveVanillaNpcDrawLimitation();
-            WrapUpdateMusic();
             FixOnEngineLoadField();
-            WrapPlaySound();
 
             //These are causing System.InvalidProgramExceptions so I'm just commenting them out (pls don't remove them)
             //AddIsChatAllowedHook();

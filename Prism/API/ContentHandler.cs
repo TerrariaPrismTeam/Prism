@@ -178,6 +178,10 @@ namespace Prism.API
         {
             return null;
         }
+        protected virtual PlayerBehaviour CreatePlayerBehaviour()
+        {
+            return null;
+        }
 
         protected virtual ItemBehaviour CreateGlobalItemBehaviour()
         {
@@ -232,6 +236,10 @@ namespace Prism.API
         internal GameBehaviour CreateGameBInternally()
         {
             return CreateGameBehaviour();
+        }
+        internal PlayerBehaviour CreatePlayerBInternally()
+        {
+            return CreatePlayerBehaviour();
         }
 
         internal ItemBehaviour CreateGlobalItemBInternally()

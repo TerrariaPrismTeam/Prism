@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prism", "Prism\Prism.csproj
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Patcher", "Patcher", "{276F330E-F5CE-4ECB-B27F-E2050AF3E21B}"
 	ProjectSection(SolutionItems) = preProject
-		BuildFiles\Prism.Build.props = BuildFiles\Prism.Build.props
+		Patcher\Prism.Build.props = Patcher\Prism.Build.props
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prism.TerrariaPatcher", "Patcher\Prism.TerrariaPatcher\Prism.TerrariaPatcher.csproj", "{6B42EB0B-AFA3-4449-ACDA-AA91C8A39DC0}"

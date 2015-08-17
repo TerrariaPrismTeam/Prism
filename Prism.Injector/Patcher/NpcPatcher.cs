@@ -14,10 +14,14 @@ namespace Prism.Injector.Patcher
         static TypeSystem typeSys;
         static TypeDefinition typeDef_NPC;
 
-        static void WrapSetDefaults()
+        static void WrapMethods()
         {
             typeDef_NPC.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32 , typeSys.Single).Wrap(context, "Terraria.PrismInjections", "NPC_SetDefaultsDel_Id"  , "P_OnSetDefaultsById"  );
             typeDef_NPC.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, typeSys.String                ).Wrap(context, "Terraria.PrismInjections", "NPC_SetDefaultsDel_Name", "P_OnSetDefaultsByName");
+
+            typeDef_NPC.GetMethod("AI"       , MethodFlags.Public | MethodFlags.Instance               ).Wrap(context);
+            typeDef_NPC.GetMethod("UpdateNPC", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
+            typeDef_NPC.GetMethod("NPCLoot"  , MethodFlags.Public | MethodFlags.Instance               ).Wrap(context);
         }
         static void AddFieldForBHandler()
         {
@@ -28,10 +32,6 @@ namespace Prism.Injector.Patcher
             typeDef_NPC.Fields.Add(new FieldDefinition("P_Music"       , FieldAttributes.Public, typeSys.Object));
             typeDef_NPC.Fields.Add(new FieldDefinition("P_SoundOnHit"  , FieldAttributes.Public, typeSys.Object));
             typeDef_NPC.Fields.Add(new FieldDefinition("P_SoundOnDeath", FieldAttributes.Public, typeSys.Object));
-        }
-        static void WrapAI()
-        {
-            typeDef_NPC.GetMethod("AI", MethodFlags.Public | MethodFlags.Instance).Wrap(context);
         }
         static void InsertInitialize()
         {
@@ -253,12 +253,13 @@ namespace Prism.Injector.Patcher
             memRes = TerrariaPatcher.memRes;
 
             typeSys = context.PrimaryAssembly.MainModule.TypeSystem;
-            typeDef_NPC  = memRes.GetType("Terraria.NPC" );
+            typeDef_NPC = memRes.GetType("Terraria.NPC" );
 
-            WrapSetDefaults();
+            WrapMethods();
+
             AddFieldForBHandler();
             AddFieldsForAudio();
-            WrapAI();
+
             InsertInitialize();
             ReplaceSoundHitCalls();
             ReplaceSoundKilledCalls();

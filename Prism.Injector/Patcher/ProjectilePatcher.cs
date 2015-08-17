@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
-using Mono.Cecil.Cil;
-using Mono.Collections.Generic;
 
 namespace Prism.Injector.Patcher
 {
@@ -13,15 +11,20 @@ namespace Prism.Injector.Patcher
         static MemberResolver  memRes;
 
         static TypeSystem typeSys;
-        static TypeDefinition typeDef_Projectile;
+        static TypeDefinition typeDef_Proj;
 
-        static void WrapSetDefaults()
+        static void WrapMethods()
         {
-            typeDef_Projectile.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
+            typeDef_Proj.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
+
+            typeDef_Proj.GetMethod("NewProjectile").Wrap(context, "Terraria.PrismInjections", "Projectile_NewProjectileDel", "P_OnNewProjectile");
+            typeDef_Proj.GetMethod("AI"    , MethodFlags.Public | MethodFlags.Instance               ).Wrap(context);
+            typeDef_Proj.GetMethod("Update", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
+            typeDef_Proj.GetMethod("Kill"  , MethodFlags.Public | MethodFlags.Instance               ).Wrap(context);
         }
         static void AddFieldForBHandler()
         {
-            typeDef_Projectile.Fields.Add(new FieldDefinition("P_BHandler", FieldAttributes.Public, typeSys.Object));
+            typeDef_Proj.Fields.Add(new FieldDefinition("P_BHandler", FieldAttributes.Public, typeSys.Object));
         }
 
         internal static void Patch()
@@ -30,9 +33,9 @@ namespace Prism.Injector.Patcher
             memRes = TerrariaPatcher.memRes;
 
             typeSys = context.PrimaryAssembly.MainModule.TypeSystem;
-            typeDef_Projectile = memRes.GetType("Terraria.Projectile");
+            typeDef_Proj = memRes.GetType("Terraria.Projectile");
 
-            WrapSetDefaults();
+            WrapMethods();
             AddFieldForBHandler();
         }
     }

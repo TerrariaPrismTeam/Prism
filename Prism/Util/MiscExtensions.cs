@@ -15,6 +15,11 @@ namespace Prism.Util
             return v.ToString();
         }
 
+        public static T Identity<T>(T t)
+        {
+            return t;
+        }
+
         public static Ref<TOut> Bind<TIn, TOut>(this Ref<TIn> m, Func<TIn, TOut> map)
         {
             if (m == null)
@@ -42,7 +47,7 @@ namespace Prism.Util
             where TIn  : struct
             where TOut : struct
         {
-            return m.HasValue ? map(m.Value) : default(TOut);
+            return m.HasValue ? map(m.Value) : default(TOut?);
         }
         public static Lazy<TOut> Bind<TIn, TOut>(this Lazy<TIn> m, Func<TIn, TOut> map)
         {

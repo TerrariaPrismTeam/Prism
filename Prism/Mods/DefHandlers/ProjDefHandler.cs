@@ -34,7 +34,7 @@ namespace Prism.Mods.DefHandlers
                 return;
             }
 
-            ProjectileBHandler h = null; // will be set to <non-null> only if a behaviour handler will be attached
+            ProjBHandler h = null; // will be set to <non-null> only if a behaviour handler will be attached
 
             p.RealSetDefaults(type);
 
@@ -49,7 +49,7 @@ namespace Prism.Mods.DefHandlers
 
                 if (d.CreateBehaviour != null)
                 {
-                    h = new ProjectileBHandler();
+                    h = new ProjBHandler();
 
                     var b = d.CreateBehaviour();
 
@@ -74,7 +74,7 @@ namespace Prism.Mods.DefHandlers
             });
 
             if (!bs.IsEmpty() && h == null)
-                h = new ProjectileBHandler();
+                h = new ProjBHandler();
 
             if (h != null)
             {

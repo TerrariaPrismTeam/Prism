@@ -14,6 +14,10 @@ namespace Prism.Injector.Patcher
         static TypeSystem typeSys;
         static TypeDefinition typeDef_Player;
 
+        static void AddFieldForBHandler()
+        {
+            typeDef_Player.Fields.Add(new FieldDefinition("P_BHandler", FieldAttributes.Public, typeSys.Object));
+        }
         // Removes the ID checks from player loading, so that invalid items
         // are removed instead of resulting in the character being declared
         // invalid. If this gets fixed in the original, this code should be
@@ -483,6 +487,7 @@ namespace Prism.Injector.Patcher
             typeSys = context.PrimaryAssembly.MainModule.TypeSystem;
             typeDef_Player = memRes.GetType("Terraria.Player");
 
+            AddFieldForBHandler();
             RemoveBuggyPlayerLoading();
             ReplaceUseSoundCalls();
         }
