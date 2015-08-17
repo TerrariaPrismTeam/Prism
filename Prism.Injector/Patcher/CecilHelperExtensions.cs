@@ -163,9 +163,9 @@ namespace Prism.Injector.Patcher
 
             return result;
         }
-        public static Instruction FindInstrSeqStart(this MethodBody body, OpCode[] instrs)
+        public static Instruction FindInstrSeqStart(this MethodBody body, OpCode[] instrs, int startIndex = 0)
         {
-            for (int i = 0; i < body.Instructions.Count - instrs.Length; i++)
+            for (int i = startIndex; i < body.Instructions.Count - instrs.Length; i++)
             {
                 for (int j = 0; j < instrs.Length; j++)
                 {

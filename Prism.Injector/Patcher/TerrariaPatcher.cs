@@ -52,7 +52,7 @@ namespace Prism.Injector.Patcher
 
             foreach (TypeDefinition td in context.PrimaryAssembly.MainModule.Types)
             {
-                if (td.Namespace != "Terraria" && td.Namespace != "Terraria.Map")
+                if (td.Namespace != "Terraria" && td.Namespace != "Terraria.Map" && !td.Namespace.StartsWith("Terraria.GameContent", StringComparison.Ordinal))
                     continue;
 
                 PublicifyRec(td);

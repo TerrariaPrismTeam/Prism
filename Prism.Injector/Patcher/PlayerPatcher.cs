@@ -14,6 +14,17 @@ namespace Prism.Injector.Patcher
         static TypeSystem typeSys;
         static TypeDefinition typeDef_Player;
 
+        static void WrapMethods()
+        {
+            typeDef_Player.GetMethod("GetFileData", MethodFlags.Public | MethodFlags.Static, typeSys.String, typeSys.Boolean).Wrap(context);
+            typeDef_Player.GetMethod("ItemCheck", MethodFlags.Public | MethodFlags.Instance).Wrap(context);
+            typeDef_Player.GetMethod("KillMe", MethodFlags.Public | MethodFlags.Instance).Wrap(context);
+            typeDef_Player.GetMethod("Update", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
+
+            var typeDef_uiCharSelect = memRes.GetType("Terraria.GameContent.UI.States.UICharacterSelect");
+
+            typeDef_uiCharSelect.GetMethod("NewCharacterClick").Wrap(context);
+        }
         static void AddFieldForBHandler()
         {
             typeDef_Player.Fields.Add(new FieldDefinition("P_BHandler", FieldAttributes.Public, typeSys.Object));
@@ -70,7 +81,7 @@ namespace Prism.Injector.Patcher
 
             #region ItemCheck
             {
-                var itemCheck = typeDef_Player.GetMethod("ItemCheck");
+                var itemCheck = typeDef_Player.GetMethod("RealItemCheck"); // this method is wrapped
 
                 MethodDefinition invokeUseSound;
                 var onItemCheckUseSound = context.CreateDelegate("Terraria.PrismInjections", "Player_ItemCheck_PlayUseSoundDel", typeSys.Void, out invokeUseSound, typeDef_Item, typeDef_Player);
@@ -478,6 +489,62 @@ namespace Prism.Injector.Patcher
             }
             #endregion
         }
+        static void FixOnEnterWorldField()
+        {
+            // wtf?
+            typeDef_Player.GetField("OnEnterWorld").Name = "_onEnterWorld_backingField";
+        }
+        static void InjectMidUpdate()
+        {
+            var update = typeDef_Player.GetMethod("RealUpdate" /* method is wrapped */, MethodFlags.Public | MethodFlags.Instance, typeSys.Int32);
+            var grabItems = typeDef_Player.GetMethod("GrabItems", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32);
+
+            MethodDefinition invokeMidUpdate;
+            var onMidUpdateDel = context.CreateDelegate("Terraria.PrismInjections", "Player_MidUpdateDel", typeSys.Void, out invokeMidUpdate, typeDef_Player, typeSys.Int32);
+
+            var onMidUpdate = new FieldDefinition("P_OnMidUpdate", FieldAttributes.Public | FieldAttributes.Static, onMidUpdateDel);
+            typeDef_Player.Fields.Add(onMidUpdate);
+
+            var ub = update.Body;
+            var uproc = ub.GetILProcessor();
+
+            OpCode[] callGrabItems =
+            {
+                OpCodes.Ldarg_0, // this
+                OpCodes.Ldarg_1, // id
+                OpCodes.Call, // Player.GrabItems
+
+                OpCodes.Ldsfld, // Main.mapFullScreen
+                OpCodes.Brtrue
+            };
+
+            Instruction instrs;
+
+            int startInd = 0;
+            while (true)
+            {
+                instrs = ub.FindInstrSeqStart(callGrabItems, startInd);
+
+                if (instrs == null)
+                    break;
+
+                startInd = ub.Instructions.IndexOf(instrs) + 3;
+
+                var mtdToCall = instrs.Next.Next.Operand as MethodReference;
+
+                if (mtdToCall == null)
+                    continue;
+
+                // close enough
+                if (mtdToCall.DeclaringType == grabItems.DeclaringType && mtdToCall.FullName == grabItems.FullName)
+                    break;
+            }
+
+            instrs = instrs.Next.Next.Next;
+
+            uproc.InsertBefore(instrs, Instruction.Create(OpCodes.Ldsfld, onMidUpdate));
+            uproc.EmitWrapperCall(invokeMidUpdate, instrs);
+        }
 
         internal static void Patch()
         {
@@ -487,9 +554,12 @@ namespace Prism.Injector.Patcher
             typeSys = context.PrimaryAssembly.MainModule.TypeSystem;
             typeDef_Player = memRes.GetType("Terraria.Player");
 
+            WrapMethods();
             AddFieldForBHandler();
             RemoveBuggyPlayerLoading();
             ReplaceUseSoundCalls();
+            FixOnEnterWorldField();
+            InjectMidUpdate();
         }
     }
 }

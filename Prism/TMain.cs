@@ -10,6 +10,7 @@ using Prism.Mods.DefHandlers;
 using Prism.Mods.Hooks;
 using Prism.Util;
 using Terraria;
+using Terraria.GameContent.UI.States;
 using Terraria.IO;
 
 namespace Prism
@@ -114,6 +115,16 @@ namespace Prism
             NPC.P_StrikeNPC_PlaySoundHit         += (n, _d, _kb, _hd, _c, _ne, _fn) => PlayHitSound(n);
             NPC.P_checkDead_PlaySoundKilled      += PlayKilledSound;
             NPC.P_RealAI_PlaySoundKilled         += PlayKilledSound;
+
+            Player.P_OnGetFileData += PlayerHooks.OnGetFiledata;
+            UICharacterSelect.P_OnNewCharacterClick += PlayerHooks.OnNewCharacterClick;
+            Player.P_OnItemCheck += PlayerHooks.OnItemCheck;
+            Player.OnEnterWorld += PlayerHooks.OnEnterWorld;
+            Player.P_OnKillMe += PlayerHooks.OnKillMe;
+            Player.P_OnUpdate += PlayerHooks.OnUpdate;
+            Player.P_OnMidUpdate += PlayerHooks.OnMidUpdate;
+
+            P_OnDrawPlayer += PlayerHooks.OnDrawPlayer;
 
             Player.P_ItemCheck_PlayUseSound0     += PlayUseSound;
             Player.P_ItemCheck_PlayUseSound1     += PlayUseSound;
