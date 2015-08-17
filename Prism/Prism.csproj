@@ -190,7 +190,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RethrownException.cs" />
-    <Compile Include="TerrariaLauncher.cs" />
+    <Compile Include="PrismLauncher.cs" />
     <Compile Include="TMain.cs" />
     <Compile Include="Util\CommandLineArgs.cs" />
     <Compile Include="Util\HastebinHelper.cs" />
