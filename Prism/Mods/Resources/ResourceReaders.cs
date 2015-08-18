@@ -48,7 +48,7 @@ namespace Prism.Mods.Resources
             return JsonMapper.ToObject((string)ResourceLoader.ResourceReaders[typeof(string)].ReadResource(resourceStream));
         }
     }
-    class SoundBankReader : ResourceReader<SoundBank>
+    class SoundBankResouceReader : ResourceReader<SoundBank>
     {
         protected override SoundBank ReadTypedResource(Stream resourceStream)
         {
@@ -58,7 +58,7 @@ namespace Prism.Mods.Resources
             }
         }
     }
-    class WaveBankReader : ResourceReader<WaveBank>
+    class WaveBankResourceReader : ResourceReader<WaveBank>
     {
         protected override WaveBank ReadTypedResource(Stream resourceStream)
         {
@@ -68,4 +68,5 @@ namespace Prism.Mods.Resources
             }
         }
     }
+    class EffectResourceReader : ContentResourceReader<Effect> { }
 }

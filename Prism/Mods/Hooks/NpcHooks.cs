@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Prism.Mods.BHandlers;
 using Terraria;
+using Terraria.GameContent.UI;
 
 namespace Prism.Mods.Hooks
 {
@@ -30,7 +31,15 @@ namespace Prism.Mods.Hooks
 
             if (bh != null && bh.PreUpdate())
             {
-                n.RealUpdateNPC(id);
+                try
+                {
+                    n.RealUpdateNPC(id);
+                }
+                catch (IndexOutOfRangeException ioore)
+                {
+                    if (ioore.TargetSite.DeclaringType != typeof(EmoteBubble)) // this somehow, sometimes crashes.
+                        throw new IndexOutOfRangeException(ioore.Message, ioore);
+                }
                 bh.OnUpdate();
             }
         }

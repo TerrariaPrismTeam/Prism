@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Prism.Util;
 using Terraria;
 
 namespace Prism.Mods.Resources
@@ -81,6 +82,16 @@ namespace Prism.Mods.Resources
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+    }
+    public class ContentResourceReader<T> : ResourceReader<T>
+    {
+        protected override T ReadTypedResource(Stream resourceStream)
+        {
+            using (var temp = new RandTempContentFile<T>(resourceStream, contentFate: StreamFate.DoNothing))
+            {
+                return temp.Load(Main.instance.Content);
+            }
         }
     }
 }

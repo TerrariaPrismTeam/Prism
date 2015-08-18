@@ -33,9 +33,10 @@ namespace Prism.Mods.Resources
             RegisterReader(new SoundEffectResourceReader());
             RegisterReader(new StringResourceReader     ());
             RegisterReader(new JsonDataResourceReader   ());
-            RegisterReader(new SoundBankReader          ());
-            RegisterReader(new WaveBankReader           ());
-            RegisterReader(new DSEIReader               ());
+            RegisterReader(new SoundBankResouceReader   ());
+            RegisterReader(new WaveBankResourceReader   ());
+            RegisterReader(new DSEIResourceReader       ());
+            RegisterReader(new EffectResourceReader     ());
         }
         internal static IEnumerable<LoaderError> Load(ModDef mod)
         {

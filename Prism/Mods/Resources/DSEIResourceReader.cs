@@ -8,7 +8,7 @@ namespace Prism.Mods.Resources
 {
     // reads a wave file in chuncks and puts it in a DynamicSoundEffectInstance
     // uses less memory, because it's streamed
-    class DSEIReader : ResourceReader<DynamicSoundEffectInstance>
+    class DSEIResourceReader : ResourceReader<DynamicSoundEffectInstance>
     {
         internal readonly static string
            InvalidRiffHeader = "Invalid RIFF header.",

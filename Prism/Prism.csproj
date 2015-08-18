@@ -154,7 +154,7 @@
     <Compile Include="Mods\Hooks\NpcHooks.cs" />
     <Compile Include="Mods\Hooks\PlayerHooks.cs" />
     <Compile Include="Mods\Hooks\ProjHooks.cs" />
-    <Compile Include="Mods\Resources\DSEIReader.cs" />
+    <Compile Include="Mods\Resources\DSEIResourceReader.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
