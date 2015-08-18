@@ -101,7 +101,7 @@ namespace Prism.Util
                 FStream.Dispose();
                 FStream = null;
             }
-            if (ContentStream != null)
+            if (ContentStream != null && ContentFate != StreamFate.DoNothing)
             {
                 ContentStream.Dispose();
                 ContentStream = null;
