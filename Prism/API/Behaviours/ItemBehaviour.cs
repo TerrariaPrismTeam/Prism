@@ -58,5 +58,12 @@ namespace Prism.API.Behaviours
         public virtual void Effects(Player player, int slot, EquipSlotKind kind) { }
         [Hook]
         public virtual void VanityEffects(Player player, int slot, EquipSlotKind kind) { }
+
+        [Hook]
+        public virtual void WingEffects(Player player, int slot) { } // EquipSlotKind is obviously Accessories
+        [Hook]
+        public virtual void SetBonus(Player player) { }
+        [Hook]
+        public virtual void VanitySetBonus(Player player) { }
     }
 }

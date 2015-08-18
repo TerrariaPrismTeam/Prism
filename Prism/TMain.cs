@@ -40,14 +40,14 @@ namespace Prism
             SavePath += "\\Prism";
 
             PlayerPath = SavePath + "\\Players";
-            WorldPath = SavePath + "\\Worlds";
+            WorldPath  = SavePath + "\\Worlds" ;
 
             PrismApi.ModDirectory = SavePath + "\\Mods";
 
             CloudPlayerPath = "players_Prism";
-            CloudWorldPath = "worlds_Prism";
+            CloudWorldPath  = "worlds_Prism" ;
 
-            LocalFavoriteData = new FavoritesFile(SavePath + "\\favorites.json", false);
+            LocalFavoriteData  = new FavoritesFile(SavePath + "\\favorites.json", false);
             CloudFavoritesData = new FavoritesFile("/favorites_Prism.json", false);
 
             Configuration = new Preferences(SavePath + "\\config.json", false, false);
@@ -104,7 +104,9 @@ namespace Prism
             NPC       .P_OnSetDefaultsByName += NpcDefHandler .OnSetDefaultsByName;
             Projectile.P_OnSetDefaults       += ProjDefHandler.OnSetDefaults      ;
 
-            Player.P_OnUpdateEquips += ItemHooks.OnUpdateEquips;
+            //Player.P_OnUpdateEquips  += ItemHooks.OnUpdateEquips    ;
+            Player.P_OnUpdateArmorSets += ItemHooks.OnUpdateArmourSets;
+            Player.P_OnWingMovement    += ItemHooks.WingMovement      ;
 
             NPC.P_OnNewNPC    += NpcHooks.OnNewNPC   ;
             NPC.P_OnUpdateNPC += NpcHooks.OnUpdateNPC;
@@ -119,12 +121,13 @@ namespace Prism
             NPC.P_RealAI_PlaySoundKilled         += PlayKilledSound;
 
             Player.P_OnGetFileData += PlayerHooks.OnGetFiledata;
+            Player.P_OnItemCheck   += PlayerHooks.OnItemCheck  ;
+            Player.OnEnterWorld    += PlayerHooks.OnEnterWorld ;
+            Player.P_OnKillMe      += PlayerHooks.OnKillMe     ;
+            Player.P_OnUpdate      += PlayerHooks.OnUpdate     ;
+            Player.P_OnMidUpdate   += PlayerHooks.OnMidUpdate  ;
+
             UICharacterSelect.P_OnNewCharacterClick += PlayerHooks.OnNewCharacterClick;
-            Player.P_OnItemCheck += PlayerHooks.OnItemCheck;
-            Player.OnEnterWorld += PlayerHooks.OnEnterWorld;
-            Player.P_OnKillMe += PlayerHooks.OnKillMe;
-            Player.P_OnUpdate += PlayerHooks.OnUpdate;
-            Player.P_OnMidUpdate += PlayerHooks.OnMidUpdate;
 
             P_OnDrawPlayer += PlayerHooks.OnDrawPlayer;
 

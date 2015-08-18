@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Prism.Mods.BHandlers;
 using Terraria;
 using Terraria.GameContent.UI.States;
@@ -129,6 +128,8 @@ namespace Prism.Mods.Hooks
         }
         internal static void OnMidUpdate(Player p, int _)
         {
+            ItemHooks.OnUpdateEquips(p, _);
+
             var bh = p.P_BHandler as PlayerBHandler;
 
             if (bh != null)

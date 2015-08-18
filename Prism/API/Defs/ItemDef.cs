@@ -479,6 +479,12 @@ namespace Prism.API.Defs
             set;
         }
 
+        public string SetName
+        {
+            get;
+            set;
+        }
+
         //TODO: add custom things for these... later
         public int Dye
         {

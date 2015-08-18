@@ -17,6 +17,8 @@ namespace Prism.Mods.BHandlers
         IEnumerable<Func<Player, Vector2, Vector2, ProjectileRef, int, float, bool>> preShoot;
 
         IEnumerable<Action<Player, int, EquipSlotKind>> effects, vanityEffects;
+        IEnumerable<Action<Player, int>> wingEffects;
+        IEnumerable<Action<Player>> setBonus, vanitySetBonus;
 
         public override void Create()
         {
@@ -28,6 +30,11 @@ namespace Prism.Mods.BHandlers
 
             effects = HookManager.CreateHooks<ItemBehaviour, Action<Player, int, EquipSlotKind>>(Behaviours, "Effects");
             vanityEffects = HookManager.CreateHooks<ItemBehaviour, Action<Player, int, EquipSlotKind>>(Behaviours, "VanityEffects");
+
+            wingEffects = HookManager.CreateHooks<ItemBehaviour, Action<Player, int>>(Behaviours, "WingEffects");
+
+            setBonus = HookManager.CreateHooks<ItemBehaviour, Action<Player>>(Behaviours, "SetBonus");
+            vanitySetBonus = HookManager.CreateHooks<ItemBehaviour, Action<Player>>(Behaviours, "VanitySetBonus");
         }
         public override void Clear ()
         {
@@ -38,6 +45,11 @@ namespace Prism.Mods.BHandlers
             preShoot = null;
 
             effects = vanityEffects = null;
+
+            wingEffects = null;
+
+            setBonus = null;
+            vanitySetBonus = null;
         }
 
         public bool CanUse(Player p)
@@ -67,6 +79,20 @@ namespace Prism.Mods.BHandlers
         public void VanityEffects(Player p, int slot, EquipSlotKind kind)
         {
             HookManager.Call(vanityEffects, p, slot, kind);
+        }
+
+        public void WingEffects(Player p, int i)
+        {
+            HookManager.Call(wingEffects, p, i);
+        }
+
+        public void SetBonus(Player p)
+        {
+            HookManager.Call(setBonus, p);
+        }
+        public void VanitySetBonus(Player p)
+        {
+            HookManager.Call(vanitySetBonus, p);
         }
     }
 }
