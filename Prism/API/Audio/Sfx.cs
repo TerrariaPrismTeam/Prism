@@ -112,7 +112,7 @@ namespace Prism.API.Audio
             if (Main.dedServ || WorldGen.gen || Main.netMode == 2)
                 return null;
 
-            var kvp = new KeyValuePair<SfxEntry, int>(entry, variant);
+            var kvp = new KeyValuePair<SfxEntry, int>(entry, entry.Variants == 1 ? 0 : variant);
 
             var t = CalcParams(entry, position, variant, onPlay);
 
@@ -126,6 +126,9 @@ namespace Prism.API.Audio
                 case SfxPlayBehaviour.MultipleInstances:
                     inst = entry.GetInstance(variant);
 
+                    if (inst == null)
+                        return null;
+
                     instancePool.Add(inst); // don't GC
                     break;
                 case SfxPlayBehaviour.PlayIfStopped:
@@ -137,11 +140,19 @@ namespace Prism.API.Audio
                         if (inst_.State == SoundState.Stopped)
                             inst = inst_;
                         else
+                        {
+                            if (b == SfxPlayBehaviour.PlayIfStoppedUpdateParams)
+                                ApplyParams(inst_, t);
+
                             return null;
+                        }
                     }
                     else
                     {
                         inst = entry.GetInstance(variant);
+
+                        if (inst == null)
+                            return null;
 
                         instanceMap.Add(kvp, inst);
                     }
@@ -157,6 +168,9 @@ namespace Prism.API.Audio
                     }
 
                     inst = entry.GetInstance(variant);
+
+                    if (inst == null)
+                        return null;
 
                     instanceMap.Add(kvp, inst);
                     break;

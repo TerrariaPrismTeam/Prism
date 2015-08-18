@@ -86,13 +86,21 @@ namespace Prism.Mods.BHandlers
             HookManager.Call(wingEffects, p, i);
         }
 
-        public void SetBonus(Player p)
+        public bool SetBonus(Player p)
         {
+            if (setBonus.IsEmpty())
+                return false;
+
             HookManager.Call(setBonus, p);
+            return true;
         }
-        public void VanitySetBonus(Player p)
+        public bool VanitySetBonus(Player p)
         {
+            if (vanitySetBonus.IsEmpty())
+                return false;
+
             HookManager.Call(vanitySetBonus, p);
+            return true;
         }
     }
 }

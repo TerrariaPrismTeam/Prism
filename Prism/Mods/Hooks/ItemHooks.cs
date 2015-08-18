@@ -12,7 +12,7 @@ namespace Prism.Mods.Hooks
     {
         internal static void OnUpdateEquips(Player p, int _)
         {
-            //p.RealUpdateEquips(_);
+            p.RealUpdateEquips(_);
 
             Item it;
             ItemBHandler bh;
@@ -71,23 +71,19 @@ namespace Prism.Mods.Hooks
                 if (p.armor[i].type == 0 || p.armor[i].stack <= 0)
                     continue;
 
+                var bh = p.armor[i].P_BHandler as ItemBHandler;
+
+                if (bh == null)
+                    continue;
+
                 var d = Handler.ItemDef.DefsByType[p.armor[i].type];
 
                 for (int j = 0 + offset; j < 3 + offset; j++)
                     if (Handler.ItemDef.DefsByType[p.armor[i].type].SetName != d.SetName)
                         goto OUTER_CONTINUE;
 
-                var bh = p.armor[i].P_BHandler as ItemBHandler;
-
-                if (bh != null)
-                {
-                    if (offset != 0)
-                        bh.VanitySetBonus(p);
-                    else
-                        bh.SetBonus(p);
-
+                if (offset != 0 ? bh.VanitySetBonus(p) : bh.SetBonus(p))
                     break;
-                }
 
                 OUTER_CONTINUE:
                 ;
@@ -97,6 +93,7 @@ namespace Prism.Mods.Hooks
         {
             p.RealUpdateArmorSets(_);
 
+            DoSetBonusStuff(p, 10);
             DoSetBonusStuff(p, 0);
         }
 

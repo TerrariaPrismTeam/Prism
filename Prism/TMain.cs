@@ -104,7 +104,7 @@ namespace Prism
             NPC       .P_OnSetDefaultsByName += NpcDefHandler .OnSetDefaultsByName;
             Projectile.P_OnSetDefaults       += ProjDefHandler.OnSetDefaults      ;
 
-            //Player.P_OnUpdateEquips  += ItemHooks.OnUpdateEquips    ;
+            Player.P_OnUpdateEquips    += ItemHooks.OnUpdateEquips    ;
             Player.P_OnUpdateArmorSets += ItemHooks.OnUpdateArmourSets;
             Player.P_OnWingMovement    += ItemHooks.WingMovement      ;
 

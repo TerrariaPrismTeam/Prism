@@ -106,7 +106,8 @@ namespace Prism.Debugging
                     lines.RemoveAt(index);
 
                     line.times = toEdit.times + 1;
-                    line.Text += " (" + line.times + " times)";
+
+                    line.Text += " (" + (line.times + 1) + " times)";
                 }
 
                 if (lines.Count == MAX_LINES)

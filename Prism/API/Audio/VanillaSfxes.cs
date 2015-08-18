@@ -25,11 +25,21 @@ namespace Prism.API.Audio
         }
         static SfxEntry GetVanilla(SoundEffect[] es, SfxPlayBehaviour b = SfxPlayBehaviour.Singleton, bool ambient = false)
         {
-            return new SfxEntry(i => es[i == -1 || i >= es.Length ? Main.rand.Next(es.Length) : i].CreateInstance(), es.Length, _ => b, ambient);
+            return new SfxEntry(i =>
+            {
+                var e = es[i == -1 || i >= es.Length ? Main.rand.Next(es.Length) : i];
+
+                return e == null ? null : e.CreateInstance();
+            }, es.Length, _ => b, ambient);
         }
         static SfxEntry GetVanilla(SoundEffect[] es, Func<int, SfxPlayBehaviour> b, bool ambient = false)
         {
-            return new SfxEntry(i => es[i == -1 || i >= es.Length ? Main.rand.Next(es.Length) : i].CreateInstance(), es.Length,      b, ambient);
+            return new SfxEntry(i =>
+            {
+                var e = es[i == -1 || i >= es.Length ? Main.rand.Next(es.Length) : i];
+
+                return e == null ? null : e.CreateInstance();
+            }, es.Length,      b, ambient);
         }
 
         static void PopulateDict()
@@ -117,8 +127,8 @@ namespace Prism.API.Audio
             MaxMana   = GetVanilla(Main.soundMaxMana  , SfxPlayBehaviour.MultipleInstances);
 
             MummyIdle    = GetVanilla(Main.soundZombie.Subarray(3, 3), SfxPlayBehaviour.MultipleInstances);
-            PixieIdle    = GetVanilla(Main.soundPixie, SfxPlayBehaviour.PlayIfStoppedUpdateParams        );
-            MechBuzz     = GetVanilla(Main.soundMech, SfxPlayBehaviour.PlayIfStopped                     );
+            PixieIdle    = GetVanilla(Main.soundPixie , SfxPlayBehaviour.PlayIfStoppedUpdateParams       );
+            MechBuzz     = GetVanilla(Main.soundMech  , SfxPlayBehaviour.PlayIfStopped                   );
             NpcIdleSound = GetVanilla(Main.soundZombie, SfxPlayBehaviour.PlayIfStopped                   );
 
             DuckIdle = new SfxEntry(v =>
@@ -128,9 +138,9 @@ namespace Prism.API.Audio
                 return Main.soundZombie[v].CreateInstance();
             }, 2, _ => SfxPlayBehaviour.PlayIfStopped, true);
 
-            FrogIdle               = GetVanilla(Main.soundZombie[13], SfxPlayBehaviour.MultipleInstances, true);
+            FrogIdle          = GetVanilla(Main.soundZombie[13], SfxPlayBehaviour.MultipleInstances, true);
             NpcIdleSoundQuiet = GetVanilla(Main.soundZombie, SfxPlayBehaviour.PlayIfStopped        , true);
-            BeetleIdle              = GetVanilla(Main.soundZombie[15], SfxPlayBehaviour.PlayIfStopped    , true);
+            BeetleIdle        = GetVanilla(Main.soundZombie[15], SfxPlayBehaviour.PlayIfStopped    , true);
 
             AmbientWater = GetVanilla(Main.soundLiquid[0], SfxPlayBehaviour.PlayIfStoppedUpdateParams, true);
             AmbientLava  = GetVanilla(Main.soundLiquid[1], SfxPlayBehaviour.PlayIfStoppedUpdateParams, true);

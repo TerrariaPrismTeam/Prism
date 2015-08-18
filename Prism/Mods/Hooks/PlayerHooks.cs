@@ -128,8 +128,6 @@ namespace Prism.Mods.Hooks
         }
         internal static void OnMidUpdate(Player p, int _)
         {
-            ItemHooks.OnUpdateEquips(p, _);
-
             var bh = p.P_BHandler as PlayerBHandler;
 
             if (bh != null)

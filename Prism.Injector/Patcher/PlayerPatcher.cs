@@ -20,8 +20,7 @@ namespace Prism.Injector.Patcher
             typeDef_Player.GetMethod("ItemCheck", MethodFlags.Public | MethodFlags.Instance).Wrap(context);
             typeDef_Player.GetMethod("KillMe", MethodFlags.Public | MethodFlags.Instance).Wrap(context);
             typeDef_Player.GetMethod("Update", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
-            // too early imo, some fields get reset later on in Update
-            //typeDef_Player.GetMethod("UpdateEquips", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
+            typeDef_Player.GetMethod("UpdateEquips", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
             typeDef_Player.GetMethod("UpdateArmorSets", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
             typeDef_Player.GetMethod("WingMovement", MethodFlags.Public | MethodFlags.Instance).Wrap(context);
 
