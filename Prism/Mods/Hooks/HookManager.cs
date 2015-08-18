@@ -118,7 +118,7 @@ namespace Prism.Mods.Hooks
         /// <returns>The return values of all called hooks.</returns>
         public static object[] Call(IEnumerable<Delegate> delegates, params object[] args)
         {
-            if (!CanCallHooks)
+            if (!CanCallHooks && !delegates.IsEmpty())
             {
                 var stackTrace = new StackTrace(1);
                 var mtd = stackTrace.GetFrame(0).GetMethod();
