@@ -64,7 +64,7 @@ namespace Prism
 
                 // LINQ uses lazy evaluation, thus it doesn't try to load the assembly from all assemblies in DllContainingAssemblies,
                 // but the loop breaks when the predicate in Find returns true.
-                var ret = DllContainingAssemblies.Select(c => ResolveFromResources(c, displayName)).First(a => a != null);
+                var ret = DllContainingAssemblies.Select(c => ResolveFromResources(c, displayName)).FirstOrDefault(a => a != null);
 
                 if (ret == null)
                     Logging.LogWarning("Could not resolve assembly " + rea.Name);
