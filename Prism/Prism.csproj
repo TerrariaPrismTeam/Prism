@@ -121,6 +121,7 @@
     <Compile Include="API\Behaviours\NpcBehaviour.cs" />
     <Compile Include="API\Behaviours\TileBehaviour.cs" />
     <Compile Include="API\ContentHandler.cs" />
+    <Compile Include="API\Extensions.cs" />
     <Compile Include="API\_Defs.cs" />
     <Compile Include="API\Defs\EntityDef.cs" />
     <Compile Include="API\DefIndexer.cs" />
