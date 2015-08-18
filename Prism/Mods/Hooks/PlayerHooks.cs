@@ -34,6 +34,8 @@ namespace Prism.Mods.Hooks
             var bh = new PlayerBHandler();
             bh.behaviours.AddRange(bs);
 
+            bh.Create();
+
             p.P_BHandler = bh;
 
             return bh;
