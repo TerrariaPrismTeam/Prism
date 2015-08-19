@@ -48,15 +48,10 @@ namespace Prism.Injector.Patcher
         }
         static void Publicify()
         {
-            // make all types and members in the "Terraria" and "Terraria.Map" namespace public
+            // make all types public
 
             foreach (TypeDefinition td in context.PrimaryAssembly.MainModule.Types)
-            {
-                if (td.Namespace != "Terraria" && td.Namespace != "Terraria.Map" && !td.Namespace.StartsWith("Terraria.GameContent", StringComparison.Ordinal))
-                    continue;
-
                 PublicifyRec(td);
-            }
         }
 
         static void AddInternalsVisibleToAttr()
