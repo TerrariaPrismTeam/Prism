@@ -53,6 +53,9 @@ namespace Prism
             Configuration = new Preferences(SavePath + "\\config.json", false, false);
 
             ElapsedTime = 0;
+
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT && graphics.GraphicsProfile == GraphicsProfile.Reach)
+                graphics.GraphicsProfile = GraphicsProfile.HiDef;
         }
 
         static void PlayUseSound(Item i, Player p)

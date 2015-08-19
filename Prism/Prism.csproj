@@ -251,6 +251,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\FakeContent\DebugFont.xnb" />
+    <EmbeddedResource Include="Microsoft.Xna.Framework.RuntimeProfile" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="WinFormDialogs\ExceptionDialogForm.resx">
