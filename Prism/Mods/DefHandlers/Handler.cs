@@ -11,6 +11,7 @@ namespace Prism.Mods.DefHandlers
         internal static ProjDefHandler   ProjDef   = new ProjDefHandler();
         internal static TileDefHandler   TileDef   = new TileDefHandler();
 
+        internal static BuffDefHandler   BuffDef   = new BuffDefHandler  ();
         internal static RecipeDefHandler RecipeDef = new RecipeDefHandler();
     }
 }

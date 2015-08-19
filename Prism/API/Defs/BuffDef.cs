@@ -1,60 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Prism.Mods;
-using Prism.Mods.DefHandlers;
-using Prism.Util;
 using Microsoft.Xna.Framework.Graphics;
+using Prism.API.Behaviours;
+using Prism.Util;
 
 namespace Prism.API.Defs
 {
-    public class BuffDef
+    public class BuffDef : ObjectDef<BuffBehaviour>
     {
-        /// <summary>
-        /// The internal name used to reference this buff.
-        /// </summary>
-        public string InternalName
-        {
-            get;
-            internal set;
-        }
-
-        /// <summary>
-        /// Gets or sets the name displayed on the buff's tooltip.
-        /// </summary>
-        public string DisplayName
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets whether this buff works against other players. Set to false to prevent debuff cheesing ;)
-        /// </summary>
-        public bool WorksInPvP
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets whether this buff remains after dying with it.
-        /// </summary>
-        public bool PersistsAfterDeath
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets whether this buff counts as a weapon imbuement. If so, Quick Buff won't use it and it will replace other imbuements upon application.
-        /// </summary>
-        public bool IsWeaponImbuement
-        {
-            get;
-            set;
-        }
-
         /// <summary>
         /// Gets or sets whether this buff is a debuff.
         /// </summary>
@@ -74,6 +28,31 @@ namespace Prism.API.Defs
         }
 
         /// <summary>
+        /// Gets or sets whether this buff works against other players. Set to false to prevent debuff cheesing ;)
+        /// </summary>
+        public bool WorksInPvP
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets whether this buff remains after dying with it.
+        /// </summary>
+        public bool PersistsAfterDeath
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Gets or sets whether this buff counts as a weapon imbuement. If so, Quick Buff won't use it and it will replace other imbuements upon application.
+        /// </summary>
+        public bool IsWeaponImbuement
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Gets or sets whether this buffs saves with your character file.
         /// </summary>
         public bool DoesNotSave
@@ -81,17 +60,10 @@ namespace Prism.API.Defs
             get;
             set;
         }
-
         /// <summary>
         /// Gets or sets whether the buff's remaining time is hidden.
         /// </summary>
         public bool HideTimeDisplay
-        {
-            get;
-            set;
-        }
-
-        public float Alpha
         {
             get;
             set;
@@ -102,7 +74,6 @@ namespace Prism.API.Defs
             get;
             set;
         }
-
         public bool IsLightPet
         {
             get;
@@ -115,26 +86,21 @@ namespace Prism.API.Defs
             set;
         }
 
-        public ModInfo Mod
+        public BuffDef(string displayName, Func<BuffBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null)
+            : base(displayName, newBehaviour)
         {
-            get;
-            internal set;
+            GetTexture = getTexture ?? Empty<Texture2D>.Func;
+
+            Tooltip = String.Empty;
         }
 
-        public BuffDef(string displayName, Func<Texture2D> getTexture = null)
+        public static implicit operator BuffRef(BuffDef def)
         {
-            DisplayName = displayName;
-            GetTexture = getTexture ?? Empty<Texture2D>.Func;
-            WorksInPvP = false;
-            PersistsAfterDeath = false;
-            IsWeaponImbuement = false;
-            IsDebuff = false;
-            Tooltip = default(string);
-            DoesNotSave = false;
-            HideTimeDisplay = false;
-            Alpha = 1.0f;
-            IsVanityPet = false;
-            IsLightPet = false;
+            return new BuffRef(def.InternalName, def.Mod);
+        }
+        public static explicit operator BuffDef(BuffRef r)
+        {
+            return r.Resolve();
         }
     }
 }

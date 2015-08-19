@@ -128,6 +128,7 @@ namespace Prism.Mods.DefHandlers
 
         protected override void CopyEntityToDef(Projectile proj, ProjectileDef def)
         {
+            def.DisplayName  = proj.name  ;
             def.Type         = proj.type  ;
             def.Damage       = proj.damage;
             def.Width        = proj.width ;
@@ -164,14 +165,13 @@ namespace Prism.Mods.DefHandlers
         }
         protected override void CopyDefToEntity(ProjectileDef def, Projectile proj)
         {
-            proj.name    = def.InternalName;
+            proj.name    = def.DisplayName;
             proj.type    = def.Type;
             proj.damage  = def.Damage;
             proj.width   = def.Width;
             proj.height  = def.Height;
             proj.alpha   = def.Alpha;
             proj.scale   = def.Scale;
-            proj.name    = def.InternalName;
             proj.melee   = def.DamageType == ProjectileDamageType.Melee;
             proj.ranged  = def.DamageType == ProjectileDamageType.Ranged;
             proj.magic   = def.DamageType == ProjectileDamageType.Magic;

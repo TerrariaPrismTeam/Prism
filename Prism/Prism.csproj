@@ -113,6 +113,8 @@
     <Compile Include="API\Audio\SfxRef.cs" />
     <Compile Include="API\Audio\VanillaBgms.cs" />
     <Compile Include="API\Audio\VanillaSfxes.cs" />
+    <Compile Include="API\Behaviours\BuffBehaviour.cs" />
+    <Compile Include="API\Defs\BuffRef.cs" />
     <Compile Include="API\Behaviours\EntityBehaviour.cs" />
     <Compile Include="API\Behaviours\GameBehaviour.cs" />
     <Compile Include="API\Behaviours\ItemBehaviour.cs" />
@@ -122,6 +124,7 @@
     <Compile Include="API\Behaviours\TileBehaviour.cs" />
     <Compile Include="API\ContentHandler.cs" />
     <Compile Include="API\Extensions.cs" />
+    <Compile Include="API\ObjectDef.cs" />
     <Compile Include="API\_Defs.cs" />
     <Compile Include="API\Defs\EntityDef.cs" />
     <Compile Include="API\DefIndexer.cs" />
@@ -143,9 +146,11 @@
     <Compile Include="API\Defs\TileRef.cs" />
     <Compile Include="API\ObjectRef.cs" />
     <Compile Include="Debugging\Logging.cs" />
+    <Compile Include="Mods\BHandlers\BuffBHandler.cs" />
     <Compile Include="Mods\BHandlers\PlayerBHandler.cs" />
     <Compile Include="Mods\BHandlers\TileBHandler.cs" />
     <Compile Include="Mods\ContentLoader.cs" />
+    <Compile Include="Mods\DefHandlers\BuffDefHandler.cs" />
     <Compile Include="Mods\DefHandlers\IDH_SetDefaults.cs" />
     <Compile Include="Mods\DefHandlers\NDH_SetDefaults.cs" />
     <Compile Include="Mods\DefHandlers\RecipeDefHandler.cs" />

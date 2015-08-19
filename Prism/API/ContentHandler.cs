@@ -119,6 +119,17 @@ namespace Prism.API
         }
 
         /// <summary>
+        /// Gets all buff definitions created by the mod.
+        /// </summary>
+        /// <returns>
+        /// A dictionary containing all buff definitions.
+        /// The key of each key/value pair is the internal name of the buff.
+        /// </returns>
+        protected virtual Dictionary<string, BuffDef> GetBuffDefs()
+        {
+            return Empty<string, BuffDef>.Dictionary;
+        }
+        /// <summary>
         /// Gets all item definitions created by the mod.
         /// </summary>
         /// <returns>
@@ -183,6 +194,10 @@ namespace Prism.API
             return null;
         }
 
+        protected virtual BuffBehaviour CreateGlobalBuffBehaviour()
+        {
+            return null;
+        }
         protected virtual ItemBehaviour CreateGlobalItemBehaviour()
         {
             return null;
@@ -211,6 +226,10 @@ namespace Prism.API
             return GetSfxes();
         }
 
+        internal Dictionary<string, BuffDef> GetBuffDefsInternally()
+        {
+            return GetBuffDefs();
+        }
         internal Dictionary<string, ItemDef> GetItemDefsInternally()
         {
             return GetItemDefs();
@@ -242,6 +261,10 @@ namespace Prism.API
             return CreatePlayerBehaviour();
         }
 
+        internal BuffBehaviour CreateGlobalBuffBInternally()
+        {
+            return CreateGlobalBuffBehaviour();
+        }
         internal ItemBehaviour CreateGlobalItemBInternally()
         {
             return CreateGlobalItemBehaviour();

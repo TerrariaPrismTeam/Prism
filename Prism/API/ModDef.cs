@@ -68,6 +68,15 @@ namespace Prism.API
         }
 
         /// <summary>
+        /// Gets the mod's buff definitions.
+        /// </summary>
+        /// <remarks>The key of the dictionary is the buff's internal name (without mod internal name).</remarks>
+        public Dictionary<string, BuffDef> BuffDefs
+        {
+            get;
+            internal set;
+        }
+        /// <summary>
         /// Gets the mod's item definitions.
         /// </summary>
         /// <remarks>The key of the dictionary is the item's internal name (without mod internal name).</remarks>
