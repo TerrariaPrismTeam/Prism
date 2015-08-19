@@ -10,12 +10,13 @@ namespace Prism.Debugging
     {
         public string Text;
         public int Timeleft;
+        public string OrigText;
 
         internal int times;
 
         public TraceLine(string text, int timeLeft)
         {
-            Text = text;
+            Text = OrigText = text;
             Timeleft = timeLeft;
 
             times = 0;
@@ -33,7 +34,7 @@ namespace Prism.Debugging
             int firstNewline = message.IndexOfAny(new[] { '\n', '\r' });
             sb.Append(firstNewline == -1 ? message : message.Remove(firstNewline));
 
-            Text = sb.ToString();
+            Text = OrigText = sb.ToString();
             Timeleft = timeLeft <= 0 ? 180 : timeLeft;
 
             times = 0;
@@ -98,16 +99,16 @@ namespace Prism.Debugging
         {
             lock (@lock)
             {
-                if (lines.Any(l => l.Text == line.Text))
+                if (lines.Any(l => l.OrigText == line.OrigText))
                 {
-                    var toEdit = lines.Last(l => l.Text == line.Text);
+                    var toEdit = lines.Last(l => l.OrigText == line.OrigText);
                     var index = lines.LastIndexOf(toEdit);
 
                     lines.RemoveAt(index);
 
                     line.times = toEdit.times + 1;
 
-                    line.Text += " (" + (line.times + 1) + " times)";
+                    line.Text = line.OrigText + " (" + (line.times + 1) + " times)";
                 }
 
                 if (lines.Count == MAX_LINES)
