@@ -22,10 +22,13 @@ namespace Prism.Injector.Patcher
             typeDef_NPC.GetMethod("AI"       , MethodFlags.Public | MethodFlags.Instance               ).Wrap(context);
             typeDef_NPC.GetMethod("UpdateNPC", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
             typeDef_NPC.GetMethod("NPCLoot"  , MethodFlags.Public | MethodFlags.Instance               ).Wrap(context);
+
+            typeDef_NPC.GetMethod("AddBuff", MethodFlags.Public | MethodFlags.Instance).Wrap(context);
         }
         static void AddFieldForBHandler()
         {
             typeDef_NPC.Fields.Add(new FieldDefinition("P_BHandler", FieldAttributes.Public, typeSys.Object));
+            typeDef_NPC.Fields.Add(new FieldDefinition("P_BuffBHandler", FieldAttributes.Public, memRes.ReferenceOf(typeof(object[]))));
         }
         static void AddFieldsForAudio()
         {
@@ -246,6 +249,55 @@ namespace Prism.Injector.Patcher
             }
             #endregion
         }
+        static void InjectBuffEffectsCall()
+        {
+            var updateNpc = typeDef_NPC.GetMethod("RealUpdateNPC");
+
+            MethodDefinition invokeEffects;
+            var onBuffEffects = context.CreateDelegate("Terraria.PrismInjections", "NPC_BuffEffectsDel", typeSys.Void, out invokeEffects, typeDef_NPC);
+
+            var buffEffects = new FieldDefinition("P_OnBuffEffects", FieldAttributes.Public | FieldAttributes.Static, onBuffEffects);
+            typeDef_NPC.Fields.Add(buffEffects);
+
+            OpCode[] toRem =
+            {
+                OpCodes.Ldarg_0,
+                OpCodes.Ldfld,
+                OpCodes.Brfalse
+            };
+
+            var unb = updateNpc.Body;
+            var unproc = unb.GetILProcessor();
+
+            Instruction instr;
+            int start = 0;
+            while (true)
+            {
+                instr = unb.FindInstrSeqStart(toRem, start);
+
+                if (instr.Next.Operand == typeDef_NPC.GetField("soulDrain"))
+                    break;
+                else
+                    start = unb.Instructions.IndexOf(instr) + 1;
+            }
+
+            unproc.InsertBefore(instr, Instruction.Create(OpCodes.Ldsfld, buffEffects));
+            unproc.EmitWrapperCall(invokeEffects, instr);
+        }
+        static void InitBuffBHandlerArray()
+        {
+            var ctor = typeDef_NPC.GetMethod(".ctor");
+            var buffBHandler = typeDef_NPC.GetField("P_BuffBHandler");
+
+            var cproc = ctor.Body.GetILProcessor();
+
+            var l = ctor.Body.Instructions.Last().Previous.Previous;
+
+            cproc.InsertBefore(l, Instruction.Create(OpCodes.Ldarg_0));
+            cproc.InsertBefore(l, Instruction.Create(OpCodes.Ldc_I4_5));
+            cproc.InsertBefore(l, Instruction.Create(OpCodes.Newarr, typeSys.Object));
+            cproc.InsertBefore(l, Instruction.Create(OpCodes.Stfld, buffBHandler));
+        }
 
         internal static void Patch()
         {
@@ -263,6 +315,8 @@ namespace Prism.Injector.Patcher
             InsertInitialize();
             ReplaceSoundHitCalls();
             ReplaceSoundKilledCalls();
+            InjectBuffEffectsCall();
+            InitBuffBHandlerArray();
         }
     }
 }

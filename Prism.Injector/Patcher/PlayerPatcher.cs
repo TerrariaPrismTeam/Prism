@@ -23,6 +23,8 @@ namespace Prism.Injector.Patcher
             typeDef_Player.GetMethod("UpdateEquips", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
             typeDef_Player.GetMethod("UpdateArmorSets", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
             typeDef_Player.GetMethod("WingMovement", MethodFlags.Public | MethodFlags.Instance).Wrap(context);
+            typeDef_Player.GetMethod("UpdateBuffs", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
+            typeDef_Player.GetMethod("AddBuff", MethodFlags.Public | MethodFlags.Instance).Wrap(context);
 
             var typeDef_uiCharSelect = memRes.GetType("Terraria.GameContent.UI.States.UICharacterSelect");
 
@@ -30,7 +32,8 @@ namespace Prism.Injector.Patcher
         }
         static void AddFieldForBHandler()
         {
-            typeDef_Player.Fields.Add(new FieldDefinition("P_BHandler", FieldAttributes.Public, typeSys.Object));
+            typeDef_Player.Fields.Add(new FieldDefinition("P_BHandler"    , FieldAttributes.Public, typeSys.Object));
+            typeDef_Player.Fields.Add(new FieldDefinition("P_BuffBHandler", FieldAttributes.Public, memRes.ReferenceOf(typeof(object[]))));
         }
         // Removes the ID checks from player loading, so that invalid items
         // are removed instead of resulting in the character being declared
@@ -548,6 +551,20 @@ namespace Prism.Injector.Patcher
             uproc.InsertBefore(instrs, Instruction.Create(OpCodes.Ldsfld, onMidUpdate));
             uproc.EmitWrapperCall(invokeMidUpdate, instrs);
         }
+        static void InitBuffBHandlerArray()
+        {
+            var ctor = typeDef_Player.GetMethod(".ctor");
+            var buffBHandler = typeDef_Player.GetField("P_BuffBHandler");
+
+            var cproc = ctor.Body.GetILProcessor();
+
+            var l = ctor.Body.Instructions.Last().Previous.Previous;
+
+            cproc.InsertBefore(l, Instruction.Create(OpCodes.Ldarg_0));
+            cproc.InsertBefore(l, Instruction.Create(OpCodes.Ldc_I4, 22));
+            cproc.InsertBefore(l, Instruction.Create(OpCodes.Newarr, typeSys.Object));
+            cproc.InsertBefore(l, Instruction.Create(OpCodes.Stfld, buffBHandler));
+        }
 
         internal static void Patch()
         {
@@ -563,6 +580,7 @@ namespace Prism.Injector.Patcher
             ReplaceUseSoundCalls();
             FixOnEnterWorldField();
             InjectMidUpdate();
+            InitBuffBHandlerArray();
         }
     }
 }

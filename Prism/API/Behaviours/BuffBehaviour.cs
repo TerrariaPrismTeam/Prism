@@ -18,5 +18,10 @@ namespace Prism.API.Behaviours
         public virtual void Effects(Player p, int timeLeft, int slot) { }
         [Hook]
         public virtual void NpcEffects(NPC n, int timeLeft, int slot) { }
+
+        [Hook]
+        public virtual void OnAdded(Player p, int timeLeft, int slot) { }
+        [Hook]
+        public virtual void OnAddedNpc(Player p, int timeLeft, int slot) { }
     }
 }

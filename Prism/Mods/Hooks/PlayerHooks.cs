@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Prism.Mods.BHandlers;
+using Prism.Mods.DefHandlers;
+using Prism.Util;
 using Terraria;
 using Terraria.GameContent.UI.States;
+using Terraria.ID;
 using Terraria.IO;
 using Terraria.UI;
 
@@ -38,6 +41,137 @@ namespace Prism.Mods.Hooks
             p.P_BHandler = bh;
 
             return bh;
+        }
+        static BuffBHandler AttachBuffBHandler(Player p, int slot, int type)
+        {
+            if (slot == -1)
+                return null;
+
+            BuffBHandler h = null;
+
+            if (Handler.BuffDef.DefsByType.ContainsKey(type))
+            {
+                var d = Handler.BuffDef.DefsByType[type];
+
+                if (d.CreateBehaviour != null)
+                {
+                    h = new BuffBHandler();
+
+                    h.behaviours.Add(d.CreateBehaviour());
+                }
+            }
+
+            var bs = ModData.mods.Values.Select(d =>
+            {
+                var bb = d.ContentHandler.CreateGlobalBuffBInternally();
+
+                if (bb != null)
+                    bb.Mod = d;
+
+                return bb;
+            }).Where(bb => bb != null);
+
+            if (!bs.IsEmpty())
+            {
+                if (h == null)
+                    h = new BuffBHandler();
+
+                h.behaviours.AddRange(bs);
+            }
+
+            if (h != null)
+                h.Create();
+
+            p.P_BuffBHandler[slot] = h;
+
+            return h;
+        }
+
+        static int RealAddBuff(Player p, int type, int time, bool quiet = true)
+        {
+            if (p.buffImmune[type])
+                return -1;
+
+            if (Main.expertMode && p.whoAmI == Main.myPlayer && (type == 20 || type == 22 || type == 23 || type == 24 || type == 30 || type == 31 || type == 32 || type == 33 || type == 35 || type == 36 || type == 39 || type == 44 || type == 46 || type == 47 || type == 69 || type == 70 || type == 80))
+                time = (int)(Main.expertDebuffTime * time);
+
+            if (!quiet && Main.netMode == 1)
+            {
+                bool doesntHaveTheBuff = true;
+                for (int i = 0; i < Player.maxBuffs; i++)
+                    if (p.buffType[i] == type)
+                    {
+                        doesntHaveTheBuff = false;
+                        break;
+                    }
+
+                if (doesntHaveTheBuff)
+                    NetMessage.SendData(55, -1, -1, String.Empty, p.whoAmI, type, time);
+            }
+
+            for (int i = 0; i < Player.maxBuffs; i++)
+                if (p.buffType[i] == type)
+                {
+                    if (type == BuffID.ManaSickness)
+                    {
+                        p.buffTime[i] += time;
+
+                        if (p.buffTime[i] > Player.manaSickTimeMax)
+                        {
+                            p.buffTime[i] = Player.manaSickTimeMax;
+                            return -1;
+                        }
+                    }
+                    else if (p.buffTime[i] < time)
+                        p.buffTime[i] = time;
+
+                    return -1;
+                }
+
+            if (Main.vanityPet[type] || Main.lightPet[type])
+                for (int i = 0; i < Player.maxBuffs; i++)
+                {
+                    if (Main.vanityPet[type] && Main.vanityPet[p.buffType[i]])
+                        p.DelBuff(i);
+                    if (Main.lightPet [type] && Main.lightPet [p.buffType[i]])
+                        p.DelBuff(i);
+                }
+
+            int slot = -1;
+            do
+            {
+                int buffSeek = -1;
+
+                for (int i = 0; i < Player.maxBuffs; i++)
+                    if (!Main.debuff[p.buffType[i]])
+                    {
+                        buffSeek = i;
+                        break;
+                    }
+
+                if (buffSeek == -1)
+                    return -1;
+
+                for (int i = buffSeek; i < Player.maxBuffs; i++)
+                    if (p.buffType[i] == 0)
+                    {
+                        slot = i;
+                        break;
+                    }
+
+                if (slot == -1)
+                    p.DelBuff(buffSeek);
+            } while (slot == -1);
+
+            p.buffType[slot] = type;
+            p.buffTime[slot] = time;
+
+            if (Main.meleeBuff[type])
+                for (int i = 0; i < Player.maxBuffs; i++)
+                    if (i != slot && Main.meleeBuff[p.buffType[i]])
+                        p.DelBuff(i);
+
+            return slot;
         }
 
         internal static PlayerFileData OnGetFiledata(string path, bool cloud)
@@ -132,6 +266,35 @@ namespace Prism.Mods.Hooks
 
             if (bh != null)
                 bh.MidUpdate();
+        }
+
+        internal static void OnUpdateBuffs(Player p, int _)
+        {
+            p.RealUpdateBuffs(_);
+
+            for (int i = 0; i < p.P_BuffBHandler.Length; i++)
+            {
+                var bh = p.P_BuffBHandler[i] as BuffBHandler;
+
+                if (bh == null)
+                    continue;
+
+                bh.Effects(p, p.buffTime[i], i);
+            }
+        }
+        internal static void OnAddBuff(Player p, int type, int time, bool quiet)
+        {
+            var s = RealAddBuff(p, type, time, quiet);
+
+            if (s == -1)
+                return;
+
+            var h = AttachBuffBHandler(p, s, type);
+
+            if (h == null)
+                return;
+
+            h.OnAdded(p, time, s);
         }
     }
 }

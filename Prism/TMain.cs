@@ -123,12 +123,17 @@ namespace Prism
             NPC.P_checkDead_PlaySoundKilled      += PlayKilledSound;
             NPC.P_RealAI_PlaySoundKilled         += PlayKilledSound;
 
+            NPC.P_OnAddBuff     += NpcHooks.OnAddBuff    ;
+            NPC.P_OnBuffEffects += NpcHooks.OnBuffEffects;
+
             Player.P_OnGetFileData += PlayerHooks.OnGetFiledata;
             Player.P_OnItemCheck   += PlayerHooks.OnItemCheck  ;
             Player.OnEnterWorld    += PlayerHooks.OnEnterWorld ;
             Player.P_OnKillMe      += PlayerHooks.OnKillMe     ;
             Player.P_OnUpdate      += PlayerHooks.OnUpdate     ;
             Player.P_OnMidUpdate   += PlayerHooks.OnMidUpdate  ;
+            Player.P_OnUpdateBuffs += PlayerHooks.OnUpdateBuffs;
+            Player.P_OnAddBuff     += PlayerHooks.OnAddBuff    ;
 
             UICharacterSelect.P_OnNewCharacterClick += PlayerHooks.OnNewCharacterClick;
 
