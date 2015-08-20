@@ -11,7 +11,7 @@ namespace Prism.Mods.BHandlers
     sealed class NpcBHandler : EntityBHandler<NpcBehaviour, NPC>
     {
         IEnumerable<Func<bool>> preUpdate, preAI;
-        IEnumerable<Action> onUpdate, onAI;
+        IEnumerable<Action> onUpdate, onAI, findFrame;
 
         IEnumerable<Func<SpriteBatch, bool, bool>> preDraw;
         IEnumerable<Action<SpriteBatch, bool>> onDraw;
@@ -27,6 +27,8 @@ namespace Prism.Mods.BHandlers
 
             preDraw = HookManager.CreateHooks<NpcBehaviour, Func  <SpriteBatch, bool, bool>>(Behaviours, "PreDraw");
             onDraw  = HookManager.CreateHooks<NpcBehaviour, Action<SpriteBatch, bool      >>(Behaviours, "OnDraw" );
+
+            findFrame = HookManager.CreateHooks<NpcBehaviour, Action>(Behaviours, "FindFrame");
         }
         public override void Clear ()
         {
@@ -72,6 +74,11 @@ namespace Prism.Mods.BHandlers
         public void OnDraw (SpriteBatch sb, bool bt)
         {
             HookManager.Call(onDraw, sb, bt);
+        }
+
+        public void FindFrame()
+        {
+            HookManager.Call(findFrame);
         }
     }
 }

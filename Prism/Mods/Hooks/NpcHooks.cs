@@ -143,6 +143,17 @@ namespace Prism.Mods.Hooks
                 bh.OnUpdate();
             }
         }
+
+        internal static void OnFindFrame(NPC n)
+        {
+            n.RealFindFrame();
+
+            var bh = n.P_BHandler as NpcBHandler;
+
+            if (bh != null)
+                bh.FindFrame();
+        }
+
         internal static void OnAI(NPC n)
         {
             var bh = n.P_BHandler as NpcBHandler;

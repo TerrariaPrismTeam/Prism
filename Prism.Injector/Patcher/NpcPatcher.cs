@@ -23,7 +23,8 @@ namespace Prism.Injector.Patcher
             typeDef_NPC.GetMethod("UpdateNPC", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
             typeDef_NPC.GetMethod("NPCLoot"  , MethodFlags.Public | MethodFlags.Instance               ).Wrap(context);
 
-            typeDef_NPC.GetMethod("AddBuff", MethodFlags.Public | MethodFlags.Instance).Wrap(context);
+            typeDef_NPC.GetMethod("AddBuff"  , MethodFlags.Public | MethodFlags.Instance).Wrap(context);
+            typeDef_NPC.GetMethod("FindFrame", MethodFlags.Public | MethodFlags.Instance).Wrap(context);
         }
         static void AddFieldForBHandler()
         {

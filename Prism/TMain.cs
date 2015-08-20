@@ -115,6 +115,7 @@ namespace Prism
             NPC.P_OnUpdateNPC += NpcHooks.OnUpdateNPC;
             NPC.P_OnAI        += NpcHooks.OnAI       ;
             NPC.P_OnNPCLoot   += NpcHooks.OnNPCLoot  ;
+            NPC.P_OnFindFrame += NpcHooks.OnFindFrame;
 
             P_OnDrawNPC += NpcHooks.OnDrawNPC;
 

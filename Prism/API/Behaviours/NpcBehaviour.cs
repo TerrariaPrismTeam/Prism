@@ -31,5 +31,8 @@ namespace Prism.API.Behaviours
         }
         [Hook]
         public virtual void OnDraw (SpriteBatch sb, bool behindTiles) { }
+
+        [Hook]
+        public virtual void FindFrame() { }
     }
 }
