@@ -58,6 +58,11 @@ namespace Prism.API.Defs
             get;
             set;
         }
+        public int TimeLeft
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Gets or sets the default length of this NPC's trail cache. The cache can be accessed with <see cref="NPC.oldPos" /> (a <see cref="Vector2" />[])
@@ -158,6 +163,16 @@ namespace Prism.API.Defs
         /// Gets or sets whether this NPC is immune to anything.
         /// </summary>
         public bool IsImmune
+        {
+            get;
+            set;
+        }
+        public bool AlwaysUpdateInMP
+        {
+            get;
+            set;
+        }
+        public bool ImmuneToLava
         {
             get;
             set;
@@ -309,11 +324,10 @@ namespace Prism.API.Defs
             set;
         }
 
-        //TODO: use BuffRef... later
         /// <summary>
         /// Gets or sets the list of buff IDs this NPC is immune to.
         /// </summary>
-        public List<int> BuffImmunities
+        public List<BuffRef> BuffImmunities
         {
             get;
             set;
@@ -380,12 +394,14 @@ namespace Prism.API.Defs
 
             Colour = Color.White;
 
-            BuffImmunities = Empty<int>.List;
+            BuffImmunities = Empty<BuffRef>.List;
 
             TownConfig = new TownNpcConfig(null);
 
             GetTexture = getTexture ?? Empty<Texture2D>.Func;
             GetBossHeadTexture = getBossHeadTexture ?? Empty<Texture2D>.Func;
+
+            TimeLeft = 3600;
         }
 
         public static implicit operator NpcRef(NpcDef  def)

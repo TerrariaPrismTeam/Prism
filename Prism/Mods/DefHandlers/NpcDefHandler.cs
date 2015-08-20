@@ -99,6 +99,9 @@ namespace Prism.Mods.DefHandlers
             def.IsImmortal          = npc.immortal;
             def.SoundOnHit          = npc.P_SoundOnHit   as SfxRef != null ? (SfxRef)npc.P_SoundOnHit : new SfxRef("NpcHit", variant: npc.soundHit);
             def.SoundOnDeath        = npc.P_SoundOnDeath as SfxRef != null ? (SfxRef)npc.P_SoundOnDeath : new SfxRef("NpcKilled", variant: npc.soundKilled);
+            def.TimeLeft            = npc.timeLeft;
+            def.AlwaysUpdateInMP    = npc.netAlways;
+            def.ImmuneToLava        = npc.lavaImmune;
 
             def.BuffImmunities.Clear();
             for (int i = 0; i < npc.buffImmune.Length; i++)
@@ -167,6 +170,9 @@ namespace Prism.Mods.DefHandlers
             npc.value           = (def.Value.Min.Value + def.Value.Max.Value) / 2; //Main.rand.Next(def.Value.Min.Value, def.Value.Max.Value); // close enough
             npc.aiStyle         = (int)def.AiStyle;
             npc.immortal        = def.IsImmortal;
+            npc.timeLeft        = def.TimeLeft;
+            npc.netAlways       = def.AlwaysUpdateInMP;
+            npc.lavaImmune      = def.ImmuneToLava;
 
             npc.P_SoundOnHit   = def.SoundOnHit  ;
             npc.P_SoundOnDeath = def.SoundOnDeath;
