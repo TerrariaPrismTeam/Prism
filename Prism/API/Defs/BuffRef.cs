@@ -11,7 +11,7 @@ namespace Prism.API.Defs
     public class BuffRef : EntityRefWithId<BuffDef>
     {
         public BuffRef(int resourceId)
-            : base(resourceId, id => Handler.ItemDef.DefsByType.ContainsKey(id) ? Handler.ItemDef.DefsByType[id].InternalName : String.Empty)
+            : base(resourceId, id => Handler.BuffDef.DefsByType.ContainsKey(id) ? Handler.BuffDef.DefsByType[id].InternalName : String.Empty)
         {
             if (resourceId >= BuffID.Count)
                 throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla Buff type or netID.");

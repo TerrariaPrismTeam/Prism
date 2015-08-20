@@ -12,7 +12,9 @@ namespace Prism.Mods.DefHandlers
     {
         internal int NextTypeIndex;
 
+#pragma warning disable 414
         static bool FillingVanilla = false;
+#pragma warning restore 414
 
         public Dictionary<int, BuffDef> DefsByType = new Dictionary<int, BuffDef>();
         public Dictionary<string, BuffDef> VanillaDefsByName = new Dictionary<string, BuffDef>();

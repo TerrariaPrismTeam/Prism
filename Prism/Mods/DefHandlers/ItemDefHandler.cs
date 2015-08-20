@@ -330,7 +330,7 @@ namespace Prism.Mods.DefHandlers
             item.thrown       = def.DamageType == ItemDamageType.Thrown;
             item.value        = def.Value.Value;
             item.buffTime     = def.Buff.Duration;
-            item.buffType     = def.Buff.Type.Resolve().Type;
+            item.buffType     = def.Buff.Type       == null ?  0 : def.Buff.Type      .Resolve().Type ;
             item.shoot        = def.ShootProjectile == null ?  0 : def.ShootProjectile.Resolve().Type ;
             item.ammo         = def.AmmoType        == null ?  0 : def.AmmoType       .Resolve().NetID;
             item.createTile   = def.CreateTile      == null ? -1 : def.CreateTile     .Resolve().Type ;
