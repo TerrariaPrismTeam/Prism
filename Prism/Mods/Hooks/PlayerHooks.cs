@@ -55,9 +55,14 @@ namespace Prism.Mods.Hooks
 
                 if (d.CreateBehaviour != null)
                 {
-                    h = new BuffBHandler();
+                    var b = d.CreateBehaviour();
 
-                    h.behaviours.Add(d.CreateBehaviour());
+                    if (b != null)
+                    {
+                        h = new BuffBHandler();
+
+                        h.behaviours.Add(b);
+                    }
                 }
             }
 
