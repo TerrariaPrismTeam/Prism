@@ -319,7 +319,9 @@ namespace Prism.API.Audio
                 {
                     var nv = e.fade * Main.musicVolume * (e.Priority == BgmPriority.Ambient ? 1f : moonLordSpawnFade);
 
+#pragma warning disable RECS0018
                     if (nv != m.Volume) // getting volume is way faster than setting using the XACT and XAudio APIs
+#pragma warning restore RECS0018
                         m.Volume = nv;
                 }
             }

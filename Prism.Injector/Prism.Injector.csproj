@@ -94,6 +94,7 @@
     <EmbeddedResource Include="ILAsm\asm-refs.il" />
     <Compile Include="CecilContext.cs" />
     <Compile Include="CecilReflectionComparer.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="ILAsm\ILCompiler.cs" />
     <Compile Include="ILAsm\ILProvider.cs">
       <SubType>Component</SubType>

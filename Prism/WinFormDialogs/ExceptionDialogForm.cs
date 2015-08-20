@@ -20,7 +20,7 @@ namespace Prism.WinFormDialogs
             textboxDisplayLoaderErrors.Text = msg;   
         }
 
-        private void buttonHastebin_Click(object sender, EventArgs e)
+        void buttonHastebin_Click(object sender, EventArgs e)
         {
             string url = Util.HastebinHelper.QuickUpload(textboxDisplayLoaderErrors.Text);
             if (url != null)
@@ -34,17 +34,17 @@ namespace Prism.WinFormDialogs
             else
             {
                 MessageBox.Show("Unable to match Hastebin request regex. They may have changed the way uploading to the site works...", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }          
+            }
         }
 
-        private void richTextBox1_LinkClicked(object sender, LinkClickedEventArgs e)
+        void richTextBox1_LinkClicked(object sender, LinkClickedEventArgs e)
         {
             Process.Start(e.LinkText);
         }
 
-        private void richTextBox1_ContentsResized(object sender, ContentsResizedEventArgs e)
+        void richTextBox1_ContentsResized(object sender, ContentsResizedEventArgs e)
         {
-            
+
         }
     }
 }

@@ -76,7 +76,7 @@ namespace Prism.Mods.Hooks
             if (!typeof(TDelegate).IsSubclassOf(typeof(Delegate)))
                 throw new ArgumentException("TDelegate must be a delegate type, but it's a " + typeof(TDelegate) + "!", "TDelegate");
 
-            List<Tuple<double, Delegate>> unsorted = new List<Tuple<double, Delegate>>();
+            var unsorted = new List<Tuple<double, Delegate>>();
 
             var hookMtdDecls = typeof(THookContainer).GetMethods(HookContainer.HookFlags);
             if (!hookMtdDecls.Any(m => m.Name == methodName))

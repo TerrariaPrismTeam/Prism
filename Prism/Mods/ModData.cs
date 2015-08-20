@@ -40,7 +40,7 @@ namespace Prism.Mods
         /// <returns>The <see cref="ModInfo"/> of the mod</returns>
         public static ModInfo ParseModInfo(JsonData j, string path)
         {
-            List<IReference> refs = new List<IReference>();
+            var refs = new List<IReference>();
 
             if (j.Has("dllReferences"))
                 foreach (string s in j["dllReferences"])

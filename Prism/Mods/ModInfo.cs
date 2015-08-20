@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Prism.API;
+using Prism.Util;
 
 namespace Prism.Mods
 {
@@ -77,24 +78,25 @@ namespace Prism.Mods
                 {
                     return new Version(Version);
                 }
-                catch { }
-
-                return new Version();
+                catch
+                {
+                    return EmptyClass<Version>.Default;
+                }
             }
         }
 
         /// <summary>
         /// Constructs a new <see cref="ModInfo"/> object.
         /// </summary>
-        /// <param name="modPath"><see cref="ModInfo.ModPath"/></param>
-        /// <param name="internalName"><see cref="ModInfo.InternalName"/></param>
-        /// <param name="displayName"><see cref="ModInfo.DisplayName"/></param>
-        /// <param name="author"><see cref="ModInfo.Author"/></param>
-        /// <param name="version"><see cref="ModInfo.Version"/></param>
-        /// <param name="descr"><see cref="ModInfo.Description"/></param>
-        /// <param name="asmFileName"><see cref="ModInfo.AssemblyFileName"/></param>
-        /// <param name="modDefTypeName"><see cref="ModInfo.ModDefTypeName"/></param>
-        /// <param name="references"><see cref="ModInfo.References"/></param>
+        /// <param name="modPath"><see cref="ModPath"/></param>
+        /// <param name="internalName"><see cref="InternalName"/></param>
+        /// <param name="displayName"><see cref="DisplayName"/></param>
+        /// <param name="author"><see cref="Author"/></param>
+        /// <param name="version"><see cref="Version"/></param>
+        /// <param name="descr"><see cref="Description"/></param>
+        /// <param name="asmFileName"><see cref="AssemblyFileName"/></param>
+        /// <param name="modDefTypeName"><see cref="ModDefTypeName"/></param>
+        /// <param name="references"><see cref="References"/></param>
         public ModInfo(string modPath, string internalName, string displayName, string author, string version, string descr, string asmFileName, string modDefTypeName, IReference[] references)
         {
             ModPath = modPath;

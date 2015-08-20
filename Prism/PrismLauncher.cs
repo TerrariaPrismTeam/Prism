@@ -9,13 +9,13 @@ using Prism.Util;
 using Steamworks;
 using Terraria.Social;
 
-using TProgram = Terraria.Program;
+using T = Terraria;
 
 namespace Prism
 {
     static class PrismLauncher
     {
-        static Dictionary<char, string> ShortToLongArgs = new Dictionary<char, string>
+        readonly static Dictionary<char, string> ShortToLongArgs = new Dictionary<char, string>
         {
             { 'D', "DEBUG" },
             { 'H', "HELP"  },
@@ -91,11 +91,11 @@ namespace Prism
 
                 try
                 {
-                    TMain.OnEngineLoad += () =>
+                    T.Main.OnEngineLoad += () =>
                     {
-                        TProgram.ForceLoadAssembly(typeof(TProgram).Assembly /* Terraria */, true);
+                        T.Program.ForceLoadAssembly(typeof(T.Program).Assembly /* Terraria */, true);
 #if !DEV_BUILD
-                        TProgram.ForceLoadAssembly(Assembly.GetExecutingAssembly() /* Prism */, true);
+                        T.Program.ForceLoadAssembly(Assembly.GetExecutingAssembly() /* Prism */, true);
 #endif
                     };
 

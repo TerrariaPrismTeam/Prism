@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Prism.Util
 {
-    public class HastebinHelper
+    public static class HastebinHelper
     {
         static readonly Regex HastebinKeyRegex = new Regex(@"{""key"":""(?<key>[a-z].*)""}", RegexOptions.Compiled);
         public static readonly string HastebinUrl = @"http://hastebin.com/";

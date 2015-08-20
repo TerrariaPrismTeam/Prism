@@ -132,9 +132,9 @@ namespace Prism.API.Audio
     }
     public class XAudioBgm : IBgm
     {
-        bool disposed = false;
+        readonly SoundEffectInstance sei;
 
-        SoundEffectInstance sei;
+        bool disposed = false;
 
         public SoundState State
         {

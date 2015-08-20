@@ -7,7 +7,7 @@ using Prism.Util;
 
 namespace Prism.API.Defs
 {
-    public class BuffDef : ObjectDef<BuffBehaviour>
+    public partial class BuffDef : ObjectDef<BuffBehaviour>
     {
         /// <summary>
         /// Gets or sets whether this buff is a debuff.

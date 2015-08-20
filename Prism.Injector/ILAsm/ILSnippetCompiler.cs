@@ -30,7 +30,7 @@ namespace Prism.Injector.ILAsm
 
         static string manif, refs;
 
-        static ILCompiler compiler = new ILCompiler();
+        static readonly ILCompiler compiler = new ILCompiler();
 
         static string[] OneStringArr = new string[0];
 
@@ -99,7 +99,7 @@ namespace Prism.Injector.ILAsm
 
             var ad = AssemblyDefinition.ReadAssembly(cr.PathToAssembly);
 
-            List<Instruction[]> mtds = new List<Instruction[]>();
+            var mtds = new List<Instruction[]>();
 
             foreach (var m in ad.MainModule.GetType(CLASS_NAME).Methods.Where(m => m.Name.StartsWith(METHOD_NAME, StringComparison.Ordinal) /* should be in the correct order */))
                 mtds.Add(m.Body.Instructions.Take(m.Body.Instructions.Count - 1 /* don't include the final 'ret' */).ToArray());

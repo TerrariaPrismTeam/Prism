@@ -97,89 +97,87 @@ namespace Prism.Mods.DefHandlers
                 item.SetDefaults(Handler.ItemDef.VanillaDefsByName[name].NetID); // custom SetDefaults supports that, vanilla doesn't
                 return;
             }
-            if (name == "Blue Phasesaber")
+
+            switch (name)
             {
-                item.SetDefaults(ItemID.BluePhaseblade);
+                case "Blue Phasesaber":
+                    item.SetDefaults(ItemID.BluePhaseblade);
 
-                item.damage = 41;
-                item.scale = 1.15f;
-                item.autoReuse = true;
-                item.useTurn = true;
-                item.rare = 4;
-                item.netID = ItemID.BluePhasesaber;
-            }
-            else if (name == "Red Phasesaber")
-            {
-                item.SetDefaults(ItemID.RedPhaseblade);
+                    item.damage = 41;
+                    item.scale = 1.15f;
+                    item.autoReuse = true;
+                    item.useTurn = true;
+                    item.rare = 4;
+                    item.netID = ItemID.BluePhasesaber;
+                    break;
+                case "Red Phasesaber":
+                    item.SetDefaults(ItemID.RedPhaseblade);
 
-                item.damage = 41;
-                item.scale = 1.15f;
-                item.autoReuse = true;
-                item.useTurn = true;
-                item.rare = 4;
-                item.netID = ItemID.RedPhasesaber;
-            }
-            else if (name == "Green Phasesaber")
-            {
-                item.SetDefaults(ItemID.GreenPhaseblade);
+                    item.damage = 41;
+                    item.scale = 1.15f;
+                    item.autoReuse = true;
+                    item.useTurn = true;
+                    item.rare = 4;
+                    item.netID = ItemID.RedPhasesaber;
+                    break;
+                case "Green Phasesaber":
+                    item.SetDefaults(ItemID.GreenPhaseblade);
 
-                item.damage = 41;
-                item.scale = 1.15f;
-                item.autoReuse = true;
-                item.useTurn = true;
-                item.rare = 4;
-                item.netID = ItemID.GreenPhasesaber;
-            }
-            else if (name == "Purple Phasesaber")
-            {
-                item.SetDefaults(ItemID.PurplePhaseblade);
+                    item.damage = 41;
+                    item.scale = 1.15f;
+                    item.autoReuse = true;
+                    item.useTurn = true;
+                    item.rare = 4;
+                    item.netID = ItemID.GreenPhasesaber;
+                    break;
+                case "Purple Phasesaber":
+                    item.SetDefaults(ItemID.PurplePhaseblade);
 
-                item.damage = 41;
-                item.scale = 1.15f;
-                item.autoReuse = true;
-                item.useTurn = true;
-                item.rare = 4;
-                item.netID = ItemID.PurplePhasesaber;
-            }
-            else if (name == "White Phasesaber")
-            {
-                item.SetDefaults(ItemID.WhitePhaseblade);
+                    item.damage = 41;
+                    item.scale = 1.15f;
+                    item.autoReuse = true;
+                    item.useTurn = true;
+                    item.rare = 4;
+                    item.netID = ItemID.PurplePhasesaber;
+                    break;
+                case "White Phasesaber":
+                    item.SetDefaults(ItemID.WhitePhaseblade);
 
-                item.damage = 41;
-                item.scale = 1.15f;
-                item.autoReuse = true;
-                item.useTurn = true;
-                item.rare = 4;
-                item.netID = ItemID.WhitePhasesaber;
-            }
-            else if (name == "Yellow Phasesaber")
-            {
-                item.SetDefaults(ItemID.YellowPhaseblade);
+                    item.damage = 41;
+                    item.scale = 1.15f;
+                    item.autoReuse = true;
+                    item.useTurn = true;
+                    item.rare = 4;
+                    item.netID = ItemID.WhitePhasesaber;
+                    break;
+                case "Yellow Phasesaber":
+                    item.SetDefaults(ItemID.YellowPhaseblade);
 
-                item.damage = 41;
-                item.scale = 1.15f;
-                item.autoReuse = true;
-                item.useTurn = true;
-                item.rare = 4;
-                item.netID = ItemID.YellowPhasesaber;
-            }
-            else
-            {
-                noMatCheck = false;
+                    item.damage = 41;
+                    item.scale = 1.15f;
+                    item.autoReuse = true;
+                    item.useTurn = true;
+                    item.rare = 4;
+                    item.netID = ItemID.YellowPhasesaber;
+                    break;
+                default:
+                    noMatCheck = false;
 
-                if (!String.IsNullOrEmpty(name))
-                {
-                    for (int i = 0; i < ItemID.Count; i++)
-                        if (Main.itemName[i] == name)
-                        {
-                            item.SetDefaults(i);
-                            item.checkMat();
-                            return;
-                        }
+                    if (!String.IsNullOrEmpty(name))
+                    {
+                        for (int i = 0; i < ItemID.Count; i++)
+                            if (Main.itemName[i] == name)
+                            {
+                                item.SetDefaults(i);
+                                item.checkMat();
+                                return;
+                            }
 
-                    item.name = String.Empty;
-                    item.stack = item.type = 0;
-                }
+                        item.name = String.Empty;
+                        item.stack = item.type = 0;
+                    }
+
+                    break;
             }
 
             if (item.type != 0)

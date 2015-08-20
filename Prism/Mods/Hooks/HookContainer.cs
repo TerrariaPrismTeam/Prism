@@ -19,7 +19,7 @@ namespace Prism.Mods.Hooks
         public MethodInfo[] GetHooks<THookContainer>()
             where THookContainer : HookContainer
         {
-            List<MethodInfo> ret = new List<MethodInfo>();
+            var ret = new List<MethodInfo>();
 
             Type t = GetType();
             MethodInfo[] all = t.GetMethods(HookFlags);

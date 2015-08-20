@@ -12,9 +12,29 @@ namespace Prism.API
 {
     namespace Defs
     {
+        public partial class BuffDef
+        {
+            static DIHelper<BuffDef> helper = new DIHelper<BuffDef>(BuffID.Count, "Buff", md => md.BuffDefs, Handler.BuffDef.VanillaDefsByName, Handler.BuffDef.DefsByType);
+
+            public static DefIndexer<BuffDef> Defs
+            {
+                get
+                {
+                    var vanillaDefs = Handler.BuffDef.VanillaDefsByName.Select(kvp => new KeyValuePair<ObjectRef, BuffDef>(new ObjectRef(kvp.Key), kvp.Value));
+                    var modDefs = ModData.Mods.Select(kvp => GetModDefs(kvp)).Flatten();
+
+                    return new DefIndexer<BuffDef>(vanillaDefs.Concat(modDefs), helper.ByObjRef, helper.ById);
+                }
+            }
+
+            static IEnumerable<KeyValuePair<ObjectRef, BuffDef>> GetModDefs(KeyValuePair<ModInfo, ModDef> kvp)
+            {
+                return kvp.Value.BuffDefs.SafeSelect(kvp_ => new KeyValuePair<ObjectRef, BuffDef>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
+            }
+        }
         public partial class ItemDef
         {
-            static EntityDIH<Item, ItemBehaviour, ItemDef> helper = new EntityDIH<Item, ItemBehaviour, ItemDef>(
+            static readonly EntityDIH<Item, ItemBehaviour, ItemDef> helper = new EntityDIH<Item, ItemBehaviour, ItemDef>(
                 ItemID.Count, "Item", md => md.ItemDefs, Handler.ItemDef.VanillaDefsByName, Handler.ItemDef.DefsByType);
 
             public static DefIndexer<ItemDef> Defs
@@ -27,7 +47,7 @@ namespace Prism.API
         }
         public partial class NpcDef
         {
-            static EntityDIH<NPC, NpcBehaviour, NpcDef> helper = new EntityDIH<NPC, NpcBehaviour, NpcDef>(
+            static readonly EntityDIH<NPC, NpcBehaviour, NpcDef> helper = new EntityDIH<NPC, NpcBehaviour, NpcDef>(
                 NPCID.Count, "NPC", md => md.NpcDefs, Handler.NpcDef.VanillaDefsByName, Handler.NpcDef.DefsByType);
 
             public static DefIndexer<NpcDef> Defs
@@ -40,7 +60,7 @@ namespace Prism.API
         }
         public partial class ProjectileDef
         {
-            static EntityDIH<Projectile, ProjectileBehaviour, ProjectileDef> helper = new EntityDIH<Projectile, ProjectileBehaviour, ProjectileDef>(
+            static readonly EntityDIH<Projectile, ProjectileBehaviour, ProjectileDef> helper = new EntityDIH<Projectile, ProjectileBehaviour, ProjectileDef>(
                 ProjectileID.Count, "Projectile", md => md.ProjectileDefs, Handler.ProjDef.VanillaDefsByName, Handler.ProjDef.DefsByType);
 
             public static DefIndexer<ProjectileDef> Defs
@@ -53,7 +73,7 @@ namespace Prism.API
         }
         public partial class TileDef
         {
-            static EntityDIH<Tile, TileBehaviour, TileDef> helper = new EntityDIH<Tile, TileBehaviour, TileDef>(
+            static readonly EntityDIH<Tile, TileBehaviour, TileDef> helper = new EntityDIH<Tile, TileBehaviour, TileDef>(
                 TileID.Count, "Tile", md => md.TileDefs, Handler.TileDef.VanillaDefsByName, Handler.TileDef.DefsByType);
 
             public static DefIndexer<TileDef> Defs

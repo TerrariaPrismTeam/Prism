@@ -29,8 +29,8 @@ namespace Prism.Injector
                 throw new ArgumentException("At least one of the two adjacent item functions must be defined.");
             for (int i = 0; i < arr.Length; i++)
             {
-                var prev = getPrevious == null || i == 0              || getPrevious(arr[i]) == null || ((object)getPrevious(arr[i])).Equals(arr[i - 1]);
-                var next = getNext     == null || i == arr.Length - 1 || getNext    (arr[i]) == null || ((object)getNext    (arr[i])).Equals(arr[i + 1]);
+                var prev = getPrevious == null || i == 0              || ReferenceEquals(getPrevious(arr[i]), null) || getPrevious(arr[i]).Equals(arr[i - 1]);
+                var next = getNext     == null || i == arr.Length - 1 || ReferenceEquals(getNext    (arr[i]), null) || getNext    (arr[i]).Equals(arr[i + 1]);
 
                 if (!(prev && next))
                     return false;

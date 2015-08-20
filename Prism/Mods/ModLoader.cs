@@ -84,9 +84,7 @@ namespace Prism.Mods
         static ModInfo? ModInfoFromInternalName(string internalName)
         {
             return Directory.EnumerateDirectories(PrismApi.ModDirectory)
-                .Select(ModInfoFromModPath)
-                .Where(mi => mi.HasValue && mi.Value.InternalName == internalName)
-                .FirstOrDefault();
+                .Select(ModInfoFromModPath).FirstOrDefault(mi => mi.HasValue && mi.Value.InternalName == internalName);
         }
 
         /// <summary>
@@ -107,7 +105,7 @@ namespace Prism.Mods
                     return true;
                 }
 
-                List<string> temp = new List<string>(circRefList);
+                var temp = new List<string>(circRefList);
 
                 circRefList.Add(refIName);
 
@@ -143,7 +141,7 @@ namespace Prism.Mods
                 return null;
             }
 
-            ModDef mod = Activator.CreateInstance(mdType) as ModDef;
+            var mod = Activator.CreateInstance(mdType) as ModDef;
 
             if (mod == null)
             {
@@ -230,13 +228,19 @@ namespace Prism.Mods
 #if DEV_BUILD
                     errors.Add(new LoaderError(info, "Mod was built with a release build of Prism and may not work correctly with the latest developer build."));
 #else
-                    errors.Add(new LoaderError(info, "Mod was built with a previous version of Prism and may not work correctly."));
+                    bool minorDiff = refn.Version.Major == curn.Version.Major &&
+                                     refn.Version.Minor == curn.Version.Minor;
+
+                    if (minorDiff)
+                        errors.Add(new LoaderError(info, "Warning: mod was built with a previous build of Prism, it might not work completely."));
+                    else
+                        errors.Add(new LoaderError(info, "Mod was built with a previous version of Prism and will probably not work correctly."));
 #endif
                 }
 
                 if (refn.Version > curn.Version)
                 {
-                    errors.Add(new LoaderError(info, "Mod was built with a newer version of Prism than the installed version. Update to the latest version of Prism (" + refn.Version + ") in order to load this mod."));
+                    errors.Add(new LoaderError(info, "Mod was built with a newer version of Prism than the installed version. Update to the latest version of Prism (>=" + refn.Version + ") in order to load this mod."));
                     loadAssembly = false;
                 }
 

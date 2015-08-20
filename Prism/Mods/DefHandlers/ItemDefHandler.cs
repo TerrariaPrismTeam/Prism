@@ -57,10 +57,11 @@ namespace Prism.Mods.DefHandlers
 
         protected override Item GetVanillaEntityFromID(int id)
         {
-            Item i = new Item();
+            var i = new Item();
             i.netDefaults(id);
             return i;
         }
+
         protected override ItemDef NewDefFromVanilla(Item item)
         {
             return new ItemDef(Lang.itemName(item.netID, true), getTexture: () => Main.itemTexture[item.type]);
@@ -112,7 +113,7 @@ namespace Prism.Mods.DefHandlers
                                          : ItemDamageType.None;
             def.Value               = new CoinValue(item.value);
             def.Description         = new ItemDescription(item.toolTip, item.toolTip2, item.vanity, item.expert, item.questItem, item.notAmmo);
-            def.Buff                = new AppliedBuff(item.buffType, item.buffTime);
+            def.Buff                = new AppliedBuff(new BuffRef(item.buffType), item.buffTime);
 
             def.UsedAmmo            = item.useAmmo    ==  0 ? null : new ItemRef      (item.useAmmo   );
             def.ShootProjectile     = item.shoot      ==  0 ? null : new ProjectileRef(item.shoot     );
@@ -120,11 +121,7 @@ namespace Prism.Mods.DefHandlers
             def.CreateTile          = item.createTile == -1 ? null : new TileRef      (item.createTile);
             def.CreateWall          = item.createWall;
             def.GetTexture          = () => Main.itemTexture[item.type];
-
-            if (item.P_UseSound as SfxRef != null)
-                def.UseSound = (SfxRef)item.P_UseSound;
-            else
-                def.UseSound = new SfxRef("UseItem", variant: item.useSound);
+            def.UseSound = item.P_UseSound as SfxRef != null ? (SfxRef)item.P_UseSound : new SfxRef("UseItem", variant: item.useSound);
 
             #region ArmourData
             def.ArmourData = new ItemArmourData(() =>
@@ -333,7 +330,7 @@ namespace Prism.Mods.DefHandlers
             item.thrown       = def.DamageType == ItemDamageType.Thrown;
             item.value        = def.Value.Value;
             item.buffTime     = def.Buff.Duration;
-            item.buffType     = def.Buff.Type;
+            item.buffType     = def.Buff.Type.Resolve().Type;
             item.shoot        = def.ShootProjectile == null ?  0 : def.ShootProjectile.Resolve().Type ;
             item.ammo         = def.AmmoType        == null ?  0 : def.AmmoType       .Resolve().NetID;
             item.createTile   = def.CreateTile      == null ? -1 : def.CreateTile     .Resolve().Type ;

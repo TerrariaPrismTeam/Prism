@@ -20,7 +20,7 @@ namespace Prism.DebuggingMod.ChatConsole
 
         public static List<string> ParseArgs(params string[] args)
         {
-            List<string> resultList = new List<string>();
+            var resultList = new List<string>();
             string stringLiteral = null;
 
             for (int i = 0; i < args.Length; i++)

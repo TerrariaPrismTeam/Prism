@@ -15,8 +15,8 @@ namespace Prism.Injector
         readonly static string MODULE = "<Module>";
         readonly static string COMPILER_GENERATED = typeof(CompilerGeneratedAttribute).FullName;
 
-        public AssemblyDefinition assembly;
-        public List<TypeDefinition> types;
+        public readonly AssemblyDefinition assembly;
+        public readonly List<TypeDefinition> types;
 
         public AsmInfo(AssemblyDefinition def)
         {
@@ -34,8 +34,6 @@ namespace Prism.Injector
         {
             if (!(obj is AsmInfo))
                 return false;
-
-            AsmInfo other = (AsmInfo)obj;
 
             return Equals((AsmInfo)obj);
         }
@@ -89,6 +87,7 @@ namespace Prism.Injector
                 return primaryAssembly.assembly;
             }
         }
+
         public AssemblyNameReference[] References
         {
             //get

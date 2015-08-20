@@ -371,7 +371,7 @@ namespace Prism.DebuggingMod
             else if (dbgVal is IEnumerable)
             {
                 var enumerable = (IEnumerable)dbgVal;
-                List<object> newList = new List<object>();
+                var newList = new List<object>();
 
                 int i = 0;
 

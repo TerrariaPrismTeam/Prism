@@ -32,7 +32,7 @@ namespace Prism.Injector.ILAsm
         [Obsolete]
         public override ICodeGenerator CreateGenerator()
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }
 }

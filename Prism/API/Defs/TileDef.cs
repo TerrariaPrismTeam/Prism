@@ -324,7 +324,7 @@ namespace Prism.API.Defs
             if (json.Has("placementOrigin") && json["placementOrigin"].IsArray && json["placementOrigin"].Count >= 2 && json["placementOrigin"][0].IsInt && json["placementOrigin"][1].IsInt)
             {
 
-                Point value = new Point((int)json["placementOrigin"][0], (int)json["placementOrigin"][1]);
+                var value = new Point((int)json["placementOrigin"][0], (int)json["placementOrigin"][1]);
 
                 if (value.X < 0)
                     value.X = 0;
@@ -351,8 +351,7 @@ namespace Prism.API.Defs
             MineConfig.BreaksByWater = (bool)json["breaksByWater"];
             MineConfig.BreaksByLava = (bool)json["breaksByLava"];
 
-            if (MineConfig.BreaksByLava)
-                ObsidianKill = true;
+            ObsidianKill |= MineConfig.BreaksByLava;
 
             MineConfig.MinPick = (int)json["minPick"];
             MineConfig.MinAxe = (int)json["minAxe"];
@@ -411,11 +410,7 @@ namespace Prism.API.Defs
                 Color.Pink;
 
             MapHoverText = json.Has("mapHoverText") ? (string)json["mapHoverText"] : DisplayName;
-
-            if (json["drop"].IsInt)
-                MineConfig.ItemDrop = new ItemRef((int)json["drop"]);
-            else
-                MineConfig.ItemDrop = new ItemRef((string)json["drop"] /* mod name? */);
+            MineConfig.ItemDrop = json["drop"].IsInt ? new ItemRef((int)json["drop"]) : new ItemRef((string)json["drop"] /* mod name? */);
 
             //TODO: Tile Merge Resolver
 

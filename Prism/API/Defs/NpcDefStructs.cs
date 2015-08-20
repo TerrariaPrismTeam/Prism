@@ -153,7 +153,7 @@ namespace Prism.API.Defs
     {
         public readonly static NpcValue Zero = new NpcValue(CoinValue.Zero, CoinValue.Zero);
 
-        public CoinValue Min, Max;
+        public readonly CoinValue Min, Max;
 
         public NpcValue(CoinValue value)
             : this(value, value)

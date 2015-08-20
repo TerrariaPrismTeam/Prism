@@ -62,7 +62,7 @@ namespace Prism.Mods.DefHandlers
 
         protected override NPC GetVanillaEntityFromID(int id)
         {
-            NPC entity = new NPC();
+            var entity = new NPC();
             entity.netDefaults(id);
             return entity;
         }
@@ -97,16 +97,8 @@ namespace Prism.Mods.DefHandlers
             def.MaxLife             = npc.lifeMax;
             def.GetTexture          = () => Main.npcTexture[npc.type];
             def.IsImmortal          = npc.immortal;
-
-            if (npc.P_SoundOnHit as SfxRef != null)
-                def.SoundOnHit = (SfxRef)npc.P_SoundOnHit;
-            else
-                def.SoundOnHit = new SfxRef("NpcHit", variant: npc.soundHit);
-            if (npc.P_SoundOnDeath as SfxRef != null)
-                def.SoundOnDeath = (SfxRef)npc.P_SoundOnDeath;
-            else
-                def.SoundOnDeath = new SfxRef("NpcKilled", variant: npc.soundKilled);
-
+            def.SoundOnHit = npc.P_SoundOnHit as SfxRef != null ? (SfxRef)npc.P_SoundOnHit : new SfxRef("NpcHit", variant: npc.soundHit);
+            def.SoundOnDeath = npc.P_SoundOnDeath as SfxRef != null ? (SfxRef)npc.P_SoundOnDeath : new SfxRef("NpcKilled", variant: npc.soundKilled);
             def.BuffImmunities.Clear();
             for (int i = 0; i < npc.buffImmune.Length; i++)
                 if (npc.buffImmune[i])

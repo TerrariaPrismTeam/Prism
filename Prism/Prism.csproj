@@ -146,6 +146,7 @@
     <Compile Include="API\Defs\TileRef.cs" />
     <Compile Include="API\ObjectRef.cs" />
     <Compile Include="Debugging\Logging.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Mods\BHandlers\BuffBHandler.cs" />
     <Compile Include="Mods\BHandlers\PlayerBHandler.cs" />
     <Compile Include="Mods\BHandlers\TileBHandler.cs" />

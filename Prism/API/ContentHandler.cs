@@ -16,6 +16,20 @@ namespace Prism.API
     {
         internal ModInfo? Mod;
         internal Dictionary<string, Stream> resources = new Dictionary<string, Stream>();
+        ReadOnlyDictionary<string, Stream> resDict;
+
+        public IDictionary<string, Stream> Resources
+        {
+            get
+            {
+                return resDict;
+            }
+        }
+
+        protected ContentHandler()
+        {
+            resDict = new ReadOnlyDictionary<string, Stream>(resources);
+        }
 
         public void Adopt(ModInfo owner)
         {

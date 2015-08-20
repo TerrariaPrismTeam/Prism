@@ -40,7 +40,7 @@ namespace Prism.Mods.Resources
         }
         internal static IEnumerable<LoaderError> Load(ModDef mod)
         {
-            List<LoaderError> errors = new List<LoaderError>();
+            var errors = new List<LoaderError>();
 
             foreach (var f in Directory.EnumerateFiles(mod.Info.ModPath, "*.*", SearchOption.AllDirectories))
             {

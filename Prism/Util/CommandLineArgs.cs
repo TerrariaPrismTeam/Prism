@@ -59,7 +59,7 @@ namespace Prism.Util
         /// <returns></returns>
         public static Argument[] Parse(string[] args, Dictionary<char, string> shortToLong)
         {
-            List<Argument> ret = new List<Argument>();
+            var ret = new List<Argument>();
 
             for (int i = 0; i < args.Length; i++)
             {

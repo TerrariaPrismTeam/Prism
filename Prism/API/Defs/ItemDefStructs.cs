@@ -238,47 +238,47 @@ namespace Prism.API.Defs
         /// Gets or sets the item's description.
         /// </summary>
         /// <remarks>Item.toolTip</remarks>
-        public string Description;
+        public readonly string Description;
 
         /// <summary>
         /// Gets or sets the item's extra description (funny quote, reference, etc).
         /// </summary>
         /// <remarks>Item.toolTip2</remarks>
-        public string ExtraDescription;
+        public readonly string ExtraDescription;
 
         /// <summary>
         /// Gets or sets whether this item is labeled as "Vanity item" in its tool-tip.
         /// </summary>
         /// <remarks>Item.vanity</remarks>
-        public bool ShowVanity;
+        public readonly bool ShowVanity;
         /// <summary>
         /// Gets or sets whether this item is labeled with the "Expert" tag in its tool-tip.
         /// <para/>Note: Enabling this will also make the item display with a rainbow name, regardless of its rarity (it doesn't affect its existing rarity value).
         /// </summary>
         /// <remarks>Item.expert</remarks>
-        public bool ShowExpert;
+        public readonly bool ShowExpert;
         /// <summary>
         /// Gets or sets whether this item is labeled with the "Quest Item" tag in its tool-tip (does not effect rarity/text color).
         /// </summary>
         /// <remarks>Item.questItem</remarks>
-        public bool ShowQuestItem;
+        public readonly bool ShowQuestItem;
 
         /// <summary>
         /// Gets or sets whether this item is labeled as "Ammo" in its tool-tip.
         /// </summary>
         /// <remarks>!Item.notAmmo</remarks>
-        public bool HideAmmoFlag;
-        public bool HideMaterialFlag;
+        public readonly bool HideAmmoFlag;
+        public readonly bool HideMaterialFlag;
 
         /// <summary>
         /// Constructs a new <see cref="ItemDescription"/> structure.
         /// </summary>
-        /// <param name="desc"><see cref="ItemDescription.Description"/></param>
-        /// <param name="extraDesc"><see cref="ItemDescription.ExtraDescription"/></param>
-        /// <param name="vanity"><see cref="ItemDescription.ShowVanity"/></param>
-        /// <param name="expert"><see cref="ItemDescription.ShowExpert"/></param>
-        /// <param name="quest"><see cref="ItemDescription.ShowQuestItem"/></param>
-        /// <param name="hideAmmo"><see cref="ItemDescription.HideAmmoFlag"/></param>
+        /// <param name="desc"><see cref="Description"/></param>
+        /// <param name="extraDesc"><see cref="ExtraDescription"/></param>
+        /// <param name="vanity"><see cref="ShowVanity"/></param>
+        /// <param name="expert"><see cref="ShowExpert"/></param>
+        /// <param name="quest"><see cref="ShowQuestItem"/></param>
+        /// <param name="hideAmmo"><see cref="HideAmmoFlag"/></param>
         public ItemDescription(string desc, string extraDesc = null, bool vanity = false, bool expert = false, bool quest = false, bool hideAmmo = false, bool hideMat = false)
         {
             Description      = desc      ?? String.Empty;

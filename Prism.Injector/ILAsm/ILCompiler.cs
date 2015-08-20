@@ -147,11 +147,11 @@ namespace Prism.Injector.ILAsm
 
         public CompilerResults CompileAssemblyFromDom     (CompilerParameters options, CodeCompileUnit   compilationUnit)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
         public CompilerResults CompileAssemblyFromDomBatch(CompilerParameters options, CodeCompileUnit[] compilationUnits)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }
 }

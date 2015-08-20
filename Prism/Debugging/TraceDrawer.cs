@@ -64,8 +64,8 @@ namespace Prism.Debugging
             bool altBg = false;
 
             var lineAmt = lines.Count();
-            List<string> drawText   = new List<string>(lineAmt);
-            List<float > fadeAlphas = new List<float >(lineAmt);
+            var drawText   = new List<string>(lineAmt);
+            var fadeAlphas = new List<float >(lineAmt);
 
             var curLine = new StringBuilder();
 

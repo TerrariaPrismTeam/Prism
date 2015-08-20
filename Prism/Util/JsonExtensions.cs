@@ -117,6 +117,10 @@ namespace Prism.Util
             throw new FormatException("JsonData is not a valid enum value, it has type " + j.GetJsonType() + ".");
         }
 
+        public static BuffRef ParseBuffRef(this JsonData j)
+        {
+            return j.ParseAsIntOrObjectRef().Bind(i => new BuffRef(i), or => new BuffRef(or)).Right;
+        }
         public static ItemRef ParseItemRef(this JsonData j)
         {
             return j.ParseAsIntOrObjectRef().Bind(i => new ItemRef(i), or => new ItemRef(or)).Right;

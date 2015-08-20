@@ -82,8 +82,8 @@ namespace Prism.Injector
             if (gm == null ^ pd.GetMethod == null) return false;
             if (sm == null ^ pd.SetMethod == null) return false;
 
-            return (gm != null ? MethodEquals(pd.GetMethod, gm) : true)
-                && (sm != null ? MethodEquals(pd.SetMethod, sm) : true);
+            return (gm == null || MethodEquals(pd.GetMethod, gm))
+                && (sm == null || MethodEquals(pd.SetMethod, sm));
         }
     }
 }

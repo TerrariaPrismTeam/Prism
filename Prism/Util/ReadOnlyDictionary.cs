@@ -7,7 +7,7 @@ namespace Prism.Util
 {
     public sealed class ReadOnlyDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     {
-        IDictionary<TKey, TValue> inner;
+        readonly IDictionary<TKey, TValue> inner;
 
         public ReadOnlyDictionary(IDictionary<TKey, TValue> dict)
         {

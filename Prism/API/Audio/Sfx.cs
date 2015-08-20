@@ -34,7 +34,10 @@ namespace Prism.API.Audio
                 shouldPlay = true;
             else
             {
+#pragma warning disable RECS0091 // Use 'var' keyword when possible
+                                 // to the code analyser: learn to C#
                 Rectangle
+#pragma warning restore RECS0091
                     screen = new Rectangle((int)(Main.screenPosition.X - Main.screenWidth * 2), (int)(Main.screenPosition.Y - Main.screenHeight * 2), Main.screenWidth * 5, Main.screenHeight * 5),
                     sound  = new Rectangle((int)pos.X, (int)pos.Y, 1, 1);
 
@@ -42,7 +45,7 @@ namespace Prism.API.Audio
 
                 if (shouldPlay)
                 {
-                    Vector2 screenCentre = new Vector2(Main.screenPosition.X + Main.screenWidth * 0.5f, Main.screenPosition.Y + Main.screenHeight * 0.5f);
+                    var screenCentre = new Vector2(Main.screenPosition.X + Main.screenWidth * 0.5f, Main.screenPosition.Y + Main.screenHeight * 0.5f);
 
                     pan = (pos.X - screenCentre.X) / (Main.screenWidth * 0.5f);
                     vol = 1f - Vector2.Distance(pos, screenCentre) / (Main.screenWidth * 1.5f);

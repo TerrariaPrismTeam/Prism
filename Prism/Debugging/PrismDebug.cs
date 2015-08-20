@@ -8,9 +8,10 @@ namespace Prism.Debugging
 {
     struct TraceLine : IEquatable<TraceLine>
     {
+        public readonly string OrigText;
+
         public string Text;
         public int Timeleft;
-        public string OrigText;
 
         internal int times;
 
@@ -52,7 +53,7 @@ namespace Prism.Debugging
         }
         public override int GetHashCode()
         {
-            return Text.GetHashCode() | Timeleft.GetHashCode();
+            return OrigText.GetHashCode();
         }
         public override string ToString()
         {
@@ -80,7 +81,7 @@ namespace Prism.Debugging
 
         public const int PADDING_X = 48, PADDING_Y = 24;
 
-        static object @lock = new object();
+        readonly static object @lock = new object();
         static PrismTraceListener listener;
         internal static List<TraceLine> lines = new List<TraceLine>();
 
@@ -99,16 +100,16 @@ namespace Prism.Debugging
         {
             lock (@lock)
             {
-                if (lines.Any(l => l.OrigText == line.OrigText))
+                if (lines.Any(l => l.OrigText == line.Text))
                 {
-                    var toEdit = lines.Last(l => l.OrigText == line.OrigText);
+                    var toEdit = lines.Last(l => l.OrigText == line.Text);
                     var index = lines.LastIndexOf(toEdit);
 
                     lines.RemoveAt(index);
 
                     line.times = toEdit.times + 1;
 
-                    line.Text = line.OrigText + " (" + (line.times + 1) + " times)";
+                    line.Text += " (" + (line.times + 1) + " times)";
                 }
 
                 if (lines.Count == MAX_LINES)

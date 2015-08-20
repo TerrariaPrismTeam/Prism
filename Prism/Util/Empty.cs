@@ -28,6 +28,11 @@ namespace Prism.Util
         public readonly static Action<T> Action = _  => {        };
         public readonly static Func  <T> Func   = () => default(T);
     }
+    public static class EmptyClass<T>
+        where T : class, new()
+    {
+        public readonly static T Default = new T();
+    }
     public static class Empty<T1, T2>
     {
         public readonly static Dictionary<T1, T2> Dictionary = new Dictionary<T1, T2>(                        );

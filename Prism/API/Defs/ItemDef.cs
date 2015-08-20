@@ -531,6 +531,7 @@ namespace Prism.API.Defs
             UseSound = new SfxRef("UseItem", variant: 1);
         }
 
+        [Obsolete("JSON files aren't supported for now, please use the other constructor and/or a custom deserializer.")]
         public ItemDef(string displayName, JsonData json,
             Func<Texture2D> getTexture = null,
             ItemArmourData armour = default(ItemArmourData), //TODO: support this in JSON
@@ -603,10 +604,7 @@ namespace Prism.API.Defs
             if (json.Has("value"))
             {
                 JsonData value = json["value"];
-                if (value.IsArray)
-                    Value = new CoinValue((int)value[0], (int)value[1], (int)value[2], (int)value[3]);
-                else
-                    Value = (CoinValue)(int)value;
+                Value = value.IsArray ? new CoinValue((int)value[0], (int)value[1], (int)value[2], (int)value[3]) : (CoinValue)(int)value;
             }
 
             if (json.Has("description"))
@@ -624,7 +622,7 @@ namespace Prism.API.Defs
                 JsonData buff = json["buff"];
                 JsonData type = buff["type"];
                 //TODO: Add string compatibility with BuffRef
-                Buff = new AppliedBuff((int)type, (int)buff["duration"]);
+                Buff = new AppliedBuff(type.ParseBuffRef(), (int)buff["duration"]);
             }
 
             if (json.Has("useAmmo"))

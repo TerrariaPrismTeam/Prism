@@ -27,10 +27,10 @@ namespace Prism.API.Defs
 
         // base 10 is annoying
         public int
-            Copper  ,
-            Silver  ,
+            Platinum,
             Gold    ,
-            Platinum;
+            Silver  ,
+            Copper  ;
 
         /// <summary>
         /// Gets or sets the resulting value.
@@ -53,7 +53,7 @@ namespace Prism.API.Defs
             }
         }
 
-        public CoinValue(int c, int s, int g = 0, int p = 0)
+        public CoinValue(int p, int g, int s, int c)
         {
             Copper = c;
             Silver = s;
@@ -183,7 +183,7 @@ namespace Prism.API.Defs
         object IConvertible.ToType(Type conversionType, IFormatProvider provider)
         {
             // meh
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public string ToString(IFormatProvider provider)
@@ -213,24 +213,23 @@ namespace Prism.API.Defs
 
     public struct AppliedBuff : IEquatable<AppliedBuff>
     {
-        //TODO: use BuffRef... later
         /// <summary>
         /// Gets or sets the type of buff.
         /// </summary>
         /// <remarks>Item.buffType</remarks>
-        public int Type;
+        public readonly BuffRef Type;
         /// <summary>
         /// Gets or sets the duration for which this buff lasts.
         /// </summary>
         /// <remarks>Item.buffTime</remarks>
-        public int Duration;
+        public readonly int Duration;
 
         /// <summary>
         /// Constructs a new <see cref="AppliedBuff"/> structure.
         /// </summary>
         /// <param name="type"><see cref="AppliedBuff.Type"/></param>
         /// <param name="duration"><see cref="AppliedBuff.Duration"/></param>
-        public AppliedBuff(int type, int duration)
+        public AppliedBuff(BuffRef type, int duration)
         {
             Type = type;
             Duration = duration;
@@ -252,7 +251,7 @@ namespace Prism.API.Defs
         }
         public override int GetHashCode()
         {
-            return Type | Duration;
+            return Type.GetHashCode() | Duration.GetHashCode();
         }
         public override string ToString()
         {

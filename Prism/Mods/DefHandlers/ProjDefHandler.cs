@@ -117,7 +117,7 @@ namespace Prism.Mods.DefHandlers
 
         protected override Projectile GetVanillaEntityFromID(int id)
         {
-            Projectile proj = new Projectile();
+            var proj = new Projectile();
             proj.SetDefaults(id);
             return proj;
         }
