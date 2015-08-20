@@ -32,20 +32,24 @@ namespace Prism.Mods.Hooks
 
             var bh = pr.P_BHandler as ProjBHandler;
 
-            if (bh != null && bh.PreUpdate())
+            if (bh == null || bh.PreUpdate())
             {
                 pr.RealUpdate(id);
-                bh.OnUpdate();
+
+                if (bh != null)
+                    bh.OnUpdate();
             }
         }
         internal static void OnAI(Projectile pr)
         {
             var bh = pr.P_BHandler as ProjBHandler;
 
-            if (bh != null && bh.PreAI())
+            if (bh == null || bh.PreAI())
             {
                 pr.RealAI();
-                bh.OnAI();
+
+                if (bh != null)
+                    bh.OnAI();
             }
         }
 
@@ -53,10 +57,12 @@ namespace Prism.Mods.Hooks
         {
             var bh = pr.P_BHandler as ProjBHandler;
 
-            if (bh != null && bh.PreDestroyed())
+            if (bh == null || bh.PreDestroyed())
             {
                 pr.RealKill();
-                bh.OnDestroyed();
+
+                if (bh != null)
+                    bh.OnDestroyed();
             }
         }
 
@@ -65,10 +71,12 @@ namespace Prism.Mods.Hooks
             var pr = Main.projectile[prid];
             var bh = pr.P_BHandler as ProjBHandler;
 
-            if (bh != null && bh.PreDraw(Main.spriteBatch))
+            if (bh == null || bh.PreDraw(Main.spriteBatch))
             {
                 m.RealDrawProj(prid);
-                bh.OnDraw(Main.spriteBatch);
+
+                if (bh != null)
+                    bh.OnDraw(Main.spriteBatch);
             }
         }
     }

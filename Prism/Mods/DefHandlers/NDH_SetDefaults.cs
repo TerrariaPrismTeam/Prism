@@ -18,7 +18,7 @@ namespace Prism.Mods.DefHandlers
         {
             if (ModLoader.Reloading)
             {
-                n.RealSetDefaults(type, scaleOverride);
+                n.RealSetDefaults(type);
 
                 if (!FillingVanilla)
                     Logging.LogWarning("Tried to call SetDefaults on an NPC while [re|un]?loading mods.");
@@ -28,7 +28,10 @@ namespace Prism.Mods.DefHandlers
 
             NpcBHandler h = null; // will be set to <non-null> only if a behaviour handler will be attached
 
-            n.RealSetDefaults(0, scaleOverride);
+            if (type < NPCID.Count && !ModLoader.Reloading && !FillingVanilla && type != 0 && Handler.NpcDef.DefsByType.Count > 0)
+                n.RealSetDefaults(type < 0 ? Handler.NpcDef.DefsByType[type].Type : type, scaleOverride);
+            else
+                n.RealSetDefaults(0, scaleOverride);
 
             if (Handler.NpcDef.DefsByType.ContainsKey(type))
             {

@@ -97,8 +97,9 @@ namespace Prism.Mods.DefHandlers
             def.MaxLife             = npc.lifeMax;
             def.GetTexture          = () => Main.npcTexture[npc.type];
             def.IsImmortal          = npc.immortal;
-            def.SoundOnHit = npc.P_SoundOnHit as SfxRef != null ? (SfxRef)npc.P_SoundOnHit : new SfxRef("NpcHit", variant: npc.soundHit);
-            def.SoundOnDeath = npc.P_SoundOnDeath as SfxRef != null ? (SfxRef)npc.P_SoundOnDeath : new SfxRef("NpcKilled", variant: npc.soundKilled);
+            def.SoundOnHit          = npc.P_SoundOnHit   as SfxRef != null ? (SfxRef)npc.P_SoundOnHit : new SfxRef("NpcHit", variant: npc.soundHit);
+            def.SoundOnDeath        = npc.P_SoundOnDeath as SfxRef != null ? (SfxRef)npc.P_SoundOnDeath : new SfxRef("NpcKilled", variant: npc.soundKilled);
+
             def.BuffImmunities.Clear();
             for (int i = 0; i < npc.buffImmune.Length; i++)
                 if (npc.buffImmune[i])
@@ -117,13 +118,13 @@ namespace Prism.Mods.DefHandlers
             if (npc.P_Music != null && npc.P_Music is BgmRef)
                 def.Music = (BgmRef)npc.P_Music;
 
-            def.DisplayName                         = Main.npcName                     [def.Type];
             def.FrameCount                          = Main.npcFrameCount               [def.Type];
 
             def.TownConfig.AverageAttackChance      = NPCID.Sets.AttackAverageChance   [def.Type];
             def.TownConfig.AttackFrameCount         = NPCID.Sets.AttackFrameCount      [def.Type];
             def.TownConfig.AttackTime               = NPCID.Sets.AttackTime            [def.Type];
-            def.TownConfig.AttackType               = (TownNpcAttackType)NPCID.Sets.AttackType[def.Type];
+            def.TownConfig.AttackType               = (TownNpcAttackType)
+                                                        NPCID.Sets.AttackType          [def.Type];
             def.TownConfig.DangerDetectRadius       = NPCID.Sets.DangerDetectRange     [def.Type];
             def.TownConfig.ExtraFramesCount         = NPCID.Sets.ExtraFramesCount      [def.Type];
             def.TownConfig.ChatIcon                 = (ChatBubbleIconIndex)
@@ -169,8 +170,8 @@ namespace Prism.Mods.DefHandlers
 
             npc.P_SoundOnHit   = def.SoundOnHit  ;
             npc.P_SoundOnDeath = def.SoundOnDeath;
-            npc.soundHit    = def.SoundOnHit   == null ? 0 : def.SoundOnHit  .VariantID;
-            npc.soundKilled = def.SoundOnDeath == null ? 0 : def.SoundOnDeath.VariantID;
+            npc.soundHit       = def.SoundOnHit   == null ? 0 : def.SoundOnHit  .VariantID;
+            npc.soundKilled    = def.SoundOnDeath == null ? 0 : def.SoundOnDeath.VariantID;
 
             for (int i = 0; i < def.BuffImmunities.Count; i++)
                 npc.buffImmune[i] = true;

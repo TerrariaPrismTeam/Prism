@@ -134,7 +134,7 @@ namespace Prism.Mods.Hooks
 
             var bh = n.P_BHandler as NpcBHandler;
 
-            if (bh != null && bh.PreUpdate())
+            if (bh == null || bh.PreUpdate())
             {
                 try
                 {
@@ -145,7 +145,9 @@ namespace Prism.Mods.Hooks
                     if (ioore.TargetSite.DeclaringType != typeof(EmoteBubble)) // this somehow, sometimes crashes.
                         throw new IndexOutOfRangeException(ioore.Message, ioore);
                 }
-                bh.OnUpdate();
+
+                if (bh != null)
+                    bh.OnUpdate();
             }
         }
 
@@ -163,10 +165,12 @@ namespace Prism.Mods.Hooks
         {
             var bh = n.P_BHandler as NpcBHandler;
 
-            if (bh != null && bh.PreAI())
+            if (bh == null || bh.PreAI())
             {
                 n.RealAI();
-                bh.OnAI();
+
+                if (bh != null)
+                    bh.OnAI();
             }
         }
 
@@ -174,10 +178,12 @@ namespace Prism.Mods.Hooks
         {
             var bh = n.P_BHandler as NpcBHandler;
 
-            if (bh != null && bh.PreDestroyed())
+            if (bh == null || bh.PreDestroyed())
             {
                 n.RealNPCLoot();
-                bh.OnDestroyed();
+
+                if (bh != null)
+                    bh.OnDestroyed();
             }
         }
 
@@ -186,10 +192,12 @@ namespace Prism.Mods.Hooks
             var n = Main.npc[nid];
             var bh = n.P_BHandler as NpcBHandler;
 
-            if (bh != null && bh.PreDraw(Main.spriteBatch, behindTiles))
+            if (bh == null || bh.PreDraw(Main.spriteBatch, behindTiles))
             {
                 m.RealDrawNPC(nid, behindTiles);
-                bh.OnDraw(Main.spriteBatch, behindTiles);
+
+                if (bh != null)
+                    bh.OnDraw(Main.spriteBatch, behindTiles);
             }
         }
 
