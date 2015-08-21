@@ -106,7 +106,7 @@ namespace Prism.Mods.DefHandlers
             def.BuffImmunities.Clear();
             for (int i = 0; i < npc.buffImmune.Length; i++)
                 if (npc.buffImmune[i])
-                    def.BuffImmunities.Add(i);
+                    def.BuffImmunities.Add(new BuffRef(i));
             def.CaughtAsItem = new ItemRef(npc.catchItem);
 
             def.IsChaseable = npc.chaseable     ;
