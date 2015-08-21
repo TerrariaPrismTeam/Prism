@@ -54,7 +54,7 @@ namespace Prism
 
             ElapsedTime = 0;
 
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT && graphics.GraphicsProfile == GraphicsProfile.Reach)
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT && graphics.GraphicsProfile == GraphicsProfile.Reach && GraphicsAdapter.DefaultAdapter.IsProfileSupported(GraphicsProfile.HiDef))
                 graphics.GraphicsProfile = GraphicsProfile.HiDef;
         }
 
