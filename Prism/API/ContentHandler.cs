@@ -155,6 +155,17 @@ namespace Prism.API
             return Empty<string, ItemDef>.Dictionary;
         }
         /// <summary>
+        /// Gets all mount definitions created by the mod.
+        /// </summary>
+        /// <returns>
+        /// A dictionary containing all mount definitions.
+        /// The key of each key/value pair is the internal name of the mount.
+        /// </returns>
+        protected virtual Dictionary<string, MountDef> GetMountDefs()
+        {
+            return Empty<string, MountDef>.Dictionary;
+        }
+        /// <summary>
         /// Gets all NPC definitions created by the mod.
         /// </summary>
         /// <returns>
@@ -216,6 +227,10 @@ namespace Prism.API
         {
             return null;
         }
+        protected virtual MountBehaviour CreateGlobalMountBehaviour()
+        {
+            return null;
+        }
         protected virtual NpcBehaviour CreateGlobalNpcBehaviour()
         {
             return null;
@@ -247,6 +262,10 @@ namespace Prism.API
         internal Dictionary<string, ItemDef> GetItemDefsInternally()
         {
             return GetItemDefs();
+        }
+        internal Dictionary<string, MountDef> GetMountDefsInternally()
+        {
+            return GetMountDefs();
         }
         internal Dictionary<string, NpcDef> GetNpcDefsInternally()
         {
@@ -282,6 +301,10 @@ namespace Prism.API
         internal ItemBehaviour CreateGlobalItemBInternally()
         {
             return CreateGlobalItemBehaviour();
+        }
+        internal MountBehaviour CreateGlobalMountBInternally()
+        {
+            return CreateGlobalMountBehaviour();
         }
         internal NpcBehaviour CreateGlobalNpcBInternally()
         {

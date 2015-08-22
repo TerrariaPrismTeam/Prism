@@ -262,7 +262,7 @@ namespace Prism.Mods.DefHandlers
 
             def.Dye = item.dye;
             def.HairDye = item.hairDye;
-            def.MountType = item.mountType;
+            def.Mount = item.mountType == -1 ? null : new MountRef(item.mountType);
             def.FishingPole = item.fishingPole;
 
             def.material = item.material;
@@ -376,7 +376,7 @@ namespace Prism.Mods.DefHandlers
 
             item.dye = (byte)def.Dye;
             item.hairDye = (short)def.HairDye;
-            item.mountType = def.MountType;
+            item.mountType = def.Mount == null ? -1 : def.Mount.Resolve().Type;
             item.fishingPole = def.FishingPole;
 
             item.potion = def.LifeHeal > 0;

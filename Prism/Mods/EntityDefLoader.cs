@@ -42,22 +42,24 @@ namespace Prism.Mods
         {
             Handler.RecipeDef.Reset();
 
-            Handler.BuffDef.Reset();
-            Handler.ItemDef.Reset();
-            Handler.NpcDef .Reset();
-            Handler.ProjDef.Reset();
-            Handler.TileDef.Reset();
+            Handler.BuffDef .Reset();
+            Handler.ItemDef .Reset();
+            Handler.MountDef.Reset();
+            Handler.NpcDef  .Reset();
+            Handler.ProjDef .Reset();
+            Handler.TileDef .Reset();
         }
         /// <summary>
         /// Sets up this EntityDefLoader for loading mods, creating/adding all of the vanilla content defs, etc.
         /// </summary>
         internal static void SetupEntityHandlers()
         {
-            Handler.BuffDef.FillVanilla();
-            Handler.ItemDef.FillVanilla();
-            Handler.NpcDef .FillVanilla();
-            Handler.ProjDef.FillVanilla();
-            Handler.TileDef.FillVanilla();
+            Handler.BuffDef .FillVanilla();
+            Handler.ItemDef .FillVanilla();
+            Handler.MountDef.FillVanilla();
+            Handler.NpcDef  .FillVanilla();
+            Handler.ProjDef .FillVanilla();
+            Handler.TileDef .FillVanilla();
 
             Handler.RecipeDef.FillVanilla();
         }
@@ -73,19 +75,21 @@ namespace Prism.Mods
 
             var ch = mod.ContentHandler;
 
-            mod.BuffDefs       = SetEntityModDefs<BuffDef, BuffBehaviour            >(mod, ch.GetBuffDefsInternally());
-            mod.ItemDefs       = SetEntityModDefs<ItemDef, ItemBehaviour            >(mod, ch.GetItemDefsInternally());
-            mod.NpcDefs        = SetEntityModDefs<NpcDef, NpcBehaviour              >(mod, ch.GetNpcDefsInternally ());
-            mod.ProjectileDefs = SetEntityModDefs<ProjectileDef, ProjectileBehaviour>(mod, ch.GetProjDefsInternally());
-            mod.TileDefs       = SetEntityModDefs<TileDef, TileBehaviour            >(mod, ch.GetTileDefsInternally());
+            mod.BuffDefs       = SetEntityModDefs<BuffDef, BuffBehaviour            >(mod, ch.GetBuffDefsInternally ());
+            mod.ItemDefs       = SetEntityModDefs<ItemDef, ItemBehaviour            >(mod, ch.GetItemDefsInternally ());
+            mod.MountDefs      = SetEntityModDefs<MountDef, MountBehaviour          >(mod, ch.GetMountDefsInternally());
+            mod.NpcDefs        = SetEntityModDefs<NpcDef, NpcBehaviour              >(mod, ch.GetNpcDefsInternally  ());
+            mod.ProjectileDefs = SetEntityModDefs<ProjectileDef, ProjectileBehaviour>(mod, ch.GetProjDefsInternally ());
+            mod.TileDefs       = SetEntityModDefs<TileDef, TileBehaviour            >(mod, ch.GetTileDefsInternally ());
 
             mod.RecipeDefs = RecipeDefHandler.SetRecipeModDefs(mod, ch.GetRecipeDefsInternally());
 
-            ret.AddRange(Handler.BuffDef.Load(mod.BuffDefs      ));
-            ret.AddRange(Handler.ItemDef.Load(mod.ItemDefs      ));
-            ret.AddRange(Handler.NpcDef .Load(mod.NpcDefs       ));
-            ret.AddRange(Handler.ProjDef.Load(mod.ProjectileDefs));
-            ret.AddRange(Handler.TileDef.Load(mod.TileDefs      ));
+            ret.AddRange(Handler.BuffDef .Load(mod.BuffDefs      ));
+            ret.AddRange(Handler.ItemDef .Load(mod.ItemDefs      ));
+            ret.AddRange(Handler.MountDef.Load(mod.MountDefs     ));
+            ret.AddRange(Handler.NpcDef  .Load(mod.NpcDefs       ));
+            ret.AddRange(Handler.ProjDef .Load(mod.ProjectileDefs));
+            ret.AddRange(Handler.TileDef .Load(mod.TileDefs      ));
 
             ret.AddRange(Handler.RecipeDef.Load(mod.RecipeDefs));
 

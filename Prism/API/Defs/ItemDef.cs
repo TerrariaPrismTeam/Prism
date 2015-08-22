@@ -423,7 +423,6 @@ namespace Prism.API.Defs
             get;
             set;
         }
-        //TODO: use references for these... later
         /// <summary>
         /// Gets or sets the projectile which this item shoots upon use.
         /// </summary>
@@ -460,11 +459,17 @@ namespace Prism.API.Defs
             get;
             set;
         }
+        //TODO: use a reference for this... later
         /// <summary>
         /// Gets or sets the wall which this item places upon use.
         /// </summary>
         /// <remarks>Item.createWall</remarks>
         public int CreateWall
+        {
+            get;
+            set;
+        }
+        public MountRef Mount
         {
             get;
             set;
@@ -496,11 +501,6 @@ namespace Prism.API.Defs
             get;
             set;
         }
-        public int MountType
-        {
-            get;
-            set;
-        }
         public int FishingPole
         {
             get;
@@ -521,7 +521,6 @@ namespace Prism.API.Defs
             Scale = 1f;
 
             ExtractinatorMode = ItemExtractinatorMode.None;
-            MountType = -1;
 
             Colour = Color.White;
 

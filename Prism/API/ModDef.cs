@@ -86,6 +86,15 @@ namespace Prism.API
             internal set;
         }
         /// <summary>
+        /// Gets the mod's mount definitions.
+        /// </summary>
+        /// <remarks>The key of the dictionary is the mount's internal name (without mod internal name).</remarks>
+        public Dictionary<string, MountDef> MountDefs
+        {
+            get;
+            internal set;
+        }
+        /// <summary>
         /// Gets the mod's NPC definitions.
         /// </summary>
         /// <remarks>The key of the dictionary is the NPC's internal name (without mod internal name).</remarks>

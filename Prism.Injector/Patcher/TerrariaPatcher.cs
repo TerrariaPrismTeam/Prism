@@ -122,6 +122,7 @@ namespace Prism.Injector.Patcher
             NpcPatcher       .Patch();
             ProjectilePatcher.Patch();
             PlayerPatcher    .Patch();
+            MountPatcher     .Patch();
             MainPatcher      .Patch();
             // do other stuff here
 

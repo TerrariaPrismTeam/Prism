@@ -14,7 +14,7 @@ namespace Prism.API
     {
         public partial class BuffDef
         {
-            static DIHelper<BuffDef> helper = new DIHelper<BuffDef>(BuffID.Count, "Buff", md => md.BuffDefs, Handler.BuffDef.VanillaDefsByName, Handler.BuffDef.DefsByType);
+            static readonly DIHelper<BuffDef> helper = new DIHelper<BuffDef>(BuffID.Count, "Buff", md => md.BuffDefs, Handler.BuffDef.VanillaDefsByName, Handler.BuffDef.DefsByType);
 
             public static DefIndexer<BuffDef> Defs
             {
@@ -43,6 +43,26 @@ namespace Prism.API
                 {
                     return new DefIndexer<ItemDef>(helper.GetEnumerable(), helper.ByObjRef, helper.ById);
                 }
+            }
+        }
+        public partial class MountDef
+        {
+            static readonly DIHelper<MountDef> helper = new DIHelper<MountDef>(MountID.Count, "Mount", md => md.MountDefs, Handler.MountDef.VanillaDefsByName, Handler.MountDef.DefsByType);
+
+            public static DefIndexer<MountDef> Defs
+            {
+                get
+                {
+                    var vanillaDefs = Handler.MountDef.VanillaDefsByName.Select(kvp => new KeyValuePair<ObjectRef, MountDef>(new ObjectRef(kvp.Key), kvp.Value));
+                    var modDefs = ModData.Mods.Select(kvp => GetModDefs(kvp)).Flatten();
+
+                    return new DefIndexer<MountDef>(vanillaDefs.Concat(modDefs), helper.ByObjRef, helper.ById);
+                }
+            }
+
+            static IEnumerable<KeyValuePair<ObjectRef, MountDef>> GetModDefs(KeyValuePair<ModInfo, ModDef> kvp)
+            {
+                return kvp.Value.MountDefs.SafeSelect(kvp_ => new KeyValuePair<ObjectRef, MountDef>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
             }
         }
         public partial class NpcDef
@@ -89,7 +109,7 @@ namespace Prism.API
     {
         public partial class Bgm
         {
-            static DIHelper<BgmEntry> helper = new DIHelper<BgmEntry>(40, "BGM entry", md => md.BgmEntries, VanillaDict, null);
+            static readonly DIHelper<BgmEntry> helper = new DIHelper<BgmEntry>(40, "BGM entry", md => md.BgmEntries, VanillaDict, null);
 
             public static DefIndexer<BgmEntry> Entries
             {
@@ -199,7 +219,7 @@ namespace Prism.API
         }
         public partial class Sfx
         {
-            static DIHelper<SfxEntry> helper = new DIHelper<SfxEntry>(40, "SFX entry", md => md.SfxEntries, VanillaDict, null);
+            static readonly DIHelper<SfxEntry> helper = new DIHelper<SfxEntry>(40, "SFX entry", md => md.SfxEntries, VanillaDict, null);
 
             public static DefIndexer<SfxEntry> Entries
             {

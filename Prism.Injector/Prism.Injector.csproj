@@ -107,6 +107,7 @@
     <Compile Include="MemberResolver.cs" />
     <Compile Include="MemberResolverExtensions.cs" />
     <Compile Include="Patcher\MainPatcher.cs" />
+    <Compile Include="Patcher\MountPatcher.cs" />
     <Compile Include="Patcher\PlayerPatcher.cs" />
     <Compile Include="Patcher\ProjectilePatcher.cs" />
     <Compile Include="Patcher\ItemPatcher.cs" />

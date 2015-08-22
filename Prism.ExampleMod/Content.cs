@@ -9,6 +9,7 @@ using Prism.API.Audio;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Prism.ExampleMod.Behaviours.NPC;
+using Terraria;
 using Terraria.ID;
 
 namespace Prism.ExampleMod
@@ -19,12 +20,17 @@ namespace Prism.ExampleMod
         {
             return new Dictionary<string, ItemDef>
             {
+
+#pragma warning disable 618
                 // Pizza done with JSON method using an external resource
                 { "Pizza", new ItemDef("Pizza", GetResource<JsonData>("Resources/Items/Pizza.json"),
-                    () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png")) },
+                    () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png")) {
+                    Mount = new MountRef("NyanCat")
+                } },
                 // Ant done with JSON method using an embedded resource
                 { "Ant", new ItemDef("Ant", GetEmbeddedResource<JsonData>("Resources/Items/Ant.json"),
                     () => GetEmbeddedResource<Texture2D>("Resources/Textures/Items/Ant.png")) },
+#pragma warning restore 618
                 { "Pizzant", new ItemDef("Pizzant", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizzant.png"))
                 {   Description = new ItemDescription("The chaotic forces of italian spices and insects and bread.", expert: true),
                     DamageType = ItemDamageType.Melee,
@@ -64,6 +70,33 @@ namespace Prism.ExampleMod
                     HoldStyle = ItemHoldStyle.Default,
                     Value = new CoinValue(2, 51, 3, 9),
                     Scale = 1.1f
+                } }
+            };
+        }
+        protected override Dictionary<string, MountDef> GetMountDefs()
+        {
+            return new Dictionary<string, MountDef>
+            {
+                { "NyanCat", new MountDef("Nyan Cat", front: new MountTextureData(() => GetEmbeddedResource<Texture2D>("Resources/Textures/Nyan Cat.png")))
+                {
+                    Buff = new BuffRef(BuffID.ObsidianSkin), // too lazy to create a separate buff (the player will dismount when the buff runs out - after 60 seconds)
+                    // ExtraBuff is set to Buff if it is null
+
+                    AdditionalHeight = 30,
+                    MaxFlightTime = 1000,
+                    FallDamageMult = 0f,
+                    RunSpeed = 13f,
+                    Acceleration = 0.075f,
+                    JumpHeight = 100,
+                    JumpSpeed = 10f,
+                    BlockExtraJumps = false,
+
+                    TotalFrames = 3,
+                    BodyFrame = 3,
+
+                    AllFrameData = new MountFrameData(3, 12, 0), // use the same animation everywhere
+                    SwimSpeed = 5,
+                    IdleFrameLoop = true
                 } }
             };
         }

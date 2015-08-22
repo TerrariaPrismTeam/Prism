@@ -14,7 +14,7 @@ namespace Prism.API.Defs
             : base(resourceId, id => Handler.BuffDef.DefsByType.ContainsKey(id) ? Handler.BuffDef.DefsByType[id].InternalName : String.Empty)
         {
             if (resourceId >= BuffID.Count)
-                throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla Buff type or netID.");
+                throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla Buff type.");
         }
         public BuffRef(ObjectRef objRef)
             : base(objRef, Assembly.GetCallingAssembly())

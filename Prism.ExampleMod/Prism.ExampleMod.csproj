@@ -83,6 +83,7 @@
     <Content Include="Resources\Textures\Items\Pizza.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <EmbeddedResource Include="Resources\Textures\Nyan Cat.png" />
     <EmbeddedResource Include="Resources\Textures\Items\Ant.png" />
   </ItemGroup>
   <ItemGroup>
