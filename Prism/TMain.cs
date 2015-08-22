@@ -93,9 +93,15 @@ namespace Prism
                 Sfx.Play(VanillaSfxes.NpcKilled, n.position, n.soundKilled);
         }
 
+        static void OnUpdateKeyboard(Main _, GameTime __)
+        {
+            HookManager.GameBehaviour.OnUpdateKeyboard();
+        }
+
         static void HookWrappedMethods()
         {
             P_OnUpdateMusic += Bgm.Update;
+            P_Main_Update_OnUpdateKeyboard += OnUpdateKeyboard;
 
 #pragma warning disable 618
             P_OnPlaySound += (t, x, y, s) => Sfx.Play(t, new Vector2(x, y), s);

@@ -19,6 +19,11 @@ namespace Prism.API.Behaviours
         /// </summary>
         [Hook]
         public virtual void PostUpdate() { }
+        /// <summary>
+        /// A hook called right after the game updates Main.keyState
+        /// </summary>
+        [Hook]
+        public virtual void OnUpdateKeyboard() { }
 
         /// <summary>
         /// A hook used to change the current music last-minute.

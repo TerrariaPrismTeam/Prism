@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Microsoft.Xna.Framework;
 
 namespace Prism.Injector.Patcher
 {
@@ -327,6 +328,64 @@ namespace Prism.Injector.Patcher
             #endregion
         }
 
+        static void AddOnUpdateKeyboardHook()
+        {
+            OpCode[] search = new OpCode[]
+            {
+                OpCodes.Call     ,//IL_27a6: call valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.KeyboardStatepC[odes.Ldsflda,Microsoft.Xna.FrameworkOMicrosoft.Xna.Framework.Input.Keyboard::GetStateIO()
+		        OpCodes.Stsfld   ,//IL_27ab: stsfld valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.KeyboardState Terraria.Main::keyState
+		        OpCodes.Ldsfld   ,//IL_27b0: ldsfld bool Terraria.Main::editSign
+		        OpCodes.Brfalse_S,//IL_27b5: brfalse.s IL_27bd
+
+		        OpCodes.Ldc_I4_0 ,//IL_27b7: ldc.i4.0
+		        OpCodes.Stsfld   ,//IL_27b8: stsfld bool Terraria.Main::chatMode
+
+		        OpCodes.Ldsfld   ,//IL_27bd: ldsfld bool Terraria.Main::chatMode
+		        OpCodes.Brtrue_S ,//IL_27c2: brtrue.s IL_27cf
+
+		        OpCodes.Ldc_I4_0 ,//IL_27c4: ldc.i4.0
+		        OpCodes.Stsfld   ,//IL_27c5: stsfld int32 Terraria.Main::startChatLine
+		        OpCodes.Br       ,//IL_27ca: br IL_2a83
+                                 
+		        OpCodes.Ldsfld   ,//IL_27cf: ldsfld int32 Terraria.Main::screenHeight
+		        OpCodes.Ldc_I4_3 ,//IL_27d4: ldc.i4.3
+		        OpCodes.Div      ,//IL_27d5: div
+		        OpCodes.Conv_R4  ,//IL_27d6: conv.r4
+		        OpCodes.Ldsfld   ,//IL_27d7: ldsfld class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SpriteFont Terraria.Main::fontMouseText
+		        OpCodes.Ldstr    ,//IL_27dc: ldstr "1"
+		        OpCodes.Callvirt ,//IL_27e1: callvirt instance valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Vector2 [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SpriteFont::MeasureString(string)       
+		        OpCodes.Ldfld    ,//IL_27e6: ldfld float32 [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Vector2::Y
+		        OpCodes.Div      ,//IL_27eb: div
+		        OpCodes.Conv_I4  ,//IL_27ec: conv.i4
+		        OpCodes.Ldc_I4_1 ,//IL_27ed: ldc.i4.1
+		        OpCodes.Sub      ,//IL_27ee: sub
+		        OpCodes.Stsfld   ,//IL_27ef: stsfld int32 Terraria.Main::showCount
+		        OpCodes.Ldsflda  ,//IL_27f4: ldsflda valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.KeyboardState Terraria.Main::keyState
+		        OpCodes.Ldc_I4_S ,//IL_27f9: ldc.i4.s 38
+		        OpCodes.Call     ,//IL_27fb: call instance bool [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.KeyboardState::IsKeyDown(valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.Keys)
+		        OpCodes.Brfalse_S,//IL_2800: brfalse.s IL_2864
+            };
+
+            var mainUpdate = typeDef_Main.GetMethod("Update");
+            var mainUpdateBody = mainUpdate.Body;
+            var first = mainUpdateBody.FindInstrSeqStart(search);
+
+            if (!(first != null && (first = first.Next) != null && (first = first.Next) != null))
+                Console.Error.WriteLine("Couldn't find instructions for MainPatcher::AddOnUpdateKeyboardHook()");
+
+            //public virtual void P_OnUpdateInputHook() { }
+            MethodDefinition invokeOnUpdateKeyboardHook;            
+            var onUpdateKeyboardDelType = context.CreateDelegate("Terraria.PrismInjections", "Main_Update_OnUpdateKeyboardDel", typeSys.Void, out invokeOnUpdateKeyboardHook, typeDef_Main, mainUpdate.Parameters[0].ParameterType /* HAH I WIN, XNA */);
+            var onUpdateKeyboardDelField = new FieldDefinition("P_Main_Update_OnUpdateKeyboard", FieldAttributes.Public | FieldAttributes.Static, onUpdateKeyboardDelType);
+            typeDef_Main.Fields.Add(onUpdateKeyboardDelField);
+
+            var mainUpdateProc = mainUpdateBody.GetILProcessor();
+
+            mainUpdateProc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, onUpdateKeyboardDelField));
+            mainUpdateProc.EmitWrapperCall(invokeOnUpdateKeyboardHook, first);
+            //mainUpdateProc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeOnUpdateKeyboardHook));
+        }
+
         internal static void Patch()
         {
             context = TerrariaPatcher.context;
@@ -339,6 +398,7 @@ namespace Prism.Injector.Patcher
             RemoveVanillaNpcDrawLimitation();
             FixOnEngineLoadField();
             RemoveArmourDrawLimitations();
+            AddOnUpdateKeyboardHook();
 
             //These are causing System.InvalidProgramExceptions so I'm just commenting them out (pls don't remove them)
             //AddIsChatAllowedHook();
