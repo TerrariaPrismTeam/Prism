@@ -131,7 +131,7 @@ namespace Prism.Mods
                         using (BinaryReader binaryReader = new BinaryReader(cryptoStream))
                         {
                             byte version = binaryReader.ReadByte();
-                            if (version >= PLAYER_VERSION)
+                            if (version > PLAYER_VERSION)
                             {
                                 // Do not attempt to load files from future versions
                                 throw new Exception();
