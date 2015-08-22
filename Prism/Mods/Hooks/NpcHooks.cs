@@ -28,6 +28,8 @@ namespace Prism.Mods.Hooks
 
                     if (b != null)
                     {
+                        b.Mod = d.Mod == PrismApi.VanillaInfo ? null : ModData.mods[d.Mod];
+
                         h = new BuffBHandler();
 
                         h.behaviours.Add(b);

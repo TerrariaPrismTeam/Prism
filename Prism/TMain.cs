@@ -162,6 +162,15 @@ namespace Prism
             Projectile.P_OnUpdate        += ProjHooks.OnUpdate       ;
 
             P_OnDrawProj += ProjHooks.OnDrawProj;
+
+            Mount.P_OnDismount      += MountHooks.OnDismount     ;
+            Mount.P_OnDraw          += MountHooks.OnDraw         ;
+            Mount.P_OnHover         += MountHooks.OnHover        ;
+            Mount.P_OnJumpHeight    += MountHooks.OnJumpHeight   ;
+            Mount.P_OnJumpSpeed     += MountHooks.OnJumpSpeed    ;
+            Mount.P_OnSetMount      += MountHooks.OnSetMount     ;
+            Mount.P_OnUpdateEffects += MountHooks.OnUpdateEffects;
+            Mount.P_OnUpdateFrame   += MountHooks.OnUpdateFrame  ;
         }
 
         protected override void Initialize()

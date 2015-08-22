@@ -153,8 +153,10 @@
     <Compile Include="Debugging\Logging.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Mods\BHandlers\BuffBHandler.cs" />
+    <Compile Include="Mods\BHandlers\MountBHandler.cs" />
     <Compile Include="Mods\BHandlers\PlayerBHandler.cs" />
     <Compile Include="Mods\BHandlers\TileBHandler.cs" />
+    <Compile Include="Mods\Hooks\MountHooks.cs" />
     <Compile Include="Mods\SaveDataHandler.cs" />
     <Compile Include="Mods\ContentLoader.cs" />
     <Compile Include="Mods\DefHandlers\BuffDefHandler.cs" />

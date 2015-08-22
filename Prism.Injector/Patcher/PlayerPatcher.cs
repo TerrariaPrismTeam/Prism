@@ -16,15 +16,15 @@ namespace Prism.Injector.Patcher
 
         static void WrapMethods()
         {
-            typeDef_Player.GetMethod("GetFileData", MethodFlags.Public | MethodFlags.Static, typeSys.String, typeSys.Boolean).Wrap(context);
-            typeDef_Player.GetMethod("ItemCheck", MethodFlags.Public | MethodFlags.Instance).Wrap(context);
-            typeDef_Player.GetMethod("KillMe", MethodFlags.Public | MethodFlags.Instance).Wrap(context);
-            typeDef_Player.GetMethod("Update", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
-            typeDef_Player.GetMethod("UpdateEquips", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
-            typeDef_Player.GetMethod("UpdateArmorSets", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
-            typeDef_Player.GetMethod("WingMovement", MethodFlags.Public | MethodFlags.Instance).Wrap(context);
-            typeDef_Player.GetMethod("UpdateBuffs", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
-            typeDef_Player.GetMethod("AddBuff", MethodFlags.Public | MethodFlags.Instance).Wrap(context);
+            typeDef_Player.GetMethod("GetFileData"    , MethodFlags.Public | MethodFlags.Static, typeSys.String, typeSys.Boolean).Wrap(context);
+            typeDef_Player.GetMethod("ItemCheck"      , MethodFlags.Public | MethodFlags.Instance                               ).Wrap(context);
+            typeDef_Player.GetMethod("KillMe"         , MethodFlags.Public | MethodFlags.Instance                               ).Wrap(context);
+            typeDef_Player.GetMethod("Update"         , MethodFlags.Public | MethodFlags.Instance, typeSys.Int32                ).Wrap(context);
+            typeDef_Player.GetMethod("UpdateEquips"   , MethodFlags.Public | MethodFlags.Instance, typeSys.Int32                ).Wrap(context);
+            typeDef_Player.GetMethod("UpdateArmorSets", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32                ).Wrap(context);
+            typeDef_Player.GetMethod("WingMovement"   , MethodFlags.Public | MethodFlags.Instance                               ).Wrap(context);
+            typeDef_Player.GetMethod("UpdateBuffs"    , MethodFlags.Public | MethodFlags.Instance, typeSys.Int32                ).Wrap(context);
+            typeDef_Player.GetMethod("AddBuff"        , MethodFlags.Public | MethodFlags.Instance                               ).Wrap(context);
 
             var typeDef_uiCharSelect = memRes.GetType("Terraria.GameContent.UI.States.UICharacterSelect");
 
@@ -62,7 +62,7 @@ namespace Prism.Injector.Patcher
             };
             method = typeDef_Player.GetMethod("LoadPlayer", MethodFlags.Public | MethodFlags.Static, typeSys.String, typeSys.Boolean);
 
-            OpCode[] toFind = new OpCode[]
+            OpCode[] toFind =
             {
                 // player.skinVariant = (int)MathHelper.Clamp((float)player.skinVariant, 0f, 7f);
                 OpCodes.Ldloc_1,    //ldloc.1
@@ -81,9 +81,7 @@ namespace Prism.Injector.Patcher
             Instruction first = lpb.FindInstrSeqStart(toFind);
 
             foreach (Instruction instruction in toInject)
-            {
                 ilp.InsertBefore(first, instruction);
-            }
         }
 
         /// <summary>
@@ -638,7 +636,7 @@ namespace Prism.Injector.Patcher
 
             WrapMethods();
             AddFieldForBHandler();
-            InsertSaveLoadHooks();
+            //InsertSaveLoadHooks();
             RemoveBuggyPlayerLoading();
             ReplaceUseSoundCalls();
             FixOnEnterWorldField();

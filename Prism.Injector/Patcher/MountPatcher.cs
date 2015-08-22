@@ -16,11 +16,18 @@ namespace Prism.Injector.Patcher
 
         static void WrapMethods()
         {
-
+            typeDef_Mount.GetMethod("SetMount"     ).Wrap(context);
+            typeDef_Mount.GetMethod("Dismount"     ).Wrap(context);
+            typeDef_Mount.GetMethod("Draw"         ).Wrap(context);
+            typeDef_Mount.GetMethod("UpdateEffects").Wrap(context);
+            typeDef_Mount.GetMethod("UpdateFrame"  ).Wrap(context);
+            typeDef_Mount.GetMethod("Hover"        ).Wrap(context);
+            typeDef_Mount.GetMethod("JumpHeight"   ).Wrap(context);
+            typeDef_Mount.GetMethod("JumpSpeed"    ).Wrap(context);
         }
         static void AddFieldForBHandler()
         {
-            //typeDef_Mount.Fields.Add(new FieldDefinition("P_BHandler", FieldAttributes.Public, typeSys.Object));
+            typeDef_Mount.Fields.Add(new FieldDefinition("P_BHandler", FieldAttributes.Public, typeSys.Object));
         }
         static void Remove_FromFields()
         {
@@ -49,7 +56,7 @@ namespace Prism.Injector.Patcher
 
             #region SetMount
             {
-                var setMount = typeDef_Mount.GetMethod("SetMount");
+                var setMount = typeDef_Mount.GetMethod("RealSetMount");
 
                 var smb = setMount.Body;
                 var smproc = smb.GetILProcessor();

@@ -55,7 +55,7 @@ namespace Prism.Mods.DefHandlers
 
                     if (b != null)
                     {
-                        b.Mod = ModData.mods[d.Mod];
+                        b.Mod = d.Mod == PrismApi.VanillaInfo ? null : ModData.mods[d.Mod];
 
                         h.behaviours.Add(b);
                     }
