@@ -113,6 +113,12 @@ namespace Prism.Mods
         public void LoadPlayer(Player player, string playerPath)
         {
             playerPath += ".prism";
+            
+            if (File.Exists(playerPath))
+            {
+                // If mod data doesn't exist, don't try to load it
+                return;
+            }
 
             try
             {
