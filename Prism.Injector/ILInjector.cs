@@ -9,7 +9,7 @@ namespace Prism.Injector
 {
     public static class ILInjector
     {
-        public static void Inject(AssemblyDefinition ad, IEnumerable<InjectionData> toInject)
+        public static void Inject(IEnumerable<InjectionData> toInject)
         {
             foreach (var id in toInject)
             {

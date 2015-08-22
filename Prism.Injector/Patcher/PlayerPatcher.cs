@@ -30,15 +30,68 @@ namespace Prism.Injector.Patcher
 
             typeDef_uiCharSelect.GetMethod("NewCharacterClick").Wrap(context);
         }
+
         static void AddFieldForBHandler()
         {
             typeDef_Player.Fields.Add(new FieldDefinition("P_BHandler"    , FieldAttributes.Public, typeSys.Object));
             typeDef_Player.Fields.Add(new FieldDefinition("P_BuffBHandler", FieldAttributes.Public, memRes.ReferenceOf(typeof(object[]))));
         }
-        // Removes the ID checks from player loading, so that invalid items
-        // are removed instead of resulting in the character being declared
-        // invalid. If this gets fixed in the original, this code should be
-        // removed.
+
+        static void InsertSaveLoadHooks()
+        {
+            Instruction[] toInject;
+            MethodDefinition method;
+
+            // Insert save hook at end of SavePlayer
+            TypeDefinition typeDef_PlayerFileData = memRes.GetType("Terraria.IO.PlayerFileData");
+
+            toInject = new Instruction[]
+            {
+                Instruction.Create(OpCodes.Ldarg_0),
+                Instruction.Create(OpCodes.Call, new MethodReference("Prism.Mods.SaveDataHandler.SavePlayer", typeSys.Void)) // Obviously doesnt work
+            };
+            method = typeDef_Player.GetMethod("SavePlayer", MethodFlags.Public | MethodFlags.Static, typeDef_PlayerFileData, typeSys.Boolean);
+            ILInjector.Inject(new InjectionData[] { InjectionData.Method.NewMethodPost(method, toInject) });
+
+            // Insert load hook near end of LoadPlayer
+            toInject = new Instruction[]
+            {
+                Instruction.Create(OpCodes.Ldloc_1),
+                Instruction.Create(OpCodes.Ldarg_0),
+                Instruction.Create(OpCodes.Call, new MethodReference("Prism.Mods.SaveDataHandler.LoadPlayer", typeSys.Void)) // Obviously doesn't work
+            };
+            method = typeDef_Player.GetMethod("LoadPlayer", MethodFlags.Public | MethodFlags.Static, typeSys.String, typeSys.Boolean);
+
+            OpCode[] toFind = new OpCode[]
+            {
+                // player.skinVariant = (int)MathHelper.Clamp((float)player.skinVariant, 0f, 7f);
+                OpCodes.Ldloc_1,    //ldloc.1
+                OpCodes.Ldloc_1,    //ldloc.1
+                OpCodes.Ldfld,      //ldfld int32 Terraria.Player::skinVariant
+                OpCodes.Conv_R4,    //conv.r4
+                OpCodes.Ldc_R4,     //ldc.r4 0.0
+                OpCodes.Ldc_R4,     //ldc.r4 7
+                OpCodes.Call,       //call float32[Microsoft.Xna.Framework]Microsoft.Xna.Framework.MathHelper::Clamp(float32, float32, float32)
+                OpCodes.Conv_I4,    //conv.i4
+                OpCodes.Stfld       //stfld int32 Terraria.Player::skinVariant
+            };
+
+            MethodBody lpb = method.Body;
+            ILProcessor ilp = lpb.GetILProcessor();
+            Instruction first = lpb.FindInstrSeqStart(toFind);
+
+            foreach (Instruction instruction in toInject)
+            {
+                ilp.InsertBefore(first, instruction);
+            }
+        }
+
+        /// <summary>
+        /// Removes the ID checks from player loading, so that invalid items
+        /// are removed instead of resulting in the character being declared
+        /// invalid. If this gets fixed in the original, this code should be
+        /// removed.
+        /// </summary>
         static void RemoveBuggyPlayerLoading()
         {
             OpCode[] seqToRemove =
@@ -81,6 +134,7 @@ namespace Prism.Injector.Patcher
                 }
             }
         }
+
         static void ReplaceUseSoundCalls()
         {
             var typeDef_Item = memRes.GetType("Terraria.Item");
@@ -220,6 +274,7 @@ namespace Prism.Injector.Patcher
                 qbproc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeUseSound));
             }
             #endregion
+
             #region QuickGrapple
             {
                 var quickGrapple = typeDef_Player.GetMethod("QuickGrapple");
@@ -257,6 +312,7 @@ namespace Prism.Injector.Patcher
                 qgproc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeUseSound));
             }
             #endregion
+
             #region QuickHeal
             {
                 var quickHeal = typeDef_Player.GetMethod("QuickHeal");
@@ -294,6 +350,7 @@ namespace Prism.Injector.Patcher
                 qhproc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeUseSound));
             }
             #endregion
+
             #region QuickMana
             {
                 var quickMana = typeDef_Player.GetMethod("QuickMana");
@@ -337,6 +394,7 @@ namespace Prism.Injector.Patcher
                 qmproc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeUseSound));
             }
             #endregion
+
             #region QuickMount
             {
                 var quickMount = typeDef_Player.GetMethod("QuickMount");
@@ -451,6 +509,7 @@ namespace Prism.Injector.Patcher
                 upproc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeUseSound));
             }
             #endregion
+
             #region UpdatePetLight
             {
                 var updatePetLight = typeDef_Player.GetMethod("UpdatePetLight");
@@ -495,11 +554,13 @@ namespace Prism.Injector.Patcher
             }
             #endregion
         }
+
         static void FixOnEnterWorldField()
         {
             // wtf?
             typeDef_Player.GetField("OnEnterWorld").Name = "_onEnterWorld_backingField";
         }
+
         static void InjectMidUpdate()
         {
             var update = typeDef_Player.GetMethod("RealUpdate" /* method is wrapped */, MethodFlags.Public | MethodFlags.Instance, typeSys.Int32);
@@ -551,6 +612,7 @@ namespace Prism.Injector.Patcher
             uproc.InsertBefore(instrs, Instruction.Create(OpCodes.Ldsfld, onMidUpdate));
             uproc.EmitWrapperCall(invokeMidUpdate, instrs);
         }
+
         static void InitBuffBHandlerArray()
         {
             var ctor = typeDef_Player.GetMethod(".ctor");
@@ -576,6 +638,7 @@ namespace Prism.Injector.Patcher
 
             WrapMethods();
             AddFieldForBHandler();
+            InsertSaveLoadHooks();
             RemoveBuggyPlayerLoading();
             ReplaceUseSoundCalls();
             FixOnEnterWorldField();
