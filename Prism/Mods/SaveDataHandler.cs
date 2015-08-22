@@ -172,8 +172,6 @@ namespace Prism.Mods
         /// <returns></returns>
         static byte[] GenerateKey(string s)
         {
-            UnicodeEncoding unicode = new UnicodeEncoding();
-
             if (s.Length > 8)
             {
                 s = s.Substring(0, 8);
@@ -183,7 +181,7 @@ namespace Prism.Mods
                 s = s.PadLeft(8);
             }
 
-            byte[] key = unicode.GetBytes(s);
+            byte[] key = Encoding.Unicode.GetBytes(s);
 
             for (int i = 0; i < key.Length; i++)
             {
