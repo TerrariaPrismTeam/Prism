@@ -114,7 +114,7 @@ namespace Prism.Mods
         {
             playerPath += ".prism";
             
-            if (File.Exists(playerPath))
+            if (!File.Exists(playerPath))
             {
                 // If mod data doesn't exist, don't try to load it
                 return;
