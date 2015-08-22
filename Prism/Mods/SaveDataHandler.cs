@@ -22,23 +22,23 @@ namespace Prism.Mods
         /// <summary>
         /// Save file version for .plr.prism files. Change whenever the format changes, and make checks in the loading code for backwards compatibility.
         /// </summary>
-        private const byte PLAYER_VERSION = 0;
+        private static const byte PLAYER_VERSION = 0;
 
         /// <summary>
         /// Save file version for .wld.prism files. Change whenever the format changes, and make checks in the loading code for backwards compatibility.
         /// </summary>
-        private const byte WORLD_VERSION = 0;
+        private static const byte WORLD_VERSION = 0;
 
         /// <summary>
         /// Base key used for file saving/loading.
         /// </summary>
-        private byte[] ENCRYPTION_KEY = new UnicodeEncoding().GetBytes("wH4t5_uP"); // Not inspired by vanilla at all ;D
+        private static byte[] ENCRYPTION_KEY = new UnicodeEncoding().GetBytes("wH4t5_uP"); // Not inspired by vanilla at all ;D
 
         /// <summary>
         /// Save mod data to a .plr.prism file
         /// </summary>
         /// <param name="playerFile">The player being saved</param>
-        public void SavePlayer(PlayerFileData playerFile)
+        public static void SavePlayer(PlayerFileData playerFile)
         {
             string path = playerFile.Path;
             Player player = playerFile.Player;
@@ -110,7 +110,7 @@ namespace Prism.Mods
         /// Load player data from a .plr.prism file
         /// </summary>
         /// <param name="playerPath">The path to the vanilla .plr file</param>
-        public void LoadPlayer(Player player, string playerPath)
+        public static void LoadPlayer(Player player, string playerPath)
         {
             playerPath += ".prism";
             
@@ -171,7 +171,7 @@ namespace Prism.Mods
         /// </summary>
         /// <param name="s">String to be used for generating the key</param>
         /// <returns></returns>
-        private byte[] GenerateKey(string s)
+        private static byte[] GenerateKey(string s)
         {
             UnicodeEncoding unicode = new UnicodeEncoding();
 
@@ -202,7 +202,7 @@ namespace Prism.Mods
         /// <param name="slots">The amount of items in the inventory to save</param>
         /// <param name="stack">Whether or not the stack size should be saved</param>
         /// <param name="favourited">Whether or not the favourited state should be saved</param>
-        private void SaveItemSlots(BinaryWriter binaryWriter, Item[] inventory, int slots, bool stack, bool favourited)
+        private static void SaveItemSlots(BinaryWriter binaryWriter, Item[] inventory, int slots, bool stack, bool favourited)
         {
             for (int i = 0; i < slots; i++)
             {
@@ -262,7 +262,7 @@ namespace Prism.Mods
         /// <param name="slots">The amount of items in the inventory to load</param>
         /// <param name="stack">Whether or not the stack size should be loaded</param>
         /// <param name="favourited">Whether or not the favourited state should be loaded</param>
-        private void LoadItemSlots(BinaryReader binaryReader, Item[] inventory, int slots, bool stack, bool favourited)
+        private static void LoadItemSlots(BinaryReader binaryReader, Item[] inventory, int slots, bool stack, bool favourited)
         {
             for (int i = 0; i < slots; i++)
             {
