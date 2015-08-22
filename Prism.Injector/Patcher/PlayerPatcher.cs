@@ -39,49 +39,80 @@ namespace Prism.Injector.Patcher
 
         static void InsertSaveLoadHooks()
         {
-            Instruction[] toInject;
-            MethodDefinition method;
-
-            // Insert save hook at end of SavePlayer
             TypeDefinition typeDef_PlayerFileData = memRes.GetType("Terraria.IO.PlayerFileData");
 
-            toInject = new Instruction[]
+            #region SavePlayer
             {
-                Instruction.Create(OpCodes.Ldarg_0),
-                Instruction.Create(OpCodes.Call, new MethodReference("Prism.Mods.SaveDataHandler.SavePlayer", typeSys.Void)) // Obviously doesnt work
-            };
-            method = typeDef_Player.GetMethod("SavePlayer", MethodFlags.Public | MethodFlags.Static, typeDef_PlayerFileData, typeSys.Boolean);
-            ILInjector.Inject(new InjectionData[] { InjectionData.Method.NewMethodPost(method, toInject) });
+                var savePlayer = typeDef_Player.GetMethod("SavePlayer");
 
-            // Insert load hook near end of LoadPlayer
-            toInject = new Instruction[]
-            {
-                Instruction.Create(OpCodes.Ldloc_1),
-                Instruction.Create(OpCodes.Ldarg_0),
-                Instruction.Create(OpCodes.Call, new MethodReference("Prism.Mods.SaveDataHandler.LoadPlayer", typeSys.Void)) // Obviously doesn't work
-            };
-            method = typeDef_Player.GetMethod("LoadPlayer", MethodFlags.Public | MethodFlags.Static, typeSys.String, typeSys.Boolean);
+                MethodDefinition invokeSavePlayer;
+                var onSavePlayerDel = context.CreateDelegate("Terraria.PrismInjections", "Player_OnSavePlayerDel", typeSys.Void, out invokeSavePlayer, typeDef_PlayerFileData);
 
-            OpCode[] toFind =
+                var onSavePlayer = new FieldDefinition("P_OnSavePlayer", FieldAttributes.Public | FieldAttributes.Static, onSavePlayerDel);
+                typeDef_Player.Fields.Add(onSavePlayer);
+
+                var spb = savePlayer.Body;
+                var spproc = spb.GetILProcessor();
+
+                spproc.Remove(spb.Instructions.Last());
+
+                spproc.Emit(OpCodes.Ldsfld, onSavePlayer);
+                spproc.Emit(OpCodes.Ldarg_0);
+                spproc.Emit(OpCodes.Callvirt, invokeSavePlayer);
+                spproc.Emit(OpCodes.Ret);
+            }
+            #endregion
+
+            #region LoadPlayer
             {
+                // Insert load hook near end of LoadPlayer
+                var loadPlayer = typeDef_Player.GetMethod("LoadPlayer", MethodFlags.Public | MethodFlags.Static, typeSys.String, typeSys.Boolean);
+
+                MethodDefinition invokeLoadPlayer;
+                var onLoadPlayerDel = context.CreateDelegate("Terraria.PrismInjections", "Player_OnLoadPlayerDel", typeSys.Void, out invokeLoadPlayer, typeDef_Player, typeSys.String);
+
+                var onLoadPlayer = new FieldDefinition("P_OnLoadPlayer", FieldAttributes.Public | FieldAttributes.Static, onLoadPlayerDel);
+                typeDef_Player.Fields.Add(onLoadPlayer);
+
+                var lpb = loadPlayer.Body;
+                var lpproc = lpb.GetILProcessor();
+
                 // player.skinVariant = (int)MathHelper.Clamp((float)player.skinVariant, 0f, 7f);
-                OpCodes.Ldloc_1,    //ldloc.1
-                OpCodes.Ldloc_1,    //ldloc.1
-                OpCodes.Ldfld,      //ldfld int32 Terraria.Player::skinVariant
-                OpCodes.Conv_R4,    //conv.r4
-                OpCodes.Ldc_R4,     //ldc.r4 0.0
-                OpCodes.Ldc_R4,     //ldc.r4 7
-                OpCodes.Call,       //call float32[Microsoft.Xna.Framework]Microsoft.Xna.Framework.MathHelper::Clamp(float32, float32, float32)
-                OpCodes.Conv_I4,    //conv.i4
-                OpCodes.Stfld       //stfld int32 Terraria.Player::skinVariant
-            };
+                OpCode[] toFind =
+                {
+                    OpCodes.Ldloc_1, // player (for the stfld instruction at the end)
+                    OpCodes.Ldloc_1,
+                    OpCodes.Ldfld,   // player.skinVariant
+                    OpCodes.Conv_R4, // (float)^
+                    OpCodes.Ldc_R4,
+                    OpCodes.Ldc_R4,
+                    OpCodes.Call,    // MathHelper.Clamp(^, 0f, 7f)
+                    OpCodes.Conv_I4, // (int)^
+                    OpCodes.Stfld    // ^^.skinVariant = ^
+                };
 
-            MethodBody lpb = method.Body;
-            ILProcessor ilp = lpb.GetILProcessor();
-            Instruction first = lpb.FindInstrSeqStart(toFind);
+                Instruction[] toInject =
+                {
+                    Instruction.Create(OpCodes.Ldsfld, onLoadPlayer),
+                    Instruction.Create(OpCodes.Ldloc_1),
+                    Instruction.Create(OpCodes.Ldarg_0),
+                    Instruction.Create(OpCodes.Callvirt, invokeLoadPlayer)
+                };
 
-            foreach (Instruction instruction in toInject)
-                ilp.InsertBefore(first, instruction);
+                var first = lpb.FindInstrSeqStart(toFind);
+
+                foreach (var i in toInject)
+                    lpproc.InsertBefore(first, i);
+
+                // rewire the if before it to end at the injected instructions instead of the code we looked for
+                foreach (var i in lpb.Instructions)
+                    if (i.Operand == first)
+                        i.Operand = toInject[0];
+
+                // not rewiring the if will lead to invalid IL, because the target instruction won't exist (because we're removing it here)
+                lpproc.RemoveInstructions(first, toFind.Length); // remove the limitation while we're at it
+            }
+            #endregion
         }
 
         /// <summary>
@@ -636,7 +667,7 @@ namespace Prism.Injector.Patcher
 
             WrapMethods();
             AddFieldForBHandler();
-            //InsertSaveLoadHooks();
+            InsertSaveLoadHooks();
             RemoveBuggyPlayerLoading();
             ReplaceUseSoundCalls();
             FixOnEnterWorldField();

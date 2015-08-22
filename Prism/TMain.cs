@@ -156,6 +156,9 @@ namespace Prism
             Player.P_UpdatePet_PlayUseSound      += PlayUseSound;
             Player.P_UpdatePetLight_PlayUseSound += PlayUseSound;
 
+            Player.P_OnSavePlayer += SaveDataHandler.SavePlayer;
+            Player.P_OnLoadPlayer += SaveDataHandler.LoadPlayer;
+
             Projectile.P_OnAI            += ProjHooks.OnAI           ;
             Projectile.P_OnKill          += ProjHooks.OnKill         ;
             Projectile.P_OnNewProjectile += ProjHooks.OnNewProjectile;
