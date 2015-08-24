@@ -27,7 +27,8 @@ namespace Prism
             JsonManifestFileName       = "manifest.json",
             DefaultDllRefsSubdirectory = "\\References",
             VanillaString              = "Vanilla",
-            TerrariaString             = "Terraria";
+            TerrariaString             = "Terraria",
+            PrismString                = "Prism";
 
         public readonly static ModInfo VanillaInfo = new ModInfo("_", TerrariaString, TerrariaString, "Re-Logic", TerrariaVersionString, "Vanilla terraria", String.Empty, String.Empty, Empty<IReference>.Array);
 

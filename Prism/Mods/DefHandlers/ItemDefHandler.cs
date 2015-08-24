@@ -13,6 +13,8 @@ namespace Prism.Mods.DefHandlers
 {
     sealed partial class ItemDefHandler : TEntityDefHandler<ItemDef, ItemBehaviour, Item>
     {
+        internal static int UnknownItemID = 0;
+
         protected override Type IDContainerType
         {
             get
@@ -522,6 +524,20 @@ namespace Prism.Mods.DefHandlers
             ItemID.Sets.StaffMinionSlotsRequired[def.Type] = def.RequiredStaffMinionSlots;
 
             ItemID.Sets.ExtractinatorMode[def.Type] = (int)def.ExtractinatorMode;
+        }
+
+        protected override void PostFillVanilla()
+        {
+            ExtendVanillaArrays(1);
+
+            var ui = UnknownItem.Create();
+
+            Load(new Dictionary<string, ItemDef>
+            {
+                { "_UnloadedItem", ui }
+            });
+
+            UnknownItemID = ui.Type;
         }
     }
 }

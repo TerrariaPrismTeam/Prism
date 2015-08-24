@@ -7,23 +7,25 @@ using Terraria;
 
 namespace Prism.Mods.BHandlers
 {
-    class BuffBHandler : IHookManager
+    public sealed class BuffBHandler : IOBHandler<BuffBehaviour>
     {
-        internal List<BuffBehaviour> behaviours = new List<BuffBehaviour>();
-
         IEnumerable<Action<Player, int, int>>    effects, added   ;
         IEnumerable<Action<NPC   , int, int>> npcEffects, addedNpc;
 
-        public void Create()
+        public override void Create()
         {
+            base.Create();
+
             effects    = HookManager.CreateHooks<BuffBehaviour, Action<Player, int, int>>(behaviours, "Effects"   );
             npcEffects = HookManager.CreateHooks<BuffBehaviour, Action<NPC   , int, int>>(behaviours, "NpcEffects");
 
             added    = HookManager.CreateHooks<BuffBehaviour, Action<Player, int, int>>(behaviours, "OnAdded"   );
             addedNpc = HookManager.CreateHooks<BuffBehaviour, Action<NPC   , int, int>>(behaviours, "OnAddedNpc");
         }
-        public void Clear ()
+        public override void Clear ()
         {
+            base.Clear();
+
             effects    = null;
             npcEffects = null;
 

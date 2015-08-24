@@ -10,7 +10,7 @@ using Terraria;
 
 namespace Prism.Mods.BHandlers
 {
-    sealed class ItemBHandler : EntityBHandler<ItemBehaviour, Item>
+    public sealed class ItemBHandler : EntityBHandler<ItemBehaviour, Item>
     {
         IEnumerable<Func<Player, bool>> canUse;
         IEnumerable<Func<Player, bool?>> useItem;

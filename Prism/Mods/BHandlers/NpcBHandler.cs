@@ -8,7 +8,7 @@ using Terraria;
 
 namespace Prism.Mods.BHandlers
 {
-    sealed class NpcBHandler : EntityBHandler<NpcBehaviour, NPC>
+    public sealed class NpcBHandler : EntityBHandler<NpcBehaviour, NPC>
     {
         IEnumerable<Func<bool>> preUpdate, preAI;
         IEnumerable<Action> onUpdate, onAI, findFrame;

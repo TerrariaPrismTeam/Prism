@@ -8,7 +8,7 @@ using Terraria;
 
 namespace Prism.Mods.BHandlers
 {
-    sealed class PlayerBHandler : EntityBHandler<PlayerBehaviour, Player>
+    public sealed class PlayerBHandler : EntityBHandler<PlayerBehaviour, Player>
     {
         IEnumerable<Action>
             preUpdate, midUpdate, postUpdate,

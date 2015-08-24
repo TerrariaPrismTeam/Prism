@@ -6,14 +6,8 @@ using Terraria;
 
 namespace Prism.API.Behaviours
 {
-    public abstract class BuffBehaviour : HookContainer
+    public abstract class BuffBehaviour : IOBehaviour
     {
-        public ModDef Mod
-        {
-            get;
-            internal set;
-        }
-
         [Hook]
         public virtual void Effects(Player p, int timeLeft, int slot) { }
         [Hook]

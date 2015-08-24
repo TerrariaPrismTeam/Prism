@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.API.Audio;
 using Prism.Debugging;
+using Prism.IO;
 using Prism.Mods;
 using Prism.Mods.DefHandlers;
 using Prism.Mods.Hooks;
@@ -17,7 +19,13 @@ namespace Prism
 {
     public sealed class TMain : Main
     {
-        internal static Texture2D WhitePixel;
+        internal static Texture2D WhitePixel, UnknownItemTexture;
+
+        static bool justDrawCrashed = false;
+        static Exception lastDrawExn = null;
+
+        static bool prevGameMenu = true;
+
         /// <summary>
         /// The amount of time elapsed since the previous frame (in seconds).
         /// </summary>
@@ -26,11 +34,6 @@ namespace Prism
             get;
             private set;
         }
-
-        static bool justDrawCrashed = false;
-        static Exception lastDrawExn = null;
-
-        static bool prevGameMenu = true;
 
         internal TMain()
         : base()
@@ -198,11 +201,19 @@ namespace Prism
             WhitePixel = new Texture2D(GraphicsDevice, 1, 1);
             WhitePixel.SetData(new[] { Color.White });
 
+            using (var s = Assembly.GetExecutingAssembly().GetManifestResourceStream("Prism.Resources.UnknownItem.png"))
+            {
+                UnknownItemTexture = Texture2D.FromStream(GraphicsDevice, s);
+            }
+
             base.LoadContent();
         }
         protected override void UnloadContent()
         {
             ModLoader.Unload();
+
+            UnknownItemTexture.Dispose();
+            UnknownItemTexture = null;
 
             WhitePixel.Dispose();
             WhitePixel = null;

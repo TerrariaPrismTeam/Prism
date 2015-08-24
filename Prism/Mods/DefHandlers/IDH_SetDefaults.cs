@@ -15,6 +15,9 @@ namespace Prism.Mods.DefHandlers
     {
         internal static void OnSetDefaults(Item item, int type, bool noMatCheck)
         {
+            item.P_BHandler = null;
+            item.P_UseSound = null;
+
             if (ModLoader.Reloading && !RecipeDefHandler.SettingUpRecipes)
             {
                 item.RealSetDefaults(type, noMatCheck);

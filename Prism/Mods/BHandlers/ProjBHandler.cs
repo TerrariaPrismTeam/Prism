@@ -8,7 +8,7 @@ using Terraria;
 
 namespace Prism.Mods.BHandlers
 {
-    sealed class ProjBHandler : EntityBHandler<ProjectileBehaviour, Projectile>
+    public sealed class ProjBHandler : EntityBHandler<ProjectileBehaviour, Projectile>
     {
         IEnumerable<Func<bool>> preUpdate, preAI;
         IEnumerable<Action> onUpdate, onAI;

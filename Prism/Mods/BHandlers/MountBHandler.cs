@@ -11,7 +11,7 @@ using Terraria.DataStructures;
 
 namespace Prism.Mods.BHandlers
 {
-    class MountBHandler : IHookManager
+    public sealed class MountBHandler : IHookManager
     {
         internal List<MountBehaviour> behaviours = new List<MountBehaviour>();
 

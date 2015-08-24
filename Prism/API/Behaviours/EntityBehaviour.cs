@@ -5,14 +5,9 @@ using Prism.Mods.Hooks;
 
 namespace Prism.API.Behaviours
 {
-    public abstract class EntityBehaviour<TEntity> : HookContainer
+    public abstract class EntityBehaviour<TEntity> : IOBehaviour
         where TEntity : class
     {
-        public ModDef  Mod
-        {
-            get;
-            internal set;
-        }
         public TEntity Entity
         {
             get;

@@ -16,6 +16,12 @@ namespace Prism.Mods.DefHandlers
     {
         internal static void OnSetDefaults(NPC n, int type, float scaleOverride)
         {
+            n.P_BHandler     = null;
+            n.P_BuffBHandler = new object[NPC.maxBuffs];
+            n.P_Music        = null;
+            n.P_SoundOnHit   = null;
+            n.P_SoundOnDeath = null;
+
             if (ModLoader.Reloading)
             {
                 n.RealSetDefaults(type);

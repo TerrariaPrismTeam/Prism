@@ -40,18 +40,6 @@ namespace Prism.API.Behaviours
     public abstract class ItemBehaviour : EntityBehaviour<Item>
     {
         /// <summary>
-        /// Called when this item is saved to a player or world file.
-        /// </summary>
-        /// <param name="writer">The writer used to store mod data</param>
-        public virtual void Save(BinaryWriter writer) { }
-
-        /// <summary>
-        /// Called when this item is loaded from a player or world file.
-        /// </summary>
-        /// <param name="reader">The reader used to access mod data</param>
-        public virtual void Load(BinaryReader reader) { }
-
-        /// <summary>
         /// Called when this item is used.
         /// </summary>
         [Hook]

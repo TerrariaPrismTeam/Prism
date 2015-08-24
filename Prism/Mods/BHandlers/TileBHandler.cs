@@ -7,7 +7,7 @@ using Terraria;
 
 namespace Prism.Mods.BHandlers
 {
-    sealed class TileBHandler : EntityBHandler<TileBehaviour, Tile>
+    public sealed class TileBHandler : EntityBHandler<TileBehaviour, Tile>
     {
         IEnumerable<Action> onUpdate;
 

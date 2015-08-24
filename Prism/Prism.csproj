@@ -94,6 +94,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
@@ -114,6 +115,7 @@
     <Compile Include="API\Audio\VanillaBgms.cs" />
     <Compile Include="API\Audio\VanillaSfxes.cs" />
     <Compile Include="API\Behaviours\BuffBehaviour.cs" />
+    <Compile Include="API\Behaviours\IOBehaviour.cs" />
     <Compile Include="API\Behaviours\MountBehaviour.cs" />
     <Compile Include="API\Defs\BuffRef.cs" />
     <Compile Include="API\Behaviours\EntityBehaviour.cs" />
@@ -152,12 +154,19 @@
     <Compile Include="API\ObjectRef.cs" />
     <Compile Include="Debugging\Logging.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="IO\BinBuffer.cs" />
+    <Compile Include="IO\BinBufferByteResource.cs" />
+    <Compile Include="IO\BinBufferNativeResource.cs" />
+    <Compile Include="IO\BinBufferResource.cs" />
+    <Compile Include="IO\BinBufferStreamResource.cs" />
+    <Compile Include="IO\Union.cs" />
     <Compile Include="Mods\BHandlers\BuffBHandler.cs" />
+    <Compile Include="Mods\BHandlers\IOBHandler.cs" />
     <Compile Include="Mods\BHandlers\MountBHandler.cs" />
     <Compile Include="Mods\BHandlers\PlayerBHandler.cs" />
     <Compile Include="Mods\BHandlers\TileBHandler.cs" />
     <Compile Include="Mods\Hooks\MountHooks.cs" />
-    <Compile Include="Mods\SaveDataHandler.cs" />
+    <Compile Include="IO\SaveDataHandler.cs" />
     <Compile Include="Mods\ContentLoader.cs" />
     <Compile Include="Mods\DefHandlers\BuffDefHandler.cs" />
     <Compile Include="Mods\DefHandlers\IDH_SetDefaults.cs" />
@@ -176,6 +185,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Mods\UnknownItem.cs" />
     <Compile Include="Util\Either.cs" />
     <Compile Include="Util\Empty.cs" />
     <Compile Include="API\ModDef.cs" />
@@ -278,6 +288,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\res\Icons\PrismIcon_Main.ico" />
+    <EmbeddedResource Include="Resources\UnknownItem.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
