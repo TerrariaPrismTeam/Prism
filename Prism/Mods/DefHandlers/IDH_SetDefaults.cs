@@ -4,6 +4,7 @@ using System.Linq;
 using Prism.API;
 using Prism.API.Behaviours;
 using Prism.Debugging;
+using Prism.IO;
 using Prism.Mods.BHandlers;
 using Prism.Util;
 using Terraria;
@@ -15,6 +16,10 @@ namespace Prism.Mods.DefHandlers
     {
         internal static void OnSetDefaults(Item item, int type, bool noMatCheck)
         {
+            Dictionary<string, BinBuffer> data = null;
+            if (item.P_BHandler != null)
+                data = ((ItemBHandler)item.P_BHandler).data;
+
             item.P_BHandler = null;
             item.P_UseSound = null;
 
@@ -80,6 +85,9 @@ namespace Prism.Mods.DefHandlers
             if (h != null)
             {
                 h.behaviours.AddRange(bs);
+
+                if (data != null)
+                    h.data = data;
 
                 h.Create();
                 item.P_BHandler = h;

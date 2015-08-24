@@ -48,7 +48,7 @@ namespace Prism.IO
         {
             if (s.Length > 8)
                 s = s.Substring(0, 8);
-            else if (s.Length < 8)
+            else //if (s.Length < 8)
                 s = s.PadLeft(8);
 
             byte[] key = Encoding.Unicode.GetBytes(s);
@@ -86,7 +86,7 @@ namespace Prism.IO
                     // only type + mod data is needed imo (and prefix type (+ data?) later on)
                     if (stack)
                         bb.Write(inventory[i].stack);
-                    bb.Write(inventory[i].prefix);
+                    bb.WriteByte(inventory[i].prefix);
                     if (favourited)
                         bb.Write(inventory[i].favorited);
                 }
@@ -98,6 +98,8 @@ namespace Prism.IO
 
                     handler.Save(bb);
                 }
+                else
+                    bb.Write(0);
             }
         }
         /// <summary>
@@ -136,12 +138,14 @@ namespace Prism.IO
                 }
 
                 // Load Mod Data
-                if (inventory[i].P_BHandler != null)
+                if (inventory[i].P_BHandler == null)
                 {
-                    ItemBHandler handler = (ItemBHandler)inventory[i].P_BHandler;
+                    inventory[i].P_BHandler = new ItemBHandler();
 
-                    handler.Load(bb);
+                    ((ItemBHandler)inventory[i].P_BHandler).Create();
                 }
+
+                ((ItemBHandler)inventory[i].P_BHandler).Load(bb);
             }
         }
 
@@ -149,7 +153,7 @@ namespace Prism.IO
         /// Save mod data to a .plr.prism file
         /// </summary>
         /// <param name="playerFile">The player being saved</param>
-        public static void SavePlayer(PlayerFileData playerFile)
+        internal static void SavePlayer(PlayerFileData playerFile)
         {
             string path = playerFile.Path;
             Player player = playerFile.Player;
@@ -162,57 +166,58 @@ namespace Prism.IO
             if (File.Exists(path))
                 File.Copy(path, playerFile.Path + ".bak.prism", true);
 
-            RijndaelManaged rijndaelManaged = new RijndaelManaged();
             using (FileStream fileStream = new FileStream(path, FileMode.Create))
             {
                 fileStream.WriteByte(PLAYER_VERSION); // write this before doing the crypto stuff, so we can change it between versions
 
                 // can't we just get rid of this?
-                using (CryptoStream cryptoStream = new CryptoStream(fileStream, rijndaelManaged.CreateEncryptor(GenerateKey(player.name), ENCRYPTION_KEY), CryptoStreamMode.Write))
+                using (CryptoStream cryptoStream = new CryptoStream(fileStream, new RijndaelManaged() /*{ Padding = PaddingMode.None }*/.CreateEncryptor(GenerateKey(player.name), ENCRYPTION_KEY), CryptoStreamMode.Write))
+                using (BinBuffer bb = new BinBuffer(cryptoStream))
                 {
-                    using (BinBuffer bb = new BinBuffer(cryptoStream))
+                    #region Player Data
+                    if (player.P_BHandler != null)
                     {
-                        #region Player Data
-                        if (player.P_BHandler != null)
+                        var bh = (PlayerBHandler)player.P_BHandler;
+
+                        bh.Save(bb);
+                    }
+                    else
+                        bb.Write(0);
+                    #endregion Player Data
+
+                    #region Item Data
+                    SaveItemSlots(bb, player.armor, player.armor.Length, false, false);
+                    SaveItemSlots(bb, player.dye, player.dye.Length, false, false);
+                    SaveItemSlots(bb, player.inventory, Main.maxInventory, true, true);
+                    SaveItemSlots(bb, player.miscEquips, player.miscEquips.Length, false, false);
+                    SaveItemSlots(bb, player.bank.item, Chest.maxItems, true, false);
+                    SaveItemSlots(bb, player.bank2.item, Chest.maxItems, true, false);
+                    #endregion Item Data
+
+                    #region Buff Data
+                    for (int i = 0; i < Player.maxBuffs; i++)
+                    {
+                        if (Main.buffNoSave[player.buffType[i]] || player.buffType[i] < BuffID.Count || player.buffTime[i] <= 0)
+                            bb.Write(String.Empty);
+                        else
                         {
-                            var bh = (PlayerBHandler)player.P_BHandler;
+                            var buff = Handler.BuffDef.DefsByType[player.buffType[i]];
+
+                            bb.Write(buff.Mod.InternalName);
+                            bb.Write(buff.InternalName);
+                            bb.Write(player.buffTime[i]);
+                        }
+
+                        if (player.P_BuffBHandler[i] != null)
+                        {
+                            var bh = (BuffBHandler)player.P_BuffBHandler[i];
 
                             bh.Save(bb);
                         }
-                        #endregion Player Data
-
-                        #region Item Data
-                        SaveItemSlots(bb, player.armor, player.armor.Length, false, false);
-                        SaveItemSlots(bb, player.dye, player.dye.Length, false, false);
-                        SaveItemSlots(bb, player.inventory, Main.maxInventory, true, true);
-                        SaveItemSlots(bb, player.miscEquips, player.miscEquips.Length, false, false);
-                        SaveItemSlots(bb, player.bank.item, Chest.maxItems, true, false);
-                        SaveItemSlots(bb, player.bank2.item, Chest.maxItems, true, false);
-                        #endregion Item Data
-
-                        #region Buff Data
-                        for (int i = 0; i < Player.maxBuffs; i++)
-                        {
-                            if (Main.buffNoSave[player.buffType[i]] || player.buffType[i] < BuffID.Count || player.buffTime[i] <= 0)
-                                bb.Write(String.Empty);
-                            else
-                            {
-                                var buff = Handler.BuffDef.DefsByType[player.buffType[i]];
-
-                                bb.Write(buff.Mod.InternalName);
-                                bb.Write(buff.InternalName);
-                                bb.Write(player.buffTime[i]);
-                            }
-
-                            if (player.P_BuffBHandler[i] != null)
-                            {
-                                var bh = (BuffBHandler)player.P_BuffBHandler[i];
-
-                                bh.Save(bb);
-                            }
-                        }
-                        #endregion Buff Data
+                        else
+                            bb.Write(0);
                     }
+                    #endregion Buff Data
                 }
             }
         }
@@ -220,7 +225,7 @@ namespace Prism.IO
         /// Load player data from a .plr.prism file
         /// </summary>
         /// <param name="playerPath">The path to the vanilla .plr file</param>
-        public static void LoadPlayer(Player player, string playerPath)
+        internal static void LoadPlayer(Player player, string playerPath)
         {
             playerPath += ".prism";
 
@@ -239,47 +244,56 @@ namespace Prism.IO
                         throw new FileFormatException("This player is saved in a format that is too old and unsupported.");
 
                     using (CryptoStream cryptoStream = new CryptoStream(fileStream, new RijndaelManaged() { Padding = PaddingMode.None }.CreateDecryptor(GenerateKey(player.name), ENCRYPTION_KEY), CryptoStreamMode.Read))
+                    using (BinBuffer bb = new BinBuffer(cryptoStream))
                     {
-                        using (BinBuffer bb = new BinBuffer(cryptoStream))
+                        #region Player Data
+                        if (player.P_BHandler == null)
                         {
-                            #region Player Data
-                            if (player.P_BHandler != null)
-                            {
-                                var bh = (PlayerBHandler)player.P_BHandler;
+                            player.P_BHandler = new PlayerBHandler();
 
-                                bh.Load(bb);
-                            }
-                            #endregion Player Data
-
-                            #region Item Data
-                            LoadItemSlots(bb, player.armor, player.armor.Length, false, false);
-                            LoadItemSlots(bb, player.dye, player.dye.Length, false, false);
-                            LoadItemSlots(bb, player.inventory, Main.maxInventory, true, true);
-                            LoadItemSlots(bb, player.miscEquips, player.miscEquips.Length, false, false);
-                            LoadItemSlots(bb, player.bank.item, Chest.maxItems, true, false);
-                            LoadItemSlots(bb, player.bank2.item, Chest.maxItems, true, false);
-                            #endregion Item Data
-
-                            #region Buff Data
-                            for (int i = 0; i < Player.maxBuffs; i++)
-                            {
-                                var mod = bb.ReadString();
-
-                                if (String.IsNullOrEmpty(mod) || !ModData.modsFromInternalName.ContainsKey(mod))
-                                    continue;
-
-                                var md = ModData.modsFromInternalName[mod];
-
-                                var buff = bb.ReadString();
-                                var t = bb.ReadInt32();
-
-                                if (!md.BuffDefs.ContainsKey(buff))
-                                    continue;
-
-                                player.AddBuff(md.BuffDefs[buff].Type, t);
-                            }
-                            #endregion Buff Data
+                            ((PlayerBHandler)player.P_BHandler).Create();
                         }
+
+                        ((PlayerBHandler)player.P_BHandler).Load(bb);
+                        #endregion Player Data
+
+                        #region Item Data
+                        LoadItemSlots(bb, player.armor, player.armor.Length, false, false);
+                        LoadItemSlots(bb, player.dye, player.dye.Length, false, false);
+                        LoadItemSlots(bb, player.inventory, Main.maxInventory, true, true);
+                        LoadItemSlots(bb, player.miscEquips, player.miscEquips.Length, false, false);
+                        LoadItemSlots(bb, player.bank.item, Chest.maxItems, true, false);
+                        LoadItemSlots(bb, player.bank2.item, Chest.maxItems, true, false);
+                        #endregion Item Data
+
+                        #region Buff Data
+                        for (int i = 0; i < Player.maxBuffs; i++)
+                        {
+                            var mod = bb.ReadString();
+
+                            if (String.IsNullOrEmpty(mod) || !ModData.modsFromInternalName.ContainsKey(mod))
+                                continue;
+
+                            var md = ModData.modsFromInternalName[mod];
+
+                            var buff = bb.ReadString();
+                            var t = bb.ReadInt32();
+
+                            if (!md.BuffDefs.ContainsKey(buff))
+                                continue;
+
+                            player.AddBuff(md.BuffDefs[buff].Type, t);
+
+                            if (player.P_BuffBHandler[i] == null)
+                            {
+                                player.P_BuffBHandler[i] = new BuffBHandler();
+
+                                ((BuffBHandler)player.P_BuffBHandler[i]).Create();
+                            }
+
+                            ((BuffBHandler)player.P_BuffBHandler[i]).Save(bb);
+                        }
+                        #endregion Buff Data
                     }
                 }
             }
@@ -291,6 +305,15 @@ namespace Prism.IO
                 Trace.WriteLine("Could not load player " + player.name + ": " + e.Message);
                 player.loadStatus = 1;
             }
+        }
+
+        internal static void SaveWorld(BinaryWriter w, int[] sections)
+        {
+
+        }
+        internal static void LoadWorld(BinaryReader r)
+        {
+
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Prism.IO;
 using Prism.Mods.BHandlers;
 using Prism.Mods.DefHandlers;
 using Prism.Util;
@@ -47,6 +48,9 @@ namespace Prism.Mods.Hooks
             if (slot == -1)
                 return null;
 
+            var obh = p.P_BuffBHandler[slot] as BuffBHandler;
+            Dictionary<string, BinBuffer> data = obh == null ? null : obh.data;
+
             BuffBHandler h = null;
 
             if (Handler.BuffDef.DefsByType.ContainsKey(type))
@@ -87,7 +91,11 @@ namespace Prism.Mods.Hooks
             }
 
             if (h != null)
+            {
+                h.data = data;
+
                 h.Create();
+            }
 
             p.P_BuffBHandler[slot] = h;
 
@@ -187,10 +195,17 @@ namespace Prism.Mods.Hooks
 
             if (fd.Player != null)
             {
+                var obh = fd.Player.P_BHandler as PlayerBHandler;
+                Dictionary<string, BinBuffer> data = obh == null ? null : obh.data;
+
                 var bh = AttachBHandler(fd.Player);
 
                 if (bh != null)
+                {
+                    bh.data = data;
+
                     bh.OnLoaded();
+                }
             }
 
             return fd;

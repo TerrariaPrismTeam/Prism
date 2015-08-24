@@ -185,9 +185,9 @@ namespace Prism.IO
                     case 15:
                         Byte16 = value;
                         break;
+                    default:
+                        throw new ArgumentOutOfRangeException("index");
                 }
-
-                throw new ArgumentOutOfRangeException("index");
             }
         }
     }

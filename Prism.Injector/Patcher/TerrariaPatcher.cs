@@ -124,6 +124,7 @@ namespace Prism.Injector.Patcher
             PlayerPatcher    .Patch();
             MountPatcher     .Patch();
             MainPatcher      .Patch();
+            WorldFilePatcher .Patch();
             // do other stuff here
 
             // Newtonsoft.Json.dll, Steamworks.NET.dll and Ionic.Zip.CF.dll are required to write the assembly (and FNA and WindowsBase on mono, too)

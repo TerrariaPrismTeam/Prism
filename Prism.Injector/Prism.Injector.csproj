@@ -113,6 +113,7 @@
     <Compile Include="Patcher\ItemPatcher.cs" />
     <Compile Include="Patcher\NpcPatcher.cs" />
     <Compile Include="Patcher\TerrariaPatcher.cs" />
+    <Compile Include="Patcher\WorldFilePatcher.cs" />
     <Compile Include="Patcher\WrapperHelperExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

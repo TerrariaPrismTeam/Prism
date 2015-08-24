@@ -254,7 +254,7 @@ namespace Prism.IO
         {
             var d = Encoding.UTF8.GetBytes(v);
 
-            WriteVlq((uint)d.Length);
+            Write/*Vlq*/(/*(uint)*/d.Length);
             Write(d);
         }
 
@@ -420,7 +420,7 @@ namespace Prism.IO
 
         public string ReadString()
         {
-            return Encoding.UTF8.GetString(ReadBytes((int)ReadVlqUInt32()));
+            return Encoding.UTF8.GetString(ReadBytes(/*(int)*/ReadInt32/*VlqUInt32*/()));
         }
 
         public BigInteger ReadBigInteger()

@@ -14,7 +14,7 @@ namespace Prism.Mods.BHandlers
 
         IEnumerable<Action<BinBuffer>> save, load;
 
-        Dictionary<string, BinBuffer> data = new Dictionary<string, BinBuffer>();
+        internal Dictionary<string, BinBuffer> data = new Dictionary<string, BinBuffer>();
 
         public IEnumerable<TBehaviour> Behaviours
         {
