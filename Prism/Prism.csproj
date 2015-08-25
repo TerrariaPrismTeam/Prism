@@ -100,6 +100,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\GlobalSuppressions.cs">
+      <Link>Properties\GlobalSuppressions.cs</Link>
+    </Compile>
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
@@ -153,12 +156,12 @@
     <Compile Include="API\Defs\TileRef.cs" />
     <Compile Include="API\ObjectRef.cs" />
     <Compile Include="Debugging\Logging.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IO\BinBuffer.cs" />
     <Compile Include="IO\BinBufferByteResource.cs" />
     <Compile Include="IO\BinBufferNativeResource.cs" />
     <Compile Include="IO\BinBufferResource.cs" />
     <Compile Include="IO\BinBufferStreamResource.cs" />
+    <Compile Include="IO\ModIdMap.cs" />
     <Compile Include="IO\Union.cs" />
     <Compile Include="Mods\BHandlers\BuffBHandler.cs" />
     <Compile Include="Mods\BHandlers\IOBHandler.cs" />
@@ -186,6 +189,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Mods\UnknownItem.cs" />
+    <Compile Include="Util\BiDictionary.cs" />
     <Compile Include="Util\Either.cs" />
     <Compile Include="Util\Empty.cs" />
     <Compile Include="API\ModDef.cs" />

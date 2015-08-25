@@ -7,7 +7,7 @@ using Terraria;
 
 namespace Prism.API.Behaviours
 {
-    public abstract class GameBehaviour : HookContainer
+    public abstract class GameBehaviour : IOBehaviour
     {
         /// <summary>
         /// A hook called at the beginning of the game's Update method.

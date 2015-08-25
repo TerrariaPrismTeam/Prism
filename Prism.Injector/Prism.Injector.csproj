@@ -87,6 +87,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\GlobalSuppressions.cs">
+      <Link>Properties\GlobalSuppressions.cs</Link>
+    </Compile>
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
@@ -94,7 +97,6 @@
     <EmbeddedResource Include="ILAsm\asm-refs.il" />
     <Compile Include="CecilContext.cs" />
     <Compile Include="CecilReflectionComparer.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="ILAsm\ILCompiler.cs" />
     <Compile Include="ILAsm\ILProvider.cs">
       <SubType>Component</SubType>

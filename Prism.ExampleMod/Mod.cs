@@ -1,18 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using LitJson;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Prism.API;
 using Prism.API.Defs;
-using Terraria;
 using Terraria.ID;
 
 namespace Prism.ExampleMod
 {
-    public class Mod : ModDef
+    public class TheMod : ModDef
     {
         public static Dictionary<int, int> TestItems  = new Dictionary<int, int>();
         public static Dictionary<int, int> TestNpcs   = new Dictionary<int, int>();

@@ -16,7 +16,7 @@ namespace Prism.Injector.Patcher
 
         static void EnlargeSectionArray()
         {
-            const sbyte NewSize = 15;
+            const sbyte NewSize = 20; // if changing this, change the value in Prism/IO/SaveDataHandler.cs
 
             var saveWorldV2    = typeDef_WorldFile.GetMethod("SaveWorld_Version2"  );
             var saveFileHeader = typeDef_WorldFile.GetMethod("SaveFileFormatHeader");
@@ -74,7 +74,7 @@ namespace Prism.Injector.Patcher
             var lwbproc = lwb.GetILProcessor();
 
             MethodDefinition invokeLoadWorld;
-            var loadWorldDel = context.CreateDelegate("Terraria.PrismInjections", "WorldFile_OnLoadWorldDel", typeSys.Void, out invokeLoadWorld, loadWorldV2.Parameters[0].ParameterType);
+            var loadWorldDel = context.CreateDelegate("Terraria.PrismInjections", "WorldFile_OnLoadWorldDel", typeSys.Void, out invokeLoadWorld, loadWorldV2.Parameters[0].ParameterType, lwb.Variables[1].VariableType);
 
             var onLoadWorld = new FieldDefinition("P_OnLoadWorld", FieldAttributes.Public | FieldAttributes.Static, loadWorldDel);
             typeDef_WorldFile.Fields.Add(onLoadWorld);
@@ -92,6 +92,7 @@ namespace Prism.Injector.Patcher
             {
                 Instruction.Create(OpCodes.Ldsfld, onLoadWorld),
                 Instruction.Create(OpCodes.Ldarg_0),
+                Instruction.Create(OpCodes.Ldloc_1),
                 Instruction.Create(OpCodes.Callvirt, invokeLoadWorld)
             };
 

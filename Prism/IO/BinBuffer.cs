@@ -65,8 +65,8 @@ namespace Prism.IO
         {
 
         }
-        public BinBuffer(Stream s, bool copy = false)
-            : this(new BinBufferStreamResource(s, copy))
+        public BinBuffer(Stream s, bool copy = false, bool dispose = true)
+            : this(new BinBufferStreamResource(s, copy, dispose))
         {
 
         }

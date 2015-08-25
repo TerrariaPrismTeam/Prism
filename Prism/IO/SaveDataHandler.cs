@@ -5,11 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Prism.API;
 using Prism.API.Defs;
 using Prism.Debugging;
 using Prism.Mods;
 using Prism.Mods.BHandlers;
 using Prism.Mods.DefHandlers;
+using Prism.Mods.Hooks;
 using Terraria;
 using Terraria.ID;
 using Terraria.IO;
@@ -33,6 +35,13 @@ namespace Prism.IO
         const byte
             MIN_PLAYER_SUPPORT_VER = 1,
             MIN_WORLD_SUPPORT_VER  = 0;
+
+        const int
+            PrismSectionsStart    = 10, // first free slot is 7, as of 1.3.0.8
+                                        // leaving a few empty, so some updates can happen before we have to
+                                        // change the number and add compatibility code for it in LoadWorld
+                                        // vanilla slots amt is 10, so this can also be used to check whether the loaded world is a vanilla one
+            InjectedSectionsCount = 20; // if changing this, change the value in Prism.Injector/Patcher/WorldFilePatcher.cs
 
         /// <summary>
         /// Base key used for file saving/loading.
@@ -307,13 +316,272 @@ namespace Prism.IO
             }
         }
 
+        static int SavePrismData (BinBuffer bb)
+        {
+            bb.WriteByte(WORLD_VERSION);
+
+            return bb.Position;
+        }
+        static int SaveGlobalData(BinBuffer bb)
+        {
+            HookManager.GameBehaviour.Save(bb);
+
+            return bb.Position;
+        }
+        static int SaveTileTypes (BinBuffer bb)
+        {
+            // don't write anything for now, custom tiles aren't implemented
+            return bb.Position;
+
+#pragma warning disable 162
+            var map = new ModIdMap(TileID.Count, or => new TileRef(or).Resolve().Type, id => new TileRef(id));
+#pragma warning restore 162
+
+            int ot = 0;
+            int amt = 0;
+            bool once = true;
+
+            int op = bb.Position;
+            bb.Write(0);
+
+            for (int y = 0; y < Main.maxTilesY; y++)
+                for (int x = 0; x < Main.maxTilesX; x++)
+                {
+                    int t = Main.tile[x, y] == null || !Main.tile[x, y].active() ? 0 : Main.tile[x, y].type;
+
+                    if (once)
+                    {
+                        ot = t;
+                        bb.Write(map.Register(new TileRef(t)));
+
+                        once = false;
+                        continue;
+                    }
+
+                    if (t == ot && amt < UInt16.MaxValue)
+                        amt++;
+                    else
+                    {
+                        bb.Write((ushort)amt); // write the amount of successing tiles of the same type,
+                                               // instead of the type over and over again, to save some space
+                        amt = 0;
+
+                        ot = t;
+                        bb.Write(map.Register(new TileRef(t)));
+                    }
+                }
+            bb.Write((ushort)amt);
+
+            var p = bb.Position;
+            bb.Position = op;
+            bb.Write(p - op); // dictionary offset
+            bb.Position = p;
+
+            map.WriteDictionary(bb);
+
+            return bb.Position;
+        }
+        static int SaveChestItems(BinBuffer bb)
+        {
+            var chests = Main.chest.Where(c => c != null);
+
+            bb.Write((short)chests.Count());
+            bb.WriteByte(Chest.maxItems);
+
+            foreach (var c in chests)
+                SaveItemSlots(bb, c.item, Chest.maxItems, true, false);
+
+            return bb.Position;
+        }
+        static int SaveNpcData   (BinBuffer bb)
+        {
+            for (int i = 0; i < Main.npc.Length; i++)
+            {
+                bb.Write(true);
+                var n = Main.npc[i];
+                if (n == null || !n.active || !(n.townNPC || n.type != NPCID.TravellingMerchant))
+                    continue;
+
+                if (n.P_BHandler == null)
+                    bb.Write(0);
+                else
+                {
+                    var bh = n.P_BHandler as NpcBHandler;
+
+                    bh.Save(bb);
+                }
+            }
+            //bb.Write(false); // don't write, loops can be unified in the Load method (only mod data is written)
+
+            // blame red for the double loop. see Terraria.IO.WorldFile.SaveNPCs/LoadNPCs
+            for (int i = 0; i < Main.npc.Length; i++)
+            {
+                bb.Write(true);
+                var n = Main.npc[i];
+                if (n == null || !n.active || !NPCID.Sets.SavesAndLoads[n.type])
+                    continue;
+
+                if (n.P_BHandler == null)
+                    bb.Write(0);
+                else
+                {
+                    var bh = n.P_BHandler as NpcBHandler;
+
+                    bh.Save(bb);
+                }
+            }
+            bb.Write(false);
+
+            return bb.Position;
+        }
+
         internal static void SaveWorld(BinaryWriter w, int[] sections)
         {
+            using (BinBuffer bb = new BinBuffer(w.BaseStream, dispose: false))
+            {
+                //TODO: item frame item IDs are still written as ints
+                //TODO: mannequins are probably broken
+                //TODO: should tile data be saved? shouldn't tile entities be used instead? or global saving?
+                //TODO: save tile & wall types, when support has been added
+                var i = PrismSectionsStart;
 
+                sections[i++] = SavePrismData (bb);
+                sections[i++] = SaveGlobalData(bb);
+                sections[i++] = SaveTileTypes (bb); // NOTE: immediately returns (for now)
+                sections[i++] = SaveChestItems(bb);
+                sections[i++] = SaveNpcData   (bb);
+              //sections[i++] = SaveTileData  (bb);
+              //sections[i++] = SaveWallTypes (bb);
+            }
         }
-        internal static void LoadWorld(BinaryReader r)
-        {
 
+        static int  LoadPrismData (BinBuffer bb)
+        {
+            var v = bb.ReadByte();
+
+            if (v > WORLD_VERSION)
+                throw new FileFormatException("Tried to load world file from a future version of Prism.");
+            if (v < MIN_WORLD_SUPPORT_VER)
+                throw new FileFormatException("This world is saved in a format that is too old and unsupported.");
+
+            return v;
+        }
+        static void LoadGlobalData(BinBuffer bb, int v)
+        {
+            HookManager.GameBehaviour.Load(bb);
+        }
+        static void LoadTileTypes (BinBuffer bb, int v)
+        {
+            // don't read anything for now, custom tiles aren't implemented
+            return;
+
+#pragma warning disable 162
+            // to be used in future versions
+            if (v == 0)
+                return;
+#pragma warning restore 162
+
+            var map = new ModIdMap(TileID.Count, or => new TileRef(or).Resolve().Type, id => new TileRef(id));
+
+            var tp = bb.Position;
+            var dictOffset = bb.ReadInt32();
+            bb.Position += dictOffset;
+
+            map.ReadDictionary(bb);
+
+            var end = bb.Position;
+
+            bb.Position = tp;
+
+            int amt = 0;
+
+            for (int y = 0; y < Main.maxTilesY; y++)
+                for (int x = 0; x < Main.maxTilesX; x++)
+                {
+                    if (amt == 0)
+                    {
+                        var t = bb.ReadUInt32();
+                        Main.tile[x, y].type = (ushort)new TileRef(map.GetRef(t)).Resolve().Type;
+
+                        amt = bb.ReadUInt16();
+                    }
+                    else
+                        amt--;
+                }
+
+            bb.Position = end;
+        }
+        static void LoadChestItems(BinBuffer bb, int v)
+        {
+            int chestAmt = bb.ReadInt16();
+            int items    = bb.ReadByte ();
+
+            for (int i = 0; i < chestAmt; i++)
+                LoadItemSlots(bb, Main.chest[i].item, items, true, false);
+        }
+        static void LoadNpcData   (BinBuffer bb, int v)
+        {
+            int i = 0;
+            while (bb.ReadBoolean())
+            {
+                NPC n = Main.npc[i++];
+
+                if (n.P_BHandler == null)
+                    n.P_BHandler = new NpcBHandler();
+
+                ((NpcBHandler)n.P_BHandler).Load(bb);
+            }
+            //while (bb.ReadBoolean())
+            //{
+            //    NPC n = Main.npc[i++];
+
+            //    if (n.P_BHandler == null)
+            //        n.P_BHandler = new NpcBHandler();
+
+            //    ((NpcBHandler)n.P_BHandler).Load(bb);
+            //}
+        }
+
+        internal static void LoadWorld(BinaryReader r, int[] sections)
+        {
+            //TODO: see SaveWorld
+            if (sections.Length <= PrismSectionsStart)
+                return; // vanilla file, don't load additional sections
+
+            using (BinBuffer bb = new BinBuffer(r.BaseStream, dispose: false))
+            {
+                const string ffeMsg = "Wrong amount of bytes read from the world file, a mod probably messed up.";
+
+                var i = PrismSectionsStart; // might be edited in later versions!
+
+                var v = LoadPrismData(bb);
+                if (bb.Position != sections[i++])
+                    throw new FileFormatException(ffeMsg);
+
+                LoadGlobalData(bb, v);
+                if (bb.Position != sections[i++])
+                    throw new FileFormatException(ffeMsg);
+
+                LoadTileTypes(bb, v); // NOTE: immediately returns (for now)
+                if (bb.Position != sections[i++])
+                    throw new FileFormatException(ffeMsg);
+
+                LoadChestItems(bb, v);
+                if (bb.Position != sections[i++])
+                    throw new FileFormatException(ffeMsg);
+
+                LoadNpcData(bb, v);
+                if (bb.Position != sections[i++])
+                    throw new FileFormatException(ffeMsg);
+
+                //LoadTileData(bb, v);
+                //if (bb.Position != sections[i++])
+                //    throw new FileFormatException(ffeMsg);
+
+                //LoadWallTypes(bb, v);
+                //if (bb.Position != sections[i++])
+                //    throw new FileFormatException(ffeMsg);
+            }
         }
     }
 }

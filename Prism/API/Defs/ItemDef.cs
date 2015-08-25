@@ -617,9 +617,7 @@ namespace Prism.API.Defs
             if (json.Has("buff"))
             {
                 JsonData buff = json["buff"];
-                JsonData type = buff["type"];
-                //TODO: Add string compatibility with BuffRef
-                Buff = new AppliedBuff(type.ParseBuffRef(), (int)buff["duration"]);
+                Buff = new AppliedBuff(buff["type"].ParseBuffRef(), (int)buff["duration"]);
             }
 
             if (json.Has("useAmmo"))

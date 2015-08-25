@@ -4,28 +4,32 @@ using System.Linq;
 using Prism.API;
 using Prism.API.Audio;
 using Prism.API.Behaviours;
+using Prism.Mods.BHandlers;
 using Terraria;
-using Microsoft.Xna.Framework;
 
 namespace Prism.Mods.Hooks
 {
-    class GameHooks : IHookManager
+    sealed class GameHooks : IOBHandler<GameBehaviour>
     {
         IEnumerable<Action> preUpdate, postUpdate, onUpdateKeyboard;
         IEnumerable<Action<Ref<BgmEntry>>> updateMusic;
 
-        public void Create()
+        public override void Create()
         {
-            var gbs = ModData.mods.Values.Select(m => m.gameBehaviour);
+            behaviours = new List<GameBehaviour>(ModData.mods.Values.Select(m => m.gameBehaviour));
 
-            preUpdate        = HookManager.CreateHooks<GameBehaviour, Action>(gbs, "PreUpdate"       );
-            postUpdate       = HookManager.CreateHooks<GameBehaviour, Action>(gbs, "PostUpdate"      );
-            onUpdateKeyboard = HookManager.CreateHooks<GameBehaviour, Action>(gbs, "OnUpdateKeyboard");
+            base.Create();
 
-            updateMusic = HookManager.CreateHooks<GameBehaviour, Action<Ref<BgmEntry>>>(gbs, "UpdateMusic");
+            preUpdate        = HookManager.CreateHooks<GameBehaviour, Action>(behaviours, "PreUpdate"       );
+            postUpdate       = HookManager.CreateHooks<GameBehaviour, Action>(behaviours, "PostUpdate"      );
+            onUpdateKeyboard = HookManager.CreateHooks<GameBehaviour, Action>(behaviours, "OnUpdateKeyboard");
+
+            updateMusic = HookManager.CreateHooks<GameBehaviour, Action<Ref<BgmEntry>>>(behaviours, "UpdateMusic");
         }
-        public void Clear ()
+        public override void Clear ()
         {
+            base.Clear();
+
             preUpdate        = null;
             postUpdate       = null;
             onUpdateKeyboard = null;

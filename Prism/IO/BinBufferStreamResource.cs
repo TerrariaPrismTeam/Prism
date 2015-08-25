@@ -10,6 +10,12 @@ namespace Prism.IO
     {
         Stream stream;
 
+        public bool DisposeStream
+        {
+            get;
+            set;
+        }
+
         public override int Position
         {
             get
@@ -51,7 +57,7 @@ namespace Prism.IO
         {
             stream = new MemoryStream(buffer);
         }
-        public BinBufferStreamResource(Stream s, bool copy = false)
+        public BinBufferStreamResource(Stream s, bool copy = false, bool dispose = true)
         {
             if (copy)
             {
@@ -59,7 +65,11 @@ namespace Prism.IO
                 s.CopyTo(stream, (int)s.Length);
             }
             else
+            {
                 stream = s;
+
+                DisposeStream = dispose;
+            }
         }
 
         public override void Clear(bool wipeData = false)
@@ -147,6 +157,9 @@ namespace Prism.IO
 
         protected override void Dispose(bool disposing)
         {
+            if (!DisposeStream)
+                return;
+
             Clear();
             stream.Dispose();
             stream = null;
