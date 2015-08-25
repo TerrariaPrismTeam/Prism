@@ -35,9 +35,9 @@
             this.panelMessageBoxIcon = new System.Windows.Forms.Panel();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
-            // 
+            //
             // buttonHastebin
-            // 
+            //
             this.buttonHastebin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonHastebin.Location = new System.Drawing.Point(708, 470);
             this.buttonHastebin.Name = "buttonHastebin";
@@ -46,9 +46,9 @@
             this.buttonHastebin.Text = "Upload to Hastebin";
             this.buttonHastebin.UseVisualStyleBackColor = true;
             this.buttonHastebin.Click += new System.EventHandler(this.buttonHastebin_Click);
-            // 
+            //
             // buttonClose
-            // 
+            //
             this.buttonClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonClose.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.buttonClose.Location = new System.Drawing.Point(857, 470);
@@ -57,11 +57,11 @@
             this.buttonClose.TabIndex = 1;
             this.buttonClose.Text = "OK";
             this.buttonClose.UseVisualStyleBackColor = true;
-            // 
+            //
             // textboxDisplayLoaderErrors
-            // 
-            this.textboxDisplayLoaderErrors.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.textboxDisplayLoaderErrors.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textboxDisplayLoaderErrors.BackColor = System.Drawing.SystemColors.Window;
             this.textboxDisplayLoaderErrors.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -75,19 +75,19 @@
             this.textboxDisplayLoaderErrors.Size = new System.Drawing.Size(866, 414);
             this.textboxDisplayLoaderErrors.TabIndex = 3;
             this.textboxDisplayLoaderErrors.Text = "Loader errors go here.";
-            // 
+            //
             // panelMessageBoxIcon
-            // 
+            //
             this.panelMessageBoxIcon.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("panelMessageBoxIcon.BackgroundImage")));
             this.panelMessageBoxIcon.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.panelMessageBoxIcon.Location = new System.Drawing.Point(12, 12);
             this.panelMessageBoxIcon.Name = "panelMessageBoxIcon";
             this.panelMessageBoxIcon.Size = new System.Drawing.Size(48, 48);
             this.panelMessageBoxIcon.TabIndex = 4;
-            // 
+            //
             // richTextBox1
-            // 
-            this.richTextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.richTextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.richTextBox1.BackColor = System.Drawing.SystemColors.Control;
             this.richTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -102,9 +102,9 @@
             this.richTextBox1.TabIndex = 4;
             this.richTextBox1.Text = resources.GetString("richTextBox1.Text");
             this.richTextBox1.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.richTextBox1_LinkClicked);
-            // 
+            //
             // ExceptionDialogForm
-            // 
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(944, 501);

@@ -14,19 +14,6 @@ namespace Prism.Injector.Patcher
         static TypeSystem typeSys;
         static TypeDefinition typeDef_WorldFile;
 
-        static void EnlargeSectionArray()
-        {
-            const sbyte NewSize = 20; // if changing this, change the value in Prism/IO/SaveDataHandler.cs
-
-            var saveWorldV2    = typeDef_WorldFile.GetMethod("SaveWorld_Version2"  );
-            var saveFileHeader = typeDef_WorldFile.GetMethod("SaveFileFormatHeader");
-
-            var swb = saveWorldV2   .Body;
-            var shb = saveFileHeader.Body;
-
-            swb.Instructions[0].Operand = NewSize; // first instruction is ldc.i4(.s) 10
-            shb.Instructions[2].Operand = NewSize;
-        }
         static void InjectSaveHook()
         {
             var saveWorldV2 = typeDef_WorldFile.GetMethod("SaveWorld_Version2");
@@ -115,7 +102,6 @@ namespace Prism.Injector.Patcher
             typeSys = context.PrimaryAssembly.MainModule.TypeSystem;
             typeDef_WorldFile = memRes.GetType("Terraria.IO.WorldFile");
 
-            EnlargeSectionArray();
             InjectSaveHook();
             InjectLoadHook();
         }

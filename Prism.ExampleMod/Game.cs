@@ -39,7 +39,7 @@ namespace Prism.ExampleMod
 
             #region asdfasdfasdf
             if (GetKey(Keys.I, KeyState.Down))
-                foreach (var kvp in TheMod.TestItems)
+                foreach (var kvp in ExampleMod.Mod.TestItems)
                     Item.NewItem(me.X, me.Y, 1, 1, kvp.Key, kvp.Value, false, 0, true, false);
             #endregion
 
@@ -76,14 +76,14 @@ namespace Prism.ExampleMod
             {
                 var pt = GetRandomPositionOnScreen().ToPoint();
 
-                foreach (var kvp in TheMod.TestNpcs)
+                foreach (var kvp in ExampleMod.Mod.TestNpcs)
                     for (int i = 0; i < kvp.Value; i++)
                         NPC.NewNPC(pt.X, pt.Y, kvp.Key);
             }
 
             if (GetKey(Keys.B, KeyState.Down))
             {
-                foreach (var kvp in TheMod.TestBosses)
+                foreach (var kvp in ExampleMod.Mod.TestBosses)
                     for (int i = 0; i < kvp.Value; i++)
                         NPC.SpawnOnPlayer(Main.myPlayer, kvp.Key);
             }

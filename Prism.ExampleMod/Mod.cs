@@ -7,7 +7,7 @@ using Terraria.ID;
 
 namespace Prism.ExampleMod
 {
-    public class TheMod : ModDef
+    public class Mod : ModDef
     {
         public static Dictionary<int, int> TestItems  = new Dictionary<int, int>();
         public static Dictionary<int, int> TestNpcs   = new Dictionary<int, int>();

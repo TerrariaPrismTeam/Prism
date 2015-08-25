@@ -316,22 +316,18 @@ namespace Prism.IO
             }
         }
 
-        static int SavePrismData (BinBuffer bb)
+        static void SavePrismData (BinBuffer bb)
         {
             bb.WriteByte(WORLD_VERSION);
-
-            return bb.Position;
         }
-        static int SaveGlobalData(BinBuffer bb)
+        static void SaveGlobalData(BinBuffer bb)
         {
             HookManager.GameBehaviour.Save(bb);
-
-            return bb.Position;
         }
-        static int SaveTileTypes (BinBuffer bb)
+        static void SaveTileTypes (BinBuffer bb)
         {
             // don't write anything for now, custom tiles aren't implemented
-            return bb.Position;
+            return;
 
 #pragma warning disable 162
             var map = new ModIdMap(TileID.Count, or => new TileRef(or).Resolve().Type, id => new TileRef(id));
@@ -378,10 +374,8 @@ namespace Prism.IO
             bb.Position = p;
 
             map.WriteDictionary(bb);
-
-            return bb.Position;
         }
-        static int SaveChestItems(BinBuffer bb)
+        static void SaveChestItems(BinBuffer bb)
         {
             var chests = Main.chest.Where(c => c != null);
 
@@ -390,10 +384,8 @@ namespace Prism.IO
 
             foreach (var c in chests)
                 SaveItemSlots(bb, c.item, Chest.maxItems, true, false);
-
-            return bb.Position;
         }
-        static int SaveNpcData   (BinBuffer bb)
+        static void SaveNpcData   (BinBuffer bb)
         {
             for (int i = 0; i < Main.npc.Length; i++)
             {
@@ -431,8 +423,6 @@ namespace Prism.IO
                 }
             }
             bb.Write(false);
-
-            return bb.Position;
         }
 
         internal static void SaveWorld(BinaryWriter w, int[] sections)
@@ -443,15 +433,14 @@ namespace Prism.IO
                 //TODO: mannequins are probably broken
                 //TODO: should tile data be saved? shouldn't tile entities be used instead? or global saving?
                 //TODO: save tile & wall types, when support has been added
-                var i = PrismSectionsStart;
 
-                sections[i++] = SavePrismData (bb);
-                sections[i++] = SaveGlobalData(bb);
-                sections[i++] = SaveTileTypes (bb); // NOTE: immediately returns (for now)
-                sections[i++] = SaveChestItems(bb);
-                sections[i++] = SaveNpcData   (bb);
-              //sections[i++] = SaveTileData  (bb);
-              //sections[i++] = SaveWallTypes (bb);
+                SavePrismData (bb);
+                SaveGlobalData(bb);
+                SaveTileTypes (bb); // NOTE: immediately returns (for now)
+                SaveChestItems(bb);
+                SaveNpcData   (bb);
+              //SaveTileData  (bb);
+              //SaveWallTypes (bb);
             }
         }
 
@@ -545,42 +534,22 @@ namespace Prism.IO
         internal static void LoadWorld(BinaryReader r, int[] sections)
         {
             //TODO: see SaveWorld
-            if (sections.Length <= PrismSectionsStart)
+            if (sections.Length <= PrismSectionsStart
+                    || sections.Length == 15 /* old length, used before world save code has been added, but when the injection was
+                        (let's hope it doesn't become '15' in a future version) */)
                 return; // vanilla file, don't load additional sections
 
             using (BinBuffer bb = new BinBuffer(r.BaseStream, dispose: false))
             {
-                const string ffeMsg = "Wrong amount of bytes read from the world file, a mod probably messed up.";
-
-                var i = PrismSectionsStart; // might be edited in later versions!
-
                 var v = LoadPrismData(bb);
-                if (bb.Position != sections[i++])
-                    throw new FileFormatException(ffeMsg);
 
                 LoadGlobalData(bb, v);
-                if (bb.Position != sections[i++])
-                    throw new FileFormatException(ffeMsg);
 
                 LoadTileTypes(bb, v); // NOTE: immediately returns (for now)
-                if (bb.Position != sections[i++])
-                    throw new FileFormatException(ffeMsg);
 
                 LoadChestItems(bb, v);
-                if (bb.Position != sections[i++])
-                    throw new FileFormatException(ffeMsg);
 
                 LoadNpcData(bb, v);
-                if (bb.Position != sections[i++])
-                    throw new FileFormatException(ffeMsg);
-
-                //LoadTileData(bb, v);
-                //if (bb.Position != sections[i++])
-                //    throw new FileFormatException(ffeMsg);
-
-                //LoadWallTypes(bb, v);
-                //if (bb.Position != sections[i++])
-                //    throw new FileFormatException(ffeMsg);
             }
         }
     }

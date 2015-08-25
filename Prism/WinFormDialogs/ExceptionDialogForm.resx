@@ -121,7 +121,7 @@
   <data name="panelMessageBoxIcon.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
-        EwAACxMBAJqcGAAAAAd0SU1FB98HHxYENiabENwAAAGDSURBVGhD7dYxbgIxFIRhTsARKKDiMLkDh6Hh
+        EgAACxIB0t1+/AAAAAd0SU1FB98HHxYENiabENwAAAGDSURBVGhD7dYxbgIxFIRhTsARKKDiMLkDh6Hh
         HDkCSpdzRKKkSsqU6RxeYefHGq/X3g1ZRa/4mol3mZGwyCqE8GtettsQ5X+biwzn4gNGkGEvFjZfl0vy
         tF4n+XNTyLCXD+ggwxYs/H483uGAj9MpmXOMDFv4APHOFjJs8a8GfJ7Pd0oDnjebJH9fKxm28AHinS1k
         WMPS/M6PHXA9HJKp90GGNT5gSQNYsmfA1Psgwxof8BcDWJrfe5YcwgHEMT33QYaKDxDljQ9QocIB+WWN
@@ -132,7 +132,7 @@
 </value>
   </data>
   <data name="richTextBox1.Text" xml:space="preserve">
-    <value>Please open a GitHub Issue (at https://github.com/TerrariaPrismTeam/Prism/issues) and include this information but only if nobody else has had the same issue.
+    <value>Please open a GitHub Issue (at https://github.com/TerrariaPrismTeam/Prism/issues) and include this information but only if nobody else has had the same issue, and if it is not an error caused by a mod.
 An easy way to include this info is by clicking the "Upload to Hastebin" button below.</value>
   </data>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">

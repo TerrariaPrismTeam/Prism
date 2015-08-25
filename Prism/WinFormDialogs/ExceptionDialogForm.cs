@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Drawing;
 using System.Linq;
-using System.Text;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace Prism.WinFormDialogs
@@ -16,8 +12,8 @@ namespace Prism.WinFormDialogs
         {
             InitializeComponent();
 
-            this.Text = title;
-            textboxDisplayLoaderErrors.Text = msg;   
+            Text = title;
+            textboxDisplayLoaderErrors.Text = msg;
         }
 
         void buttonHastebin_Click(object sender, EventArgs e)
