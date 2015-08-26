@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using Prism.API;
 using Prism.API.Defs;
 using Prism.Debugging;
 using Prism.Mods;
@@ -35,13 +34,6 @@ namespace Prism.IO
         const byte
             MIN_PLAYER_SUPPORT_VER = 1,
             MIN_WORLD_SUPPORT_VER  = 0;
-
-        const int
-            PrismSectionsStart    = 10, // first free slot is 7, as of 1.3.0.8
-                                        // leaving a few empty, so some updates can happen before we have to
-                                        // change the number and add compatibility code for it in LoadWorld
-                                        // vanilla slots amt is 10, so this can also be used to check whether the loaded world is a vanilla one
-            InjectedSectionsCount = 20; // if changing this, change the value in Prism.Injector/Patcher/WorldFilePatcher.cs
 
         /// <summary>
         /// Base key used for file saving/loading.
@@ -425,9 +417,17 @@ namespace Prism.IO
             bb.Write(false);
         }
 
-        internal static void SaveWorld(BinaryWriter w, int[] sections)
+        internal static void SaveWorld(bool toCloud)
         {
-            using (BinBuffer bb = new BinBuffer(w.BaseStream, dispose: false))
+            var path = Main.worldPathName + ".prism";
+
+            if (File.Exists(path))
+                File.Copy(path, Main.worldPathName + ".bak.prism", true);
+
+            Main.statusText = "Saving Prism data...";
+
+            using (FileStream fs = File.OpenWrite(path))
+            using (BinBuffer bb = new BinBuffer(fs, dispose: false))
             {
                 //TODO: item frame item IDs are still written as ints
                 //TODO: mannequins are probably broken
@@ -436,9 +436,9 @@ namespace Prism.IO
 
                 SavePrismData (bb);
                 SaveGlobalData(bb);
-                SaveTileTypes (bb); // NOTE: immediately returns (for now)
                 SaveChestItems(bb);
                 SaveNpcData   (bb);
+                SaveTileTypes (bb); // NOTE: immediately returns (for now)
               //SaveTileData  (bb);
               //SaveWallTypes (bb);
             }
@@ -531,25 +531,26 @@ namespace Prism.IO
             //}
         }
 
-        internal static void LoadWorld(BinaryReader r, int[] sections)
+        internal static void LoadWorld(bool fromCloud)
         {
-            //TODO: see SaveWorld
-            if (sections.Length <= PrismSectionsStart
-                    || sections.Length == 15 /* old length, used before world save code has been added, but when the injection was
-                        (let's hope it doesn't become '15' in a future version) */)
-                return; // vanilla file, don't load additional sections
+            var path = Main.worldPathName + ".prism";
 
-            using (BinBuffer bb = new BinBuffer(r.BaseStream, dispose: false))
+            if (!File.Exists(path))
+                return;
+
+            Main.statusText = "Loading Prism data...";
+
+            using (FileStream fs = File.OpenRead(path))
+            using (BinBuffer bb = new BinBuffer(fs, dispose: false))
             {
                 var v = LoadPrismData(bb);
 
                 LoadGlobalData(bb, v);
-
-                LoadTileTypes(bb, v); // NOTE: immediately returns (for now)
-
                 LoadChestItems(bb, v);
-
-                LoadNpcData(bb, v);
+                LoadNpcData   (bb, v);
+                LoadTileTypes (bb, v); // NOTE: immediately returns (for now)
+              //LoadTileData  (bb, v);
+              //LoadWallTypes (bb, v);
             }
         }
     }
