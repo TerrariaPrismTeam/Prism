@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
-
-#if !UNIX
-using System.Windows;
-
-using WpfMsgBox = System.Windows.MessageBox;
-#else
-using Gtk;
-#endif
+using System.Windows.Forms;
+using WfMsgBox = System.Windows.Forms.MessageBox;
 
 namespace Prism
 {
@@ -16,13 +12,47 @@ namespace Prism
     {
         public static void ShowError(string message)
         {
-#if UNIX
-            var d = new MessageDialog(null, DialogFlags.Modal, MessageType.Error, ButtonsType.Close, message);
-            d.Run();
-            d.Destroy();
-#else
-            WpfMsgBox.Show(message, "Prism: Error", MessageBoxButton.OK, MessageBoxImage.Error);
-#endif
+            switch (Environment.OSVersion.Platform)
+            {
+                case PlatformID.Win32NT:
+                case PlatformID.Win32S:
+                case PlatformID.Win32Windows:
+                case PlatformID.WinCE:
+
+                case PlatformID.MacOSX:
+                    try
+                    {
+                        WfMsgBox.Show(message, "Prism: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    catch
+                    {
+                        if (Environment.OSVersion.Platform == PlatformID.MacOSX)
+                            goto TRY_XMESSAGE;
+                    }
+                    break;
+                case PlatformID.Unix:
+                TRY_XMESSAGE:
+                    bool tryConsole = false;
+
+                    try
+                    {
+                        if (Process.Start("xmessage \"" + message.Replace('"', '\'') + "\"") == null)
+                            tryConsole = true;
+                    }
+                    catch
+                    {
+                        tryConsole = true;
+                    }
+
+                    if (tryConsole)
+                        try
+                        {
+                            Console.WriteLine(message);
+                        }
+                        catch (IOException) { }
+
+                    break;
+            }
         }
     }
 }
