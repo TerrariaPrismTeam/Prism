@@ -30,6 +30,19 @@ namespace Prism.Injector.Patcher
                 Platform = Platform.Linux;
             if (memRes.GetType("Terraria.MacLaunch") != null)
                 Platform = Platform.OSX;
+
+            switch (Environment.OSVersion.Platform)
+            {
+                case PlatformID.MacOSX:
+                    Platform = Platform.OSX;
+                    break;
+                case PlatformID.Unix:
+                    Platform = Platform.Linux;
+                    break;
+                default:
+                    Platform = Platform.Windows;
+                    break;
+            }
         }
 
         static void PublicifyRec(TypeDefinition td)

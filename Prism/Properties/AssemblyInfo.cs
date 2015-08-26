@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using System.Reflection;
+﻿using System.Reflection;
 using Prism;
 
 #if !OSX

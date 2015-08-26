@@ -77,11 +77,12 @@ namespace Prism.Injector.Patcher
                 var lpb = loadPlayer.Body;
                 var lpproc = lpb.GetILProcessor();
 
+                var ldPlayerLoc = TerrariaPatcher.Platform == Platform.Windows ? OpCodes.Ldloc_1 : OpCodes.Ldloc_2;
                 // player.skinVariant = (int)MathHelper.Clamp((float)player.skinVariant, 0f, 7f);
                 OpCode[] toFind =
                 {
-                    OpCodes.Ldloc_1, // player (for the stfld instruction at the end)
-                    OpCodes.Ldloc_1,
+                    ldPlayerLoc, // player (for the stfld instruction at the end)
+                    ldPlayerLoc,
                     OpCodes.Ldfld,   // player.skinVariant
                     OpCodes.Conv_R4, // (float)^
                     OpCodes.Ldc_R4,

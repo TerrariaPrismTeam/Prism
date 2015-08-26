@@ -1,11 +1,15 @@
-﻿using System;
+﻿
+#if !UNIX
+#define WINDOWS
+#endif
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Windows.Forms;
 using LitJson;
 using Prism.API;
 using Prism.Debugging;
@@ -43,7 +47,7 @@ namespace Prism.Mods
             }
         }
 
-        [Conditional("DEV_BUILD")] // using this instead of an #if will ensure the usings are there, even when using a different configuration
+        [Conditional("DEV_BUILD"), Conditional("WINDOWS")] // using this instead of an #if will ensure the usings are there, even when using a different configuration
         internal static void Debug_ShowAllErrors()
         {
             if (errors.Count > 0)
@@ -309,7 +313,7 @@ namespace Prism.Mods
 
                             // Temporary until we have a proper way to see loader errors
                             if (ExceptionHandler.DetailedExceptions)
-                                MessageBox.Show("An exception has occured:\n" + e, e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                MessageBox.ShowError("An exception has occured:\n" + e);
                         }
                     }
                 }

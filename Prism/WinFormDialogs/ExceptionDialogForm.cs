@@ -20,17 +20,13 @@ namespace Prism.WinFormDialogs
         {
             string url = Util.HastebinHelper.QuickUpload(textboxDisplayLoaderErrors.Text);
             if (url != null)
-            {
                 using (var dlg = new HastebinResultDialogForm(url))
                 {
                     Clipboard.SetText(url);
                     dlg.ShowDialog();
                 }
-            }
             else
-            {
-                MessageBox.Show("Unable to match Hastebin request regex. They may have changed the way uploading to the site works...", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+                MessageBox.ShowError("Unable to match Hastebin request regex. They may have changed the way uploading to the site works...");
         }
 
         void richTextBox1_LinkClicked(object sender, LinkClickedEventArgs e)

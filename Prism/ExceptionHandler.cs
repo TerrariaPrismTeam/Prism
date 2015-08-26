@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Windows.Forms;
 using Prism.Debugging;
 
 namespace Prism
@@ -38,7 +37,7 @@ namespace Prism
             Logging.LogError(e);
 
             if (DetailedExceptions)
-                MessageBox.Show("An exception has occured:\n" + e, e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.ShowError("An exception has occured:\n" + e);
         }
         public static int  HandleFatal(Exception e, bool exitImmediately = true)
         {
@@ -47,7 +46,7 @@ namespace Prism
 
             Logging.LogFatal(e);
 
-            MessageBox.Show("A fatal error occured:\n" + e, e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.ShowError("A fatal error occured:\n" + e);
 
             var hr = GetHResult(e);
 
