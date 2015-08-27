@@ -190,14 +190,10 @@ namespace Prism
 
             ModLoader.Load();
 
-#if DEV_BUILD
-            ModLoader.Debug_ShowAllErrors();
-#endif
-
             ApplyHotfixes();
 
             versionNumber += ", mods loaded: " + ModData.Mods.Count +
-                (ModLoader.errors.Count > 0 ? ", load errors: " + ModLoader.errors.Count : String.Empty);
+                (ModLoader.errors.Count > 0 ? ", mods failed to load: " + ModLoader.errors.Count : String.Empty);
         }
         protected override void LoadContent()
         {

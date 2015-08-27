@@ -19,7 +19,6 @@ namespace Prism.Mods
         {
             get;
         }
-
         /// <summary>
         /// Gets the path to the referenced file.
         /// </summary>
@@ -29,21 +28,23 @@ namespace Prism.Mods
         }
 
         /// <summary>
-        /// Loads and returns the <see cref="System.Reflection.Assembly"/> associated with this <see cref="ModReference"/>.
+        /// Loads and returns the <see cref="Assembly" /> associated with this <see cref="ModReference" />.
         /// </summary>
-        /// <returns>The <see cref="System.Reflection.Assembly"/></returns>
+        /// <returns>The <see cref="Assembly" /></returns>
         Assembly LoadAssembly();
     }
 
     /// <summary>
-    /// A reference to any <see cref="System.Reflection.Assembly"/>.
+    /// A reference to any <see cref="Assembly" />.
     /// </summary>
     public struct AssemblyReference : IReference
     {
-        string path;
+        readonly static string REFS = "References";
+
+        string path, modPath;
 
         /// <summary>
-        /// Gets the name of the <see cref="System.Reflection.Assembly"/>.
+        /// Gets the name of the <see cref="Assembly" />.
         /// </summary>
         public string Name
         {
@@ -53,7 +54,7 @@ namespace Prism.Mods
             }
         }
         /// <summary>
-        /// Gets the path to the <see cref="System.Reflection.Assembly"/> file.
+        /// Gets the path to the <see cref="Assembly" /> file.
         /// </summary>
         public string Path
         {
@@ -64,21 +65,34 @@ namespace Prism.Mods
         }
 
         /// <summary>
-        /// Constructs a new <see cref="System.Reflection.Assembly"/> Reference.
+        /// Constructs a new <see cref="Assembly" /> Reference.
         /// </summary>
-        /// <param name="path">The path to the assembly to referencce.</param>
-        public AssemblyReference(string path)
+        /// <param name="path">The path to the assembly to reference.</param>
+        public AssemblyReference(string path, string modPath)
         {
-            this.path = path;
+            this.path    = path   ;
+            this.modPath = modPath;
         }
 
         /// <summary>
-        /// Loads and returns the <see cref="System.Reflection.Assembly"/> associated with this <see cref="AssemblyReference"/>.
+        /// Loads and returns the <see cref="Assembly" /> associated with this <see cref="AssemblyReference" />.
         /// </summary>
-        /// <returns>The <see cref="System.Reflection.Assembly"/></returns>
+        /// <returns>The <see cref="Assembly" /></returns>
         public Assembly LoadAssembly()
         {
-            return Assembly.LoadFrom(Path);
+            var paths = new[] { modPath, IOPath.Combine(modPath, REFS) };
+
+            AssemblyResolver.searchPaths.AddRange(paths);
+
+            try
+            {
+                return AssemblyResolver.LoadModAssembly(path);
+            }
+            finally // more 'finally' abuse, values will be removed from the search path
+                    // after the method returns, and no temporary variable is needed.
+            {
+                AssemblyResolver.searchPaths.RemoveAll(e => Array.IndexOf(paths, e) != -1);
+            }
         }
     }
 
@@ -120,13 +134,13 @@ namespace Prism.Mods
         }
 
         /// <summary>
-        /// Loads the mod's <see cref="System.Reflection.Assembly"/> if it hasn't been loaded yet. Otherwise it just finds the already-loaded mod and returns it.
+        /// Loads the mod's <see cref="Assembly" /> if it hasn't been loaded yet. Otherwise it just finds the already-loaded mod and returns it.
         /// </summary>
-        /// <returns>The mod's <see cref="System.Reflection.Assembly"/>.</returns>
+        /// <returns>The mod's <see cref="Assembly" />.</returns>
         public Assembly LoadAssembly()
         {
             // load if the mod hasn't been loaded already
-            string iName = Name;
+            string iName = name; // it's a struct, a copy of 'name' is needed
             if (!ModData.mods.Keys.Any(mi => mi.InternalName == iName))
                 ModLoader.LoadMod(Path);
 

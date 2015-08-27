@@ -14,12 +14,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.IO;
 
 
 namespace LitJson
 {
-    public class JsonData : IJsonWrapper, IEquatable<JsonData>
+    public class JsonData : IJsonWrapper, IEquatable<JsonData>, IConvertible
     {
         #region Fields
         IList<JsonData> inst_array;
@@ -756,8 +757,8 @@ namespace LitJson
             if (type == JsonType.Object)
                 return (ICollection)inst_object;
 
-            throw new InvalidOperationException(
-                "The JsonData instance has to be initialized first");
+            throw new InvalidOperationException("This JsonData is not a collection -or- is not initialised.");
+                //"The JsonData instance has to be initialized first");
         }
 
         IDictionary EnsureDictionary()
@@ -1050,6 +1051,95 @@ namespace LitJson
 
             return "Uninitialized JsonData";
         }
+
+        #region IConvertible Methods
+        TypeCode IConvertible.GetTypeCode()
+        {
+            return TypeCode.Object;
+        }
+
+        bool IConvertible.ToBoolean(IFormatProvider provider)
+        {
+            return (bool)this;
+        }
+
+        char IConvertible.ToChar(IFormatProvider provider)
+        {
+            return ((string)this)[0];
+        }
+
+        sbyte IConvertible.ToSByte(IFormatProvider provider)
+        {
+            return (sbyte)(int)this;
+        }
+
+        byte IConvertible.ToByte(IFormatProvider provider)
+        {
+            return (byte)(int)this;
+        }
+
+        short IConvertible.ToInt16(IFormatProvider provider)
+        {
+            return (short)(int)this;
+        }
+
+        ushort IConvertible.ToUInt16(IFormatProvider provider)
+        {
+            return (ushort)(int)this;
+        }
+
+        int IConvertible.ToInt32(IFormatProvider provider)
+        {
+            return (int)this;
+        }
+
+        uint IConvertible.ToUInt32(IFormatProvider provider)
+        {
+            return unchecked((uint)(ulong)this);
+        }
+
+        long IConvertible.ToInt64(IFormatProvider provider)
+        {
+            return (int)this;
+        }
+
+        ulong IConvertible.ToUInt64(IFormatProvider provider)
+        {
+            return (ulong)this;
+        }
+
+        float IConvertible.ToSingle(IFormatProvider provider)
+        {
+            return (float)this;
+        }
+
+        double IConvertible.ToDouble(IFormatProvider provider)
+        {
+            return (float)this;
+        }
+
+        decimal IConvertible.ToDecimal(IFormatProvider provider)
+        {
+            return (decimal)(float)this;
+        }
+
+        readonly static string DATETIME_FORMAT = "s";
+        DateTime IConvertible.ToDateTime(IFormatProvider provider)
+        {
+            // ISO 8601
+            return DateTime.ParseExact((string)this, DATETIME_FORMAT, CultureInfo.InvariantCulture);
+        }
+
+        string IConvertible.ToString(IFormatProvider provider)
+        {
+            return (string)this;
+        }
+
+        object IConvertible.ToType(Type conversionType, IFormatProvider provider)
+        {
+            throw new NotImplementedException(); // meh
+        }
+        #endregion
     }
 
 

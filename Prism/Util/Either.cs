@@ -147,7 +147,7 @@ namespace Prism.Util
         }
         public override string ToString()
         {
-            return (Kind == EitherKind.Right ? "Right " : "Left ") + v.SafeToString("<null>");
+            return (Kind == (EitherKind.Right | EitherKind.Left) ? String.Empty : (Kind == EitherKind.Right ? "Right " : "Left ")) + v.SafeToString("<null>");
         }
 
         public static bool operator ==(Either<T1, T2> a, Either<T1, T2> b)

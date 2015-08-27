@@ -43,18 +43,18 @@ namespace Prism.Mods
             var refs = new List<IReference>();
 
             if (j.Has("dllReferences"))
-                foreach (string s in j["dllReferences"])
-                    refs.Add(new AssemblyReference(s));
+                foreach (object s in j["dllReferences"])
+                    refs.Add(new AssemblyReference(s.ToString(), path));
             if (j.Has("modReferences"))
-                foreach (string s in j["modReferences"])
-                    refs.Add(new ModReference(s));
+                foreach (object s in j["modReferences"])
+                    refs.Add(new ModReference(s.ToString()));
 
             string internalName = j.GetOrExn<string>("internalName");
 
             return new ModInfo(
                 path,
                 internalName,
-                j.GetOrDef<string>("displayName", internalName),
+                j.GetOrDef("displayName", internalName),
                 j.GetOrDef("author", "<unspecified>"),
                 j.GetOrDef("version", "0.0.0.0"),
                 j.GetOrDef<string>("description"),

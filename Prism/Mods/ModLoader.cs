@@ -47,8 +47,8 @@ namespace Prism.Mods
             }
         }
 
-        [Conditional("DEV_BUILD"), Conditional("WINDOWS")] // using this instead of an #if will ensure the usings are there, even when using a different configuration
-        internal static void Debug_ShowAllErrors()
+        [Conditional("WINDOWS")] // can only display on windows, because WinForms is borked on other platforms for some mysterious reason
+        internal static void ShowAllErrors()
         {
             if (errors.Count > 0)
             {
@@ -190,17 +190,18 @@ namespace Prism.Mods
             string evilMod;
             if (CheckForCircularReferences(info, out evilMod))
             {
-                errors.Add(new LoaderError(info, "This mod is part of a cyclic reference chain", evilMod));
+                errors.Add(new LoaderError(info, "This mod is part of a cyclic reference chain, bad reference " /* ':' is added automatically */ , evilMod));
                 return null;
             }
 
             for (int i = 0; i < info.References.Length; i++)
-            {
                 if (info.References[i] is ModReference)
-                    LoadMod(info.References[i].Path);
-                else
-                    info.References[i].LoadAssembly();
-            }
+                {
+                    if (LoadMod(info.References[i].Path) == null)
+                        errors.Add(new LoaderError(info, "Could not load mod reference " + info.References[i].Name + "."));
+                }
+                else if (info.References[i].LoadAssembly() == null)
+                    errors.Add(new LoaderError(info, "Could not load assembly reference " + info.References[i].Name + "."));
 
             Assembly asm = null;
             try
@@ -219,32 +220,30 @@ namespace Prism.Mods
                     loadAssembly = false;
                 }
 
-                if (refn.Version.ToString() == AssemblyInfo.DEV_BUILD_VERSION)
+                var refVer = refn.Version;
+                var curVer = curn.Version;
+
+                if (refVer.ToString() == AssemblyInfo.DEV_BUILD_VERSION && PrismApi.VersionType != VersionType.DevBuild)
                 {
-#if !DEV_BUILD
-                    errors.Add(new LoaderError(info, "Mod was built with an unstable developer build of Prism for testing purposes and can only be loaded by builds in the master branch of the Prism repository.")); //Make it sound complicated lmao
+                    errors.Add(new LoaderError(info, "Mod was built with an unstable developer build of Prism for testing purposes and can only be loaded by builds in the master branch of the Prism repository.")); // Make it sound complicated lmao
                     loadAssembly = false;
-#endif
                 }
 
-                if (refn.Version < curn.Version)
-                {
-#if DEV_BUILD
-                    errors.Add(new LoaderError(info, "Mod was built with a release build of Prism and may not work correctly with the latest developer build."));
-#else
-                    bool minorDiff = refn.Version.Major == curn.Version.Major &&
-                                     refn.Version.Minor == curn.Version.Minor;
-
-                    if (minorDiff)
-                        errors.Add(new LoaderError(info, "Warning: mod was built with a previous build of Prism, it might not work completely."));
+                if (refVer < curVer)
+                    if (PrismApi.VersionType == VersionType.DevBuild)
+                        errors.Add(new LoaderError(info, "Mod was built with a release build of Prism and may not work correctly with the latest developer build."));
                     else
-                        errors.Add(new LoaderError(info, "Mod was built with a previous version of Prism and will probably not work correctly."));
-#endif
-                }
+                    {
+                        bool minorDiff = refVer.Major == curVer.Major && refVer.Minor == curVer.Minor;
 
-                if (refn.Version > curn.Version)
+                        if (minorDiff) errors.Add(new LoaderError(info, "Warning: mod was built with a previous build of Prism, it might not work completely."));
+                        else           errors.Add(new LoaderError(info, "Mod was built with a previous version of Prism and will probably not work correctly."));
+                    }
+
+
+                if (refVer > curVer)
                 {
-                    errors.Add(new LoaderError(info, "Mod was built with a newer version of Prism than the installed version. Update to the latest version of Prism (>=" + refn.Version + ") in order to load this mod."));
+                    errors.Add(new LoaderError(info, "Mod was built with a newer version of Prism than the installed version. Update to the latest version of Prism (>=" + refVer + ") in order to load this mod."));
                     loadAssembly = false;
                 }
 
@@ -318,7 +317,7 @@ namespace Prism.Mods
                     }
                 }
                 else
-                    errors.Add(new LoaderError(s, String.Format("New entry was not added to ModData.mods while loading mod from path '{0}': Something went wrong in ModLoader.LoadMod()", s), ModData.mods));
+                    errors.Add(new LoaderError(s, String.Format("New entry was not added to ModData.mods while loading mod from path '{0}', see previous errors. Mods loaded" /* once again, : added automatically */, s), ModData.mods));
             }
 
             HookManager.Create();
@@ -337,7 +336,11 @@ namespace Prism.Mods
                 Logging.LogWarning(errors[i].ToString());
 
             if (errors.Count > 0)
+            {
                 Trace.WriteLine("Some problems occured when loading mods. See the prism.log file for details.");
+
+                ModLoader.ShowAllErrors();
+            }
 
             return errors;
         }

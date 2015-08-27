@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
+using LitJson;
+using Terraria;
 
 namespace Prism.Mods
 {
@@ -80,6 +84,68 @@ namespace Prism.Mods
 
         }
 
+        static string Join(IEnumerable coll, string jw)
+        {
+            var b = new StringBuilder();
+
+            bool notOnce = true;
+
+            foreach (object o in coll)
+            {
+                if (notOnce)
+                    b.Append(jw);
+
+                b.Append(PrettyPrintObject(o));
+            }
+
+            return b.ToString();
+        }
+        static string PrettyPrintObject(object o)
+        {
+            var t = o.GetType();
+
+            if (t.IsPrimitive || o is string || o is Exception)
+                return o.ToString();
+            if (o is JsonData)
+                return JsonMapper.ToJson((JsonData)o);
+            if (o is IEnumerable)
+                return "[" + Join((IEnumerable)o, ", ") + "]";
+            if (t == typeof(Ref<>))
+                return PrettyPrintObject(((dynamic)o).Value);
+            if (t == typeof(Tuple<>))
+            {
+                var tu = (dynamic)o;
+
+                return "(" + tu.Item1 + ", " + tu.Item2 + ")";
+            }
+            if (t == typeof(Tuple<,>))
+            {
+                var tu = (dynamic)o;
+
+                return "(" + tu.Item1 + ", " + tu.Item2 + ", " + tu.Item3 + ")";
+            }
+            if (t == typeof(Nullable<>))
+            {
+                var n = (dynamic)o;
+
+                return n.HasValue ? "Just " + PrettyPrintObject(n.Value) : "Nothing";
+            }
+            if (t == typeof(Lazy<>))
+            {
+                var l = (dynamic)o;
+
+                return PrettyPrintObject(l.Value);
+            }
+            if (t == typeof(KeyValuePair<,>))
+            {
+                var p = (dynamic)o;
+
+                return "(" + p.Key + " => " + p.Value + ")";
+            }
+
+            return o.ToString();
+        }
+
         /// <summary>
         /// Gets the string representation of this error including its <see cref="ModPath"/>, <see cref="ModInfo"/>, <see cref="Message"/>, and <see cref="Data"/>.
         /// </summary>
@@ -87,9 +153,9 @@ namespace Prism.Mods
         public override string ToString()
         {
             return "An error occured when trying to load mod '"
-                + (Mod.HasValue ? Mod.Value.InternalName : Path.GetFileName(ModPath))
-                + (Message == null ? String.Empty : "': " + Message)
-                + (Data == null ? String.Empty : ": {" + Data + "}") + ".";
+                + (Mod.HasValue ? Mod.Value.InternalName : Path.GetFileName(ModPath)) + "'"
+                + (Message == null ? String.Empty : ": " + Message)
+                + (Data    == null ? String.Empty : ": " + PrettyPrintObject(Data)) + ".";
         }
     }
 }
