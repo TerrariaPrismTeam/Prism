@@ -73,7 +73,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Ionic.Zip.CF, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c">
+    <Reference Include="Ionic.Zip.CF, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\Ionic.Zip.CF.dll</HintPath>
     </Reference>

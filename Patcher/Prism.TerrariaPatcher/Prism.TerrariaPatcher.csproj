@@ -65,6 +65,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Ionic.Zip.CF, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\References\Ionic.Zip.CF.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
@@ -72,7 +76,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\References\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Steamworks.NET">
+    <Reference Include="Steamworks.NET, Version=7.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\References\Steamworks.NET.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -103,22 +108,29 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent Condition="'$(OS)' == 'Windows_NT'">
+      rem first, merge the patcher, injector and mono.cecil assemblies into one, useful for distribution
+      "$(ProjectDir)..\ILRepack\ILRepack.exe" /union /target:exe "/out:$(ProjectDir)..\..\Bin\$(Configuration)\Prism.TerrariaPatcher-merged.exe" "$(TargetPath)" "$(TargetDir)Prism.Injector.dll" "$(TargetDir)Mono.Cecil.dll"
+
       rem this patches the Terraria assembly
       rem in order to build, one must provide their own .exe.
       rem this will create a patched terraria assembly, which is referenced by Prism.csproj.
       rem a shell script is used in unix environments.
       rem executing it here will make sure the assembly exists before the assembly resolution is started when building Prism.csproj.
 
-      "$(TargetPath)" "$(ProjectDir)..\..\References\Terraria.exe" "$(ProjectDir)..\..\References\Prism.Terraria.dll"
+      "$(TargetPath)" msbuild "$(ProjectDir)..\..\References\Terraria.exe" "$(ProjectDir)..\..\References\Prism.Terraria.dll"
     </PostBuildEvent>
     <PostBuildEvent Condition="'$(OS)' != 'Windows_NT'">
+      # first, merge the patcher, injector and mono.cecil assemblies into one, useful for distribution
+      # fyi, sometimes, xbuild variables can get borked in the postbuild
+      mono "$(ProjectDir)..\ILRepack\ILRepack.exe" /union /kind:exe "/out:$(ProjectDir)../../Bin/$(Configuration)/Prism.TerrariaPatcher-merged.exe" "$(ProjectDir)bin/$(Configuration)/Prism.TerrariaPatcher.exe" "$(ProjectDir)bin/$(Configuration)/Prism.Injector.dll" "$(ProjectDir)bin/$(Configuration)/Mono.Cecil.dll"
+
       # this patches the Terraria assembly
       # in order to build, one must provide their own .exe.
       # this will create a patched terraria assembly, which is referenced by Prism.csproj.
       # a batch script is used in windows environments.
       # executing it here will make sure the assembly exists before the assembly resolution is started when building Prism.csproj.
 
-      mono "$(ProjectDir)/bin/$(Configuration)/Prism.TerrariaPatcher.exe" "$(ProjectDir)../../References/Terraria.exe" "$(ProjectDir)../../References/Prism.Terraria.dll"
+      mono "$(ProjectDir)bin/$(Configuration)/Prism.TerrariaPatcher.exe" msbuild "$(ProjectDir)../../References/Terraria.exe" "$(ProjectDir)../../References/Prism.Terraria.dll"
     </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
