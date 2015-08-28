@@ -193,7 +193,7 @@ namespace Prism
             ApplyHotfixes();
 
             versionNumber += ", mods loaded: " + ModData.Mods.Count +
-                (ModLoader.errors.Count > 0 ? ", mods failed to load: " + ModLoader.errors.Count : String.Empty);
+                (ModLoader.errors.Count > 0 ? ", mods loading errors: " + ModLoader.errors.Count : String.Empty);
         }
         protected override void LoadContent()
         {
