@@ -65,8 +65,21 @@ namespace Prism.TerrariaPatcher
                     {
                         var t = Path.Combine(Environment.CurrentDirectory, Path.GetFileName(s));
 
-                        if (File.Exists(s) && !File.Exists(t) /* don't do a useless copy (and worse, remove it afterwards, even when it could be needed later) */)
+                        if (!File.Exists(t) /* don't do a useless copy (and worse, remove it afterwards, even when it could be needed later) */)
                         {
+                            // unpack when file file does not exist
+                            if (!File.Exists(s))
+                            {
+                                var dll = Assembly.GetExecutingAssembly().GetManifestResourceStream("Prism.TerrariaPatcher.RefDlls." + Path.GetFileName(s));
+
+                                if (dll != null)
+                                    using (var fstr = File.OpenWrite(s))
+                                    {
+                                        dll.CopyTo(fstr);
+                                        fstr.Flush(true);
+                                    }
+                            }
+
                             File.Copy(s, t);
                             toRem.Add(t);
                         }

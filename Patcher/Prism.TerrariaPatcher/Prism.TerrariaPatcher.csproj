@@ -100,9 +100,27 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="..\..\References\FNA.dll.config">
+      <Link>RefDlls\FNA.dll.config</Link>
+    </EmbeddedResource>
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="..\..\References\FNA.dll">
+      <Link>RefDlls\FNA.dll</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\References\Ionic.Zip.CF.dll">
+      <Link>RefDlls\Ionic.Zip.CF.dll</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\References\Newtonsoft.Json.dll">
+      <Link>RefDlls\Newtonsoft.Json.dll</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\References\Steamworks.NET.dll">
+      <Link>RefDlls\Steamworks.NET.dll</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\References\WindowsBase.dll">
+      <Link>RefDlls\WindowsBase.dll</Link>
+    </EmbeddedResource>
     <Content Include="..\..\res\Icons\PrismIcon_Misc.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
