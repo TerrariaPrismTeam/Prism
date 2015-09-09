@@ -1,3 +1,5 @@
+[![Join the chat at https://gitter.im/TerrariaPrismTeam](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/TerrariaPrismTeam?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 # Prism
 Modding API for Terraria 1.3.0.* (Yet Another Mod To Make Mods!)
 
