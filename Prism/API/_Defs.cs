@@ -122,6 +122,29 @@ namespace Prism.API
                 Defs = new DefIndexer<TileDef>(helper.GetEnumerable(), helper.ByObjRef, helper.ById);
             }
         }
+        public partial class WallDef
+        {
+            static readonly DIHelper<WallDef> helper = new DIHelper<WallDef>(WallID.Count, "Wall", md => md.WallDefs, Handler.WallDef.VanillaDefsByName, Handler.WallDef.DefsByType);
+
+            public static DefIndexer<WallDef> Defs
+            {
+                get;
+                private set;
+            }
+
+            static WallDef()
+            {
+                var vanillaDefs = Handler.WallDef.VanillaDefsByName.Select(kvp => new KeyValuePair<ObjectRef, WallDef>(new ObjectRef(kvp.Key), kvp.Value));
+                var modDefs = ModData.Mods.Select(kvp => GetModDefs(kvp)).Flatten();
+
+                Defs = new DefIndexer<WallDef>(vanillaDefs.Concat(modDefs), helper.ByObjRef, helper.ById);
+            }
+
+            static IEnumerable<KeyValuePair<ObjectRef, WallDef>> GetModDefs(KeyValuePair<ModInfo, ModDef> kvp)
+            {
+                return kvp.Value.WallDefs.SafeSelect(kvp_ => new KeyValuePair<ObjectRef, WallDef>(new ObjectRef(kvp_.Key, kvp.Key), kvp_.Value));
+            }
+        }
     }
     namespace Audio
     {

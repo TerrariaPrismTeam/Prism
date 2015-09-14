@@ -137,6 +137,10 @@ namespace Prism.Util
         {
             return j.ParseAsIntOrObjectRef().Bind(i => new TileRef(i), or => new TileRef(or)).Right;
         }
+        public static WallRef ParseWallRef(this JsonData j)
+        {
+            return j.ParseAsIntOrObjectRef().Bind(i => new WallRef(i), or => new WallRef(or)).Right;
+        }
 
         public static BgmRef ParseBgmRef(this JsonData j)
         {

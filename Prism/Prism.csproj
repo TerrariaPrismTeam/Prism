@@ -133,6 +133,9 @@
     <Compile Include="API\Defs\MountDefStructs.cs" />
     <Compile Include="API\Defs\MountID.cs" />
     <Compile Include="API\Defs\MountRef.cs" />
+    <Compile Include="API\Defs\WallDef.cs" />
+    <Compile Include="API\Defs\WallDefStructs.cs" />
+    <Compile Include="API\Defs\WallRef.cs" />
     <Compile Include="API\Extensions.cs" />
     <Compile Include="API\ObjectDef.cs" />
     <Compile Include="API\_Defs.cs" />
@@ -170,6 +173,7 @@
     <Compile Include="Mods\BHandlers\MountBHandler.cs" />
     <Compile Include="Mods\BHandlers\PlayerBHandler.cs" />
     <Compile Include="Mods\BHandlers\TileBHandler.cs" />
+    <Compile Include="Mods\DefHandlers\WallDefHandler.cs" />
     <Compile Include="Mods\Hooks\MountHooks.cs" />
     <Compile Include="IO\SaveDataHandler.cs" />
     <Compile Include="Mods\ContentLoader.cs" />

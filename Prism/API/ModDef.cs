@@ -121,6 +121,15 @@ namespace Prism.API
             get;
             internal set;
         }
+        /// <summary>
+        /// Gets the mod's wall definitions.
+        /// </summary>
+        /// <remarks>The key of the dictionary is the wall's internal name (without mod internal name).</remarks>
+        public Dictionary<string, WallDef> WallDefs
+        {
+            get;
+            internal set;
+        }
 
         /// <summary>
         /// Gets the mod's recipe definitions.

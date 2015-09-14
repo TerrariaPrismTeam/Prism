@@ -198,6 +198,17 @@ namespace Prism.API
         {
             return Empty<string, TileDef>.Dictionary;
         }
+        /// <summary>
+        /// Gets all wall definitions created by the mod.
+        /// </summary>
+        /// <returns>
+        /// A dictionary containing all wall definitions.
+        /// The key of each key/value pair is the internal name of the wall.
+        /// </returns>
+        protected virtual Dictionary<string, WallDef> GetWallDefs()
+        {
+            return Empty<string, WallDef>.Dictionary;
+        }
 
         /// <summary>
         /// Gets all recipe definitions created by the mod.
@@ -278,6 +289,10 @@ namespace Prism.API
         internal Dictionary<string, TileDef> GetTileDefsInternally()
         {
             return GetTileDefs();
+        }
+        internal Dictionary<string, WallDef> GetWallDefsInternally()
+        {
+            return GetWallDefs();
         }
 
         internal IEnumerable<RecipeDef> GetRecipeDefsInternally()

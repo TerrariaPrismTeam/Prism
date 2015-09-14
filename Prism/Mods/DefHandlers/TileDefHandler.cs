@@ -11,7 +11,7 @@ namespace Prism.Mods.DefHandlers
 {
     //TODO: we might have to retink this, because tiles aren't quite like the other defs (except for RecipeDef, which is even more different and can be redone, too)
     //TODO: fill arrays in Terraria.Map.MapHelper
-    sealed class TileDefHandler : EntityDefHandler<TileDef, TileBehaviour, Tile>
+    sealed class TileDefHandler : GEntityDefHandler<TileDef, TileBehaviour, Tile>
     {
         /*
             Search done for any arrays created with tile count. There should be a lot more. Also the sets...:

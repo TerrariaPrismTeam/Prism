@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Prism.API.Behaviours;
 using Prism.Mods;
 using Prism.Mods.DefHandlers;
+using Prism.Util;
 using Terraria;
 
 namespace Prism.API.Defs
@@ -245,7 +246,7 @@ namespace Prism.API.Defs
         public TileDef(string displayName, Func<TileBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null)
             : base(displayName, newBehaviour)
         {
-            GetTexture = getTexture ?? (() => null);
+            GetTexture = getTexture ?? Empty<Texture2D>.Func;
         }
         public TileDef(string displayName, JsonData json, Func<TileBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null)
             : base(displayName, newBehaviour)

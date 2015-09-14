@@ -6,7 +6,7 @@ using Prism.Util;
 
 namespace Prism.API
 {
-    public abstract class ObjectDef<TBehaviour>
+    public abstract class ObjectDef
     {
         /// <summary>
         /// Gets the internal name used to reference this object from within any Prism mod.
@@ -48,6 +48,21 @@ namespace Prism.API
             set;
         }
 
+        protected ObjectDef(string displayName)
+        {
+            InternalName = String.Empty;
+
+            DisplayName = displayName;
+        }
+
+        public override string ToString()
+        {
+            return "{" + (String.IsNullOrEmpty(InternalName) ? DisplayName : InternalName) + ", Mod=" + Mod + "}";
+        }
+
+    }
+    public abstract class ObjectDef<TBehaviour> : ObjectDef
+    {
         /// <summary>
         /// Gets or sets the parameterless constructor that instantiates the matching EntityBehaviour class of the EntityRef.
         /// </summary>
@@ -58,16 +73,9 @@ namespace Prism.API
         }
 
         protected ObjectDef(string displayName, Func<TBehaviour> newBehaviour = null)
+            : base(displayName)
         {
-            InternalName = String.Empty;
-
-            DisplayName = displayName;
             CreateBehaviour = newBehaviour ?? Empty<TBehaviour>.Func;
-        }
-
-        public override string ToString()
-        {
-            return "{" + (String.IsNullOrEmpty(InternalName) ? DisplayName : InternalName) + ", Mod=" + Mod + "}";
         }
 
         public static implicit operator ObjectRef(ObjectDef<TBehaviour> d)
