@@ -137,6 +137,7 @@ namespace Prism.Injector.Patcher
             PlayerPatcher    .Patch();
             MountPatcher     .Patch();
             MainPatcher      .Patch();
+            TilePatcher      .Patch();
             WorldFilePatcher .Patch();
             // do other stuff here
 

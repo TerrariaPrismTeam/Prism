@@ -287,7 +287,7 @@ namespace Prism.Injector.Patcher
         }
         static void InitBuffBHandlerArray()
         {
-            var ctor = typeDef_NPC.GetMethod(".ctor");
+            var ctor = typeDef_NPC.GetConstructor();
             var buffBHandler = typeDef_NPC.GetField("P_BuffBHandler");
 
             var cproc = ctor.Body.GetILProcessor();

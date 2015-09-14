@@ -4,7 +4,8 @@
     <OS Condition="'$(OS)' == ''">Windows_NT</OS>
   </PropertyGroup>
   <PropertyGroup>
-    <IsOSX>false</IsOSX>
-    <IsOSX Condition="'$(OS)' == 'Unix' And Exists('/Library/Frameworks')">true</IsOSX>
+    <!-- check whether the Unix version is OSX, but don't edit OS (not compatible with usual XBuild behaviour) -->
+    <IsOSX Condition="'$(IsOSX)' == '' And '$(OS)' == 'Unix' And Exists('/Library/Frameworks')">true</IsOSX>
+    <IsOSX Condition="'$(IsOSX)' == ''">false</IsOSX>
   </PropertyGroup>
 </Project>

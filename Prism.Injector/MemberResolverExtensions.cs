@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 
 namespace Prism.Injector
 {
@@ -20,6 +21,8 @@ namespace Prism.Injector
 
     public static class MemberResolverExtensions
     {
+        readonly static string CTOR = ".ctor", CCTOR = ".cctor";
+
         [DebuggerStepThrough]
         public static FieldDefinition GetField(this TypeDefinition type, string name)
         {
@@ -85,6 +88,37 @@ namespace Prism.Injector
         public static MethodDefinition GetMethod(this TypeDefinition type, CecilContext context, string name, MethodFlags flags = MethodFlags.All, params Type         [] arguments)
         {
             return GetMethods(type, context, name, flags, arguments).FirstOrDefault();
+        }
+
+        [DebuggerStepThrough]
+        public static MethodDefinition GetConstructor(this TypeDefinition type                      , bool isNonPublic = false, params TypeReference[] arguments)
+        {
+            return GetMethod(type         , CTOR, (isNonPublic ? MethodFlags.NonPublic : MethodFlags.Public) | MethodFlags.Instance, arguments);
+        }
+        [DebuggerStepThrough]
+        public static MethodDefinition GetConstructor(this TypeDefinition type, CecilContext context, bool isNonPublic = false, params Type         [] arguments)
+        {
+            return GetMethod(type, context, CTOR, (isNonPublic ? MethodFlags.NonPublic : MethodFlags.Public) | MethodFlags.Instance, arguments);
+        }
+
+        [DebuggerStepThrough]
+        public static MethodDefinition GetOrCreateStaticCtor(this TypeDefinition type, Action<ILProcessor> onCreate = null)
+        {
+            var cctor = type.Methods.FirstOrDefault(m => m.Name == CCTOR);
+
+            if (cctor != null)
+                return cctor;
+
+            cctor = new MethodDefinition(CCTOR, MethodAttributes.Private | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName, type.Module.TypeSystem.Void);
+
+            var cproc = cctor.Body.GetILProcessor();
+
+            if (onCreate != null)
+                onCreate(cproc);
+
+            cproc.Emit(OpCodes.Ret);
+
+            return cctor;
         }
     }
 }
