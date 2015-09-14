@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Prism.API.Defs;
+using Prism.Util;
 using Terraria;
 using Terraria.ID;
+using Terraria.Map;
 
 namespace Prism.Mods.DefHandlers
 {
@@ -29,10 +31,22 @@ namespace Prism.Mods.DefHandlers
             if (!Main.dedServ)
                 Array.Resize(ref Main.wallTexture, newLen);
 
-            Array.Resize(ref Main.wallLoaded , newLen);
-            Array.Resize(ref Main.wallDungeon, newLen);
-            Array.Resize(ref Main.wallHouse  , newLen);
-            Array.Resize(ref Main.wallLight  , newLen);
+            Array.Resize(ref Main.wallLoaded     , newLen);
+            Array.Resize(ref Main.wallDungeon    , newLen);
+            Array.Resize(ref Main.wallHouse      , newLen);
+            Array.Resize(ref Main.wallLight      , newLen);
+            Array.Resize(ref Main.wallLargeFrames, newLen);
+
+            //TODO: figure out what these do...
+            Array.Resize(ref Main.wallBlend  , newLen);
+
+            Array.Resize(ref Main.wallFrame, newLen);
+            Array.Resize(ref Main.wallFrameCounter, newLen);
+
+            LinqExt.Resize2D(ref Main.wallAltTexture     , newLen, Main.numTileColors);
+            LinqExt.Resize2D(ref Main.wallAltTextureDrawn, newLen, Main.numTileColors);
+            LinqExt.Resize2D(ref Main.wallAltTextureInit , newLen, Main.numTileColors);
+            // ...|
 
             Array.Resize(ref WallID.Sets.Corrupt    , newLen);
             Array.Resize(ref WallID.Sets.Crimson    , newLen);
@@ -43,6 +57,28 @@ namespace Prism.Mods.DefHandlers
             Array.Resize(ref WallID.Sets.Conversion.HardenedSand, newLen);
             Array.Resize(ref WallID.Sets.Conversion.Sandstone   , newLen);
             Array.Resize(ref WallID.Sets.Conversion.Stone       , newLen);
+
+            //TODO: add map colour support
+            Array.Resize(ref MapHelper.wallLookup      , newLen);
+            Array.Resize(ref MapHelper.wallOptionCounts, newLen);
+
+            //? only add a colour to the lookup table when it doesn't exist yet (and it's not supported yet)
+            // helk
+            ////if (Handler.DefaultColourLookupLength == -1)
+            ////{
+            ////    Handler.DefaultColourLookupLength = MapHelper.colorLookup.Length;
+            ////    return; // no need to resize
+            ////}
+
+            //var ol = MapHelper.colorLookup.Length;
+            //Array.Resize(ref MapHelper.colorLookup, amt > 0 ? MapHelper.colorLookup.Length + amt : Handler.DefaultColourLookupLength);
+            //if (MapHelper.colorLookup.Length > ol)
+            //{
+            //    var d = MapHelper.colorLookup.Length - ol;
+
+            //    for (int i = MapHelper.colorLookup.Length - 1; i > ol; i++)
+            //        MapHelper.colorLookup[i] = MapHelper.colorLookup[i - d];
+            //}
         }
 
         protected override int GetVanillaEntityFromID(int id)
@@ -76,6 +112,10 @@ namespace Prism.Mods.DefHandlers
             wall.IsDungeonWall        = Main.wallDungeon[id];
             wall.IsSuitableForHousing = Main.wallHouse  [id];
             wall.Light                = Main.wallLight  [id];
+
+            wall.LargeFrameKind = (WallLargeFrameKind)Main.wallLargeFrames[id];
+
+            wall.Blend = Main.wallBlend[id];
         }
         protected override void CopyDefToEntity(WallDef wall, int id)
         {
@@ -115,9 +155,12 @@ namespace Prism.Mods.DefHandlers
 
         protected override void CopySetProperties(WallDef def)
         {
-            Main.wallDungeon[def.Type] = def.IsDungeonWall       ;
-            Main.wallHouse  [def.Type] = def.IsSuitableForHousing;
-            Main.wallLight  [def.Type] = def.Light               ;
+            Main.wallDungeon    [def.Type] = def.IsDungeonWall       ;
+            Main.wallHouse      [def.Type] = def.IsSuitableForHousing;
+            Main.wallLight      [def.Type] = def.Light               ;
+            Main.wallLargeFrames[def.Type] = (byte)def.LargeFrameKind;
+
+            Main.wallBlend[def.Type] = def.Blend;
 
             WallID.Sets.Corrupt    [def.Type] = def.IsCorruption ;
             WallID.Sets.Crimson    [def.Type] = def.IsCrimson    ;

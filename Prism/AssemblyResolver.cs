@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Prism.Debugging;
+using Prism.Util;
 
 namespace Prism
 {
@@ -119,7 +120,7 @@ namespace Prism
                             : searchPaths.Select(p => // for every search path
                                 AssemblyExts.Select(e => // for every extension
                                     SafeLoadFile(p + displayName + DOT + e) // try to load the assembly
-                            )).Aggregate(Enumerable.Concat) // joins the nested collections back to a normal one
+                            )).Flatten() // joins the nested collections back to a normal one
                         ).FirstOrDefault(a => a != null);
                 }
                 finally // abusing 'finally' so it will log success or failure, but without c/ping this code before every return.

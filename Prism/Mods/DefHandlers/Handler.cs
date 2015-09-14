@@ -6,6 +6,8 @@ namespace Prism.Mods.DefHandlers
 {
     static class Handler
     {
+        internal static int DefaultColourLookupLength = -1;
+
         internal static ItemDefHandler   ItemDef   = new ItemDefHandler();
         internal static NpcDefHandler    NpcDef    = new NpcDefHandler ();
         internal static ProjDefHandler   ProjDef   = new ProjDefHandler();

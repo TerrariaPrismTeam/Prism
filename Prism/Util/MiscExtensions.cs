@@ -5,7 +5,7 @@ using Terraria;
 
 namespace Prism.Util
 {
-    public static class MiscExtensions
+    public static partial class MiscExtensions
     {
         public static string SafeToString(this object v, string defValue = null)
         {
@@ -15,10 +15,11 @@ namespace Prism.Util
             return v.ToString();
         }
 
-        public static T Identity<T>(T t)
-        {
-            return t;
-        }
+        // see LinqExt
+        //public static T Identity<T>(T t)
+        //{
+        //    return t;
+        //}
 
         public static Ref<TOut> Bind<TIn, TOut>(this Ref<TIn> m, Func<TIn, TOut> map)
         {

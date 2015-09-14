@@ -5,29 +5,31 @@ using Prism.API;
 using Prism.Util;
 
 using ModName = System.String;
-using ModID   = System.Byte  ;
+using ModID = System.Byte;
 
 using ObjName = System.String;
-using ObjID   = System.Int16 ;
+using ObjID = System.Int16;
 
 using PackedValue = System.UInt32;
+using Prism.API.Defs;
 
 namespace Prism.IO
 {
     // let's hope nobody will ever run >255 mods at once, or with >32 767 objects in total
-    public class ModIdMap
+    public class ModIdMap<TEntityDef, TEntityRef>
+        where TEntityRef : EntityRef<TEntityDef>
     {
         const uint IsModFlag = 0x01000000;
 
         // using typedef'ed names for clarity
-        Func<ObjectRef, ObjID> GetVanillaID;
-        Func<ObjID, ObjectRef> GetVanillaRef;
+        Func<TEntityRef, ObjID> GetVanillaID;
+        Func<ObjID, TEntityRef> GetVanillaRef;
         ObjID maxVanillaId;
 
         BiDictionary<ModName, ModID> Mods;
         Dictionary<ModID, BiDictionary<ObjName, ObjID>> ModObjects;
 
-        public ModIdMap(int maxVanilla, Func<ObjectRef, int> vanillaId, Func<int, ObjectRef> vanillaRef)
+        public ModIdMap(int maxVanilla, Func<TEntityRef, int> vanillaId, Func<int, TEntityRef> vanillaRef)
         {
             if (vanillaId  == null)
                 throw new ArgumentNullException("vanillaId" );
@@ -40,9 +42,9 @@ namespace Prism.IO
             GetVanillaRef = id =>                  vanillaRef(id) ;
         }
 
-        public PackedValue Register(ObjectRef obj)
+        public PackedValue Register(TEntityRef obj)
         {
-            if (obj.IsNull)
+            if (obj == null || ((ObjectRef)obj).IsNull)
                 return 0;
             if (String.IsNullOrEmpty(obj.ModName) || obj.Mod == PrismApi.VanillaInfo)
                 return unchecked((PackedValue)GetVanillaID(obj)); // vanilla - no need to register
@@ -60,7 +62,7 @@ namespace Prism.IO
                 ModObjects.Add(mid, new BiDictionary<ObjName, ObjID>());
             }
 
-            ObjName on = obj.Name;
+            ObjName on = obj.ResourceName;
             ObjID oid;
 
             var mod = ModObjects[mid];

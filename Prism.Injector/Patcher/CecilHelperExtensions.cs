@@ -283,7 +283,7 @@ namespace Prism.Injector.Patcher
 
             var ts = body.Method.Module.TypeSystem;
 
-            var stack = new Stack<Tuple<TypeReference, Instruction>>();
+            var stack = new Stack<Tuple<TypeReference, Instruction>>(body.MaxStackSize);
             Func<TypeReference> pop = () => stack.Pop().Item1;
 
             var ins = body.Instructions;

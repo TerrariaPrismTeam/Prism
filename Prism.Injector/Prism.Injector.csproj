@@ -94,6 +94,9 @@
     <Compile Include="..\GlobalSuppressions.cs">
       <Link>Properties\GlobalSuppressions.cs</Link>
     </Compile>
+    <Compile Include="..\LinqExt.cs">
+      <Link>LinqExt.cs</Link>
+    </Compile>
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
@@ -109,7 +112,6 @@
     <Compile Include="ILInjector.cs" />
     <Compile Include="InjectionData.cs" />
     <Compile Include="Patcher\CecilHelperExtensions.cs" />
-    <Compile Include="LinqExt.cs" />
     <Compile Include="MemberResolver.cs" />
     <Compile Include="MemberResolverExtensions.cs" />
     <Compile Include="Patcher\MainPatcher.cs" />

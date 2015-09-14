@@ -4,6 +4,13 @@ using System.Linq;
 
 namespace Prism.API.Defs
 {
+    public enum WallLargeFrameKind : byte
+    {
+        None,
+        //TODO: what do these do?
+        PhlebasMethod,
+        LazureMethod
+    }
     public struct WallConversionData : IEquatable<WallConversionData>
     {
         public bool IsGrass, IsHardenedSand, IsSandstone, IsStone;

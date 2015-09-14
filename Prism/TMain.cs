@@ -14,6 +14,7 @@ using Prism.Util;
 using Terraria;
 using Terraria.GameContent.UI.States;
 using Terraria.IO;
+using Terraria.Map;
 
 namespace Prism
 {
@@ -189,6 +190,8 @@ namespace Prism
             base.Initialize(); // terraria init and LoadContent happen here
 
             ModLoader.Load();
+
+            Handler.DefaultColourLookupLength = MapHelper.colorLookup.Length;
 
             ApplyHotfixes();
 

@@ -24,7 +24,8 @@ namespace Prism.ExampleMod
 #pragma warning disable 618
                 // Pizza done with JSON method using an external resource
                 { "Pizza", new ItemDef("Pizza", GetResource<JsonData>("Resources/Items/Pizza.json"),
-                    () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png")) {
+                    () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                {
                     Mount = new MountRef("NyanCat")
                 } },
                 // Ant done with JSON method using an embedded resource
@@ -70,6 +71,29 @@ namespace Prism.ExampleMod
                     HoldStyle = ItemHoldStyle.Default,
                     Value = new CoinValue(2, 51, 3, 9),
                     Scale = 1.1f
+                } },
+                // for later
+                //{ "TilePlacer", new ItemDef("ExampleMod tile placer", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                //{
+                //    UseAnimation = 15,
+                //    AutoReuse = true,
+                //    UseTime = 15,
+                //    UseStyle = ItemUseStyle.Swing,
+                //    //MaxStack = 999, // not consumable
+                //    Width  = 16,
+                //    Height = 16,
+                //    CreateTile = new TileRef("TestTile")
+                //} },
+                { "WallPlacer", new ItemDef("ExampleMod wall placer", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                {
+                    UseAnimation = 15,
+                    UseTime = 15,
+                    AutoReuse = true,
+                    UseStyle = ItemUseStyle.Swing,
+                    //MaxStack = 999, // not consumable
+                    Width  = 16,
+                    Height = 16,
+                    CreateWall = new WallRef("TestWall")
                 } }
             };
         }
@@ -77,7 +101,7 @@ namespace Prism.ExampleMod
         {
             return new Dictionary<string, MountDef>
             {
-                { "NyanCat", new MountDef("Nyan Cat", front: new MountTextureData(() => GetEmbeddedResource<Texture2D>("Resources/Textures/Nyan Cat.png")))
+                { "NyanCat", new MountDef("Nyan Cat", front: new MountTextureData(() => GetEmbeddedResource<Texture2D>("Resources/Textures/Misc/Nyan Cat.png")))
                 {
                     Buff = new BuffRef(BuffID.ObsidianSkin), // too lazy to create a separate buff (the player will dismount when the buff runs out - after 60 seconds)
                     // ExtraBuff is set to Buff if it is null
@@ -162,6 +186,18 @@ namespace Prism.ExampleMod
                 }
             };
         }
+        protected override Dictionary<string, WallDef> GetWallDefs()
+        {
+            return new Dictionary<string, WallDef>
+            {
+                { "TestWall", new WallDef("Test wall", () => GetEmbeddedResource<Texture2D>("Resources/Textures/Misc/TestWall.png"))
+                {
+                    IsSuitableForHousing = true,
+                    IsTransparent = false,
+                    Light = true
+                } }
+            };
+        }
 
         protected override IEnumerable<RecipeDef> GetRecipeDefs()
         {
@@ -201,6 +237,13 @@ namespace Prism.ExampleMod
                         { new ItemRef(ItemID.Gel), 4 }
                     },
                     new[] { new TileRef(TileID.Dirt) }
+                ),
+                new RecipeDef(
+                    new ItemRef("WallPlacer"), 1,
+                    new RecipeItems
+                    {
+                        { new ItemRef(ItemID.Gel), 1 }
+                    }
                 )
             };
         }

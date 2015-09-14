@@ -60,7 +60,17 @@ namespace Prism.API.Defs
             set;
         }
 
-        //TODO: figure out what Main.wallBlend does
+        //TODO: figure out what these do
+        public int Blend
+        {
+            get;
+            set;
+        }
+        public WallLargeFrameKind LargeFrameKind
+        {
+            get;
+            set;
+        }
 
         public WallDef(string displayName, Func<Texture2D> getTexture = null)
             : base(displayName)

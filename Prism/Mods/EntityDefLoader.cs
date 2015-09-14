@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Prism.API;
-using Prism.API.Behaviours;
-using Prism.API.Defs;
 using Prism.Mods.DefHandlers;
-using Terraria;
+using Terraria.Map;
 
 namespace Prism.Mods
 {
@@ -49,6 +47,8 @@ namespace Prism.Mods
             Handler.ProjDef .Reset();
             Handler.TileDef .Reset();
             Handler.WallDef .Reset();
+
+            Handler.DefaultColourLookupLength = MapHelper.colorLookup.Length;
         }
         /// <summary>
         /// Sets up this EntityDefLoader for loading mods, creating/adding all of the vanilla content defs, etc.

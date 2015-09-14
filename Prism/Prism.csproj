@@ -103,6 +103,9 @@
     <Compile Include="..\GlobalSuppressions.cs">
       <Link>Properties\GlobalSuppressions.cs</Link>
     </Compile>
+    <Compile Include="..\LinqExt.cs">
+      <Link>Util\LinqExt.cs</Link>
+    </Compile>
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
@@ -232,7 +235,6 @@
     <Compile Include="Util\HastebinHelper.cs" />
     <Compile Include="Util\IndexGetter.cs" />
     <Compile Include="Util\JsonExtensions.cs" />
-    <Compile Include="Util\LinqExt.cs" />
     <Compile Include="Util\Helpers.cs" />
     <Compile Include="Util\Maybe.cs" />
     <Compile Include="Util\MiscExtensions.cs" />

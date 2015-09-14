@@ -23,13 +23,21 @@ namespace Prism.IO
     static class SaveDataHandler
     {
         /// <summary>
-        /// Save file version for .plr.prism files. Change whenever the format changes, and make checks in the loading code for backwards compatibility.
+        /// Save file version for .plr.prism files. Change whenever the format changes, and make checks in the loading code for backwards compatibility. Please add a changelog entry when changing.
         /// </summary>
+        /// <remarks>
+        /// VERSION 0: created
+        /// VERSION 1: small header changes
+        /// </remarks>
         const byte PLAYER_VERSION = 1;
         /// <summary>
-        /// Save file version for .wld.prism files. Change whenever the format changes, and make checks in the loading code for backwards compatibility.
+        /// Save file version for .wld.prism files. Change whenever the format changes, and make checks in the loading code for backwards compatibility. Please add a changelog entry when changing.
         /// </summary>
-        const byte WORLD_VERSION = 0;
+        /// <remarks>
+        /// VERSION 0: created
+        /// VERSION 1: added wall type support
+        /// </remarks>
+        const byte WORLD_VERSION = 1;
 
         const byte
             MIN_PLAYER_SUPPORT_VER = 1,
@@ -322,7 +330,7 @@ namespace Prism.IO
             return;
 
 #pragma warning disable 162
-            var map = new ModIdMap(TileID.Count, or => new TileRef(or).Resolve().Type, id => new TileRef(id));
+            var map = new ModIdMap<TileDef, TileRef>(TileID.Count, or => new TileRef(or).Resolve().Type, id => new TileRef(id));
 #pragma warning restore 162
 
             int ot = 0;
@@ -416,6 +424,52 @@ namespace Prism.IO
             }
             bb.Write(false);
         }
+        static void SaveWallTypes (BinBuffer bb)
+        {
+            var map = new ModIdMap<WallDef, WallRef>(WallID.Count, or => new WallRef(or).Resolve().Type, id => new WallRef(id));
+
+            int ot = 0;
+            int amt = 0;
+            bool once = true;
+
+            int op = bb.Position;
+            bb.Write(0);
+
+            for (int y = 0; y < Main.maxTilesY; y++)
+                for (int x = 0; x < Main.maxTilesX; x++)
+                {
+                    int t = Main.tile[x, y] == null || Main.tile[x, y].wall <= 0 ? 0 : Main.tile[x, y].wall;
+
+                    if (once)
+                    {
+                        ot = t;
+                        bb.Write(map.Register(new WallRef(t)));
+
+                        once = false;
+                        continue;
+                    }
+
+                    if (t == ot && amt < UInt16.MaxValue)
+                        amt++;
+                    else
+                    {
+                        bb.Write((ushort)amt); // write the amount of successing tiles of the same type,
+                                               // instead of the type over and over again, to save some space
+                        amt = 0;
+
+                        ot = t;
+                        bb.Write(map.Register(new WallRef(t)));
+                    }
+                }
+            bb.Write((ushort)amt);
+
+            var p = bb.Position;
+            bb.Position = op;
+            bb.Write(p - op); // dictionary offset
+            bb.Position = p;
+
+            map.WriteDictionary(bb);
+        }
 
         internal static void SaveWorld(bool toCloud)
         {
@@ -432,15 +486,15 @@ namespace Prism.IO
                 //TODO: item frame item IDs are still written as ints
                 //TODO: mannequins are probably broken
                 //TODO: should tile data be saved? shouldn't tile entities be used instead? or global saving?
-                //TODO: save tile & wall types, when support has been added
+                //TODO: save tile types, when support has been added
 
                 SavePrismData (bb);
                 SaveGlobalData(bb);
                 SaveChestItems(bb);
                 SaveNpcData   (bb);
+                SaveWallTypes (bb);
                 SaveTileTypes (bb); // NOTE: immediately returns (for now)
               //SaveTileData  (bb);
-              //SaveWallTypes (bb);
             }
         }
 
@@ -464,13 +518,12 @@ namespace Prism.IO
             // don't read anything for now, custom tiles aren't implemented
             return;
 
-#pragma warning disable 162
-            // to be used in future versions
-            if (v == 0)
-                return;
-#pragma warning restore 162
+            //! if (v < _WORLD_VER_TILE_SUPPORT_START)
+            //!     return;
 
-            var map = new ModIdMap(TileID.Count, or => new TileRef(or).Resolve().Type, id => new TileRef(id));
+#pragma warning disable 162
+            var map = new ModIdMap<TileDef, TileRef>(TileID.Count, or => new TileRef(or).Resolve().Type, id => new TileRef(id));
+#pragma warning restore 162
 
             var tp = bb.Position;
             var dictOffset = bb.ReadInt32();
@@ -483,6 +536,7 @@ namespace Prism.IO
             bb.Position = tp;
 
             int amt = 0;
+            ushort cur = 0;
 
             for (int y = 0; y < Main.maxTilesY; y++)
                 for (int x = 0; x < Main.maxTilesX; x++)
@@ -490,12 +544,15 @@ namespace Prism.IO
                     if (amt == 0)
                     {
                         var t = bb.ReadUInt32();
-                        Main.tile[x, y].type = (ushort)new TileRef(map.GetRef(t)).Resolve().Type;
+                        cur = Main.tile[x, y].type = (ushort)new TileRef(map.GetRef(t)).Resolve().Type;
 
                         amt = bb.ReadUInt16();
                     }
                     else
+                    {
                         amt--;
+                        Main.tile[x, y].type = cur;
+                    }
                 }
 
             bb.Position = end;
@@ -530,6 +587,45 @@ namespace Prism.IO
             //    ((NpcBHandler)n.P_BHandler).Load(bb);
             //}
         }
+        static void LoadWallTypes (BinBuffer bb, int v)
+        {
+            if (v < 1) // custom walls introduced in v1
+                return;
+
+            var map = new ModIdMap<WallDef, WallRef>(WallID.Count, or => new WallRef(or).Resolve().Type, id => new WallRef(id));
+
+            var tp = bb.Position;
+            var dictOffset = bb.ReadInt32();
+            bb.Position += dictOffset;
+
+            map.ReadDictionary(bb);
+
+            var end = bb.Position;
+
+            bb.Position = tp;
+
+            int amt = 0;
+            ushort cur = 0;
+
+            for (int y = 0; y < Main.maxTilesY; y++)
+                for (int x = 0; x < Main.maxTilesX; x++)
+                {
+                    if (amt == 0)
+                    {
+                        var t = bb.ReadUInt32();
+                        cur = Main.tile[x, y].wall = (ushort)new WallRef(map.GetRef(t)).Resolve().Type;
+
+                        amt = bb.ReadUInt16();
+                    }
+                    else
+                    {
+                        amt--;
+                        Main.tile[x, y].wall = cur;
+                    }
+                }
+
+            bb.Position = end;
+        }
 
         internal static void LoadWorld(bool fromCloud)
         {
@@ -548,9 +644,9 @@ namespace Prism.IO
                 LoadGlobalData(bb, v);
                 LoadChestItems(bb, v);
                 LoadNpcData   (bb, v);
+                LoadWallTypes (bb, v);
                 LoadTileTypes (bb, v); // NOTE: immediately returns (for now)
               //LoadTileData  (bb, v);
-              //LoadWallTypes (bb, v);
             }
         }
     }
