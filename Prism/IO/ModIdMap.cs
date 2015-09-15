@@ -16,20 +16,19 @@ using Prism.API.Defs;
 namespace Prism.IO
 {
     // let's hope nobody will ever run >255 mods at once, or with >32 767 objects in total
-    public class ModIdMap<TEntityDef, TEntityRef>
-        where TEntityRef : EntityRef<TEntityDef>
+    public class ModIdMap
     {
         const uint IsModFlag = 0x01000000;
 
         // using typedef'ed names for clarity
-        Func<TEntityRef, ObjID> GetVanillaID;
-        Func<ObjID, TEntityRef> GetVanillaRef;
+        Func<ObjectRef, ObjID> GetVanillaID;
+        Func<ObjID, ObjectRef> GetVanillaRef;
         ObjID maxVanillaId;
 
-        BiDictionary<ModName, ModID> Mods;
-        Dictionary<ModID, BiDictionary<ObjName, ObjID>> ModObjects;
+        BiDictionary<ModName, ModID> Mods = new BiDictionary<ModName, ModID>();
+        Dictionary<ModID, BiDictionary<ObjName, ObjID>> ModObjects = new Dictionary<ModID, BiDictionary<ModName, ObjID>>();
 
-        public ModIdMap(int maxVanilla, Func<TEntityRef, int> vanillaId, Func<int, TEntityRef> vanillaRef)
+        public ModIdMap(int maxVanilla, Func<ObjectRef, int> vanillaId, Func<int, ObjectRef> vanillaRef)
         {
             if (vanillaId  == null)
                 throw new ArgumentNullException("vanillaId" );
@@ -42,9 +41,9 @@ namespace Prism.IO
             GetVanillaRef = id =>                  vanillaRef(id) ;
         }
 
-        public PackedValue Register(TEntityRef obj)
+        public PackedValue Register(ObjectRef obj)
         {
-            if (obj == null || ((ObjectRef)obj).IsNull)
+            if (obj.IsNull)
                 return 0;
             if (String.IsNullOrEmpty(obj.ModName) || obj.Mod == PrismApi.VanillaInfo)
                 return unchecked((PackedValue)GetVanillaID(obj)); // vanilla - no need to register
@@ -62,7 +61,7 @@ namespace Prism.IO
                 ModObjects.Add(mid, new BiDictionary<ObjName, ObjID>());
             }
 
-            ObjName on = obj.ResourceName;
+            ObjName on = obj.Name;
             ObjID oid;
 
             var mod = ModObjects[mid];

@@ -81,7 +81,7 @@ namespace Prism.Debugging
 
         public const int PADDING_X = 48, PADDING_Y = 24;
 
-        readonly static object @lock = new object();
+        internal readonly static object @lock = new object();
         static PrismTraceListener listener;
         internal static List<TraceLine> lines = new List<TraceLine>();
 

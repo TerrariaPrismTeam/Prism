@@ -77,5 +77,14 @@ namespace Prism.API.Defs
         {
             GetTexture = getTexture ?? Empty<Texture2D>.Func;
         }
+
+        public static implicit operator WallRef(WallDef  def)
+        {
+            return new WallRef(def.InternalName, def.Mod.InternalName);
+        }
+        public static explicit operator WallDef(WallRef @ref)
+        {
+            return @ref.Resolve();
+        }
     }
 }

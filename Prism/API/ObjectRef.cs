@@ -11,6 +11,13 @@ namespace Prism.API
         string name, modName;
         internal ModDef requesting;
 
+        public readonly static ObjectRef Null = new ObjectRef()
+        {
+            name       = String.Empty,
+            modName    = String.Empty,
+            requesting = ModData.ModFromAssembly(Assembly.GetExecutingAssembly())
+        };
+
         public string Name
         {
             get

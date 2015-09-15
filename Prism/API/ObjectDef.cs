@@ -60,6 +60,11 @@ namespace Prism.API
             return "{" + (String.IsNullOrEmpty(InternalName) ? DisplayName : InternalName) + ", Mod=" + Mod + "}";
         }
 
+        public static implicit operator ObjectRef(ObjectDef d)
+        {
+            return new ObjectRef(d.InternalName, d.Mod);
+        }
+
     }
     public abstract class ObjectDef<TBehaviour> : ObjectDef
     {
@@ -76,11 +81,6 @@ namespace Prism.API
             : base(displayName)
         {
             CreateBehaviour = newBehaviour ?? Empty<TBehaviour>.Func;
-        }
-
-        public static implicit operator ObjectRef(ObjectDef<TBehaviour> d)
-        {
-            return new ObjectRef(d.InternalName, d.Mod);
         }
     }
 }

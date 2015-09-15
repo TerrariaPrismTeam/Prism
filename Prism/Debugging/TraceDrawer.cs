@@ -69,31 +69,36 @@ namespace Prism.Debugging
 
             var curLine = new StringBuilder();
 
-            foreach (var l in lines.Take(lineAmt))
+            lock (PrismDebug.@lock)
+            try
             {
-                float curW = 0f;
-                string[] words = l.Text.Split(SpaceArray);
-
-                for (int i = 0; i < words.Length; i++)
+                foreach (var l in lines.Take(lineAmt))
                 {
-                    string append = (i > 0 ? Space : String.Empty) + words[i];
-                    curW += Main.fontItemStack.MeasureString(append).X;
+                    float curW = 0f;
+                    string[] words = l.Text.Split(SpaceArray);
 
-                    if (curW >= InnerWindow.Width)
+                    for (int i = 0; i < words.Length; i++)
                     {
-                        curLine.AppendLine();
-                        append = append.TrimStart();
-                        curW = Main.fontItemStack.MeasureString(append).X;
+                        string append = (i > 0 ? Space : String.Empty) + words[i];
+                        curW += Main.fontItemStack.MeasureString(append).X;
+
+                        if (curW >= InnerWindow.Width)
+                        {
+                            curLine.AppendLine();
+                            append = append.TrimStart();
+                            curW = Main.fontItemStack.MeasureString(append).X;
+                        }
+                        curLine.Append(append);
                     }
-                    curLine.Append(append);
+
+                    fadeAlphas.Add(MathHelper.Clamp(l.Timeleft / 30f, 0f, 1f));
+                    drawText.Add(curLine.ToString());
+                    curY += Main.fontItemStack.MeasureString(curLine).Y + TraceMsgPadding;
+
+                    curLine.Clear();
                 }
-
-                fadeAlphas.Add(MathHelper.Clamp(l.Timeleft / 30f, 0f, 1f));
-                drawText.Add(curLine.ToString());
-                curY += Main.fontItemStack.MeasureString(curLine).Y + TraceMsgPadding;
-
-                curLine.Clear();
             }
+            catch (InvalidOperationException) { } // lines list changed when drawing
 
             TraceScroll = MathHelper.Clamp(curY - InnerWindow.Height, 0, Single.PositiveInfinity);
             curY = 0f;

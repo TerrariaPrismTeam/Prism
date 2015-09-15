@@ -120,9 +120,14 @@ namespace Prism.IO
         }
 
         #region Write methods
+        public void Write(byte v)
+        {
+            WriteByte(v);
+        }
+
         public void Write(bool v)
         {
-            Write((byte)(v ? 1 : 0));
+            WriteByte((byte)(v ? 1 : 0));
         }
 
         public void Write(sbyte v)

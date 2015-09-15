@@ -113,10 +113,11 @@ namespace Prism.API
 
             if (!ModData.ModsFromInternalName.ContainsKey(or.ModName))
                 throw new InvalidOperationException(objName + " definition '" + or.Name + "' in mod '" + or.ModName + "' could not be returned because the mod is not loaded.");
-            if (!ModData.ModsFromInternalName[or.ModName].ItemDefs.ContainsKey(or.Name))
+            var md = GetModDefs(ModData.ModsFromInternalName[or.ModName]);
+            if (!md.ContainsKey(or.Name))
                 throw new InvalidOperationException(objName + " definition '" + or.Name + "' in mod '" + or.ModName + "' could not be resolved because the " + objName + " is not loaded.");
 
-            return GetModDefs(ModData.ModsFromInternalName[or.ModName])[or.Name];
+            return md[or.Name];
         }
         public T ById(int id)
         {

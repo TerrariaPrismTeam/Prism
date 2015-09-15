@@ -95,7 +95,7 @@ namespace Prism.Mods.DefHandlers
 
         protected override void CopyEntityToDef(int id, WallDef wall)
         {
-            wall.DisplayName = wall.InternalName ?? (WALL + id);
+            wall.DisplayName = String.IsNullOrEmpty(wall.InternalName) ? (WALL + id) : wall.InternalName;
 
             wall.ConversionData = new WallConversionData(
                 WallID.Sets.Conversion.Grass       [id],

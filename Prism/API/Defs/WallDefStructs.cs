@@ -17,10 +17,10 @@ namespace Prism.API.Defs
 
         public WallConversionData(bool grass, bool hSand, bool sStone, bool stone)
         {
-            IsGrass = grass;
-            IsHardenedSand = hSand;
-            IsSandstone = sStone;
-            IsStone = stone;
+            IsGrass        = grass ;
+            IsHardenedSand = hSand ;
+            IsSandstone    = sStone;
+            IsStone        = stone ;
         }
 
         public bool Equals(WallConversionData other)
