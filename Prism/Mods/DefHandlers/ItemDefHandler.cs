@@ -123,7 +123,7 @@ namespace Prism.Mods.DefHandlers
             def.CreateTile          = item.createTile <= -1 ? null : new TileRef      (item.createTile);
             def.CreateWall          = item.createWall <=  0 ? null : new WallRef      (item.createWall);
             def.GetTexture          = () => Main.itemTexture[item.type];
-            def.UseSound = item.P_UseSound as SfxRef != null ? (SfxRef)item.P_UseSound : new SfxRef("UseItem", variant: item.useSound);
+            def.UseSound = item.P_UseSound as SfxRef != null ? (SfxRef)item.P_UseSound : item.useSound == 0 ? null : new SfxRef("UseItem", variant: item.useSound);
 
             #region ArmourData
             def.ArmourData = new ItemArmourData(() =>
@@ -340,7 +340,7 @@ namespace Prism.Mods.DefHandlers
             item.useAmmo      = def.UsedAmmo        == null ?  0 : def.UsedAmmo       .Resolve().Type ;
 
             item.P_UseSound = def.UseSound;
-            item.useSound = def.UseSound == null ? 1 : def.UseSound.VariantID;
+            item.useSound = def.UseSound == null ? 0 : def.UseSound.VariantID;
 
             if (def.ArmourData != null)
             {

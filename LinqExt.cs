@@ -125,6 +125,56 @@ namespace Prism.Injector
                 Array.Copy(orig, i * ox, array, i * x, mx);
         }
 
+        public static void Add<T>(ref T[] array, T toAdd)
+        {
+            Array.Resize(ref array, array.Length + 1);
+            array[array.Length - 1] = toAdd;
+        }
+        public static void AddArray<T>(ref T[] array, T[] toAdd)
+        {
+            var ol = array.Length;
+            Array.Resize(ref array, array.Length + toAdd.Length);
+
+            for (int i = 0; i < toAdd.Length; i++)
+                array[i + ol] = toAdd[i];
+        }
+
+        public static IEnumerable<TOut> SelectIndex<TIn, TOut>(this TIn[] arr, Func<int, TIn, TOut> selector)
+        {
+            if (selector == null)
+                throw new ArgumentNullException("selector");
+
+            for (int i = 0; i < arr.Length; i++)
+                yield return selector(i, arr[i]);
+
+            yield break;
+        }
+        public static IEnumerable<TOut> SelectIndex<TIn, TOut>(this IList<TIn> list, Func<int, TIn, TOut> selector)
+        {
+            if (selector == null)
+                throw new ArgumentNullException("selector");
+
+            for (int i = 0; i < list.Count; i++)
+                yield return selector(i, list[i]);
+
+            yield break;
+        }
+        public static IEnumerable<TOut> SelectIndex<TIn, TOut>(this IEnumerable<TIn> coll, Func<int, TIn, TOut> selector)
+        {
+            if (selector == null)
+                throw new ArgumentNullException("selector");
+
+            int i = 0;
+            foreach (var e in coll)
+            {
+                yield return selector(i, e);
+
+                i++;
+            }
+
+            yield break;
+        }
+
         static bool Equality<T>(T a, T b)
         {
             if (ReferenceEquals(a, b))

@@ -1,417 +1,415 @@
-using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Prism.API.Defs
 {
-    public class TileFrameConfig
+    public enum TileMineTool : byte
     {
-        /// <summary>
-        /// The tile's per-tile frame width.
-        /// </summary>
-        public virtual int FrameWidth
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// The tile's per-tile frame height.
-        /// </summary>
-        public virtual int FrameHeight
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// The amount of tiles on the X axis this tile takes up.
-        /// </summary>
-        public virtual int TileWidth
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// The amount of tiles on the Y axis this tile takes up.
-        /// </summary>
-        public virtual int TileHeight
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// The draw offset of the tile on the Y axis. (Negative moves up, Positive moves down)
-        /// </summary>
-        public virtual int DrawOffsetY
-        {
-            get;
-            set;
-        }
+        Pickaxe,
+        Axe,
+        Hammer
+    }
 
-        /// <summary>
-        /// Gets or sets whether or not to save the tile's frames.
-        /// </summary>
-        public virtual bool FrameImportant
+    public class TileSubtypeData
+    {
+        public bool IsAlchemyTable
         {
             get;
             set;
         }
-        /// <summary>
-        /// Gets or sets whether the tile's spritesheet has frames along the X or Y axis.
-        /// </summary>
-        public virtual bool SheetYAligned
+        public bool IsBrick
         {
             get;
             set;
         }
-
-        /// <summary>
-        /// The start frame for the tile's animation.
-        /// </summary>
-        public virtual int InitFrame
+        public bool IsContainer
         {
             get;
             set;
         }
-        /// <summary>
-        /// The maximum frame of the tile.
-        /// </summary>
-        public virtual int MaxFrame
+        public bool IsCraftingTable
         {
             get;
             set;
         }
-        /// <summary>
-        /// The maximum for the frame counter of the tile's animation.
-        /// </summary>
-        public virtual int FrameCounterMax
+        public bool IsDungeonTile
         {
             get;
             set;
         }
-        /// <summary>
-        /// Gets or sets whether or not this tile is considered as using large frames
-        /// </summary>
-        public virtual bool LargeFrames
+        public bool IsFlame
+        {
+            get;
+            set;
+        }
+        public bool IsMoss
+        {
+            get;
+            set;
+        }
+        public bool IsPile
+        {
+            get;
+            set;
+        }
+        public bool IsRope
+        {
+            get;
+            set;
+        }
+        public bool IsSand
+        {
+            get;
+            set;
+        }
+        public bool IsSign
+        {
+            get;
+            set;
+        }
+        public bool IsStone
+        {
+            get;
+            set;
+        }
+        public bool IsIce
+        {
+            get;
+            set;
+        }
+        public bool IsIceSlush
+        {
+            get;
+            set;
+        }
+        public bool IsIceSnow
+        {
+            get;
+            set;
+        }
+        public bool IsLeaves
+        {
+            get;
+            set;
+        }
+        public bool IsMud
+        {
+            get;
+            set;
+        }
+        public bool IsOre
+        {
+            get;
+            set;
+        }
+        public bool IsSnow
         {
             get;
             set;
         }
     }
-
-    public class TileLightingConfig
+    public class TileAestheticData
     {
-        /// <summary>
-        /// Gets or sets whether or not this tile blocks light from passing through it.
-        /// </summary>
-        public virtual bool BlocksLight
+        public bool BlendAll
         {
             get;
             set;
         }
-        /// <summary>
-        /// Gets or sets whether or not this tile blocks sunlight from passing through it.
-        /// </summary>
-        public virtual bool BlocksSun
+        public bool MergesWithDirt
         {
             get;
             set;
         }
-        /// <summary>
-        /// Gets or sets whether or not this tile glows in the dark. Make this true if this tile uses the hook ModifyLight.
-        /// </summary>
-        public virtual bool Glows
+        public bool ChecksForMerge
         {
             get;
             set;
         }
-        /// <summary>
-        /// Gets or sets whether or not this tile spawns sparkle dust if it is properly lit.
-        /// </summary>
-        public virtual bool Shines
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// The chance of the sparkle. (Higher numbers == less chance)
-        /// </summary>
-        public virtual int ShineChance
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// Gets or sets whether or not this tile should glow if the player has Spelunker.
-        /// </summary>
-        public virtual bool SpelunkerGlow
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// Gets or sets whether or not this tile should glow if the player has Dangersense.
-        /// </summary>
-        public virtual bool DangersenseGlow
+
+        public List<TileRef> MergeWith
         {
             get;
             set;
         }
     }
-
-    public class TileHousingConfig
+    public struct TileMineData
     {
-        /// <summary>
-        /// Gets or sets whether or not this tile should be considered a table. (Used in NPC Housing)
-        /// </summary>
-        public virtual bool IsTable
+        public TileMineTool MineTool
         {
             get;
             set;
         }
-        /// <summary>
-        /// Gets or sets whether or not this tile should be considered a chair. (Used in NPC Housing)
-        /// </summary>
-        public virtual bool IsChair
+
+        public bool BreaksByCut
         {
             get;
             set;
         }
-        /// <summary>
-        /// Gets or sets whether or not this tile should be considered a torch. (Used in NPC Housing)
-        /// </summary>
-        public virtual bool IsTorch
+        public bool BreaksByWater
         {
             get;
             set;
         }
-        /// <summary>
-        /// Gets or sets whether or not this tile should be considered a door. (Used in NPC Housing)
-        /// </summary>
-        public virtual bool IsDoor
+        public bool BreaksByLava
         {
             get;
             set;
         }
     }
-
-    public class TileMineConfig
+    public class TileConversionData
     {
-        /// <summary>
-        /// The sound ID that this tile uses when it is killed.
-        /// </summary>
-        public virtual int Sound
+        public bool IsCorrupt
         {
             get;
             set;
         }
-        /// <summary>
-        /// The soundGroup ID that this tile uses when it is killed.
-        /// </summary>
-        public virtual int SoundGroup
+        public bool IsCrimson
         {
             get;
             set;
         }
-
-        /// <summary>
-        /// The dust ID that this tile uses when it is mined or killed.
-        /// </summary>
-        public virtual int BreakDust
+        public bool IsHallow
         {
             get;
             set;
         }
-
-        /// <summary>
-        /// The item this tile will drop when killed.
-        /// </summary>
-        public virtual ItemRef ItemDrop
+        public bool IsGrass
         {
             get;
             set;
         }
-
-        /// <summary>
-        /// A multiplier for how fast the tile is mined by a pickaxe.
-        /// </summary>
-        public virtual float RatePick
+        public bool IsHardenedSand
         {
             get;
             set;
         }
-        /// <summary>
-        /// A multiplier for how fast the tile is mined by an axe.
-        /// </summary>
-        public virtual float RateAxe
+        public bool IsIce
         {
             get;
             set;
         }
-        /// <summary>
-        /// A multiplier for how fast the tile is mined by a hammer.
-        /// </summary>
-        public virtual float RateHammer
+        public bool IsMoss
         {
             get;
             set;
         }
-
-        /// <summary>
-        /// The minimum pick value required to mine this tile.
-        /// </summary>
-        public virtual int MinPick
+        public bool IsSand
         {
             get;
             set;
         }
-        /// <summary>
-        /// The minimum axe value required to mine this tile.
-        /// </summary>
-        public virtual int MinAxe
+        public bool IsSandstone
         {
             get;
             set;
         }
-        /// <summary>
-        /// The minimum hammer value required to mine this tile.
-        /// </summary>
-        public virtual int MinHammer
+        public bool IsSpecialGrass
         {
             get;
             set;
         }
-
-        /// <summary>
-        /// Gets or sets whether or not a tile breaks immediately when hit.
-        /// </summary>
-        public virtual bool BreaksInstantly
+        public bool IsSpecialHell
         {
             get;
             set;
         }
-        /// <summary>
-        /// Gets or sets whether or not a tile breaks from a pickaxe.
-        /// </summary>
-        public virtual bool BreaksByPick
+        public bool IsSpecialJungle
         {
             get;
             set;
         }
-        /// <summary>
-        /// Gets or sets whether or not a tile breaks from an axe.
-        /// </summary>
-        public virtual bool BreaksByAxe
+        public bool IsStone
         {
             get;
             set;
         }
-        /// <summary>
-        /// Gets or sets whether or not a tile breaks from a hammer.
-        /// </summary>
-        public virtual bool BreaksByHammer
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// Gets or sets whether or not a tile breaks when hit by a melee weapon or projectile.
-        /// </summary>
-        public virtual bool BreaksByCut
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// Gets or sets whether or not a tile breaks when submerged in water or honey.
-        /// </summary>
-        public virtual bool BreaksByWater
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// Gets or sets whether or not a tile breaks when submerged in lava.
-        /// </summary>
-        public virtual bool BreaksByLava
+        public bool IsThorn
         {
             get;
             set;
         }
     }
-
-    public class TilePlaceConfig
+    public struct TileLightingData
     {
-        /// <summary>
-        /// Gets or sets whether or not this tile should place the first or second frame based on player direction.
-        /// </summary>
-        public virtual bool Directional
+        public bool BlocksLight
         {
             get;
             set;
         }
-        /// <summary>
-        /// Gets or sets whether or not this tile should check tile placement if walls behind it are broken.
-        /// </summary>
-        public virtual bool CheckWalls
+        public bool BlocksSunlight
         {
             get;
             set;
         }
-
-        /// <summary>
-        /// The specific X & Y frame of the tile to use when it is placed.
-        /// </summary>
-        public virtual Point PlacementFrame
+        public short GlowMask
         {
             get;
             set;
         }
-        /// <summary>
-        /// A preset condition used to determine if a tile can be placed or can stay in place.
-        /// </summary>
-        public virtual PlacementConditions PlacementConditions
+        public int ShineChance
         {
             get;
             set;
         }
-        /// <summary>
-        /// The tile within the tile that is considered the placement tile. (The tile the mouse is over when placing)
-        /// </summary>
-        public virtual Point PlacementOrigin
+        public bool Shines
         {
             get;
             set;
         }
-        /// <summary>
-        /// Causes this tile to not be 'attachable' by other tiles. In other words, a tile that needs a placement condition checking this tile will always return false for this tile.
-        /// </summary>
-        public virtual bool NoAttach
+        public bool SpelunkerGlow
         {
             get;
             set;
         }
-
-        /// <summary>
-        /// Gets or sets whether or not this tile should merge with dirt.
-        /// </summary>
-        public virtual bool MergesWithDirt
+        public bool Glows
         {
             get;
             set;
         }
     }
-
-    public enum PlacementConditions
+    public struct TileDamageData
     {
-        Air,
-        FlatCeiling,
-        FlatCeilingSolid,
-        FlatGround,
-        FlatGroundSolid,
-        PlaceTouching,
-        PlaceTouchingSolid,
-        Side,
-        Wall
+        public int Hot
+        {
+            get;
+            set;
+        }
+        public int Sand
+        {
+            get;
+            set;
+        }
+        public int Vines
+        {
+            get;
+            set;
+        }
+        public int Other
+        {
+            get;
+            set;
+        }
+    }
+    public struct TileCollisionData
+    {
+        public TileDamageData DamageData
+        {
+            get;
+            set;
+        }
+
+        public bool IsBouncy
+        {
+            get;
+            set;
+        }
+        public bool IsSolid
+        {
+            get;
+            set;
+        }
+        public bool IsSolidTop
+        {
+            get;
+            set;
+        }
+        public bool NotReallySolid
+        {
+            get;
+            set;
+        }
+    }
+    public struct TilePlacementData
+    {
+        public bool DisallowAttachingOtherTiles
+        {
+            get;
+            set;
+        }
+        public bool BlocksStairs
+        {
+            get;
+            set;
+        }
+        public bool BlocksStairsAbove
+        {
+            get;
+            set;
+        }
+        public bool BreaksWhenPlacing
+        {
+            get;
+            set;
+        }
+        public bool CanBeClearedDuringWorldGen
+        {
+            get;
+            set;
+        }
+        public bool IsGeneralPlacementTile
+        {
+            get;
+            set;
+        }
+    }
+    public struct TileFrameData
+    {
+        public bool FrameImportant
+        {
+            get;
+            set;
+        }
+        public byte LargeFrames
+        {
+            get;
+            set;
+        }
+        public bool FramesOnKillWall
+        {
+            get;
+            set;
+        }
+    }
+    public struct TileHousingData
+    {
+        public bool IsWall
+        {
+            get;
+            set;
+        }
+        public bool IsChair
+        {
+            get;
+            set;
+        }
+        public bool IsDoor
+        {
+            get;
+            set;
+        }
+        public bool IsTable
+        {
+            get;
+            set;
+        }
+        public bool IsLightSource
+        {
+            get;
+            set;
+        }
+    }
+    public struct TileNpcData
+    {
+        public bool IsAvoided
+        {
+            get;
+            set;
+        }
+        public bool IsInteractible
+        {
+            get;
+            set;
+        }
     }
 }

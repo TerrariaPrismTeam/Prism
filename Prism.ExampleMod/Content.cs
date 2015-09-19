@@ -72,18 +72,17 @@ namespace Prism.ExampleMod
                     Value = new CoinValue(2, 51, 3, 9),
                     Scale = 1.1f
                 } },
-                // for later
-                //{ "TilePlacer", new ItemDef("ExampleMod tile placer", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
-                //{
-                //    UseAnimation = 15,
-                //    AutoReuse = true,
-                //    UseTime = 15,
-                //    UseStyle = ItemUseStyle.Swing,
-                //    //MaxStack = 999, // not consumable
-                //    Width  = 16,
-                //    Height = 16,
-                //    CreateTile = new TileRef("TestTile")
-                //} },
+                { "TilePlacer", new ItemDef("ExampleMod tile placer", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                {
+                    UseAnimation = 15,
+                    AutoReuse = true,
+                    UseTime = 15,
+                    UseStyle = ItemUseStyle.Swing,
+                    //MaxStack = 999, // not consumable
+                    Width  = 16,
+                    Height = 16,
+                    CreateTile = new TileRef("TestTile")
+                } },
                 { "WallPlacer", new ItemDef("ExampleMod wall placer", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
                 {
                     UseAnimation = 15,
@@ -186,6 +185,30 @@ namespace Prism.ExampleMod
                 }
             };
         }
+        protected override Dictionary<string, TileDef> GetTileDefs()
+        {
+            return new Dictionary<string, TileDef>
+            {
+                {"TestTile", new TileDef("Test tile", null, () => GetEmbeddedResource<Texture2D>("Resources/Textures/Misc/TestTile.png"))
+                {
+                    SubtypeData = new TileSubtypeData()
+                    {
+                        IsBrick = true
+                    },
+                    Size = new Point(1, 1),
+                    LightingData = new TileLightingData()
+                    {
+                        BlocksLight    = true,
+                        BlocksSunlight = true
+                    },
+                    CollisionData = new TileCollisionData()
+                    {
+                        IsSolid  = true,
+                        IsBouncy = true
+                    }
+                } }
+            };
+        }
         protected override Dictionary<string, WallDef> GetWallDefs()
         {
             return new Dictionary<string, WallDef>
@@ -240,6 +263,13 @@ namespace Prism.ExampleMod
                 ),
                 new RecipeDef(
                     new ItemRef("WallPlacer"), 1,
+                    new RecipeItems
+                    {
+                        { new ItemRef(ItemID.Gel), 1 }
+                    }
+                ),
+                new RecipeDef(
+                    new ItemRef("TilePlacer"), 1,
                     new RecipeItems
                     {
                         { new ItemRef(ItemID.Gel), 1 }

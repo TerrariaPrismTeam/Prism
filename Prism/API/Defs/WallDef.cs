@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.Util;
 
@@ -60,6 +61,13 @@ namespace Prism.API.Defs
             set;
         }
 
+        [Obsolete("Not implemented yet.")]
+        public Color MapColour
+        {
+            get;
+            set;
+        }
+
         //TODO: figure out what these do
         public int Blend
         {
@@ -76,6 +84,10 @@ namespace Prism.API.Defs
             : base(displayName)
         {
             GetTexture = getTexture ?? Empty<Texture2D>.Func;
+
+#pragma warning disable 618
+            MapColour = Color.Transparent;
+#pragma warning restore 618
         }
 
         public static implicit operator WallRef(WallDef  def)

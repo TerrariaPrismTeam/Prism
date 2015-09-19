@@ -524,7 +524,7 @@ namespace Prism.API.Defs
             Colour = Color.White;
 
             // null when filling vanilla items
-            UseSound = new SfxRef("UseItem", variant: 1);
+            //UseSound = new SfxRef("UseItem", variant: 1);
         }
 
         [Obsolete("JSON files aren't supported for now, please use the other constructor and/or a custom deserializer.")]

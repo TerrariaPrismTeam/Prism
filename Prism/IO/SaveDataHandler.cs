@@ -361,7 +361,7 @@ namespace Prism.IO
 
             map.WriteDictionary(bb);
         }
-        static void Read2DArray (BinBuffer bb, ModIdMap map, int xLen, int yLen, Action<int, int, ObjectRef> setElem)
+        static void Read2DArray (BinBuffer bb, ModIdMap map, int xLen, int yLen, Action<int, int, int> setElemV, Action<int, int, ObjectRef> setElemM)
         {
             var dictOffset = bb.ReadInt32();
             var dataStart = bb.Position;
@@ -374,20 +374,39 @@ namespace Prism.IO
             bb.Position = dataStart;
 
             int amt = 0;
-            ObjectRef cur = ObjectRef.Null;
+
+            bool isM = false;
+            ObjectRef curM = ObjectRef.Null;
+            int curV = 0;
 
             for (int y = 0; y < yLen; y++)
                 for (int x = 0; x < xLen; x++)
                     if (amt == 0)
                     {
-                        cur = map.GetRef(bb.ReadUInt32());
-                        amt = bb.ReadUInt16();
+                        map.GetRef(bb.ReadUInt32(),
+                            oid =>
+                            {
+                                curV = oid;
+                                isM = false;
 
-                        setElem(x, y, cur); // amt == 0 -> one element
+                                setElemV(x, y, curV); // amt == 0 -> one element
+                            },
+                            or  =>
+                            {
+                                curM = or;
+                                isM = true;
+
+                                setElemM(x, y, curM); // amt == 0 -> one element
+                            });
+                        amt = bb.ReadUInt16();
                     }
                     else
                     {
-                        setElem(x, y, cur);
+                        if (isM)
+                            setElemM(x, y, curM);
+                        else
+                            setElemV(x, y, curV);
+
                         amt--;
                     }
 
@@ -411,9 +430,10 @@ namespace Prism.IO
             var map = new ModIdMap(TileID.Count, or => TileDef.Defs[or].Type, id => Handler.TileDef.DefsByType[id]);
 #pragma warning restore 162
 
-            Write2DArray(bb, map, Main.maxTilesX, Main.maxTilesY, (x, y) => Main.tile[x, y] == null ||
-                Main.tile[x, y].type <= 0 || !Handler.TileDef.DefsByType.ContainsKey(Main.tile[x, y].type)
-                ? ObjectRef.Null : Handler.TileDef.DefsByType[Main.tile[x, y].type]);
+            Write2DArray(bb, map, Main.maxTilesX, Main.maxTilesY,
+                //(x, y) => Main.tile[x, y] == null || Main.tile[x, y].type >= TileID.Count ? 0 : Main.tile[x, y].type,
+                (x, y) => Main.tile[x, y] == null || Main.tile[x, y].type <= 0/*TileID.Count*/ ||
+                    !Handler.TileDef.DefsByType.ContainsKey(Main.tile[x, y].type) ? ObjectRef.Null : Handler.TileDef.DefsByType[Main.tile[x, y].type]);
         }
         static void SaveChestItems(BinBuffer bb)
         {
@@ -468,9 +488,10 @@ namespace Prism.IO
         {
             var map = new ModIdMap(WallID.Count, or => WallDef.Defs[or].Type, id => Handler.WallDef.DefsByType[id]);
 
-            Write2DArray(bb, map, Main.maxTilesX, Main.maxTilesY, (x, y) => Main.tile[x, y] == null ||
-                Main.tile[x, y].wall <= 0 || !Handler.WallDef.DefsByType.ContainsKey(Main.tile[x, y].wall)
-                ? ObjectRef.Null : Handler.WallDef.DefsByType[Main.tile[x, y].wall]);
+            Write2DArray(bb, map, Main.maxTilesX, Main.maxTilesY,
+                //(x, y) => Main.tile[x, y] == null || Main.tile[x, y].wall >= WallID.Count ? 0 : Main.tile[x, y].wall,
+                (x, y) => Main.tile[x, y] == null || Main.tile[x, y].wall <= 0/*WallID.Count*/ ||
+                    !Handler.WallDef.DefsByType.ContainsKey(Main.tile[x, y].wall) ? ObjectRef.Null : Handler.WallDef.DefsByType[Main.tile[x, y].wall]);
         }
 
         internal static void SaveWorld(bool toCloud)
@@ -527,7 +548,7 @@ namespace Prism.IO
             var map = new ModIdMap(TileID.Count, or => TileDef.Defs[or].Type, id => Handler.TileDef.DefsByType[id]);
 #pragma warning restore 162
 
-            Read2DArray(bb, map, Main.maxTilesX, Main.maxTilesY, (x, y, or) => Main.tile[x, y].type = (ushort)TileDef.Defs[or].Type);
+            Read2DArray(bb, map, Main.maxTilesX, Main.maxTilesY, (x, y, id) => Main.tile[x, y].type = (ushort)id, (x, y, or) => Main.tile[x, y].type = (ushort)TileDef.Defs[or].Type);
         }
         static void LoadChestItems(BinBuffer bb, int v)
         {
@@ -569,7 +590,7 @@ namespace Prism.IO
 
             var map = new ModIdMap(WallID.Count, or => WallDef.Defs[or].Type, id => Handler.WallDef.DefsByType[id]);
 
-            Read2DArray(bb, map, Main.maxTilesX, Main.maxTilesY, (x, y, or) => Main.tile[x, y].wall = (ushort)(or.IsNull ? 0 : WallDef.Defs[or].Type));
+            Read2DArray(bb, map, Main.maxTilesX, Main.maxTilesY, (x, y, id) => Main.tile[x, y].wall = (ushort)id, (x, y, or) => Main.tile[x, y].wall = (ushort)WallDef.Defs[or].Type);
         }
 
         internal static void LoadWorld(bool fromCloud)

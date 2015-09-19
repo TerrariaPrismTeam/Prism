@@ -126,7 +126,7 @@ namespace Prism
                 finally // abusing 'finally' so it will log success or failure, but without c/ping this code before every return.
                         // also quite useful for setting inCallback to false
                 {
-                    if (ret == null)
+                    if (ret == null && !rea.Name.Contains(".resources") /* some assemblies look for a resources assembly, even when it doesn't exist */)
                         Logging.LogWarning("Could not resolve assembly " + rea.Name);
                     else
                         Logging.LogInfo("Resolved assembly " + rea.Name + ".");

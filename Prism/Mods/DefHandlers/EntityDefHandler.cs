@@ -116,6 +116,8 @@ namespace Prism.Mods.DefHandlers
         }
 
         protected virtual void PostFillVanilla() { }
+        protected virtual void PostLoad(Dictionary<string, TEntityDef> dict) { }
+        protected virtual void PostLoadEntity(TEntityDef entity) { }
 
         internal void FillVanilla()
         {
@@ -214,7 +216,11 @@ namespace Prism.Mods.DefHandlers
 
                 CopySetProperties(def);
                 DefsByType.Add(NextTypeIndex++, def);
+
+                PostLoadEntity(def);
             }
+
+            PostLoad(dict);
 
             return err;
         }

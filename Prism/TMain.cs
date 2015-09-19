@@ -234,6 +234,9 @@ namespace Prism
                 if (prevLength < Handler.NpcDef.NextTypeIndex)
                     Array.Resize(ref p.npcTypeNoAggro, Handler.NpcDef.NextTypeIndex);
             }
+
+            if (WorldGen.tileCounts.Length < tileSetsLoaded.Length)
+                Array.Resize(ref WorldGen.tileCounts, tileSetsLoaded.Length);
         }
 
         // See MainPatcher.Patch()...

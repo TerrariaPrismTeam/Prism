@@ -15,4 +15,3 @@ catch
     # will launch default editor
     explorer $f
 }
-

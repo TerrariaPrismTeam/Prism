@@ -8,10 +8,9 @@ using ModName = System.String;
 using ModID = System.Byte;
 
 using ObjName = System.String;
-using ObjID = System.Int16;
+using ObjID = System.UInt16;
 
 using PackedValue = System.UInt32;
-using Prism.API.Defs;
 
 namespace Prism.IO
 {
@@ -41,6 +40,10 @@ namespace Prism.IO
             GetVanillaRef = id =>                  vanillaRef(id) ;
         }
 
+        public PackedValue Register(int       vid)
+        {
+            return vid == 0 ? 0 : unchecked((PackedValue)(vid & 0xFFFF));
+        }
         public PackedValue Register(ObjectRef obj)
         {
             if (obj.IsNull)
@@ -78,12 +81,18 @@ namespace Prism.IO
             return unchecked((PackedValue)oid | ((PackedValue)mid << 8 * sizeof(ObjID)) | IsModFlag);
 #pragma warning restore 675
         }
-        public ObjectRef GetRef(PackedValue id)
+        public void GetRef(PackedValue id, Action<ObjID> cVanilla, Action<ObjectRef> cMod)
         {
             if (id == 0)
-                return new ObjectRef();
+            {
+                cVanilla(0);
+                return;
+            }
             if ((id & IsModFlag) == 0)
-                return GetVanillaRef(unchecked((ObjID)id));
+            {
+                cVanilla(unchecked((ObjID)id));
+                return;
+            }
 
             ObjID oid;
             ModID mid;
@@ -97,7 +106,7 @@ namespace Prism.IO
             var mn = Mods.Reverse[mid];
             var on = ModObjects[mid].Reverse[oid];
 
-            return new ObjectRef(on, mn);
+            cMod(new ObjectRef(on, mn));
         }
 
         public void WriteDictionary(BinBuffer bb)
@@ -144,7 +153,7 @@ namespace Prism.IO
                 short objAmt = bb.ReadInt16();
 
                 for (int j = 0; j < objAmt; j++)
-                    modObjs.Add(bb.ReadString(), bb.ReadInt16());
+                    modObjs.Add(bb.ReadString(), bb.ReadUInt16());
 
                 ModObjects.Add(mid, modObjs);
             }
