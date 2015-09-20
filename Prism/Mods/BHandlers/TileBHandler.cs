@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Prism.API.Behaviours;
+using Prism.IO;
 using Prism.Mods.Hooks;
 using Terraria;
+using Terraria.DataStructures;
 
 namespace Prism.Mods.BHandlers
 {
@@ -27,6 +30,37 @@ namespace Prism.Mods.BHandlers
         public void OnUpdate()
         {
             HookManager.Call(onUpdate);
+        }
+    }
+
+    sealed class TileBHandlerEntity : TileEntity
+    {
+        internal TileBHandler bHandler;
+
+        public TileBHandlerEntity(TileBHandler bh)
+        {
+            bHandler = bh;
+
+            type = 0; // TETraingingDummy
+        }
+
+        internal void Save(BinBuffer bb)
+        {
+            bHandler.Save(bb);
+        }
+        internal void Load(BinBuffer bb)
+        {
+            bHandler.Load(bb);
+        }
+
+        public override void WriteExtraData(BinaryWriter writer)
+        {
+            writer.Write((short)(Main.maxNPCs - 1)); // fake NPC ID
+        }
+
+        public override void Update()
+        {
+            bHandler.OnUpdate();
         }
     }
 }

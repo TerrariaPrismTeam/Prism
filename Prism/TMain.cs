@@ -12,6 +12,8 @@ using Prism.Mods.DefHandlers;
 using Prism.Mods.Hooks;
 using Prism.Util;
 using Terraria;
+using Terraria.DataStructures;
+using Terraria.GameContent.Tile_Entities;
 using Terraria.GameContent.UI.States;
 using Terraria.IO;
 using Terraria.Map;
@@ -181,6 +183,8 @@ namespace Prism
 
             WorldFile.P_OnSaveWorld += SaveDataHandler.SaveWorld;
             WorldFile.P_OnLoadWorld += SaveDataHandler.LoadWorld;
+
+            TETrainingDummy.P_OnReadExtraData += TileHooks.TDReadExtraData;
         }
 
         protected override void Initialize()

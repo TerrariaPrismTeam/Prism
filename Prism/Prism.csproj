@@ -191,6 +191,7 @@
     <Compile Include="Mods\Hooks\NpcHooks.cs" />
     <Compile Include="Mods\Hooks\PlayerHooks.cs" />
     <Compile Include="Mods\Hooks\ProjHooks.cs" />
+    <Compile Include="Mods\Hooks\TileHooks.cs" />
     <Compile Include="Mods\Resources\DSEIResourceReader.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -301,13 +302,13 @@
   <ItemGroup>
     <Content Include="..\res\Icons\PrismIcon_Main.ico" />
     <EmbeddedResource Include="..\References\Ionic.Zip.CF.dll">
-        <Link>Resources\References\Ionic.Zip.CF.dll</Link>
+      <Link>Resources\References\Ionic.Zip.CF.dll</Link>
     </EmbeddedResource>
     <EmbeddedResource Include="..\References\Newtonsoft.Json.dll">
-        <Link>Resources\References\Newtonsoft.Json.dll</Link>
+      <Link>Resources\References\Newtonsoft.Json.dll</Link>
     </EmbeddedResource>
     <EmbeddedResource Include="..\References\Steamworks.NET.dll">
-        <Link>Resources\References\Steamworks.NET.dll</Link>
+      <Link>Resources\References\Steamworks.NET.dll</Link>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\UnknownItem.png" />
   </ItemGroup>

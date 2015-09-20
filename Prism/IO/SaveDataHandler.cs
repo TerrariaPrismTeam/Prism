@@ -13,6 +13,7 @@ using Prism.Mods.BHandlers;
 using Prism.Mods.DefHandlers;
 using Prism.Mods.Hooks;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.IO;
 
@@ -38,8 +39,9 @@ namespace Prism.IO
         /// VERSION 0: created
         /// VERSION 1: added wall type support, fixed some issues
         /// VERSION 2: added tile type support
+        /// VERSION 3: added TileBehaviour support
         /// </remarks>
-        const byte WORLD_VERSION  = 2;
+        const byte WORLD_VERSION  = 3;
 
         const byte
             MIN_PLAYER_SUPPORT_VER = 1,
@@ -489,6 +491,23 @@ namespace Prism.IO
                 (x, y) => Main.tile[x, y] == null || Main.tile[x, y].wall <= 0/*WallID.Count*/ ||
                     !Handler.WallDef.DefsByType.ContainsKey(Main.tile[x, y].wall) ? ObjectRef.Null : Handler.WallDef.DefsByType[Main.tile[x, y].wall]);
         }
+        static void SaveBehaviours(BinBuffer bb)
+        {
+            foreach (var te in TileEntity.ByID.Values)
+                if (te is TileBHandlerEntity)
+                {
+                    var bhe = te as TileBHandlerEntity;
+
+                    bb.Write(true);
+
+                    bb.Write(te.Position.X);
+                    bb.Write(te.Position.Y);
+
+                    bhe.Save(bb);
+                }
+
+            bb.Write(false);
+        }
 
         internal static void SaveWorld(bool toCloud)
         {
@@ -504,8 +523,6 @@ namespace Prism.IO
             {
                 //TODO: item frame item IDs are still written as ints
                 //TODO: mannequins are probably broken
-                //TODO: should tile data be saved? shouldn't tile entities be used instead? or global saving?
-                //TODO: save tile types, when support has been added
 
                 SavePrismData (bb);
                 SaveGlobalData(bb);
@@ -513,7 +530,7 @@ namespace Prism.IO
                 SaveNpcData   (bb);
                 SaveWallTypes (bb);
                 SaveTileTypes (bb);
-              //SaveTileData  (bb);
+                SaveBehaviours(bb);
             }
         }
 
@@ -583,10 +600,27 @@ namespace Prism.IO
 
             Read2DArray(bb, map, Main.maxTilesX, Main.maxTilesY, (x, y, id) => Main.tile[x, y].wall = (ushort)id, (x, y, or) => Main.tile[x, y].wall = (ushort)WallDef.Defs[or].Type);
         }
+        static void LoadBehaviours(BinBuffer bb, int v)
+        {
+            if (v < 3) // TileBehaviour data introduced in v3
+                return;
+
+            while (bb.ReadBoolean())
+            {
+                var p = new Point16(bb.ReadInt16(), bb.ReadInt16());
+
+                var te = TileEntity.ByPosition[p];
+                var bhe = te as TileBHandlerEntity;
+
+                bhe.Load(bb);
+            }
+        }
 
         internal static void LoadWorld(bool fromCloud)
         {
             var path = Main.worldPathName + ".prism";
+
+            TileHooks.SwapFakeDummies();
 
             if (!File.Exists(path))
                 return;
@@ -603,7 +637,10 @@ namespace Prism.IO
                 LoadNpcData   (bb, v);
                 LoadWallTypes (bb, v);
                 LoadTileTypes (bb, v);
-              //LoadTileData  (bb, v);
+
+                TileHooks.CreateBHandlers(); // after all tiles have their correct type
+
+                LoadBehaviours(bb, v); // after the bhandlers are created (i.e. can load)
             }
         }
     }

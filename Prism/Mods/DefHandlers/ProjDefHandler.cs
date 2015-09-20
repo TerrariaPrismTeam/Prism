@@ -49,12 +49,12 @@ namespace Prism.Mods.DefHandlers
 
                 if (d.CreateBehaviour != null)
                 {
-                    h = new ProjBHandler();
-
                     var b = d.CreateBehaviour();
 
                     if (b != null)
                     {
+                        h = new ProjBHandler();
+
                         b.Mod = d.Mod == PrismApi.VanillaInfo ? null : ModData.mods[d.Mod];
 
                         h.behaviours.Add(b);

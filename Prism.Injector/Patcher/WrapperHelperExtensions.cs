@@ -37,6 +37,16 @@ namespace Prism.Injector.Patcher
                 }
         }
 
+        static string GetSafeMethodName(string methodName)
+        {
+            // common compiler-generated names, '.' is from the compiled name of the ctor
+            return methodName
+                .Replace('.', '_')
+                .Replace('<', '_')
+                .Replace('>', '_')
+                .Replace('$', '_')
+                .Replace(' ', '_');
+        }
         static string BuildArgTypesString(MethodDefinition method)
         {
             var types = method.Parameters.Select(p => p.ParameterType);
@@ -49,7 +59,8 @@ namespace Prism.Injector.Patcher
         static string GetOverloadedName(MethodDefinition method)
         {
             var mtds = method.DeclaringType.GetMethods(method.Name);
-            return mtds.Length == 1 ? method.Name : method.Name + "_" + BuildArgTypesString(method);
+            var safeName = GetSafeMethodName(method.Name);
+            return mtds.Length == 1 ? safeName : safeName + "_" + BuildArgTypesString(method);
         }
         static string[] DefDelTypeName(MethodDefinition method)
         {
@@ -76,6 +87,12 @@ namespace Prism.Injector.Patcher
 
             var newMethod = origMethod.ReplaceAndHook(invokeDelegate, origMethod, fieldName);
 
+            // you're not special anymore!
+            if ((origMethod.Attributes & MethodAttributes.  SpecialName) != 0)
+                origMethod.Attributes ^= MethodAttributes.  SpecialName;
+            if ((origMethod.Attributes & MethodAttributes.RTSpecialName) != 0)
+                origMethod.Attributes ^= MethodAttributes.RTSpecialName;
+
             origMethod.ReplaceAllMethodRefs(newMethod, context);
         }
         /// <summary>
@@ -92,6 +109,7 @@ namespace Prism.Injector.Patcher
         public static MethodDefinition ReplaceAndHook(this MethodDefinition toHook, MethodReference invokeHook, MethodReference realMethod, string fieldName)
         {
             //! no delegate type checking is done, runtime errors might happen if it doesn't match exactly
+            //! here be dragons
 
             string origName = toHook.Name;
             var containing = toHook.DeclaringType;
@@ -101,7 +119,7 @@ namespace Prism.Injector.Patcher
             containing.Fields.Add(hookField);
 
             // change the hooked method name
-            toHook.Name = "Real" + toHook.Name;
+            toHook.Name = "Real" + GetSafeMethodName(toHook.Name);
 
             // create a fake method with the original name that calls the hook delegate field
             var newMethod = new MethodDefinition(origName, toHook.Attributes, toHook.ReturnType);

@@ -25,10 +25,10 @@ namespace Prism.Mods.Hooks
 
                 if (b != null)
                 {
+                    h = new MountBHandler();
+
                     b.Mod = ModData.mods[def.Mod];
                     b.Mount = m;
-
-                    h = new MountBHandler();
 
                     h.behaviours.Add(b);
                 }
