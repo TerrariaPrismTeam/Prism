@@ -10,6 +10,7 @@ using Terraria.DataStructures;
 
 namespace Prism.Mods.BHandlers
 {
+    //TODO: attach BHandler when a tile is placed
     public sealed class TileBHandler : EntityBHandler<TileBehaviour, Tile>
     {
         IEnumerable<Action> onUpdate;
