@@ -80,6 +80,23 @@ namespace Prism.Injector.Patcher
             for (int i = 0; i < toInject.Length; i++)
                 lwbproc.InsertBefore(instr, toInject[i]);
         }
+        static void EnlargeFrameImportantArray()
+        {
+            var saveHeader = typeDef_WorldFile.GetMethod("SaveFileFormatHeader");
+
+            if ((int)saveHeader.Body.Instructions[0].Operand != 419)
+                Console.WriteLine("WARNING! max tile type is not 419, SaveFileFormatHeader might've changed!");
+
+            var shp = saveHeader.Body.GetILProcessor();
+
+            var first = saveHeader.Body.Instructions[0];
+
+            shp.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, memRes.GetType("Terraria.Main").GetField("tileFrameImportant")));
+            shp.InsertAfter(saveHeader.Body.Instructions[0] /* do NOT use 'first' here */, Instruction.Create(OpCodes.Ldlen));
+
+            shp.Remove(first);
+          //saveHeader.Body.Instructions[0].Operand = 0x7FFF; // should be enough & cannot be more: is read as a short in LoadFileFormatHeader
+        }
 
         internal static void Patch()
         {
@@ -91,6 +108,7 @@ namespace Prism.Injector.Patcher
 
             InjectSaveHook();
             InjectLoadHook();
+            EnlargeFrameImportantArray();
         }
     }
 }

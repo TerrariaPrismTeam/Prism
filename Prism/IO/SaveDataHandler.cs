@@ -37,8 +37,9 @@ namespace Prism.IO
         /// <remarks>
         /// VERSION 0: created
         /// VERSION 1: added wall type support, fixed some issues
+        /// VERSION 2: added tile type support
         /// </remarks>
-        const byte WORLD_VERSION  = 1;
+        const byte WORLD_VERSION  = 2;
 
         const byte
             MIN_PLAYER_SUPPORT_VER = 1,
@@ -317,8 +318,8 @@ namespace Prism.IO
             }
         }
 
-        //TODO: make these faster
-        static void Write2DArray(BinBuffer bb, ModIdMap map, int xLen, int yLen, Func  <int, int, ObjectRef> getElem)
+        //TODO: make these faster (especially write)
+        static void Write2DArray(BinBuffer bb, ModIdMap map, int xLen, int yLen, Func<int, int, ObjectRef> getElem)
         {
             var ot = ObjectRef.Null;
             int amt = 0;
@@ -423,12 +424,7 @@ namespace Prism.IO
         }
         static void SaveTileTypes (BinBuffer bb)
         {
-            // don't write anything for now, custom tiles aren't implemented
-            return;
-
-#pragma warning disable 162
             var map = new ModIdMap(TileID.Count, or => TileDef.Defs[or].Type, id => Handler.TileDef.DefsByType[id]);
-#pragma warning restore 162
 
             Write2DArray(bb, map, Main.maxTilesX, Main.maxTilesY,
                 //(x, y) => Main.tile[x, y] == null || Main.tile[x, y].type >= TileID.Count ? 0 : Main.tile[x, y].type,
@@ -516,7 +512,7 @@ namespace Prism.IO
                 SaveChestItems(bb);
                 SaveNpcData   (bb);
                 SaveWallTypes (bb);
-                SaveTileTypes (bb); // NOTE: immediately returns (for now)
+                SaveTileTypes (bb);
               //SaveTileData  (bb);
             }
         }
@@ -538,15 +534,10 @@ namespace Prism.IO
         }
         static void LoadTileTypes (BinBuffer bb, int v)
         {
-            // don't read anything for now, custom tiles aren't implemented
-            return;
+            if (v < 2 /* v2: added tile support */)
+                return;
 
-            //! if (v < _WORLD_VER_TILE_SUPPORT_START)
-            //!     return;
-
-#pragma warning disable 162
             var map = new ModIdMap(TileID.Count, or => TileDef.Defs[or].Type, id => Handler.TileDef.DefsByType[id]);
-#pragma warning restore 162
 
             Read2DArray(bb, map, Main.maxTilesX, Main.maxTilesY, (x, y, id) => Main.tile[x, y].type = (ushort)id, (x, y, or) => Main.tile[x, y].type = (ushort)TileDef.Defs[or].Type);
         }
@@ -611,7 +602,7 @@ namespace Prism.IO
                 LoadChestItems(bb, v);
                 LoadNpcData   (bb, v);
                 LoadWallTypes (bb, v);
-                LoadTileTypes (bb, v); // NOTE: immediately returns (for now)
+                LoadTileTypes (bb, v);
               //LoadTileData  (bb, v);
             }
         }

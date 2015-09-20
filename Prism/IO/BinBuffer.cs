@@ -276,8 +276,7 @@ namespace Prism.IO
         }
         public void Write(BinBuffer bb, int count)
         {
-            for (int i = 0; i < count; i++)
-                Write(bb.ReadByte());
+            Write(bb.ReadBytes(count), 0, count);
         }
         #endregion
 

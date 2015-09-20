@@ -13,12 +13,6 @@ namespace Prism.API.Defs
 
     public partial class TileDef : EntityDef<TileBehaviour, Tile>
     {
-        /* TODO:
-         * - Add TileAdj
-         * - Add TileMerge
-         * - Improve Tile Drop JSON read
-         */
-
         /// <summary>
         /// Gets or sets the tile's texture function.
         /// </summary>
