@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Prism.API;
@@ -32,8 +33,16 @@ namespace Prism.Mods.Hooks
     {
         static List<TETrainingDummy> fakeDummies = new List<TETrainingDummy>();
 
-        static TileBHandler CreateBHandler(Point16 p)
+        static void CreateBHandler(Point16 p, TileBHandlerEntity e)
         {
+            // see end of method
+            if (TileEntity.ByPosition.ContainsKey(p) && TileEntity.ByPosition[p] != e)
+            {
+                Trace.WriteLine("Warning: tried to create a TileBHandlerEntity at " + p + ", but there exists one already.");
+
+                return;
+            }
+
             TileBHandler h = null;
             var t = Main.tile[p.X, p.Y].type;
 
@@ -79,7 +88,18 @@ namespace Prism.Mods.Hooks
 
                 h.OnInit();
             }
-            return h;
+
+            e.bHandler = h;
+            //if (h != null && TileEntity.ByPosition.ContainsKey(p) && TileEntity.ByPosition[p] != e)
+            //{
+            //    e.inner = TileEntity.ByPosition[p];
+
+            //    TileEntity.ByPosition.Remove(p);
+            //    TileEntity.ByID.Remove(e.inner.ID);
+
+            //    TileEntity.ByPosition.Add(p, e);
+            //    TileEntity.ByID.Add(e.inner.ID, e);
+            //}
         }
 
         internal static void TDReadExtraData(TETrainingDummy d, BinaryReader r)
@@ -122,7 +142,7 @@ namespace Prism.Mods.Hooks
                 {
                     var bhe = te as TileBHandlerEntity;
 
-                    bhe.bHandler = CreateBHandler(bhe.Position);
+                    CreateBHandler(bhe.Position, bhe);
                 }
         }
     }

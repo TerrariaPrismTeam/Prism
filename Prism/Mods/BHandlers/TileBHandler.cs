@@ -36,6 +36,7 @@ namespace Prism.Mods.BHandlers
     sealed class TileBHandlerEntity : TileEntity
     {
         internal TileBHandler bHandler;
+        //internal TileEntity inner;
 
         public TileBHandlerEntity(TileBHandler bh)
         {
@@ -53,13 +54,26 @@ namespace Prism.Mods.BHandlers
             bHandler.Load(bb);
         }
 
-        public override void WriteExtraData(BinaryWriter writer)
+        public override void ReadExtraData (BinaryReader r)
         {
-            writer.Write((short)(Main.maxNPCs - 1)); // fake NPC ID
+            //if (inner != null) inner.ReadExtraData(r);
+
+            base.ReadExtraData(r);
+        }
+        public override void WriteExtraData(BinaryWriter w)
+        {
+            //if (inner != null) inner.WriteExtraData(w);
+
+            base.WriteExtraData(w);
+
+            w.Write((short)(Main.maxNPCs - 1)); // fake NPC ID
         }
 
         public override void Update()
         {
+            //if (inner != null)
+            //    inner.Update();
+
             bHandler.OnUpdate();
         }
     }
