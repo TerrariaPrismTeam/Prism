@@ -66,5 +66,28 @@ namespace Prism.Util
         {
             return m == null ? null : Tuple.Create(map1(m.Item1), map2(m.Item2), map3(m.Item3));
         }
+        public static IEnumerable<TOut> Bind<TIn, TOut>(this IEnumerable<TIn> m, Func<TIn, IEnumerable<TOut>> map)
+        {
+            if (map == null)
+                throw new ArgumentNullException("map");
+
+            if (m == null)
+                yield break;
+
+            foreach (var t in m)
+                foreach (var t_ in map(t))
+                    yield return t_;
+
+            yield break;
+        }
+
+        public static Func<    T> Delay<T    >(T value)
+        {
+            return () => value;
+        }
+        public static Func<T2, T> Delay<T, T2>(T value)
+        {
+            return _ => value;
+        }
     }
 }

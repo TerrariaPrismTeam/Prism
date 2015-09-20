@@ -115,6 +115,8 @@ namespace Prism.API.Defs
             set;
         }
 
+        //TODO: drop item
+
         public TileDef(string displayName, Func<TileBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null)
             : base(displayName, newBehaviour)
         {

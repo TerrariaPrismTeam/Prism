@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+
 using WfMsgBox = System.Windows.Forms.MessageBox;
 
 namespace Prism
@@ -12,31 +13,22 @@ namespace Prism
     {
         public static void ShowError(string message)
         {
-            switch (Environment.OSVersion.Platform)
-            {
-                case PlatformID.Win32NT:
-                case PlatformID.Win32S:
-                case PlatformID.Win32Windows:
-                case PlatformID.WinCE:
+            if (Environment.OSVersion.Platform == PlatformID.Xbox)
+                return; // wtf?
 
-                case PlatformID.MacOSX:
-                    try
-                    {
-                        WfMsgBox.Show(message, "Prism: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                    catch
-                    {
-                        if (Environment.OSVersion.Platform == PlatformID.MacOSX)
-                            goto TRY_XMESSAGE;
-                    }
-                    break;
-                case PlatformID.Unix:
-                TRY_XMESSAGE:
+            try
+            {
+                WfMsgBox.Show(message, "Prism: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch // shouldn't throw on Windows
+            {
+                if (Environment.OSVersion.Platform == PlatformID.MacOSX || Environment.OSVersion.Platform == PlatformID.Unix)
+                {
                     bool tryConsole = false;
 
                     try
                     {
-                        if (Process.Start("xmessage \"" + message.Replace('"', '\'') + "\"") == null)
+                        if (Process.Start("xmessage \"" + message.Replace('"', '\'') + "\"") == null) // most distros have this
                             tryConsole = true;
                     }
                     catch
@@ -49,9 +41,8 @@ namespace Prism
                         {
                             Console.WriteLine(message);
                         }
-                        catch (IOException) { }
-
-                    break;
+                        catch (IOException) { } // well fuck
+                }
             }
         }
     }

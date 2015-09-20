@@ -443,6 +443,7 @@ namespace Prism.Injector.Patcher
                     case Code.Ldarga:
                     case Code.Ldarga_S:
                     case Code.Ldelema:
+                    case Code.Ldlen:
                         push(ts.IntPtr);
                         break;
                     case Code.Ldarg:

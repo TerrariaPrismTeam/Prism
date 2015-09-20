@@ -300,6 +300,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\res\Icons\PrismIcon_Main.ico" />
+    <EmbeddedResource Include="..\References\Ionic.Zip.CF.dll">
+        <Link>Resources\References\Ionic.Zip.CF.dll</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\References\Newtonsoft.Json.dll">
+        <Link>Resources\References\Newtonsoft.Json.dll</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\References\Steamworks.NET.dll">
+        <Link>Resources\References\Steamworks.NET.dll</Link>
+    </EmbeddedResource>
     <EmbeddedResource Include="Resources\UnknownItem.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

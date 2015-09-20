@@ -80,6 +80,8 @@ namespace Prism.API.Defs
             set;
         }
 
+        //TODO: drop item
+
         public WallDef(string displayName, Func<Texture2D> getTexture = null)
             : base(displayName)
         {
