@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xna.Framework;
 using Prism.API;
 using Prism.API.Defs;
 using Prism.Util;
 using Terraria;
+using Terraria.GameContent.Achievements;
+using Terraria.ID;
 
 namespace Prism.Mods.Hooks
 {
@@ -226,6 +227,209 @@ namespace Prism.Mods.Hooks
             float yDiff = Main.availableRecipeY[Main.focusRecipe] - scrollUiYPos;
             for (int i = 0; i < Recipe.maxRecipes; i++)
                 Main.availableRecipeY[i] -= yDiff;
+        }
+
+        static int AlchReduction(Recipe r, int stack)
+        {
+            if (r.alchemy && Main.player[Main.myPlayer].alchemyTable)
+            {
+                if (stack > 1)
+                {
+                    int reduction = 0;
+                    for (int i = 0; i < stack; i++)
+                        if (Main.rand.Next(3) == 0)
+                            reduction++;
+
+                    stack -= reduction;
+                }
+                else if (Main.rand.Next(3) == 0)
+                    stack = 0;
+            }
+
+            return stack;
+        }
+
+        static int ConsumeItem(ItemDef id, int stack)
+        {
+            var mp = Main.player[Main.myPlayer];
+
+            var inv = mp.inventory;
+            Item item = null;
+
+            for (int i = 0; i < 58 && stack > 0; i++)
+            {
+                item = inv[i];
+
+                if (item.netID != id.NetID)
+                    continue;
+
+                if (item.stack > stack)
+                {
+                    item.stack -= stack;
+                    stack = 0;
+                }
+                else
+                {
+                    stack -= item.stack;
+
+                    item.SetDefaults(0);
+                    item.stack = 0;
+                }
+            }
+
+            if (mp.chest != -1)
+            {
+                if (mp.chest == -2)
+                    inv = mp.bank.item;
+                else if (mp.chest == -3)
+                    inv = mp.bank2.item;
+                else
+                    inv = Main.chest[mp.chest].item;
+
+                for (int i = 0; i < Chest.maxItems && stack > 0; i++)
+                {
+                    item = inv[i];
+
+                    if (item.netID != id.NetID)
+                        continue;
+
+                    if (item.stack > stack)
+                    {
+                        item.stack -= stack;
+
+                        if (Main.netMode == 1 && mp.chest >= 0)
+                            NetMessage.SendData(MessageID.SyncChestItem, -1, -1, String.Empty, mp.chest, i, 0f, 0f, 0, 0, 0);
+
+                        stack = 0;
+                    }
+                    else
+                    {
+                        stack -= item.stack;
+
+                        item.SetDefaults(0);
+                        item.stack = 0;
+
+                        if (Main.netMode == 1 && mp.chest >= 0)
+                            NetMessage.SendData(MessageID.SyncChestItem, -1, -1, String.Empty, mp.chest, i, 0f, 0f, 0, 0, 0);
+                    }
+                }
+            }
+
+            return stack;
+        }
+        static int ConsumeGroup(CraftGroup<ItemDef, ItemRef> g, int stack)
+        {
+            for (var i = 0; i < g.Count && stack > 0; i++)
+                stack = ConsumeItem(g[i].Resolve(), stack);
+
+            return stack;
+        }
+
+        static void CreateBasic(this Recipe r)
+        {
+            for (int i = 0; i < Recipe.maxRequirements && !r.requiredItem[i].IsEmpty(); i++)
+            {
+                Item item = r.requiredItem[i];
+
+                int stack = AlchReduction(r, item.stack);
+
+                if (stack <= 0)
+                    continue;
+
+                var mp = Main.player[Main.myPlayer];
+
+                var inv = mp.inventory;
+                Item invItem = null;
+
+                for (int j = 0; j < 58 && stack > 0; j++)
+                {
+                    invItem = inv[j];
+
+                    if (invItem.IsTheSameAs(item) ||
+                            r.useWood(invItem.type, item.type) ||
+                            r.useSand(invItem.type, item.type) ||
+                            r.useFragment(invItem.type, item.type) ||
+                            r.useIronBar(invItem.type, item.type) ||
+                            r.usePressurePlate(invItem.type, item.type))
+                        if (invItem.stack > stack)
+                        {
+                            invItem.stack -= stack;
+                            stack = 0;
+                        }
+                        else
+                        {
+                            stack -= invItem.stack;
+
+                            invItem.SetDefaults(0);
+                            invItem.stack = 0;
+                        }
+                }
+                if (mp.chest != -1)
+                {
+                    if (mp.chest == -2)
+                        inv = mp.bank.item;
+                    else if (mp.chest == -3)
+                        inv = mp.bank2.item;
+                    else
+                        inv = Main.chest[mp.chest].item;
+
+                    for (int k = 0; k < Chest.maxItems && stack > 0; k++)
+                    {
+                        invItem = inv[k];
+
+                        if (invItem.IsTheSameAs(item) ||
+                                r.useWood(invItem.type, item.type) ||
+                                r.useSand(invItem.type, item.type) ||
+                                r.useIronBar(invItem.type, item.type) ||
+                                r.usePressurePlate(invItem.type, item.type) ||
+                                r.useFragment(invItem.type, item.type))
+                            if (invItem.stack > stack)
+                            {
+                                invItem.stack -= stack;
+
+                                if (Main.netMode == 1 && mp.chest >= 0)
+                                    NetMessage.SendData(MessageID.SyncChestItem, -1, -1, String.Empty, mp.chest, k, 0f, 0f, 0, 0, 0);
+
+                                stack = 0;
+                            }
+                            else
+                            {
+                                stack -= invItem.stack;
+
+                                invItem.SetDefaults(0);
+                                invItem.stack = 0;
+
+                                if (Main.netMode == 1 && mp.chest >= 0)
+                                    NetMessage.SendData(MessageID.SyncChestItem, -1, -1, String.Empty, mp.chest, k, 0f, 0f, 0, 0, 0);
+                            }
+                    }
+                }
+            }
+        }
+        static void CreateUnion(this Recipe r)
+        {
+            var rd = (RecipeDef)r.P_GroupDef;
+
+            foreach (var iu in rd.RequiredItems)
+            {
+                int stack = AlchReduction(r, iu.Value);
+
+                if (stack <= 0)
+                    continue;
+
+                iu.Key.Match(ir => ConsumeItem(ir.Resolve(), stack), g => ConsumeGroup(g, stack));
+            }
+        }
+        internal static void Create(Recipe r)
+        {
+            if (r.P_GroupDef as RecipeDef == null)
+                r.CreateBasic();
+            else
+                r.CreateUnion();
+
+            AchievementsHelper.NotifyItemCraft(r);
+            AchievementsHelper.NotifyItemPickup(Main.player[Main.myPlayer], r.createItem);
+            Recipe.FindRecipes();
         }
     }
 }

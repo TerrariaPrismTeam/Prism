@@ -68,6 +68,8 @@ namespace Prism.Mods.DefHandlers
                 i++;
             }
 
+            r.alchemy = def.AlchemyReduction;
+
             r.needWater = (def.RequiredLiquids & RecipeLiquids.Water) != 0;
             r.needLava  = (def.RequiredLiquids & RecipeLiquids.Lava ) != 0;
             r.needHoney = (def.RequiredLiquids & RecipeLiquids.Honey) != 0;
@@ -150,7 +152,8 @@ namespace Prism.Mods.DefHandlers
                     (r.needLava  ? RecipeLiquids.Lava  : 0) |
                     (r.needHoney ? RecipeLiquids.Honey : 0))
                 {
-                    Mod = PrismApi.VanillaInfo
+                    Mod              = PrismApi.VanillaInfo,
+                    AlchemyReduction = r.alchemy
                 });
             }
 

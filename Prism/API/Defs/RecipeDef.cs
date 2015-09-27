@@ -65,6 +65,12 @@ namespace Prism.API.Defs
             set;
         }
 
+        public bool AlchemyReduction
+        {
+            get;
+            set;
+        }
+
         public RecipeDef(ItemRef createItem, int stack, IDictionary<ItemUnion, int> reqItems,
                          IEnumerable<TileUnion> reqTiles = null, RecipeLiquids reqLiquids = RecipeLiquids.None)
         {

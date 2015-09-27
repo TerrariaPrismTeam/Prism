@@ -186,6 +186,7 @@ namespace Prism
             TETrainingDummy.P_OnReadExtraData += TileHooks.TDReadExtraData;
 
             Recipe.P_OnFindRecipes += RecipeHooks.FindRecipes;
+            Recipe.P_OnCreate      += RecipeHooks.Create     ;
         }
 
         protected override void Initialize()

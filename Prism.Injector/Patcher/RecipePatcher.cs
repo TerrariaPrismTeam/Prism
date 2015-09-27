@@ -21,6 +21,7 @@ namespace Prism.Injector.Patcher
         static void WrapMethods()
         {
             typeDef_Recipe.GetMethod("FindRecipes").Wrap(context);
+            typeDef_Recipe.GetMethod("Create"     ).Wrap(context);
         }
 
         internal static void Patch()
