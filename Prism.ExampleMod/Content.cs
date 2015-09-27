@@ -9,6 +9,7 @@ using Prism.API.Audio;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Prism.ExampleMod.Behaviours.NPC;
+using Prism.Util;
 using Terraria;
 using Terraria.ID;
 

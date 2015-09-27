@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Prism.API;
 using Prism.Mods.DefHandlers;
+using Terraria;
 using Terraria.Map;
 
 namespace Prism.Mods
@@ -64,6 +65,8 @@ namespace Prism.Mods
             Handler.WallDef .FillVanilla();
 
             Handler.RecipeDef.FillVanilla();
+
+            Handler.RecipeDef.CheckRecipes();
         }
 
         /// <summary>

@@ -9,6 +9,9 @@ using Terraria.ID;
 
 namespace Prism.Mods.DefHandlers
 {
+    using ItemUnion = Either<ItemRef, CraftGroup<ItemDef, ItemRef>>;
+    using TileUnion = Either<TileRef, CraftGroup<TileDef, TileRef>>;
+
     //TODO: we might need to rethink this
     sealed class RecipeDefHandler
     {
@@ -30,11 +33,17 @@ namespace Prism.Mods.DefHandlers
 
         static void CopyDefToVanilla(RecipeDef def, Recipe r)
         {
+            var or = SettingUpRecipes;
             SettingUpRecipes = true;
 
             r.createItem.netDefaults(def.CreateItem.Resolve().NetID);
             r.createItem.stack = def.CreateStack;
 
+            if (def.RequiredItems.Keys.Any(e => (e.Kind & EitherKind.Left) != 0) ||
+                    def.RequiredTiles .Any(e => (e.Kind & EitherKind.Left) != 0))
+                r.P_GroupDef = def; // handled by RecipeHooks.FindRecipes
+
+            // for groups: display first the first, it's handled by RecipeHooks.FindRecipes
             int i = 0;
             foreach (var kvp in def.RequiredItems)
             {
@@ -42,7 +51,7 @@ namespace Prism.Mods.DefHandlers
                     break;
 
                 r.requiredItem[i] = new Item();
-                r.requiredItem[i].netDefaults(kvp.Key.Resolve().NetID);
+                r.requiredItem[i].netDefaults(ItemDef.Defs[kvp.Key.Match(MiscExtensions.Identity, g => g[0])].NetID);
                 r.requiredItem[i].stack = kvp.Value;
 
                 i++;
@@ -54,7 +63,7 @@ namespace Prism.Mods.DefHandlers
                 if (i >= Recipe.maxRequirements)
                     break;
 
-                r.requiredTile[i] = t.Resolve().Type;
+                r.requiredTile[i] = TileDef.Defs[t.Match(MiscExtensions.Identity, g => g[0])].Type;
 
                 i++;
             }
@@ -63,11 +72,10 @@ namespace Prism.Mods.DefHandlers
             r.needLava  = (def.RequiredLiquids & RecipeLiquids.Lava ) != 0;
             r.needHoney = (def.RequiredLiquids & RecipeLiquids.Honey) != 0;
 
-            r.alchemy = def.RequiredTiles.Any(t => t.Resolve().Type == TileID.Bottles);
+            ////TODO: set any* to true when TileGroups are defined & implemented
+            // RecipeHooks.FindRecipes handles this
 
-            //TODO: set any* to true when TileGroups are defined & implemented
-
-            SettingUpRecipes = false;
+            SettingUpRecipes = or;
         }
 
         static void ExtendVanillaArrays(int amt = 1)
@@ -88,6 +96,26 @@ namespace Prism.Mods.DefHandlers
             Array.Resize(ref Main.availableRecipeY, newLen);
         }
 
+        internal void CheckRecipes()
+        {
+            for (int i = 0; i < Main.recipe.Length; i++)
+            {
+                var r = Main.recipe[i];
+
+                r.createItem.checkMat();
+
+                for (int j = 0; j < r.requiredItem.Length; j++)
+                {
+                    var it = r.requiredItem[j];
+
+                    if (it.type == 0)
+                        break;
+
+                    it.material = true;
+                }
+            }
+        }
+
         internal void Reset()
         {
             recipes.Clear();
@@ -100,6 +128,7 @@ namespace Prism.Mods.DefHandlers
 
             SettingUpRecipes = true ;
             Recipe.SetupRecipes();
+            CheckRecipes();
             SettingUpRecipes = false;
 
             DefNumRecipes = Recipe.numRecipes;
@@ -111,12 +140,12 @@ namespace Prism.Mods.DefHandlers
             {
                 var r = Main.recipe[i];
 
-                //TODO: add ItemGroups & TileGroups when they're defined & implemented
+                // CraftGroups don't exist in vanilla, so they're not handled here
                 recipes.Add(new RecipeDef(
                     new ItemRef(r.createItem.netID),
                     r.createItem.stack,
-                    r.requiredItem.TakeWhile(it => it.type != 0).Select(it => new KeyValuePair<ItemRef, int>(new ItemRef(it.netID), it.stack)).ToDictionary(),
-                    r.requiredTile.TakeWhile(t => t >= 0).Select(t => new TileRef(t)).ToArray(),
+                    r.requiredItem.TakeWhile(it => it.type != 0).Select(it => new KeyValuePair<ItemUnion, int>(new ItemRef(it.netID), it.stack)).ToDictionary(),
+                    r.requiredTile.TakeWhile(t => t >= 0).Select(t => new TileRef(t)),
                     (r.needWater ? RecipeLiquids.Water : 0) |
                     (r.needLava  ? RecipeLiquids.Lava  : 0) |
                     (r.needHoney ? RecipeLiquids.Honey : 0))

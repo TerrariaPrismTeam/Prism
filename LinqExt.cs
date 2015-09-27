@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 
 // one of these is defined for Prism.csproj
 // otherwise, it must be Prism.Injector.csproj
@@ -44,6 +45,14 @@ namespace Prism.Injector
             }
 
             return foundFirst;
+        }
+
+        public static string SafeToString(this object v, string defValue = null)
+        {
+            if (ReferenceEquals(v, null))
+                return defValue;
+
+            return v.ToString();
         }
 
         public static IEnumerable<T> Flatten   <T>(this IEnumerable<IEnumerable<T>> coll)
@@ -90,11 +99,19 @@ namespace Prism.Injector
 
         public static bool All(this IEnumerable<bool> coll)
         {
-            return coll.All(MiscExtensions.Identity);
+            foreach (var b in coll)
+                if (!b)
+                    return false;
+
+            return true;
         }
         public static bool Any(this IEnumerable<bool> coll)
         {
-            return coll.Any(MiscExtensions.Identity);
+            foreach (var b in coll)
+                if (b)
+                    return true;
+
+            return false;
         }
 
         public static T[] Subarray<T>(this T[] arr, int s, int l)
@@ -173,6 +190,65 @@ namespace Prism.Injector
             }
 
             yield break;
+        }
+
+        public static string Join(this IEnumerable<string> coll, Func<int, string> sepatator)
+        {
+            var sb = new StringBuilder();
+
+            int i = 0;
+            foreach (var t in coll)
+                sb.Append(sepatator(i++)).Append(t);
+
+            return sb.ToString().SafeToString();
+        }
+        public static T Join<T>(this IEnumerable<T> coll, Func<int, T> separator, Func<T, T, T> accumulator)
+        {
+            if (separator == null)
+                throw new ArgumentNullException("separator");
+            if (accumulator == null)
+                throw new ArgumentNullException("accumulator");
+            if (coll.IsEmpty())
+                throw new ArgumentException("Collection is empty.", "coll");
+
+            T r;
+            int i = 0;
+
+            using (var etor = coll.GetEnumerator())
+            {
+                etor.Reset();
+                etor.MoveNext(); // should be true because the collection isn't empty
+
+                r = etor.Current;
+
+                while (etor.MoveNext())
+                    r = accumulator(accumulator(r, separator(i++)), etor.Current);
+                    // r += separator(i++) + current
+            }
+
+            return r;
+        }
+        public static T SafeJoin<T>(this IEnumerable<T> coll, Func<int, T> separator, Func<T, T, T> accumulator)
+        {
+            if (coll.IsEmpty())
+                return default(T);
+
+            return coll.Join(separator, accumulator);
+        }
+        public static IEnumerable<T> Join<T>(this IEnumerable<IEnumerable<T>> coll, Func<int, IEnumerable<T>> separator)
+        {
+            if (separator == null)
+                throw new ArgumentNullException("separator");
+
+            IEnumerable<T> r = Empty<T>.Array;
+            int i = 0;
+
+            foreach (var e in coll)
+                // yield! separator(i++)
+                // yield! e
+                r = r.Concat(separator(i++)).Concat(e);
+
+            return r;
         }
 
         static bool Equality<T>(T a, T b)

@@ -185,6 +185,8 @@ namespace Prism
             WorldFile.P_OnLoadWorld += SaveDataHandler.LoadWorld;
 
             TETrainingDummy.P_OnReadExtraData += TileHooks.TDReadExtraData;
+
+            Recipe.P_OnFindRecipes += RecipeHooks.FindRecipes;
         }
 
         protected override void Initialize()

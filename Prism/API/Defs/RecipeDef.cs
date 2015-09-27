@@ -7,7 +7,10 @@ using Prism.Util;
 
 namespace Prism.API.Defs
 {
-    public class RecipeItems : Dictionary<ItemRef, int> { }
+    using ItemUnion = Either<ItemRef, CraftGroup<ItemDef, ItemRef>>;
+    using TileUnion = Either<TileRef, CraftGroup<TileDef, TileRef>>;
+
+    public class RecipeItems : Dictionary<Either<ItemRef, CraftGroup<ItemDef, ItemRef>>, int> { }
 
     [Flags]
     public enum RecipeLiquids
@@ -45,14 +48,12 @@ namespace Prism.API.Defs
             set;
         }
 
-        //TODO: add ItemGroups and change ItemRef to an ItemRef | ItemGroup discriminated union
-        public IDictionary<ItemRef, int> RequiredItems
+        public IDictionary<ItemUnion, int> RequiredItems
         {
             get;
             set;
         }
-        //TODO: add TileGroups and change it to another discriminated union
-        public TileRef[] RequiredTiles
+        public IEnumerable<TileUnion> RequiredTiles
         {
             get;
             set;
@@ -64,23 +65,28 @@ namespace Prism.API.Defs
             set;
         }
 
-        public RecipeDef(
-            #region arguments
-            ItemRef createItem,
-            int stack = 1,
-            IDictionary<ItemRef, int> reqItems = null,
-            TileRef[] reqTiles = null,
-            RecipeLiquids reqLiquids = RecipeLiquids.None
-            #endregion
-            )
+        public RecipeDef(ItemRef createItem, int stack, IDictionary<ItemUnion, int> reqItems,
+                         IEnumerable<TileUnion> reqTiles = null, RecipeLiquids reqLiquids = RecipeLiquids.None)
         {
-            CreateItem = createItem;
+            CreateItem  = createItem;
             CreateStack = stack;
 
-            RequiredItems = reqItems ?? new Dictionary<ItemRef, int>();
-            RequiredTiles = reqTiles ?? Empty<TileRef>.Array;
+            RequiredItems = reqItems ?? new Dictionary<ItemUnion, int>();
+            RequiredTiles = reqTiles ?? Empty<TileUnion>.Array;
 
             RequiredLiquids = reqLiquids;
+        }
+        public RecipeDef(ItemRef createItem, int stack, IDictionary<ItemUnion, int> reqItems,
+                         IEnumerable<TileRef> reqTiles, RecipeLiquids reqLiquids = RecipeLiquids.None)
+            : this(createItem, stack, reqItems, reqTiles.SafeSelect(r => (TileUnion)r), reqLiquids)
+        {
+
+        }
+        public RecipeDef(ItemRef createItem, int stack, IDictionary<ItemUnion, int> reqItems,
+                         IEnumerable<CraftGroup<TileDef, TileRef>> reqTiles, RecipeLiquids reqLiquids = RecipeLiquids.None)
+            : this(createItem, stack, reqItems, reqTiles.SafeSelect(Either<TileRef, CraftGroup<TileDef, TileRef>>.NewLeft), reqLiquids)
+        {
+
         }
     }
 }

@@ -119,32 +119,32 @@ namespace Prism.Util
 
         public static BuffRef ParseBuffRef(this JsonData j)
         {
-            return j.ParseAsIntOrObjectRef().Bind(i => new BuffRef(i), or => new BuffRef(or)).Right;
+            return j.ParseAsIntOrObjectRef().Match(i => new BuffRef(i), or => new BuffRef(or));
         }
         public static ItemRef ParseItemRef(this JsonData j)
         {
-            return j.ParseAsIntOrObjectRef().Bind(i => new ItemRef(i), or => new ItemRef(or)).Right;
+            return j.ParseAsIntOrObjectRef().Match(i => new ItemRef(i), or => new ItemRef(or));
         }
         public static NpcRef ParseNpcRef(this JsonData j)
         {
-            return j.ParseAsIntOrObjectRef().Bind(i => new NpcRef(i), or => new NpcRef(or)).Right;
+            return j.ParseAsIntOrObjectRef().Match(i => new NpcRef(i), or => new NpcRef(or));
         }
         public static ProjectileRef ParseProjectileRef(this JsonData j)
         {
-            return j.ParseAsIntOrObjectRef().Bind(i => new ProjectileRef(i), or => new ProjectileRef(or)).Right;
+            return j.ParseAsIntOrObjectRef().Match(i => new ProjectileRef(i), or => new ProjectileRef(or));
         }
         public static TileRef ParseTileRef(this JsonData j)
         {
-            return j.ParseAsIntOrObjectRef().Bind(i => new TileRef(i), or => new TileRef(or)).Right;
+            return j.ParseAsIntOrObjectRef().Match(i => new TileRef(i), or => new TileRef(or));
         }
         public static WallRef ParseWallRef(this JsonData j)
         {
-            return j.ParseAsIntOrObjectRef().Bind(i => new WallRef(i), or => new WallRef(or)).Right;
+            return j.ParseAsIntOrObjectRef().Match(i => new WallRef(i), or => new WallRef(or));
         }
 
         public static BgmRef ParseBgmRef(this JsonData j)
         {
-            return j.ParseAsIntOrObjectRef().Bind(i => new BgmRef(VanillaBgms.RefOfId(i)), or => new BgmRef(or)).Right;
+            return j.ParseAsIntOrObjectRef().Match(i => new BgmRef(VanillaBgms.RefOfId(i)), or => new BgmRef(or));
         }
     }
 }

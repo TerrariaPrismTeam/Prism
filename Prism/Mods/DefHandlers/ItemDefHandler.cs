@@ -69,6 +69,11 @@ namespace Prism.Mods.DefHandlers
             return new ItemDef(Lang.itemName(item.netID, true), getTexture: () => Main.itemTexture[item.type]);
         }
 
+        static Func<ItemRef, bool> DRMatch(ItemDef d)
+        {
+            return r => r.Resolve().NetID == d.NetID;
+        }
+
         protected override void CopyEntityToDef(Item item, ItemDef def)
         {
             def.DisplayName         = item.name;
@@ -285,7 +290,11 @@ namespace Prism.Mods.DefHandlers
         protected override void CopyDefToEntity(ItemDef def, Item item)
         {
             if (!def.material.HasValue)
-                def.material = RecipeDef.Recipes.Any(r => r.RequiredItems.Any(ir => ir.Key.Resolve().NetID == def.NetID));
+            {
+                var m = DRMatch(def);
+
+                def.material = RecipeDef.Recipes.Any(r => r.RequiredItems.Keys.Any(ir => ir.Match(m, g => g.Any(m))));
+            }
 
             item.name         = def.DisplayName;
             item.type         = def.Type;

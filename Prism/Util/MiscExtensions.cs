@@ -7,14 +7,6 @@ namespace Prism.Util
 {
     public static partial class MiscExtensions
     {
-        public static string SafeToString(this object v, string defValue = null)
-        {
-            if (ReferenceEquals(v, null))
-                return defValue;
-
-            return v.ToString();
-        }
-
         // see LinqExt
         //public static T Identity<T>(T t)
         //{
@@ -88,6 +80,14 @@ namespace Prism.Util
         public static Func<T2, T> Delay<T, T2>(T value)
         {
             return _ => value;
+        }
+
+        public static TResult Match<T1, T2, TResult>(this Either<T1, T2> m, Func<T1, TResult> mapR, Func<T2, TResult> mapL)
+        {
+            if (m.Kind == EitherKind.Right)
+                return mapR(m.Right);
+            else
+                return mapL(m.Left );
         }
     }
 }

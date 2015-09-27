@@ -8,7 +8,7 @@ namespace Prism.Injector.Patcher
     static class ProjectilePatcher
     {
         static CecilContext   context;
-        static MemberResolver  memRes;
+        static MemberResolver memRes ;
 
         static TypeSystem typeSys;
         static TypeDefinition typeDef_Proj;

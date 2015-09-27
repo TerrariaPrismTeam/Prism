@@ -7,7 +7,7 @@ using Prism.Util;
 
 namespace Prism.API.Defs
 {
-    public abstract class EntityRef<T> : IEquatable<EntityRef<T>>
+    public abstract class EntityRef<TDef> : IEquatable<EntityRef<TDef>>
     {
         Lazy<string> resName;
 
@@ -60,9 +60,9 @@ namespace Prism.API.Defs
             Requesting = ModData.ModFromAssembly(calling);
         }
 
-        public abstract T Resolve();
+        public abstract TDef Resolve();
 
-        public virtual bool Equals(EntityRef<T> other)
+        public virtual bool Equals(EntityRef<TDef> other)
         {
             return ResourceName == other.ResourceName && Mod == other.Mod;
         }
@@ -72,8 +72,8 @@ namespace Prism.API.Defs
             if (ReferenceEquals(obj, null))
                 return false;
 
-            if (obj is EntityRef<T>)
-                return Equals((EntityRef<T>)obj);
+            if (obj is EntityRef<TDef>)
+                return Equals((EntityRef<TDef>)obj);
 
             return false;
         }
@@ -86,7 +86,7 @@ namespace Prism.API.Defs
             return String.IsNullOrEmpty(ResourceName) ? "<empty>" : ("{" + Mod.InternalName + "." + ResourceName + "}");
         }
 
-        public static implicit operator ObjectRef(EntityRef<T> e)
+        public static implicit operator ObjectRef(EntityRef<TDef> e)
         {
             return new ObjectRef(e.ResourceName, e.Mod)
             {
@@ -94,7 +94,7 @@ namespace Prism.API.Defs
             };
         }
     }
-    public abstract class EntityRefWithId<T> : EntityRef<T>
+    public abstract class EntityRefWithId<TDef> : EntityRef<TDef>
     {
         public int? ResourceID
         {
@@ -113,11 +113,11 @@ namespace Prism.API.Defs
 
         }
 
-        public override bool Equals(EntityRef<T> other)
+        public override bool Equals(EntityRef<TDef> other)
         {
-            if (ResourceID.HasValue && other is EntityRefWithId<T>)
+            if (ResourceID.HasValue && other is EntityRefWithId<TDef>)
             {
-                var erid = (EntityRefWithId<T>)other;
+                var erid = (EntityRefWithId<TDef>)other;
 
                 if (erid.ResourceID.HasValue)
                     return ResourceID.Value == erid.ResourceID.Value;
