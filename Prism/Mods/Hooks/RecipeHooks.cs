@@ -16,7 +16,7 @@ namespace Prism.Mods.Hooks
     {
         static Func<ItemRef, bool> RefEq(int netID)
         {
-            return r => ItemDef.Defs[r].NetID == netID;
+            return r => r.Resolve().NetID == netID;
         }
         static KeyValuePair<ItemUnion, int>? UsesItem(Recipe r, int netID)
         {
@@ -116,14 +116,22 @@ namespace Prism.Mods.Hooks
                 bool isA = true;
 
                 // check proximity of tiles
-                for (int j = 0; j < Recipe.maxRequirements && r.requiredTile[j] != -1; j++)
-                {
-                    if (!mp.adjTile[r.requiredTile[j]])
+                if (r.P_GroupDef as RecipeDef != null)
+                    foreach (var e in ((RecipeDef)r.P_GroupDef).RequiredTiles)
                     {
-                        isA = false;
-                        break;
+                        if (!e.Match(tr => mp.adjTile[tr.Resolve().Type], g => g.Any(tr => mp.adjTile[tr.Resolve().Type])))
+                        {
+                            isA = false;
+                            break;
+                        }
                     }
-                }
+                else
+                    for (int j = 0; j < Recipe.maxRequirements && r.requiredTile[j] != -1; j++)
+                        if (!mp.adjTile[r.requiredTile[j]])
+                        {
+                            isA = false;
+                            break;
+                        }
 
                 if (!isA)
                     continue;

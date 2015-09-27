@@ -51,7 +51,7 @@ namespace Prism.Mods.DefHandlers
                     break;
 
                 r.requiredItem[i] = new Item();
-                r.requiredItem[i].netDefaults(ItemDef.Defs[kvp.Key.Match(MiscExtensions.Identity, g => g[0])].NetID);
+                r.requiredItem[i].netDefaults(kvp.Key.Match(MiscExtensions.Identity, g => g[0]).Resolve().NetID);
                 r.requiredItem[i].stack = kvp.Value;
 
                 i++;
@@ -63,7 +63,7 @@ namespace Prism.Mods.DefHandlers
                 if (i >= Recipe.maxRequirements)
                     break;
 
-                r.requiredTile[i] = TileDef.Defs[t.Match(MiscExtensions.Identity, g => g[0])].Type;
+                r.requiredTile[i] = t.Match(MiscExtensions.Identity, g => g[0]).Resolve().Type;
 
                 i++;
             }

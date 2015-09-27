@@ -39,7 +39,6 @@ namespace Prism
         }
 
         internal TMain()
-        : base()
         {
             versionNumber += ", " + PrismApi.NiceVersionString;
 

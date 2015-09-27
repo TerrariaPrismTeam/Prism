@@ -42,7 +42,7 @@ namespace Prism.API.Defs
         {
             get
             {
-                return IsVanillaRef ? PrismApi.VanillaInfo : ModData.mods.Keys.FirstOrDefault(mi => mi.InternalName == ModName);
+                return String.IsNullOrEmpty(ModName) ? ModInfo.Empty : (IsVanillaRef ? PrismApi.VanillaInfo : ModData.mods.Keys.FirstOrDefault(mi => mi.InternalName == ModName));
             }
         }
 
@@ -88,7 +88,7 @@ namespace Prism.API.Defs
 
         public static implicit operator ObjectRef(EntityRef<TDef> e)
         {
-            return new ObjectRef(e.ResourceName, e.Mod)
+            return new ObjectRef(e.ResourceName, e.ModName)
             {
                 requesting = e.Requesting
             };

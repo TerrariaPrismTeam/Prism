@@ -111,6 +111,7 @@
     <Compile Include="ILAsm\ILSnippetCompiler.cs" />
     <Compile Include="ILInjector.cs" />
     <Compile Include="InjectionData.cs" />
+    <Compile Include="Patcher\BuffPatcher.cs" />
     <Compile Include="Patcher\CecilHelperExtensions.cs" />
     <Compile Include="MemberResolver.cs" />
     <Compile Include="MemberResolverExtensions.cs" />

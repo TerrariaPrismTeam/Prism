@@ -339,7 +339,7 @@ namespace Prism.Mods
             {
                 Trace.WriteLine("Some problems occured when loading mods. See the prism.log file for details.");
 
-                ModLoader.ShowAllErrors();
+                ShowAllErrors();
             }
 
             return errors;

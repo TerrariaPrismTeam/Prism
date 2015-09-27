@@ -17,6 +17,8 @@ namespace Prism.Mods.BHandlers
 
         internal Dictionary<string, BinBuffer> data = new Dictionary<string, BinBuffer>();
 
+        internal bool created;
+
         public IEnumerable<TBehaviour> Behaviours
         {
             get
@@ -29,9 +31,13 @@ namespace Prism.Mods.BHandlers
         {
             save = HookManager.CreateHooks<TBehaviour, Action<BinBuffer>>(behaviours, "Save");
             load = HookManager.CreateHooks<TBehaviour, Action<BinBuffer>>(behaviours, "Load");
+
+            created = true;
         }
         public virtual void Clear ()
         {
+            created = false;
+
             save = load = null;
         }
 

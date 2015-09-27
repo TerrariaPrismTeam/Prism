@@ -12,6 +12,8 @@ namespace Prism.Mods
     /// </summary>
     public struct ModInfo : IEquatable<ModInfo>
     {
+        public static readonly ModInfo Empty = new ModInfo("_", String.Empty, String.Empty, String.Empty, "0.0.0.0", String.Empty, "_", String.Empty, Empty<IReference>.Array);
+
         /// <summary>
         /// Gets the path associated with this mod definition.
         /// </summary>
@@ -56,7 +58,6 @@ namespace Prism.Mods
         /// Gets the references to the <see cref="System.Reflection.Assembly"/>'s (including other mods) associated with this mod definition.
         /// </summary>
         public readonly IReference[] References;
-
 
         /// <summary>
         /// Gets the mod's version as a <see cref="System.Version"/> object.

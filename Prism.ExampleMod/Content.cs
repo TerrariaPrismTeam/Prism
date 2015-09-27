@@ -225,13 +225,19 @@ namespace Prism.ExampleMod
 
         protected override IEnumerable<RecipeDef> GetRecipeDefs()
         {
+            var AnyGel = new ItemGroup(new[]
+            {
+                new ItemRef(ItemID.    Gel),
+                new ItemRef(ItemID.PinkGel)
+            }, "Any gel");
+
             return new[]
             {
                 new RecipeDef(
                     new ItemRef("Pizza"), 8,
                     new RecipeItems
                     {
-                        { new ItemRef(ItemID.Gel), 30 }
+                        { AnyGel, 30 }
                     }
                 ),
                 new RecipeDef(
@@ -239,7 +245,7 @@ namespace Prism.ExampleMod
                     new RecipeItems
                     {
                         { new ItemRef("Pizza"   ),  1 },
-                        { new ItemRef(ItemID.Gel), 20 }
+                        {              AnyGel    , 20 }
                     }
                 ),
                 new RecipeDef(
@@ -248,7 +254,7 @@ namespace Prism.ExampleMod
                     {
                         { new ItemRef("Pizza"   ), 1 },
                         { new ItemRef("Ant"     ), 1 },
-                        { new ItemRef(ItemID.Gel), 4 }
+                        {              AnyGel    , 4 }
                     },
                     new[] { new TileRef(TileID.TinkerersWorkbench) }
                 ),
@@ -258,7 +264,7 @@ namespace Prism.ExampleMod
                     {
                         { new ItemRef("Pizza"   ), 3 },
                         { new ItemRef("Pizzant" ), 1 },
-                        { new ItemRef(ItemID.Gel), 4 }
+                        {              AnyGel    , 4 }
                     },
                     new[] { new TileRef(TileID.Dirt) }
                 ),
@@ -266,14 +272,14 @@ namespace Prism.ExampleMod
                     new ItemRef("WallPlacer"), 1,
                     new RecipeItems
                     {
-                        { new ItemRef(ItemID.Gel), 1 }
+                        { AnyGel, 1 }
                     }
                 ),
                 new RecipeDef(
                     new ItemRef("TilePlacer"), 1,
                     new RecipeItems
                     {
-                        { new ItemRef(ItemID.Gel), 1 }
+                        { AnyGel, 1 }
                     }
                 )
             };

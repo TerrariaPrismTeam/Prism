@@ -97,7 +97,7 @@ namespace Prism.Mods.DefHandlers
                 foreach (var b in h.Behaviours)
                     b.Entity = n;
 
-                h.OnInit();
+                //h.OnInit();
             }
         }
         internal static void OnSetDefaultsByName(NPC n, string name)

@@ -176,6 +176,11 @@ namespace Prism.API.Defs
             return list.GetEnumerator();
         }
         #endregion
+
+        public static implicit operator Either<TRef, CraftGroup<TDef, TRef>>(CraftGroup<TDef, TRef> g)
+        {
+            return Either<TRef, CraftGroup<TDef, TRef>>.NewLeft(g);
+        }
     }
 
     public class ItemGroup : CraftGroup<ItemDef, ItemRef>
