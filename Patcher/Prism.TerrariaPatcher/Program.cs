@@ -112,7 +112,7 @@ namespace Prism.TerrariaPatcher
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Something went wrong when patching " + Path.GetFileName(TerrariaExecutable) + ":");
+                    Console.WriteLine("Something went wrong while patching " + Path.GetFileName(TerrariaExecutable) + ":");
                     Console.WriteLine(e);
 
                     return 1;
