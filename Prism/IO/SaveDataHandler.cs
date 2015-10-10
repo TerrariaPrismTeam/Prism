@@ -321,28 +321,43 @@ namespace Prism.IO
         }
 
         //TODO: make these faster (especially write)
-        static void Write2DArray(BinBuffer bb, ModIdMap map, int xLen, int yLen, Func<int, int, ObjectRef> getElem)
+        static void Write2DArray(BinBuffer bb, ModIdMap map, int xLen, int yLen, Func<int, int, bool> isEmpty, Func  <int, int, int> getElemV, Func  <int, int, ObjectRef> getElemM)
         {
+            var ov = 0;
             var ot = ObjectRef.Null;
+            bool isOV = true;
+
             int amt = 0;
             bool once = true;
 
             int dictOffsetPosition = bb.Position;
-            bb.Write(0); // dictionary offset
+            bb.Write(0); // dictionary position
 
             for (int y = 0; y < yLen; y++)
                 for (int x = 0; x < xLen; x++)
                 {
-                    var t = getElem(x, y);
+                    var e = isEmpty(x, y);
+                    var v = e ? 0 : getElemV(x, y);
+                    var t = ObjectRef.Null;
+                    var isV = e || v > 0;
+
+                    if (!e && v == 0)
+                    {
+                        t = getElemM(x, y);
+                        isV = false;
+                    }
 
                     if (once)
                     {
-                        ot = t;
-                        bb.Write(map.Register(t));
+                        if (isV) ov = v;
+                        else     ot = t;
+                        isOV = isV;
+
+                        bb.Write((uint)(isV ? map.Register(v) : map.Register(t)));
 
                         once = false;
                     }
-                    else if (t == ot && amt < UInt16.MaxValue)
+                    else if (isV == isOV && (isV ? v == ov : t == ot) && amt < UInt16.MaxValue)
                         amt++;
                     else
                     {
@@ -350,8 +365,11 @@ namespace Prism.IO
                                                // instead of the type over and over again, to save some space
                         amt = 0; // amt == 0 -> one element
 
-                        ot = t;
-                        bb.Write(map.Register(t));
+                        if (isV) ov = v;
+                        else     ot = t;
+                        isOV = isV;
+
+                        bb.Write((uint)(isV ? map.Register(v) : map.Register(t)));
                     }
                 }
 
@@ -359,16 +377,16 @@ namespace Prism.IO
 
             var afterData = bb.Position;
             bb.Position = dictOffsetPosition;
-            bb.Write(afterData/* - dictOffsetPosition*/); // dictionary offset // try absolute?
+            bb.Write(afterData); // dictionary position
             bb.Position = afterData;
 
             map.WriteDictionary(bb);
         }
         static void Read2DArray (BinBuffer bb, ModIdMap map, int xLen, int yLen, Action<int, int, int> setElemV, Action<int, int, ObjectRef> setElemM)
         {
-            var dictOffset = bb.ReadInt32();
+            var dictPos = bb.ReadInt32();
             var dataStart = bb.Position;
-            bb.Position /*+*/= dictOffset;
+            bb.Position = dictPos;
 
             map.ReadDictionary(bb);
 
@@ -405,10 +423,8 @@ namespace Prism.IO
                     }
                     else
                     {
-                        if (isM)
-                            setElemM(x, y, curM);
-                        else
-                            setElemV(x, y, curV);
+                        if (isM) setElemM(x, y, curM);
+                        else     setElemV(x, y, curV);
 
                         amt--;
                     }
@@ -429,8 +445,9 @@ namespace Prism.IO
             var map = new ModIdMap(TileID.Count, or => TileDef.Defs[or].Type, id => Handler.TileDef.DefsByType[id]);
 
             Write2DArray(bb, map, Main.maxTilesX, Main.maxTilesY,
-                //(x, y) => Main.tile[x, y] == null || Main.tile[x, y].type >= TileID.Count ? 0 : Main.tile[x, y].type,
-                (x, y) => Main.tile[x, y] == null || Main.tile[x, y].type <= 0/*TileID.Count*/ ||
+                (x, y) => Main.tile[x, y] == null || Main.tile[x, y].type <= 0, // 0 -> dirt wall, but this works here, too
+                (x, y) => Main.tile[x, y].type >= TileID.Count ? 0 : Main.tile[x, y].type,
+                (x, y) => Main.tile[x, y].type <  TileID.Count ||
                     !Handler.TileDef.DefsByType.ContainsKey(Main.tile[x, y].type) ? ObjectRef.Null : Handler.TileDef.DefsByType[Main.tile[x, y].type]);
         }
         static void SaveChestItems(BinBuffer bb)
@@ -487,8 +504,9 @@ namespace Prism.IO
             var map = new ModIdMap(WallID.Count, or => WallDef.Defs[or].Type, id => Handler.WallDef.DefsByType[id]);
 
             Write2DArray(bb, map, Main.maxTilesX, Main.maxTilesY,
-                //(x, y) => Main.tile[x, y] == null || Main.tile[x, y].wall >= WallID.Count ? 0 : Main.tile[x, y].wall,
-                (x, y) => Main.tile[x, y] == null || Main.tile[x, y].wall <= 0/*WallID.Count*/ ||
+                (x, y) => Main.tile[x, y] == null || Main.tile[x, y].wall <= 0,
+                (x, y) => Main.tile[x, y].wall >= WallID.Count ? 0 : Main.tile[x, y].wall,
+                (x, y) => Main.tile[x, y].wall <  WallID.Count ||
                     !Handler.WallDef.DefsByType.ContainsKey(Main.tile[x, y].wall) ? ObjectRef.Null : Handler.WallDef.DefsByType[Main.tile[x, y].wall]);
         }
         static void SaveBehaviours(BinBuffer bb)
@@ -519,7 +537,7 @@ namespace Prism.IO
             Main.statusText = "Saving Prism data...";
 
             using (FileStream fs = File.OpenWrite(path))
-            using (BinBuffer bb = new BinBuffer(fs, dispose: false))
+            using (BinBuffer bb = new BinBuffer(fs, dispose: false/*1 << 24*/))
             {
                 //TODO: item frame item IDs are still written as ints
                 //TODO: mannequins are probably broken
@@ -531,6 +549,12 @@ namespace Prism.IO
                 SaveWallTypes (bb);
                 SaveTileTypes (bb);
                 SaveBehaviours(bb);
+
+                //using (FileStream fs = File.OpenWrite(path))
+                //{
+                //    bb.Position = 0;
+                //    fs.Write(bb.AsByteArray(), 0, bb.Size);
+                //}
             }
         }
 

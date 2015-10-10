@@ -24,7 +24,7 @@
     <DebugType>full</DebugType>
     <DefineConstants>TRACE;DEBUG;DEV_BUILD</DefineConstants>
     <!-- trick VS that it resides in a normal dir -->
-    <OutputPath Condition="'$(OS)' == 'Windows_NT'">..\Bin\DevBuild\Windows_NT</OutputPath>
+    <OutputPath Condition="'$(OS)' == 'Windows_NT'">..\Bin\DevBuild</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -32,14 +32,14 @@
     <Optimize>false</Optimize>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <!-- trick VS that it resides in a normal dir -->
-    <OutputPath Condition="'$(OS)' == 'Windows_NT'">..\Bin\Debug\Windows_NT</OutputPath>
+    <OutputPath Condition="'$(OS)' == 'Windows_NT'">..\Bin\Debug</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <DefineConstants>TRACE</DefineConstants>
     <!-- trick VS that it resides in a normal dir -->
-    <OutputPath Condition="'$(OS)' == 'Windows_NT'">..\Bin\Release\Windows_NT</OutputPath>
+    <OutputPath Condition="'$(OS)' == 'Windows_NT'">..\Bin\Release</OutputPath>
   </PropertyGroup>
   <PropertyGroup>
     <DefineConstants Condition="'$(OS)' == 'Windows_NT'">$(DefineConstants);WINDOWS</DefineConstants>
