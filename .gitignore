@@ -196,5 +196,6 @@ FakesAssemblies/
 *.opt
 
 /References/Terraria.exe
+/References/Terraria-*.exe
 /References/[Pp]rism.[Tt]erraria.dll
 todo.txt

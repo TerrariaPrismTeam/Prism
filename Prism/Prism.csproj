@@ -15,32 +15,37 @@
     <TargetFrameworkProfile />
     <ErrorReport>prompt</ErrorReport>
     <PlatformTarget Condition="'$(OS)' == 'Windows_NT'">x86</PlatformTarget>
+    <PlatformTarget Condition="'$(OS)' != 'Windows_NT'">x64</PlatformTarget>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DevBuild|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>
     <DebugType>full</DebugType>
-    <OutputPath>..\Bin\DevBuild\</OutputPath>
     <DefineConstants>TRACE;DEBUG;DEV_BUILD</DefineConstants>
+    <!-- trick VS that it resides in a normal dir -->
+    <OutputPath Condition="'$(OS)' == 'Windows_NT'">..\Bin\DevBuild\Windows_NT</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\Bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <!-- trick VS that it resides in a normal dir -->
+    <OutputPath Condition="'$(OS)' == 'Windows_NT'">..\Bin\Debug\Windows_NT</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\Bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
+    <!-- trick VS that it resides in a normal dir -->
+    <OutputPath Condition="'$(OS)' == 'Windows_NT'">..\Bin\Release\Windows_NT</OutputPath>
   </PropertyGroup>
   <PropertyGroup>
+    <DefineConstants Condition="'$(OS)' == 'Windows_NT'">$(DefineConstants);WINDOWS</DefineConstants>
     <DefineConstants Condition="'$(OS)' != 'Windows_NT'">$(DefineConstants);UNIX</DefineConstants>
-    <DefineConstants Condition="'$(IsOSX)' == 'false'">$(DefineConstants);LINUX</DefineConstants>
-    <DefineConstants Condition="'$(IsOSX)' == 'true'">$(DefineConstants);OSX</DefineConstants>
+    <DefineConstants Condition="'$(OS)' != 'Windows_NT' And '$(IsOSX)' == 'false'">$(DefineConstants);LINUX</DefineConstants>
+    <DefineConstants Condition="'$(OS)' != 'Windows_NT' And '$(IsOSX)' != 'false'">$(DefineConstants);OSX</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>Prism.Program</StartupObject>
@@ -50,6 +55,8 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>..\res\Icons\PrismIcon_Main.ico</ApplicationIcon>
+    <!-- reset it in the end, so it works correctly for building -->
+    <OutputPath Condition="'$(OS)' != 'Windows_NT'">..\Bin\$(Configuration)\$(OSEnum)</OutputPath>
   </PropertyGroup>
   <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />

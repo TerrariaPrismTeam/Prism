@@ -2,10 +2,19 @@
   <PropertyGroup>
     <!-- XBuild specifies an OS property, but MSBuild doesn't. This sets the default value on MSBuild. -->
     <OS Condition="'$(OS)' == ''">Windows_NT</OS>
+    <RealOS>$(OS)</RealOS>
+    <OS Condition="'$(CCOS)' != ''">$(CCOS)</OS>
+    <OS Condition="'$(CCOS)' == 'OSX'">Unix</OS>
+    <IsOSX Condition="'$(CCOS)' == 'OSX'">true</IsOSX>
   </PropertyGroup>
   <PropertyGroup>
     <!-- check whether the Unix version is OSX, but don't edit OS (not compatible with usual XBuild behaviour) -->
     <IsOSX Condition="'$(IsOSX)' == '' And '$(OS)' == 'Unix' And Exists('/Library/Frameworks')">true</IsOSX>
     <IsOSX Condition="'$(IsOSX)' == ''">false</IsOSX>
+
+    <Configuration Condition="'$(Configuration)' == 'PreRelease'">Debug</Configuration>
+
+    <OSEnum>$(OS)</OSEnum>
+    <OSEnum Condition="'$(IsOSX)' == 'true'">OSX</OSEnum>
   </PropertyGroup>
 </Project>

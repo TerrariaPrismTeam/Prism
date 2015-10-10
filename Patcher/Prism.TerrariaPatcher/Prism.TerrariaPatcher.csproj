@@ -125,9 +125,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent Condition="'$(OS)' == 'Windows_NT'">
+    <PostBuildEvent Condition="'$(RealOS)' == 'Windows_NT'">
       rem first, merge the patcher, injector and mono.cecil assemblies into one, useful for distribution
-      "$(ProjectDir)..\ILRepack\ILRepack.exe" /union /target:exe "/out:$(ProjectDir)..\..\Bin\$(Configuration)\Prism.TerrariaPatcher-merged.exe" "$(TargetPath)" "$(TargetDir)Prism.Injector.dll" "$(TargetDir)Mono.Cecil.dll"
+      md "$(ProjectDir)..\..\Bin\$(Configuration)\$(OSEnum)\"
+      "$(ProjectDir)..\ILRepack\ILRepack.exe" /union /target:exe "/out:$(ProjectDir)..\..\Bin\$(Configuration)\$(OSEnum)\Prism.TerrariaPatcher-merged.exe" "$(TargetPath)" "$(TargetDir)Prism.Injector.dll" "$(TargetDir)Mono.Cecil.dll"
 
       rem this patches the Terraria assembly
       rem in order to build, one must provide their own .exe.
@@ -137,10 +138,11 @@
 
       "$(TargetPath)" msbuild "$(ProjectDir)..\..\References\Terraria.exe" "$(ProjectDir)..\..\References\Prism.Terraria.dll"
     </PostBuildEvent>
-    <PostBuildEvent Condition="'$(OS)' != 'Windows_NT'">
+    <PostBuildEvent Condition="'$(RealOS)' != 'Windows_NT'">
       # first, merge the patcher, injector and mono.cecil assemblies into one, useful for distribution
       # fyi, sometimes, xbuild variables can get borked in the postbuild
-      mono "$(ProjectDir)..\ILRepack\ILRepack.exe" /union /kind:exe "/out:$(ProjectDir)../../Bin/$(Configuration)/Prism.TerrariaPatcher-merged.exe" "$(ProjectDir)bin/$(Configuration)/Prism.TerrariaPatcher.exe" "$(ProjectDir)bin/$(Configuration)/Prism.Injector.dll" "$(ProjectDir)bin/$(Configuration)/Mono.Cecil.dll"
+      mkdir "$(ProjectDir)../../Bin/$(Configuration)/$(OSEnum)/"
+      mono "$(ProjectDir)..\ILRepack\ILRepack.exe" /union /kind:exe "/out:$(ProjectDir)../../Bin/$(Configuration)/$(OSEnum)/Prism.TerrariaPatcher-merged.exe" "$(ProjectDir)bin/$(Configuration)/Prism.TerrariaPatcher.exe" "$(ProjectDir)bin/$(Configuration)/Prism.Injector.dll" "$(ProjectDir)bin/$(Configuration)/Mono.Cecil.dll"
 
       # this patches the Terraria assembly
       # in order to build, one must provide their own .exe.
