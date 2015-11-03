@@ -326,7 +326,66 @@ namespace Prism.Injector.Patcher
             }
             #endregion
         }
+        static void AddPreDrawHook()
+        {
+            OpCode[] toFind =
+            {
+                /*
+                    this.GraphicsDevice.Clear(Color.Black);
+                    base.Draw(gameTime);
 
+                    IL_2869: ldarg.0
+                    IL_286A: call      instance class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.GraphicsDevice [Microsoft.Xna.Framework.Game]Microsoft.Xna.Framework.Game::get_GraphicsDevice()
+                    IL_286F: call      valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Color [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Color::get_Black()
+                    IL_2874: callvirt  instance void [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.GraphicsDevice::Clear(valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Color)
+
+                    IL_2879: ldarg.0
+                    IL_287A: ldarg.1
+                    IL_287B: call      instance void [Microsoft.Xna.Framework.Game]Microsoft.Xna.Framework.Game::Draw(class [Microsoft.Xna.Framework.Game]Microsoft.Xna.Framework.GameTime)
+                */
+
+                OpCodes.Ldarg_0,
+                OpCodes.Call,
+                OpCodes.Call,
+                OpCodes.Callvirt,
+
+                OpCodes.Ldarg_0,
+                OpCodes.Ldarg_1,
+                OpCodes.Call
+            };
+
+            var draw = typeDef_Main.GetMethod("Draw");
+
+            var spriteBatch = typeDef_Main.GetField("spriteBatch");
+
+            MethodDefinition invokePreDraw;
+            var onPreDrawDel = context.CreateDelegate("Terraria.PrismInjections", "Main_OnPreDrawDel", typeSys.Void, out invokePreDraw, spriteBatch.FieldType);
+
+            var onPreDraw = new FieldDefinition("P_OnPreDraw", FieldAttributes.Public | FieldAttributes.Static, onPreDrawDel);
+            typeDef_Main.Fields.Add(onPreDraw);
+
+            var drb = draw.Body;
+            var drbproc = drb.GetILProcessor();
+
+            Instruction[] toInj =
+            {
+                Instruction.Create(OpCodes.Ldsfld  , onPreDraw    ),
+                Instruction.Create(OpCodes.Ldsfld  , spriteBatch  ),
+                Instruction.Create(OpCodes.Callvirt, invokePreDraw)
+            };
+
+            var first = drb.FindInstrSeqStart(toFind);
+
+            foreach (var i in toInj)
+                drbproc.InsertBefore(first, i);
+
+            // rewire the if before it to end at the injected instructions instead of the code we looked for
+            foreach (var i in drb.Instructions)
+                if (i.Operand == first)
+                    i.Operand = toInj[0];
+
+            // not rewiring the if will lead to invalid IL, because the target instruction won't exist (because we're removing it here)
+        }
         static void AddOnUpdateKeyboardHook()
         {
             OpCode[] search =
@@ -380,7 +439,7 @@ namespace Prism.Injector.Patcher
             //public virtual void P_OnUpdateInputHook() { }
             MethodDefinition invokeOnUpdateKeyboardHook;
             var onUpdateKeyboardDelType = context.CreateDelegate("Terraria.PrismInjections", "Main_Update_OnUpdateKeyboardDel", typeSys.Void, out invokeOnUpdateKeyboardHook, typeDef_Main, mainUpdate.Parameters[0].ParameterType /* HAH I WIN, XNA */);
-            var onUpdateKeyboardDelField = new FieldDefinition("P_Main_Update_OnUpdateKeyboard", FieldAttributes.Public | FieldAttributes.Static, onUpdateKeyboardDelType);
+            var onUpdateKeyboardDelField = new FieldDefinition("P_OnUpdateKeyboard", FieldAttributes.Public | FieldAttributes.Static, onUpdateKeyboardDelType);
             typeDef_Main.Fields.Add(onUpdateKeyboardDelField);
 
             var mainUpdateProc = mainUpdateBody.GetILProcessor();
@@ -402,6 +461,7 @@ namespace Prism.Injector.Patcher
             RemoveVanillaNpcDrawLimitation();
             FixOnEngineLoadField();
             RemoveArmourDrawLimitations();
+            AddPreDrawHook();
             AddOnUpdateKeyboardHook();
 
             //These are causing System.InvalidProgramExceptions so I'm just commenting them out (pls don't remove them)

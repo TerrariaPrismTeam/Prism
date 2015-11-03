@@ -106,7 +106,9 @@ namespace Prism
         static void HookWrappedMethods()
         {
             P_OnUpdateMusic += Bgm.Update;
-            P_Main_Update_OnUpdateKeyboard += OnUpdateKeyboard;
+            P_OnUpdateKeyboard += OnUpdateKeyboard;
+
+            P_OnPreDraw += HookManager.GameBehaviour.PreDraw;
 
 #pragma warning disable 618
             P_OnPlaySound += (t, x, y, s) => Sfx.Play(t, new Vector2(x, y), s);
@@ -234,7 +236,7 @@ namespace Prism
         /// </summary>
         void ApplyHotfixes()
         {
-            foreach (Player p in from plr in player where plr.active == true select plr)
+            foreach (Player p in from plr in player where plr.active select plr)
             {
                 int prevLength = p.npcTypeNoAggro.Length;
                 if (prevLength < Handler.NpcDef.NextTypeIndex)
@@ -269,6 +271,8 @@ namespace Prism
 
                 base.Update(gt);
 
+                HookManager.GameBehaviour.UpdateDebug();
+
                 if (!gameMenu && prevGameMenu)
                     Helpers.Main.RandColorText("Welcome to " + PrismApi.NiceVersionString + ".", true);
 
@@ -287,7 +291,11 @@ namespace Prism
         {
             try
             {
+                HookManager.GameBehaviour.PreScreenClear();
+
                 base.Draw(gt);
+
+                HookManager.GameBehaviour.PostDraw(spriteBatch);
 
 #if TRACE
                 TraceDrawer.DrawTrace(spriteBatch, PrismDebug.lines);

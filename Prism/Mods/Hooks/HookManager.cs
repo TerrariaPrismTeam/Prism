@@ -132,7 +132,14 @@ namespace Prism.Mods.Hooks
                 return Empty<object>.Array;
             }
 
-            return delegates.Select(del => del.DynamicInvoke(args)).ToArray();
+            // using this instead of a map |> toArray will make it easier to debug (no lazy eval. etc)
+            object[] ret = new object[delegates.Count()];
+
+            int i = 0;
+            foreach (var del in delegates)
+                ret[i++] = del.DynamicInvoke(args);
+
+            return ret;
         }
 
         /// <summary>
