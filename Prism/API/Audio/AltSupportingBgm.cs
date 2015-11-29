@@ -54,12 +54,14 @@ namespace Prism.API.Audio
 
         public AltSupportingBgm(IBgm regular, IBgm alternate, SwitchMode switchMode)
         {
+#pragma warning disable RECS0021
             Regular = regular;
             Alt = alternate;
 
             SwitchMode = switchMode;
 
             current = Regular;
+#pragma warning restore RECS0021
         }
 
         public void Play ()

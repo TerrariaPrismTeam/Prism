@@ -12,6 +12,7 @@ namespace Prism.Util
 namespace Prism.Injector
 #endif
 {
+#pragma warning disable RECS0001
     public static partial class Empty<T>
     {
         public static T[] Array = new T[0];
@@ -23,6 +24,8 @@ namespace Prism.Injector
             return x;
         }
     }
+#pragma warning restore RECS0001
+
     public static class LinqExt
     {
         public static bool IsEmpty    <T>(this IEnumerable<T> coll)

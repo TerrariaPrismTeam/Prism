@@ -167,6 +167,7 @@ namespace Prism
             Projectile.P_OnKill          += ProjHooks.OnKill         ;
             Projectile.P_OnNewProjectile += ProjHooks.OnNewProjectile;
             Projectile.P_OnUpdate        += ProjHooks.OnUpdate       ;
+            Projectile.P_OnColliding     += ProjHooks.OnColliding    ;
 
             P_OnDrawProj += ProjHooks.OnDrawProj;
 

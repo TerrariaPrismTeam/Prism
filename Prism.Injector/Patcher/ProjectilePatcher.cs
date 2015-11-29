@@ -18,9 +18,11 @@ namespace Prism.Injector.Patcher
             typeDef_Proj.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
 
             typeDef_Proj.GetMethod("NewProjectile").Wrap(context, "Terraria.PrismInjections", "Projectile_NewProjectileDel", "P_OnNewProjectile");
-            typeDef_Proj.GetMethod("AI"    , MethodFlags.Public | MethodFlags.Instance               ).Wrap(context);
-            typeDef_Proj.GetMethod("Update", MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
-            typeDef_Proj.GetMethod("Kill"  , MethodFlags.Public | MethodFlags.Instance               ).Wrap(context);
+
+            typeDef_Proj.GetMethod("AI"       , MethodFlags.Public | MethodFlags.Instance               ).Wrap(context);
+            typeDef_Proj.GetMethod("Update"   , MethodFlags.Public | MethodFlags.Instance, typeSys.Int32).Wrap(context);
+            typeDef_Proj.GetMethod("Kill"     , MethodFlags.Public | MethodFlags.Instance               ).Wrap(context);
+            typeDef_Proj.GetMethod("Colliding", MethodFlags.Public | MethodFlags.Instance               ).Wrap(context);
         }
         static void AddFieldForBHandler()
         {

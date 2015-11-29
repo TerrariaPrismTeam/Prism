@@ -40,7 +40,9 @@ namespace Prism.API.Defs
         }
         public override int GetHashCode()
         {
+#pragma warning disable RECS0025
             return IsGrass.GetHashCode() | IsHardenedSand.GetHashCode() << 1 | IsSandstone.GetHashCode() << 2 | IsStone.GetHashCode() << 3;
+#pragma warning restore RECS0025
         }
         public override string ToString()
         {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Xna.Framework;
 using Prism.Mods.BHandlers;
 using Terraria;
 
@@ -78,6 +79,16 @@ namespace Prism.Mods.Hooks
                 if (bh != null)
                     bh.OnDraw(Main.spriteBatch);
             }
+        }
+
+        internal static bool OnColliding(Projectile pr, Rectangle p, Rectangle t)
+        {
+            var bh = pr.P_BHandler as ProjBHandler;
+
+            if (bh == null)
+                return pr.RealColliding(p, t);
+
+            return bh.IsColliding(p, t);
         }
     }
 }

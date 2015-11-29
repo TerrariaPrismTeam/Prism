@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.API.Behaviours;
 using Prism.Mods.Hooks;
@@ -16,6 +17,8 @@ namespace Prism.Mods.BHandlers
         IEnumerable<Func<SpriteBatch, bool>> preDraw;
         IEnumerable<Action<SpriteBatch>> onDraw;
 
+        IEnumerable<Func<Rectangle, Rectangle, bool>> colliding;
+
         public override void Create()
         {
             base.Create();
@@ -27,6 +30,8 @@ namespace Prism.Mods.BHandlers
 
             preDraw = HookManager.CreateHooks<ProjectileBehaviour, Func<SpriteBatch, bool>>(Behaviours, "PreDraw");
             onDraw  = HookManager.CreateHooks<ProjectileBehaviour, Action<SpriteBatch    >>(Behaviours, "OnDraw" );
+
+            colliding = HookManager.CreateHooks<ProjectileBehaviour, Func<Rectangle, Rectangle, bool>>(Behaviours, "IsColliding");
         }
         public override void Clear ()
         {
@@ -39,6 +44,8 @@ namespace Prism.Mods.BHandlers
 
             preDraw = null;
             onDraw  = null;
+
+            colliding = null;
         }
 
         public bool PreUpdate()
@@ -72,6 +79,13 @@ namespace Prism.Mods.BHandlers
         public void OnDraw (SpriteBatch sb)
         {
             HookManager.Call(onDraw, sb);
+        }
+
+        public bool IsColliding(Rectangle p, Rectangle t)
+        {
+            var r = HookManager.Call(colliding, p, t);
+
+            return r.Length > 0 ? p.Intersects(t) : r.Average(o => (bool)o ? 1f : 0f) > 0.5f;
         }
     }
 }
