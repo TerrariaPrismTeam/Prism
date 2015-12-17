@@ -12,6 +12,8 @@ namespace Prism.Mods
     /// </summary>
     public struct ModInfo : IEquatable<ModInfo>
     {
+        Version verAsVer;
+
         public static readonly ModInfo Empty = new ModInfo("_", String.Empty, String.Empty, String.Empty, "0.0.0.0", String.Empty, "_", String.Empty, Empty<IReference>.Array);
 
         /// <summary>
@@ -66,23 +68,45 @@ namespace Prism.Mods
         {
             get
             {
-                if (Version.StartsWith("r", StringComparison.InvariantCultureIgnoreCase))
+                if (verAsVer != null)
+                    return verAsVer;
+
+                Version ret = null;
+
+                if (String.IsNullOrWhiteSpace(Version))
+                    ret = EmptyClass<Version>.Default;
+                else if (Version.Length > 0 && (Version[0] == 'r' || Version[0] == 'R' || Version[0] == 'v' || Version[0] == 'V'))
                 {
                     int endIndex = 1;
                     for (endIndex = 1; endIndex < Version.Length; endIndex++)
                         if (!Char.IsDigit(Version[endIndex]))
                             break;
 
-                    return new Version(Int32.Parse(Version.Substring(1, endIndex), CultureInfo.InvariantCulture), 0);
+                    ret = new Version(Int32.Parse(Version.Substring(1, endIndex), CultureInfo.InvariantCulture), 0);
                 }
-                try
-                {
-                    return new Version(Version);
-                }
-                catch
-                {
-                    return EmptyClass<Version>.Default;
-                }
+                else
+                    try
+                    {
+                        var v = Version;
+                        var revAdd = 0;
+
+                        if (Char.IsLetter(Char.ToUpperInvariant(v[v.Length - 1])))
+                        {
+                            revAdd = v[v.Length - 1] - 'a' + 1; // a -> 1, instead of 0
+                            v = v.Substring(0, v.Length - 1);
+                        }
+
+                        ret = new Version(v);
+
+                        if (revAdd != 0)
+                            ret = new Version(ret.Major, ret.Minor, ret.Build, ret.Revision + revAdd);
+                    }
+                    catch
+                    {
+                        ret = EmptyClass<Version>.Default;
+                    }
+
+                return verAsVer = ret;
             }
         }
 
@@ -100,6 +124,8 @@ namespace Prism.Mods
         /// <param name="references"><see cref="References"/></param>
         public ModInfo(string modPath, string internalName, string displayName, string author, string version, string descr, string asmFileName, string modDefTypeName, IReference[] references)
         {
+            verAsVer = null;
+
             ModPath = modPath;
 
             InternalName = internalName;
