@@ -8,8 +8,8 @@ namespace Prism.Injector.Patcher
 {
     static class MainPatcher
     {
-        static CecilContext   context;
-        static MemberResolver  memRes;
+        static CecilContext context;
+        static MemberResolver memRes;
 
         static TypeSystem typeSys;
         static TypeDefinition typeDef_Main;
@@ -21,6 +21,7 @@ namespace Prism.Injector.Patcher
             typeDef_Main.GetMethod("DrawNPC", MethodFlags.Instance | MethodFlags.Public, typeSys.Int32, typeSys.Boolean).Wrap(context);
             typeDef_Main.GetMethod("DrawProj", MethodFlags.Instance | MethodFlags.Public, typeSys.Int32).Wrap(context);
             typeDef_Main.GetMethod("DrawPlayer", MethodFlags.Instance | MethodFlags.Public).Wrap(context);
+            typeDef_Main.GetMethod("DrawBackground", MethodFlags.Instance | MethodFlags.Public).Wrap(context);
         }
         static void RemoveVanillaNpcDrawLimitation()
         {
@@ -85,7 +86,7 @@ namespace Prism.Injector.Patcher
 
             proc.Append(Instruction.Create(OpCodes.Ldsfld, typeDef_Main.GetField("netMode")));
             proc.Append(Instruction.Create(OpCodes.Ldc_I4_1));
-                // The bne.un goes here
+            // The bne.un goes here
             proc.Append(Instruction.Create(OpCodes.Ldc_I4_1));
             proc.Append(Instruction.Create(OpCodes.Ret));
             proc.Append(Instruction.Create(OpCodes.Ldc_I4_0));
@@ -331,27 +332,32 @@ namespace Prism.Injector.Patcher
             OpCode[] toFind =
             {
                 /*
-                    this.GraphicsDevice.Clear(Color.Black);
-                    base.Draw(gameTime);
+                    spriteBatch.Draw(...);
 
-                    IL_2869: ldarg.0
-                    IL_286A: call      instance class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.GraphicsDevice [Microsoft.Xna.Framework.Game]Microsoft.Xna.Framework.Game::get_GraphicsDevice()
-                    IL_286F: call      valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Color [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Color::get_Black()
-                    IL_2874: callvirt  instance void [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.GraphicsDevice::Clear(valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Color)
-
-                    IL_2879: ldarg.0
-                    IL_287A: ldarg.1
-                    IL_287B: call      instance void [Microsoft.Xna.Framework.Game]Microsoft.Xna.Framework.Game::Draw(class [Microsoft.Xna.Framework.Game]Microsoft.Xna.Framework.GameTime)
+                	IL_29AF: ldsfld    class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SpriteBatch Terraria.Main::spriteBatch
+	                IL_29B4: ldc.i4.0
+	                IL_29B5: ldsfld    class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.BlendState [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.BlendState::AlphaBlend
+	                IL_29BA: ldsfld    class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SamplerState [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SamplerState::LinearClamp
+	                IL_29BF: ldsfld    class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.DepthStencilState [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.DepthStencilState::None
+	                IL_29C4: ldarg.0
+	                IL_29C5: ldfld     class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.RasterizerState Terraria.Main::Rasterizer
+	                IL_29CA: ldnull
+	                IL_29CB: ldarg.0
+	                IL_29CC: ldfld     valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Matrix Terraria.Main::Transform
+	                IL_29D1: callvirt  instance void [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SpriteBatch::Begin(valuetype [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SpriteSortMode, class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.BlendState, class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SamplerState, class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.DepthStencilState, class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.RasterizerState, class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.Effect, valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Matrix)
                 */
 
+                OpCodes.Ldsfld,
+                OpCodes.Ldc_I4_0,
+                OpCodes.Ldsfld,
+                OpCodes.Ldsfld,
+                OpCodes.Ldsfld,
                 OpCodes.Ldarg_0,
-                OpCodes.Call,
-                OpCodes.Call,
-                OpCodes.Callvirt,
-
+                OpCodes.Ldfld,
+                OpCodes.Ldnull,
                 OpCodes.Ldarg_0,
-                OpCodes.Ldarg_1,
-                OpCodes.Call
+                OpCodes.Ldfld,
+                OpCodes.Callvirt
             };
 
             var draw = typeDef_Main.GetMethod("Draw");
@@ -375,9 +381,11 @@ namespace Prism.Injector.Patcher
             };
 
             var first = drb.FindInstrSeqStart(toFind);
+            for (int i = 0; i < toFind.Length; i++)
+                first = first.Next;
 
-            foreach (var i in toInj)
-                drbproc.InsertBefore(first, i);
+            foreach (var i in toInj.Reverse())
+                drbproc.InsertAfter(first, i);
 
             // rewire the if before it to end at the injected instructions instead of the code we looked for
             foreach (var i in drb.Instructions)
@@ -448,6 +456,39 @@ namespace Prism.Injector.Patcher
             mainUpdateProc.EmitWrapperCall(invokeOnUpdateKeyboardHook, first);
             //mainUpdateProc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeOnUpdateKeyboardHook));
         }
+        static void AddPostScreenClearHook()
+        {
+            OpCode[] toFind =
+            {
+                OpCodes.Call,
+                OpCodes.Call,
+                OpCodes.Callvirt
+            };
+
+            var draw = typeDef_Main.GetMethod("Draw");
+
+            var spriteBatch = typeDef_Main.GetField("spriteBatch");
+
+            MethodDefinition invokePostScrCl;
+            var onPostScrClDel = context.CreateDelegate("Terraria.PrismInjections", "Main_OnPostScrClDel", typeSys.Void, out invokePostScrCl);
+
+            var onPostScrClDraw = new FieldDefinition("P_OnPostScrClDraw", FieldAttributes.Public | FieldAttributes.Static, onPostScrClDel);
+            typeDef_Main.Fields.Add(onPostScrClDraw);
+
+            var drb = draw.Body;
+            var drbproc = drb.GetILProcessor();
+
+            Instruction[] toInj =
+            {
+                Instruction.Create(OpCodes.Ldsfld  , onPostScrClDraw),
+                Instruction.Create(OpCodes.Callvirt, invokePostScrCl)
+            };
+
+            var first = drb.FindInstrSeqStart(toFind).Next /* call 2 */.Next /* callvirt */.Next; // ldsfld (spriteBatch)
+
+            foreach (var i in toInj)
+                drbproc.InsertBefore(first, i);
+        }
 
         internal static void Patch()
         {
@@ -463,6 +504,7 @@ namespace Prism.Injector.Patcher
             RemoveArmourDrawLimitations();
             AddPreDrawHook();
             AddOnUpdateKeyboardHook();
+            AddPostScreenClearHook();
 
             //These are causing System.InvalidProgramExceptions so I'm just commenting them out (pls don't remove them)
             //AddIsChatAllowedHook();

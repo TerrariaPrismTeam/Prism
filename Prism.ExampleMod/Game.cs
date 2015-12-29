@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Prism.API.Behaviours;
 using Terraria;
@@ -90,6 +91,11 @@ namespace Prism.ExampleMod
             #endregion
 
             prevKeyState = Main.keyState;
+        }
+
+        public override void PostDrawBackground(SpriteBatch sb)
+        {
+            sb.Draw(Main.itemTexture[1], Vector2.Zero, Color.White);
         }
     }
 }

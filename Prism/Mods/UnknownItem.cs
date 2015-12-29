@@ -29,8 +29,8 @@ namespace Prism.Mods
 
         public override void Save(BinBuffer bb)
         {
-            bb.Write(Entity.toolTip );
-            bb.Write(Entity.toolTip2);
+            bb.Write(Entity.toolTip  ?? String.Empty);
+            bb.Write(Entity.toolTip2 ?? String.Empty);
         }
         public override void Load(BinBuffer bb)
         {
