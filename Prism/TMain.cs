@@ -102,13 +102,32 @@ namespace Prism
         {
             HookManager.GameBehaviour.OnUpdateKeyboard();
         }
+        static void OnPreDraw(SpriteBatch sb)
+        {
+            HookManager.GameBehaviour.PreDraw(sb);
+        }
+        static void OnPostScreenClear()
+        {
+            HookManager.GameBehaviour.PostScreenClear();
+        }
+        static void OnDrawBackground(Main m)
+        {
+            if (HookManager.GameBehaviour.PreDrawBackground(spriteBatch))
+            {
+                m.RealDrawBackground();
+
+                HookManager.GameBehaviour.PostDrawBackground(spriteBatch);
+            }
+        }
 
         static void HookWrappedMethods()
         {
             P_OnUpdateMusic += Bgm.Update;
             P_OnUpdateKeyboard += OnUpdateKeyboard;
 
-            P_OnPreDraw += HookManager.GameBehaviour.PreDraw;
+            P_OnPreDraw        += OnPreDraw        ;
+            P_OnDrawBackground += OnDrawBackground ;
+            P_OnPostScrClDraw  += OnPostScreenClear;
 
 #pragma warning disable 618
             P_OnPlaySound += (t, x, y, s) => Sfx.Play(t, new Vector2(x, y), s);

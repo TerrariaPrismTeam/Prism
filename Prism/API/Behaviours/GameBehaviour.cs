@@ -42,6 +42,22 @@ namespace Prism.API.Behaviours
         /// </summary>
         [Hook]
         public virtual void PreScreenClear() { }
+        /// <summary>
+        /// Called in the game's Draw method, after the graphics device has been cleared.
+        /// </summary>
+        [Hook]
+        public virtual void PostScreenClear() { }
+        /// <summary>
+        /// Called in the game's Draw method, before the background will be drawn.
+        /// </summary>
+        /// <returns>True whenever vanilla can draw its backgrounds.</returns>
+        [Hook]
+        public virtual bool PreDrawBackground(SpriteBatch sb) { return true; }
+        /// <summary>
+        /// Called in the game's Draw method, after the background has been drawn.
+        /// </summary>
+        [Hook]
+        public virtual void PostDrawBackground(SpriteBatch sb) { }
 
         /// <summary>
         /// A hook used to change the current music last-minute.

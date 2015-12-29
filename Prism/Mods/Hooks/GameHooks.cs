@@ -14,8 +14,9 @@ namespace Prism.Mods.Hooks
     {
         IEnumerable<Action>
             preUpdate, postUpdate, onUpdateKeyboard,
-            preScreenClear, updateDebug;
-        IEnumerable<Action<SpriteBatch>> preDraw, postDraw;
+            preScreenClear, postScreenClear, updateDebug;
+        IEnumerable<Action<SpriteBatch>> preDraw, postDraw, postDrawBackground;
+        IEnumerable<Func<SpriteBatch, bool>> preDrawBackground;
         IEnumerable<Action<Ref<BgmEntry>>> updateMusic;
 
         public override void Create()
@@ -31,7 +32,11 @@ namespace Prism.Mods.Hooks
             preDraw  = HookManager.CreateHooks<GameBehaviour, Action<SpriteBatch>>(behaviours, "PreDraw" );
             postDraw = HookManager.CreateHooks<GameBehaviour, Action<SpriteBatch>>(behaviours, "PostDraw");
 
-            preScreenClear = HookManager.CreateHooks<GameBehaviour, Action>(behaviours, "PreScreenClear");
+            preScreenClear  = HookManager.CreateHooks<GameBehaviour, Action>(behaviours, "PreScreenClear" );
+            postScreenClear = HookManager.CreateHooks<GameBehaviour, Action>(behaviours, "PostScreenClear");
+
+            preDrawBackground  = HookManager.CreateHooks<GameBehaviour, Func  <SpriteBatch, bool>>(behaviours, "PreDrawBackground" );
+            postDrawBackground = HookManager.CreateHooks<GameBehaviour, Action<SpriteBatch      >>(behaviours, "PostDrawBackground");
 
             updateDebug = HookManager.CreateHooks<GameBehaviour, Action>(behaviours, "UpdateDebug");
 
@@ -45,9 +50,12 @@ namespace Prism.Mods.Hooks
             postUpdate       = null;
             onUpdateKeyboard = null;
 
-            preDraw        = null;
-            postDraw       = null;
-            preScreenClear = null;
+            preDraw            = null;
+            postDraw           = null;
+            preScreenClear     = null;
+            postScreenClear    = null;
+            preDrawBackground  = null;
+            postDrawBackground = null;
 
             updateDebug = null;
 
@@ -77,9 +85,23 @@ namespace Prism.Mods.Hooks
             HookManager.Call(postDraw, sb);
         }
 
-        public void PreScreenClear()
+        public void PreScreenClear ()
         {
             HookManager.Call(preScreenClear);
+        }
+        public void PostScreenClear()
+        {
+            HookManager.Call(postScreenClear);
+        }
+
+        public bool PreDrawBackground (SpriteBatch sb)
+        {
+            var r = HookManager.Call(preDrawBackground, sb);
+            return r.Length == 0 || r.All(Convert.ToBoolean);
+        }
+        public void PostDrawBackground(SpriteBatch sb)
+        {
+            HookManager.Call(postDrawBackground, sb);
         }
 
         [Conditional("DEV_BUILD")]
