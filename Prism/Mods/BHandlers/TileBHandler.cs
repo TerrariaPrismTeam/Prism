@@ -13,24 +13,31 @@ namespace Prism.Mods.BHandlers
     //TODO: attach BHandler when a tile is placed
     public sealed class TileBHandler : EntityBHandler<TileBehaviour, Tile>
     {
-        IEnumerable<Action> onUpdate;
+        IEnumerable<Action> 
+            onUpdate, onPlaced;
 
         public override void Create()
         {
             base.Create();
 
             onUpdate = HookManager.CreateHooks<TileBehaviour, Action>(Behaviours, "OnUpdate");
+            onPlaced = HookManager.CreateHooks<TileBehaviour, Action>(Behaviours, "OnPlaced");
         }
         public override void Clear ()
         {
             base.Clear ();
 
             onUpdate = null;
+            onPlaced = null;
         }
 
         public void OnUpdate()
         {
             HookManager.Call(onUpdate);
+        }
+        public void OnPlaced()
+        {
+            HookManager.Call(onPlaced);
         }
     }
 
