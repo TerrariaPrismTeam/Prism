@@ -17,5 +17,7 @@ namespace Prism.API.Behaviours
 
         [Hook]
         public virtual void OnUpdate() { }
+        [Hook]
+        public virtual void OnPlaced() { }
     }
 }

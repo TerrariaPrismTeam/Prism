@@ -33,14 +33,14 @@ namespace Prism.Mods.Hooks
     {
         static List<TETrainingDummy> fakeDummies = new List<TETrainingDummy>();
 
-        static void CreateBHandler(Point16 p, TileBHandlerEntity e)
+        static bool CreateBHandler(Point16 p, TileBHandlerEntity e)
         {
             // see end of method
             if (TileEntity.ByPosition.ContainsKey(p) && TileEntity.ByPosition[p] != e)
             {
-                Trace.WriteLine("Warning: tried to create a TileBHandlerEntity at " + p + ", but there exists one already.");
+                Trace.WriteLine("Warning: tried to create a TileBHandlerEntity at " + p + ", but one already exists.");
 
-                return;
+                return false;
             }
 
             TileBHandler h = null;
@@ -89,7 +89,7 @@ namespace Prism.Mods.Hooks
                 h.OnInit();
             }
 
-            e.bHandler = h;
+            return (e.bHandler = h) != null;
             //if (h != null && TileEntity.ByPosition.ContainsKey(p) && TileEntity.ByPosition[p] != e)
             //{
             //    e.inner = TileEntity.ByPosition[p];
@@ -144,6 +144,25 @@ namespace Prism.Mods.Hooks
 
                     CreateBHandler(bhe.Position, bhe);
                 }
+        }
+
+        internal static void OnPlaceThing(bool flag6)
+        {
+            if (!flag6)
+                return;
+
+            var e = new TileBHandlerEntity(null);
+            var p = new Point16(Player.tileTargetX, Player.tileTargetY);
+            if (CreateBHandler(p, e))
+            {
+                e.ID       = TileEntity.AssignNewID();
+                e.Position = p;
+
+                TileEntity.ByID      .Add(e.ID, e);
+                TileEntity.ByPosition.Add(p   , e);
+
+                e.bHandler.OnPlaced();
+            }
         }
     }
 }

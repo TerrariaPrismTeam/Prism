@@ -36,7 +36,72 @@ namespace Prism.Injector.Patcher
             typeDef_Player.Fields.Add(new FieldDefinition("P_BHandler"    , FieldAttributes.Public, typeSys.Object));
             typeDef_Player.Fields.Add(new FieldDefinition("P_BuffBHandler", FieldAttributes.Public, memRes.ReferenceOf(typeof(object[]))));
         }
+        static void AddPlaceThingHook()
+        {
+            /*
+            
+            IL_2D37: ldsfld    int32 Terraria.Player::tileTargetX
+	        IL_2D3C: ldsfld    int32 Terraria.Player::tileTargetY
+	        IL_2D41: ldarg.0
+	        IL_2D42: ldfld     class Terraria.Item[] Terraria.Player::inventory
+	        IL_2D47: ldarg.0
+	        IL_2D48: ldfld     int32 Terraria.Player::selectedItem
+	        IL_2D4D: ldelem.ref
+	        IL_2D4E: ldfld     int32 Terraria.Item::createTile
+	        IL_2D53: ldc.i4.0
+	        IL_2D54: ldloc.s   78
+	        IL_2D56: ldarg.0
+	        IL_2D57: ldfld     int32 Terraria.Entity::whoAmI
+	        IL_2D5C: ldloc.s   72
+	        IL_2D5E: call      bool Terraria.WorldGen::PlaceTile(int32, int32, int32, bool, bool, int32, int32)
+	        IL_2D63: stloc.s   79
+            */
 
+            OpCode[] toFind =
+            {
+                OpCodes.Ldsfld,
+                OpCodes.Ldsfld, 
+                OpCodes.Ldarg_0,
+                OpCodes.Ldfld,
+                OpCodes.Ldarg_0,
+                OpCodes.Ldfld,
+                OpCodes.Ldelem_Ref,
+                OpCodes.Ldfld,
+                OpCodes.Ldc_I4_0,
+                OpCodes.Ldloc_S,
+                OpCodes.Ldarg_0,
+                OpCodes.Ldfld,
+                OpCodes.Ldloc_S,
+                OpCodes.Call,
+                OpCodes.Stloc_S
+            };
+
+            var placeThing = typeDef_Player.GetMethod("PlaceThing");
+
+            MethodDefinition invokePlaceThing;
+            var onPlaceThingDel = context.CreateDelegate("Terraria.PrismInjections", "Player_OnPlaceThingDel", typeSys.Void, out invokePlaceThing, typeSys.Boolean);
+
+            var onPlaceThing = new FieldDefinition("P_OnPlaceThing", FieldAttributes.Public | FieldAttributes.Static, onPlaceThingDel);
+            typeDef_Player.Fields.Add(onPlaceThing);
+
+            var ptb = placeThing.Body;
+            var ptbproc = ptb.GetILProcessor();
+
+            Instruction[] toInj =
+            {
+                Instruction.Create(OpCodes.Ldsfld  , onPlaceThing    ),
+                Instruction.Create(OpCodes.Ldloc   , ptb.Variables[79]),
+                Instruction.Create(OpCodes.Callvirt, invokePlaceThing )
+            };
+
+            var first = ptb.FindInstrSeqStart(toFind);
+            for (int i = 0; i < toFind.Length - 1; i++)
+                first = first.Next;
+
+            foreach (var i in toInj.Reverse())
+                ptbproc.InsertAfter(first, i);
+
+        }
         static void InsertSaveLoadHooks()
         {
             TypeDefinition typeDef_PlayerFileData = memRes.GetType("Terraria.IO.PlayerFileData");
@@ -115,7 +180,6 @@ namespace Prism.Injector.Patcher
             }
             #endregion
         }
-
         /// <summary>
         /// Removes the ID checks from player loading, so that invalid items
         /// are removed instead of resulting in the character being declared
@@ -164,7 +228,6 @@ namespace Prism.Injector.Patcher
                 }
             }
         }
-
         static void ReplaceUseSoundCalls()
         {
             var typeDef_Item = memRes.GetType("Terraria.Item");
@@ -584,13 +647,11 @@ namespace Prism.Injector.Patcher
             }
             #endregion
         }
-
         static void FixOnEnterWorldField()
         {
             // wtf?
             typeDef_Player.GetField("OnEnterWorld").Name = "_onEnterWorld_backingField";
         }
-
         static void InjectMidUpdate()
         {
             var update = typeDef_Player.GetMethod("RealUpdate" /* method is wrapped */, MethodFlags.Public | MethodFlags.Instance, typeSys.Int32);
@@ -642,7 +703,6 @@ namespace Prism.Injector.Patcher
             uproc.InsertBefore(instrs, Instruction.Create(OpCodes.Ldsfld, onMidUpdate));
             uproc.EmitWrapperCall(invokeMidUpdate, instrs);
         }
-
         static void InitBuffBHandlerArray()
         {
             var ctor = typeDef_Player.GetConstructor();
@@ -668,6 +728,7 @@ namespace Prism.Injector.Patcher
 
             WrapMethods();
             AddFieldForBHandler();
+            AddPlaceThingHook();
             InsertSaveLoadHooks();
             RemoveBuggyPlayerLoading();
             ReplaceUseSoundCalls();
