@@ -59,6 +59,8 @@ namespace Prism.Mods.Hooks
 
             ModDef        = null;
             GameBehaviour = null;
+
+            TileHooks.Reset();
         }
 
         /// <summary>

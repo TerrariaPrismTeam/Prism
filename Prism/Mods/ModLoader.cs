@@ -1,5 +1,5 @@
 ﻿
-#if !UNIX
+#if !UNIX && !WINDOWS
 #define WINDOWS
 #endif
 
@@ -363,7 +363,7 @@ namespace Prism.Mods
 
             EntityDefLoader.ResetEntityHandlers();
             ResourceLoader .Unload();
-            ContentLoader  .Reset();
+            ContentLoader  .Reset ();
 
             foreach (var v in ModData.mods.Values)
                 v.Unload();

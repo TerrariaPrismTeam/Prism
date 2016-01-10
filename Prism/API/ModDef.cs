@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using Prism.API.Audio;
@@ -8,9 +7,6 @@ using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Prism.Mods;
 using Prism.Mods.Hooks;
-using Prism.Mods.Resources;
-using Prism.Util;
-using Terraria;
 
 namespace Prism.API
 {

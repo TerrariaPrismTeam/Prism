@@ -1,19 +1,19 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Prism.API.Behaviours;
-using Prism.IO;
 using Prism.Mods.Hooks;
 using Terraria;
 using Terraria.DataStructures;
 
 namespace Prism.Mods.BHandlers
 {
-    //TODO: attach BHandler when a tile is placed
     public sealed class TileBHandler : EntityBHandler<TileBehaviour, Tile>
     {
-        IEnumerable<Action> 
+        //! NOTE: when calling a hook, set the position of the behaviour
+        //!       hasTile must be set when placed/removed, too
+
+        IEnumerable<Action>
             onUpdate, onPlaced;
 
         public override void Create()
@@ -31,58 +31,22 @@ namespace Prism.Mods.BHandlers
             onPlaced = null;
         }
 
-        public void OnUpdate()
+        public void OnUpdate(Point16 pos)
         {
+            foreach (var b in Behaviours)
+                b.Position = pos;
+
             HookManager.Call(onUpdate);
         }
-        public void OnPlaced()
+        public void OnPlaced(Point16 pos)
         {
+            foreach (var b in Behaviours)
+            {
+                b.HasTile  = true;
+                b.Position = pos;
+            }
+
             HookManager.Call(onPlaced);
-        }
-    }
-
-    sealed class TileBHandlerEntity : TileEntity
-    {
-        internal TileBHandler bHandler;
-        //internal TileEntity inner;
-
-        public TileBHandlerEntity(TileBHandler bh)
-        {
-            bHandler = bh;
-
-            type = 0; // TETraingingDummy
-        }
-
-        internal void Save(BinBuffer bb)
-        {
-            bHandler.Save(bb);
-        }
-        internal void Load(BinBuffer bb)
-        {
-            bHandler.Load(bb);
-        }
-
-        public override void ReadExtraData (BinaryReader r)
-        {
-            //if (inner != null) inner.ReadExtraData(r);
-
-            base.ReadExtraData(r);
-        }
-        public override void WriteExtraData(BinaryWriter w)
-        {
-            //if (inner != null) inner.WriteExtraData(w);
-
-            base.WriteExtraData(w);
-
-            w.Write((short)(Main.maxNPCs - 1)); // fake NPC ID
-        }
-
-        public override void Update()
-        {
-            //if (inner != null)
-            //    inner.Update();
-
-            bHandler.OnUpdate();
         }
     }
 }

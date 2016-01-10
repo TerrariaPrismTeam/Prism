@@ -14,9 +14,18 @@ namespace Prism.API.Defs
     public partial class TileDef : EntityDef<TileBehaviour, Tile>
     {
         /// <summary>
-        /// Gets or sets the tile's texture function.
+        /// Gets or sets the tile's texture getter.
         /// </summary>
         public Func<Texture2D> GetTexture
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the tile's instance behaviour constructor.
+        /// </summary>
+        public Func<TileBehaviour> CreateInstanceBehaviour
         {
             get;
             set;
@@ -117,10 +126,12 @@ namespace Prism.API.Defs
 
         //TODO: drop item
 
-        public TileDef(string displayName, Func<TileBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null)
+        public TileDef(string displayName, Func<TileBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null, Func<TileBehaviour> newInstBehaviour = null)
             : base(displayName, newBehaviour)
         {
             GetTexture = getTexture ?? Empty<Texture2D>.Func;
+
+            CreateInstanceBehaviour = newInstBehaviour ?? Empty<TileBehaviour>.Func;
 
 #pragma warning disable 618
             MapTooltip = String.Empty;

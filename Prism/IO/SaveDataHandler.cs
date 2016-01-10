@@ -24,6 +24,14 @@ namespace Prism.IO
     /// </summary>
     static class SaveDataHandler
     {
+        [Flags]
+        enum TileDataEntryFlags : byte
+        {
+            Finished = 0,
+            Tile    = 1,
+            Type    = 2
+        }
+
         /// <summary>
         /// Save file version for .plr.prism files. Change whenever the format changes, and make checks in the loading code for backwards compatibility. Please add a changelog entry when changing.
         /// </summary>
@@ -40,8 +48,9 @@ namespace Prism.IO
         /// VERSION 1: added wall type support, fixed some issues
         /// VERSION 2: added tile type support
         /// VERSION 3: added TileBehaviour support
+        /// VERSION 4: rewritten TileBehaviour support, so it's not a dirty hack anymore.
         /// </remarks>
-        const byte WORLD_VERSION  = 3;
+        const byte WORLD_VERSION  = 4;
 
         const byte
             MIN_PLAYER_SUPPORT_VER = 1,
@@ -315,13 +324,13 @@ namespace Prism.IO
                 // Character could not be properly loaded, report and prevent playing
                 //TODO: report
                 Logging.LogError("Could not load player " + player.name + ": " + e);
-                Trace.WriteLine("Could not load player " + player.name + ": " + e.Message);
+                Trace.WriteLine ("Could not load player " + player.name + ": " + e.Message);
                 player.loadStatus = 1;
             }
         }
 
         //TODO: make these faster (especially write)
-        static void Write2DArray(BinBuffer bb, ModIdMap map, int xLen, int yLen, Func<int, int, bool> isEmpty, Func  <int, int, int> getElemV, Func  <int, int, ObjectRef> getElemM)
+        static void Write2DArray(BinBuffer bb, ModIdMap map, int xLen, int yLen, Func  <int, int, bool> isEmpty , Func  <int, int, int      > getElemV, Func<int, int, ObjectRef> getElemM)
         {
             var ov = 0;
             var ot = ObjectRef.Null;
@@ -382,7 +391,7 @@ namespace Prism.IO
 
             map.WriteDictionary(bb);
         }
-        static void Read2DArray (BinBuffer bb, ModIdMap map, int xLen, int yLen, Action<int, int, int> setElemV, Action<int, int, ObjectRef> setElemM)
+        static void Read2DArray (BinBuffer bb, ModIdMap map, int xLen, int yLen, Action<int, int, int > setElemV, Action<int, int, ObjectRef> setElemM)
         {
             var dictPos = bb.ReadInt32();
             var dataStart = bb.Position;
@@ -509,22 +518,46 @@ namespace Prism.IO
                 (x, y) => Main.tile[x, y].wall <  WallID.Count ||
                     !Handler.WallDef.DefsByType.ContainsKey(Main.tile[x, y].wall) ? ObjectRef.Null : Handler.WallDef.DefsByType[Main.tile[x, y].wall]);
         }
-        static void SaveBehaviours(BinBuffer bb)
+        static void SaveTileData  (BinBuffer bb)
         {
-            foreach (var te in TileEntity.ByID.Values)
-                if (te is TileBHandlerEntity)
+            for (int y = 0; y < Main.maxTilesY; y++)
+                for (int x = 0; x < Main.maxTilesX; x++)
                 {
-                    var bhe = te as TileBHandlerEntity;
+                    var p = new Point16(x, y);
+                    var t = Main.tile[x, y].type;
 
-                    bb.Write(true);
+                    var fl = TileDataEntryFlags.Finished;
 
-                    bb.Write(te.Position.X);
-                    bb.Write(te.Position.Y);
+                    if (TileHooks.TileSpecificHandlers.ContainsKey(p))
+                        fl |= TileDataEntryFlags.Tile;
+                    if (TileHooks.TypeSpecificHandlers.ContainsKey(t))
+                        fl |= TileDataEntryFlags.Type;
 
-                    bhe.Save(bb);
+                    if (fl == TileDataEntryFlags.Finished)
+                        continue;
+
+                    bb.Write((byte)fl);
+                    bb.Write(p.X);
+                    bb.Write(p.Y);
+
+                    if ((fl & TileDataEntryFlags.Tile) != 0)
+                    {
+                        var bh = TileHooks.TileSpecificHandlers[p];
+
+                        bh.Save(bb);
+                    }
+                    if ((fl & TileDataEntryFlags.Type) != 0)
+                    {
+                        var bh = TileHooks.TypeSpecificHandlers[t];
+
+                        foreach (var b in bh.behaviours)
+                            b.Position = p;
+
+                        bh.Save(bb);
+                    }
                 }
 
-            bb.Write(false);
+            bb.Write(0);
         }
 
         internal static void SaveWorld(bool toCloud)
@@ -548,13 +581,7 @@ namespace Prism.IO
                 SaveNpcData   (bb);
                 SaveWallTypes (bb);
                 SaveTileTypes (bb);
-                SaveBehaviours(bb);
-
-                //using (FileStream fs = File.OpenWrite(path))
-                //{
-                //    bb.Position = 0;
-                //    fs.Write(bb.AsByteArray(), 0, bb.Size);
-                //}
+                SaveTileData  (bb);
             }
         }
 
@@ -624,27 +651,64 @@ namespace Prism.IO
 
             Read2DArray(bb, map, Main.maxTilesX, Main.maxTilesY, (x, y, id) => Main.tile[x, y].wall = (ushort)id, (x, y, or) => Main.tile[x, y].wall = (ushort)WallDef.Defs[or].Type);
         }
+        static void LoadTileData  (BinBuffer bb, int v)
+        {
+            if (v < 4)
+                return;
+
+            TileDataEntryFlags fl;
+            while ((fl = (TileDataEntryFlags)bb.ReadByte()) != TileDataEntryFlags.Finished)
+            {
+                var x = bb.ReadInt16();
+                var y = bb.ReadInt16();
+                var p = new Point16(x, y);
+                var t = Main.tile[x, y].type;
+
+                var bs = TileHooks.CreateBHandler(p);
+
+                if ((fl & TileDataEntryFlags.Tile) != 0)
+                {
+                    var bh = bs.Item1;
+
+                    foreach (var b in bh.behaviours)
+                    {
+                        b.HasTile  = true;
+                        b.Position = p;
+                    }
+
+                    bh.Load(bb);
+                }
+                if ((fl & TileDataEntryFlags.Type) != 0)
+                {
+                    var bh = bs.Item2;
+
+                    foreach (var b in bh.behaviours)
+                    {
+                        b.HasTile = true;
+                        b.Position = p;
+                    }
+
+                    bh.Load(bb);
+                }
+            }
+        }
+
+        [Obsolete]
         static void LoadBehaviours(BinBuffer bb, int v)
         {
-            if (v < 3) // TileBehaviour data introduced in v3
+            if (v != 3) // TileBehaviour data introduced in v3
                 return;
 
             while (bb.ReadBoolean())
             {
-                var p = new Point16(bb.ReadInt16(), bb.ReadInt16());
-
-                var te = TileEntity.ByPosition[p];
-                var bhe = te as TileBHandlerEntity;
-
-                bhe.Load(bb);
+                bb.ReadInt16();
+                bb.ReadInt16();
             }
         }
 
         internal static void LoadWorld(bool fromCloud)
         {
             var path = Main.worldPathName + ".prism";
-
-            TileHooks.SwapFakeDummies();
 
             if (!File.Exists(path))
                 return;
@@ -661,10 +725,12 @@ namespace Prism.IO
                 LoadNpcData   (bb, v);
                 LoadWallTypes (bb, v);
                 LoadTileTypes (bb, v);
-
-                TileHooks.CreateBHandlers(); // after all tiles have their correct type
+#pragma warning disable 612
+                // TileHooks.CreateBHandlers(); // after all tiles have their correct type
 
                 LoadBehaviours(bb, v); // after the bhandlers are created (i.e. can load)
+#pragma warning restore 612
+                LoadTileData  (bb, v);
             }
         }
     }

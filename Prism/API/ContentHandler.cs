@@ -86,7 +86,7 @@ namespace Prism.API
             var asmNamePfix = c.GetName().Name + ".";
             var path_ = ResourceLoader.NormalizeResourceFilePath(path, asmNamePfix);
 
-            var fromFilePath = Path.GetDirectoryName(path).Replace('/', '.').Replace('\\', '.') + "." + Path.GetFileName(path);
+            var fromFilePath  = Path.GetDirectoryName(path ).Replace('/', '.').Replace('\\', '.') + "." + Path.GetFileName(path );
             var fromFilePath_ = Path.GetDirectoryName(path_).Replace('/', '.').Replace('\\', '.') + "." + Path.GetFileName(path_);
 
             var tries = new[]
@@ -250,6 +250,10 @@ namespace Prism.API
         {
             return null;
         }
+        /// <summary>
+        /// By-type only, not a tile-specific instance.
+        /// </summary>
+        /// <returns></returns>
         protected virtual TileBehaviour CreateGlobalTileBehaviour()
         {
             return null;

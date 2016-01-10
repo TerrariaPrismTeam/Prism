@@ -1,50 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using Prism.API;
 using Prism.API.Behaviours;
-using Prism.IO;
 using Prism.Mods.BHandlers;
 using Prism.Mods.DefHandlers;
 using Prism.Util;
 using Terraria;
 using Terraria.DataStructures;
-using Terraria.GameContent.Tile_Entities;
 
 namespace Prism.Mods.Hooks
 {
-    /*
-     *
-     * A TileEntity is used to provide hooks for TileBehaviours.
-     * These are saved and loaded as usual, but when vanilla would read an unknown TileEntity ID,
-     * it'd nullref (when Prism -> vanilla). Faking a training dummy seems to be a solution, it writes an NPC ID.
-     * By assigning 199 as the dummy's NPC ID (-1 happens more often, lower than -1 or greater than 199 would
-     * result in an IndexOutOfRange), it is marked as 'Prism TileBHandler TileEntity', and vanilla will handle it
-     * correctly when moving Prism worlds to vanilla (behaviour data is written to the .prism file).
-     *
-     *
-     * This is a disgusting hack.
-     *
-     */
-
     static class TileHooks
     {
-        static List<TETrainingDummy> fakeDummies = new List<TETrainingDummy>();
+        internal static Dictionary<Point16, TileBHandler> TileSpecificHandlers = new Dictionary<Point16, TileBHandler>();
+        internal static Dictionary<ushort , TileBHandler> TypeSpecificHandlers = new Dictionary<ushort , TileBHandler>();
 
-        static bool CreateBHandler(Point16 p, TileBHandlerEntity e)
+        static TileBHandler LoadTypeSpecific(ushort t)
         {
-            // see end of method
-            if (TileEntity.ByPosition.ContainsKey(p) && TileEntity.ByPosition[p] != e)
-            {
-                Trace.WriteLine("Warning: tried to create a TileBHandlerEntity at " + p + ", but one already exists.");
+            if (TypeSpecificHandlers.ContainsKey(t))
+                return TypeSpecificHandlers[t];
 
-                return false;
-            }
-
-            TileBHandler h = null;
-            var t = Main.tile[p.X, p.Y].type;
+            TileBHandler h = null; // will be set to <non-null> only if a behaviour handler will be attached
 
             if (Handler.TileDef.DefsByType.ContainsKey(t))
             {
@@ -67,12 +44,12 @@ namespace Prism.Mods.Hooks
 
             var bs = ModData.mods.Values
                 .Select(m => new KeyValuePair<ModDef, TileBehaviour>(m, m.ContentHandler.CreateGlobalTileBInternally()))
-                .Where(kvp => kvp.Value != null)
+                .Where (kvp => kvp.Value != null)
                 .Select(kvp =>
-                {
-                    kvp.Value.Mod = kvp.Key;
-                    return kvp.Value;
-                });
+            {
+                kvp.Value.Mod = kvp.Key;
+                return kvp.Value;
+            });
 
             if (!bs.IsEmpty() && h == null)
                 h = new TileBHandler();
@@ -82,68 +59,57 @@ namespace Prism.Mods.Hooks
                 h.behaviours.AddRange(bs);
 
                 h.Create();
+                TypeSpecificHandlers.Add(t, h);
 
-                foreach (var b in h.behaviours)
-                    b.Entity = Main.tile[p.X, p.Y];
+                // HasTile is false atm
 
                 h.OnInit();
             }
 
-            return (e.bHandler = h) != null;
-            //if (h != null && TileEntity.ByPosition.ContainsKey(p) && TileEntity.ByPosition[p] != e)
-            //{
-            //    e.inner = TileEntity.ByPosition[p];
-
-            //    TileEntity.ByPosition.Remove(p);
-            //    TileEntity.ByID.Remove(e.inner.ID);
-
-            //    TileEntity.ByPosition.Add(p, e);
-            //    TileEntity.ByID.Add(e.inner.ID, e);
-            //}
+            return h;
         }
 
-        internal static void TDReadExtraData(TETrainingDummy d, BinaryReader r)
+        internal static Tuple<TileBHandler, TileBHandler> CreateBHandler(Point16 p)
         {
-            d.npc = r.ReadInt16();
+            TileBHandler h = null;
+            var t = Main.tile[p.X, p.Y].type;
 
-            if (d.npc == Main.maxNPCs - 1)
+            var tsh = LoadTypeSpecific(t);
+
+            if (Handler.TileDef.DefsByType.ContainsKey(t))
             {
-                d.npc = -1;
+                var d = Handler.TileDef.DefsByType[t];
 
-                fakeDummies.Add(d);
-            }
-        }
-
-        internal static void SwapFakeDummies()
-        {
-            for (int i = 0; i < fakeDummies.Count; i++)
-            {
-                fakeDummies[i].Deactivate();
-
-                TileEntity.ByID.Remove      (fakeDummies[i].ID      );
-                TileEntity.ByPosition.Remove(fakeDummies[i].Position);
-
-                var replacement = new TileBHandlerEntity(null);
-
-                replacement.ID       = TileEntity.AssignNewID();
-                replacement.Position = fakeDummies[i].Position;
-                replacement.type     = fakeDummies[i].type;
-
-                TileEntity.ByID.Add      (replacement.ID      , replacement);
-                TileEntity.ByPosition.Add(replacement.Position, replacement);
-            }
-
-            fakeDummies.Clear();
-        }
-        internal static void CreateBHandlers()
-        {
-            foreach (var te in TileEntity.ByID.Values)
-                if (te is TileBHandlerEntity)
+                if (d.CreateInstanceBehaviour != null)
                 {
-                    var bhe = te as TileBHandlerEntity;
+                    var b = d.CreateInstanceBehaviour();
 
-                    CreateBHandler(bhe.Position, bhe);
+                    if (b != null)
+                    {
+                        h = new TileBHandler();
+
+                        b.Mod = d.Mod == PrismApi.VanillaInfo ? null : ModData.mods[d.Mod];
+
+                        h.behaviours.Add(b);
+                    }
                 }
+            }
+
+            if (h != null)
+            {
+                h.Create();
+                TileSpecificHandlers.Add(p, h);
+
+                foreach (var b in h.Behaviours)
+                {
+                    b.HasTile  = true;
+                    b.Position = p;
+                }
+
+                h.OnInit();
+            }
+
+            return Tuple.Create(h, tsh);
         }
 
         internal static void OnPlaceThing(bool flag6)
@@ -151,18 +117,19 @@ namespace Prism.Mods.Hooks
             if (!flag6)
                 return;
 
-            var e = new TileBHandlerEntity(null);
-            var p = new Point16(Player.tileTargetX, Player.tileTargetY);
-            if (CreateBHandler(p, e))
-            {
-                e.ID       = TileEntity.AssignNewID();
-                e.Position = p;
+            var p  = new Point16(Player.tileTargetX, Player.tileTargetY);
+            var ts = CreateBHandler(p);
 
-                TileEntity.ByID      .Add(e.ID, e);
-                TileEntity.ByPosition.Add(p   , e);
-
-                e.bHandler.OnPlaced();
-            }
+            ts.Item1.OnPlaced(p);
+            ts.Item2.OnPlaced(p);
         }
+
+        internal static void Reset()
+        {
+            TileSpecificHandlers.Clear();
+            TypeSpecificHandlers.Clear();
+        }
+
+        //TODO: destroy
     }
 }

@@ -12,8 +12,6 @@ using Prism.Mods.DefHandlers;
 using Prism.Mods.Hooks;
 using Prism.Util;
 using Terraria;
-using Terraria.DataStructures;
-using Terraria.GameContent.Tile_Entities;
 using Terraria.GameContent.UI.States;
 using Terraria.IO;
 using Terraria.Map;
@@ -206,8 +204,6 @@ namespace Prism
             WorldFile.P_OnSaveWorld += SaveDataHandler.SaveWorld;
             WorldFile.P_OnLoadWorld += SaveDataHandler.LoadWorld;
 
-            TETrainingDummy.P_OnReadExtraData += TileHooks.TDReadExtraData;
-
             Recipe.P_OnFindRecipes += RecipeHooks.FindRecipes;
             Recipe.P_OnCreate      += RecipeHooks.Create     ;
         }
@@ -258,11 +254,8 @@ namespace Prism
         void ApplyHotfixes()
         {
             foreach (Player p in from plr in player where plr.active select plr)
-            {
-                int prevLength = p.npcTypeNoAggro.Length;
-                if (prevLength < Handler.NpcDef.NextTypeIndex)
+                if (p.npcTypeNoAggro.Length < Handler.NpcDef.NextTypeIndex)
                     Array.Resize(ref p.npcTypeNoAggro, Handler.NpcDef.NextTypeIndex);
-            }
 
             if (WorldGen.tileCounts.Length < tileSetsLoaded.Length)
                 Array.Resize(ref WorldGen.tileCounts, tileSetsLoaded.Length);

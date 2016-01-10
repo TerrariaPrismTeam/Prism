@@ -122,7 +122,6 @@
     <Compile Include="Patcher\ItemPatcher.cs" />
     <Compile Include="Patcher\NpcPatcher.cs" />
     <Compile Include="Patcher\RecipePatcher.cs" />
-    <Compile Include="Patcher\TEPatcher.cs" />
     <Compile Include="Patcher\TerrariaPatcher.cs" />
     <Compile Include="Patcher\TilePatcher.cs" />
     <Compile Include="Patcher\WorldFilePatcher.cs" />

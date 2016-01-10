@@ -139,7 +139,6 @@ namespace Prism.Injector.Patcher
             MainPatcher      .Patch();
             TilePatcher      .Patch();
             WorldFilePatcher .Patch();
-            TEPatcher        .Patch();
             RecipePatcher    .Patch();
             BuffPatcher      .Patch();
             // do other stuff here
