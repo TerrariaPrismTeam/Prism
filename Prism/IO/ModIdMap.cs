@@ -14,7 +14,7 @@ using PackedValue = System.UInt32;
 
 namespace Prism.IO
 {
-    // let's hope nobody will ever run >255 mods at once, or with >32 767 objects in total
+    // let's hope nobody will ever run >255 mods at once, or with >65 535 objects in total
     public class ModIdMap
     {
         const uint IsModFlag = 0x01000000;
