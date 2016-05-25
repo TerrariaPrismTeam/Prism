@@ -3,54 +3,68 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using Mono.Cecil;
+using dnlib.DotNet;
 
 namespace Prism.Injector
 {
-    public struct CecilReflectionComparer
+    public struct DNReflectionComparer
     {
         WeakReference c_wr;
 
-        public CecilContext Context
+        public DNContext Context
         {
             get
             {
                 if (c_wr.IsAlive)
-                    return (CecilContext)c_wr.Target;
+                    return (DNContext)c_wr.Target;
 
                 throw new ObjectDisposedException("Context");
             }
         }
 
-        public CecilReflectionComparer(CecilContext context)
+        public DNReflectionComparer(DNContext context)
         {
             c_wr = new WeakReference(context);
         }
 
         [DebuggerStepThrough]
-        public bool AssemblyEquals(AssemblyDefinition ad, Assembly a)
+        public bool AssemblyEquals(AssemblyDef ad, Assembly a)
         {
-            return ad.Name.FullName == a.GetName().FullName;
+            return ad.FullName == a.GetName().FullName;
         }
-        public bool TypeEquals(TypeReference td, Type t)
+        public bool TypeEquals(ITypeDefOrRef td, Type t)
+        {
+            if (!AssemblyEquals(td.Module.Assembly, t.Assembly) || td.FullName != t.FullName)
+                return false;
+
+            return TypeEquals(td.ResolveTypeDefThrow(), t);
+        }
+        public bool TypeEquals(TypeDef td, Type t)
         {
             if (!AssemblyEquals(td.Module.Assembly, t.Assembly) || td.FullName != t.FullName)
                 return false;
 
             return td.GenericParameters.Count == (t.IsGenericType ? t.GetGenericArguments().Length : 0);
         }
+        public bool TypeEquals(TypeSig td, Type t)
+        {
+            if (!AssemblyEquals(td.Module.Assembly, t.Assembly) || td.FullName != t.FullName)
+                return false;
+
+            return TypeEquals(td.TryGetTypeRef(), t);
+        }
 
         [DebuggerStepThrough]
-        public bool MemberEquals(IMemberDefinition md, MemberInfo mi)
+        public bool MemberEquals(IMemberDef md, MemberInfo mi)
         {
             return TypeEquals(md.DeclaringType, mi.DeclaringType) && md.Name == mi.Name;
         }
 
-        public bool FieldEquals(FieldDefinition fd, FieldInfo fi)
+        public bool FieldEquals(FieldDef fd, FieldInfo fi)
         {
             return MemberEquals(fd, fi) && TypeEquals(fd.FieldType, fi.FieldType) && (int)fd.Attributes == (int)fi.Attributes; // visibility, static?, etc
         }
-        public bool MethodEquals(MethodDefinition md, MethodInfo mi)
+        public bool MethodEquals(MethodDef md, MethodInfo mi)
         {
             if (!MemberEquals(md, mi) || !TypeEquals(md.ReturnType, mi.ReturnType) || (int)md.Attributes != (int)mi.Attributes)
                 return false;
@@ -60,7 +74,7 @@ namespace Prism.Injector
                 return false;
 
             for (int i = 0; i < pis.Length; i++)
-                if (!TypeEquals(md.Parameters[i].ParameterType, pis[i].ParameterType))
+                if (!TypeEquals(md.Parameters[i].Type, pis[i].ParameterType))
                     return false;
 
             if (!mi.IsGenericMethod)
@@ -71,9 +85,9 @@ namespace Prism.Injector
 
             return mi.GetGenericArguments().Length == md.GenericParameters.Count;
         }
-        public bool PropertyEquals(PropertyDefinition pd, PropertyInfo pi)
+        public bool PropertyEquals(PropertyDef pd, PropertyInfo pi)
         {
-            if (!MemberEquals(pd, pi) || TypeEquals(pd.PropertyType, pi.PropertyType) || (int)pd.Attributes != (int)pi.Attributes)
+            if (!MemberEquals(pd, pi) || TypeEquals(pd.PropertySig.RetType, pi.PropertyType) || (int)pd.Attributes != (int)pi.Attributes)
                 return false;
 
             var gm = pi.GetGetMethod();

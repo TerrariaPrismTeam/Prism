@@ -1,22 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Mono.Cecil;
+using dnlib.DotNet;
 
 namespace Prism.Injector.Patcher
 {
     static class RecipePatcher
     {
-        static CecilContext   context;
+        static DNContext   context;
         static MemberResolver memRes ;
 
-        static TypeSystem typeSys;
-        static TypeDefinition typeDef_Recipe;
+        static ICorLibTypes typeSys;
+        static TypeDef typeDef_Recipe;
 
         static void AddGroupRecipeField()
         {
-            typeDef_Recipe.Fields.Add(new FieldDefinition("P_GroupDef", FieldAttributes.Public, typeSys.Object));
+            typeDef_Recipe.Fields.Add(new FieldDefUser("P_GroupDef", new FieldSig(typeSys.Object), FieldAttributes.Public));
         }
         static void WrapMethods()
         {
@@ -29,7 +28,7 @@ namespace Prism.Injector.Patcher
             context = TerrariaPatcher.context;
             memRes  = TerrariaPatcher.memRes ;
 
-            typeSys = context.PrimaryAssembly.MainModule.TypeSystem;
+            typeSys = context.PrimaryAssembly.ManifestModule.CorLibTypes;
             typeDef_Recipe = memRes.GetType("Terraria.Recipe");
 
             AddGroupRecipeField();

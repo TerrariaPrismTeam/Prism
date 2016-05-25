@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Mono.Cecil;
+using dnlib.DotNet;
 
 namespace Prism.Injector.Patcher
 {
     static class BuffPatcher
     {
-        static CecilContext   context;
+        static DNContext   context;
         static MemberResolver memRes ;
 
-        static TypeSystem typeSys;
+        static ICorLibTypes typeSys;
 
         static void AddZephyrFishBuffID()
         {
@@ -19,9 +19,9 @@ namespace Prism.Injector.Patcher
             if (buffId_t.GetField("ZephyrFish") != null)
                 return;
 
-            buffId_t.Fields.Add(new FieldDefinition("ZephyrFish", FieldAttributes.Literal | FieldAttributes.Public | FieldAttributes.Static, typeSys.Int32)
+            buffId_t.Fields.Add(new FieldDefUser("ZephyrFish", new FieldSig(typeSys.Int32), FieldAttributes.Literal | FieldAttributes.Public | FieldAttributes.Static)
             {
-                Constant = 127
+                Constant = new ConstantUser(127, ElementType.I4)
             });
         }
 
@@ -30,7 +30,7 @@ namespace Prism.Injector.Patcher
             context = TerrariaPatcher.context;
             memRes  = TerrariaPatcher.memRes ;
 
-            typeSys = context.PrimaryAssembly.MainModule.TypeSystem;
+            typeSys = context.PrimaryAssembly.ManifestModule.CorLibTypes;
 
             AddZephyrFishBuffID();
         }

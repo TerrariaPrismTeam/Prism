@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -94,7 +95,7 @@ namespace Prism.TerrariaPatcher
                     }
                 }
 
-                var c = new CecilContext(TerrariaExecutable);
+                var c = new DNContext(TerrariaExecutable);
 
                 dir = Path.GetDirectoryName(PrismAssembly);
                 if (!Directory.Exists(dir))
@@ -110,7 +111,7 @@ namespace Prism.TerrariaPatcher
 
                     Patcher.Patch(c, PrismAssembly);
                 }
-                catch (Exception e)
+                catch (Exception e) when (!Debugger.IsAttached)
                 {
                     Console.WriteLine("Something went wrong while patching " + Path.GetFileName(TerrariaExecutable) + ":");
                     Console.WriteLine(e);

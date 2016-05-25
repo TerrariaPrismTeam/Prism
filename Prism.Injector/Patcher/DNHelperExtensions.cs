@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
+using dnlib.DotNet;
+using dnlib.DotNet.Emit;
 
 namespace Prism.Injector.Patcher
 {
-    public static class CecilHelperExtensions
+    public static class DNHelperExtensions
     {
+        readonly static SigComparer comp = new SigComparer(SigComparerOptions.PrivateScopeIsComparable);
+
         /// <summary>
         /// Gets the ldarg instruction of the specified index using the smallest value type it can (because we're targeting the Sega Genesis and need to save memory).
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        internal static Instruction GetLdargOf(this IList<ParameterDefinition> @params, ushort index, bool isInstance = true)
+        internal static Instruction GetLdargOf(this IList<Parameter> @params, ushort index, bool isInstance = true)
         {
             int offset = isInstance ? 1 : 0;
 
@@ -110,60 +112,75 @@ namespace Prism.Injector.Patcher
             return false;
         }
 
-        public static TypeDefinition CreateDelegate(this CecilContext context, string @namespace, string name, TypeReference returnType, out MethodDefinition invoke, params TypeReference[] parameters)
+        public static TypeDef CreateDelegate(this DNContext context, string @namespace, string name, TypeSig returnType, out MethodDef invoke, params TypeSig[] parameters)
         {
             var cResolver = context.Resolver;
-            var typeSys = context.PrimaryAssembly.MainModule.TypeSystem;
+            var typeSys = context.PrimaryAssembly.ManifestModule.CorLibTypes;
 
-            var delegateType = new TypeDefinition(@namespace, name, TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.AnsiClass | TypeAttributes.Sealed, cResolver.ReferenceOf(typeof(MulticastDelegate)));
+            var delegateType = new TypeDefUser(@namespace, name, cResolver.ReferenceOf(typeof(MulticastDelegate)));
+            delegateType.Attributes = TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.AnsiClass | TypeAttributes.Sealed;
 
-            var ctor = new MethodDefinition(".ctor", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName, typeSys.Void);
-            ctor.IsRuntime = true;
-            ctor.Parameters.Add(new ParameterDefinition("object", 0, typeSys.Object));
-            ctor.Parameters.Add(new ParameterDefinition("method", 0, typeSys.IntPtr));
+            var ctor = new MethodDefUser(".ctor", MethodSig.CreateInstance(typeSys.Void, typeSys.Object, typeSys.IntPtr),
+                MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
+            ctor.ImplAttributes |= MethodImplAttributes.Runtime;
+            // param 0 is 'this'
+            ctor.Parameters[1].CreateParamDef();
+            ctor.Parameters[1].ParamDef.Name = "object";
+            ctor.Parameters[2].CreateParamDef();
+            ctor.Parameters[2].ParamDef.Name = "method";
 
-            delegateType.Methods.Add(ctor);
-
-            invoke = new MethodDefinition("Invoke", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, returnType);
-            invoke.IsRuntime = true;
-            for (int i = 0; i < parameters.Length; i++)
-                invoke.Parameters.Add(new ParameterDefinition("arg" + i, 0, parameters[i]));
+            invoke = new MethodDefUser("Invoke", MethodSig.CreateInstance(returnType, parameters), MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual);
+            invoke.ImplAttributes |= MethodImplAttributes.Runtime;
+            for (int i = 1; i <= parameters.Length; i++)
+            {
+                invoke.Parameters[i].CreateParamDef();
+                invoke.Parameters[i].ParamDef.Name = "arg" + i;
+            }
 
             delegateType.Methods.Add(invoke);
 
-            var beginInvoke = new MethodDefinition("BeginInvoke", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, cResolver.ReferenceOf(typeof(IAsyncResult)));
-            beginInvoke.IsRuntime = true;
-            for (int i = 0; i < parameters.Length; i++)
-                beginInvoke.Parameters.Add(new ParameterDefinition("arg" + i, 0, parameters[i]));
-            beginInvoke.Parameters.Add(new ParameterDefinition("callback", 0, cResolver.ReferenceOf(typeof(AsyncCallback))));
-            beginInvoke.Parameters.Add(new ParameterDefinition("object", 0, typeSys.Object));
+            var beginInvoke = new MethodDefUser("BeginInvoke", MethodSig.CreateInstance(cResolver.ReferenceOf(typeof(IAsyncResult)).ToTypeSig(),
+                    parameters.Concat(new[] { cResolver.ReferenceOf(typeof(AsyncCallback)).ToTypeSig(), typeSys.Object }).ToArray()),
+                MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual);
+            beginInvoke.ImplAttributes |= MethodImplAttributes.Runtime;
+            for (int i = 1; i < parameters.Length - 1; i++)
+            {
+                beginInvoke.Parameters[i].CreateParamDef();
+                beginInvoke.Parameters[i].ParamDef.Name = "arg" + i;
+            }
+            beginInvoke.Parameters[beginInvoke.Parameters.Count - 2].CreateParamDef();
+            beginInvoke.Parameters[beginInvoke.Parameters.Count - 2].ParamDef.Name = "callback";
+            beginInvoke.Parameters[beginInvoke.Parameters.Count - 1].CreateParamDef();
+            beginInvoke.Parameters[beginInvoke.Parameters.Count - 1].ParamDef.Name = "object"  ;
 
             delegateType.Methods.Add(beginInvoke);
 
-            var endInvoke = new MethodDefinition("EndInvoke", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, typeSys.Void);
-            endInvoke.IsRuntime = true;
-            endInvoke.Parameters.Add(new ParameterDefinition("result", 0, cResolver.ReferenceOf(typeof(IAsyncResult))));
+            var endInvoke = new MethodDefUser("EndInvoke", MethodSig.CreateInstance(typeSys.Void, cResolver.ReferenceOf(typeof(IAsyncResult)).ToTypeSig()),
+                MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual);
+            beginInvoke.ImplAttributes |= MethodImplAttributes.Runtime;
+            endInvoke.Parameters[1].CreateParamDef();
+            endInvoke.Parameters[1].ParamDef.Name = "result";
 
             delegateType.Methods.Add(endInvoke);
 
-            context.PrimaryAssembly.MainModule.Types.Add(delegateType);
+            context.PrimaryAssembly.ManifestModule.Types.Add(delegateType);
 
             return delegateType;
         }
-        public static Instruction[] FindInstrSeq(this MethodBody body, OpCode[] instrs)
+        public static Instruction[] FindInstrSeq(this CilBody body, ILProcessor p, OpCode[] instrs)
         {
-            return body.FindInstrSeq(instrs, instrs.Length);
+            return body.FindInstrSeq(p, instrs, instrs.Length);
         }
-        public static Instruction[] FindInstrSeq(this MethodBody body, OpCode[] instrs, int amt)
+        public static Instruction[] FindInstrSeq(this CilBody body, ILProcessor p, OpCode[] instrs, int amt)
         {
             Instruction[] result = new Instruction[amt];
 
             for (int i = 0; i < result.Length; i++)
-                result[i] = i == 0 ? body.FindInstrSeqStart(instrs) : result[i - 1] != null ? result[i - 1].Next : null;
+                result[i] = i == 0 ? body.FindInstrSeqStart(instrs) : result[i - 1] != null ? result[i - 1].Next(p) : null;
 
             return result;
         }
-        public static Instruction FindInstrSeqStart(this MethodBody body, OpCode[] instrs, int startIndex = 0)
+        public static Instruction FindInstrSeqStart(this CilBody body, OpCode[] instrs, int startIndex = 0)
         {
             for (int i = startIndex; i <= body.Instructions.Count - instrs.Length; i++)
             {
@@ -182,8 +199,8 @@ namespace Prism.Injector.Patcher
         }
         public static void ReplaceInstructions(this ILProcessor p, IEnumerable<Instruction> orig, IEnumerable<Instruction> repl)
         {
-            if (!orig.Chronological(null, i => i.Next) || !repl.Chronological(null, i => i.Next))
-                Console.Error.WriteLine("Error: Both sequences in CecilHelper.ReplaceInstructions(ILProcessor, IEnumerable<Instruction>, IEnumerable<Instruction>) must be chronological.");
+            if (!orig.Chronological(null, i => i.Next(p)) || !repl.Chronological(null, i => i.Next(p)))
+                Console.Error.WriteLine("Error: Both sequences in DNHelperExtensions.ReplaceInstructions(ILProcessor, IEnumerable<Instruction>, IEnumerable<Instruction>) must be chronological.");
 
             Instruction firstOrig = orig.First();
 
@@ -197,7 +214,7 @@ namespace Prism.Injector.Patcher
             Instruction n = null;
             foreach (var i in instrs)
             {
-                n = i.Next;
+                n = i.Next(p);
                 p.Remove(i);
             }
 
@@ -211,7 +228,7 @@ namespace Prism.Injector.Patcher
                 if (cur == null)
                     break;
 
-                var n = cur.Next;
+                var n = cur.Next(p);
                 p.Remove(cur);
                 cur = n;
             }
@@ -220,15 +237,15 @@ namespace Prism.Injector.Patcher
         }
         // callee must have the same args as the calling method
         // if the callee is an instance method, the object must be placed on the stack first
-        public static void EmitWrapperCall(this ILProcessor proc, MethodDefinition toCall, Instruction before = null)
+        public static void EmitWrapperCall(this ILProcessor proc, MethodDef toCall, Instruction before = null)
         {
             //var caller = proc.Body.Method;
 
-            for (ushort i = 0; i < toCall.Parameters.Count /*+ (toCall.IsStatic ? 0 : 1)*/; i++)
+            for (ushort i = 0; i < toCall.Parameters.Count - (toCall.IsStatic ? 0 : 1); i++)
                 if (before == null)
-                    proc.Append(toCall.Parameters.GetLdargOf(i, !toCall.IsStatic/*false*/));
+                    proc.Append(toCall.Parameters.GetLdargOf(i, /*!toCall.IsStatic*/false));
                 else
-                    proc.InsertBefore(before, toCall.Parameters.GetLdargOf(i, !toCall.IsStatic/*false*/));
+                    proc.InsertBefore(before, toCall.Parameters.GetLdargOf(i, /*!toCall.IsStatic*/false));
 
             var c = toCall.IsVirtual ? OpCodes.Callvirt : OpCodes.Call;
             if (before == null)
@@ -237,54 +254,55 @@ namespace Prism.Injector.Patcher
                 proc.InsertBefore(before, Instruction.Create(c, toCall));
         }
 
-        static TypeReference ICast/* needs a better name */(TypeReference a, TypeReference b, TypeSystem ts)
+        static TypeSig ICast/* needs a better name */(TypeSig a, TypeSig b, ICorLibTypes ts)
         {
-            if (a == b)
+            if (comp.Equals(a, b))
                 return a;
-            if (a == ts.String)
+            if (comp.Equals(a, ts.String))
                 return a;
-            if (b == ts.String)
+            if (comp.Equals(b, ts.String))
                 return b;
-            if (a == ts.IntPtr || a == ts.UIntPtr)
+            if (comp.Equals(a, ts.IntPtr) || comp.Equals(a, ts.UIntPtr))
                 return a;
-            if (b == ts.IntPtr || b == ts.UIntPtr)
+            if (comp.Equals(b, ts.IntPtr) || comp.Equals(b, ts.UIntPtr))
                 return b;
-            if (a == ts.Double)
+            if (comp.Equals(a, ts.Double))
                 return a;
-            if (b == ts.Double)
+            if (comp.Equals(b, ts.Double))
                 return b;
-            if (a == ts.Single)
+            if (comp.Equals(a, ts.Single))
                 return a;
-            if (b == ts.Single)
+            if (comp.Equals(b, ts.Single))
                 return b;
-            if (a == ts.Int64 || a == ts.UInt64)
+            if (comp.Equals(a, ts.Int64) || comp.Equals(a, ts.UInt64))
                 return a;
-            if (b == ts.Int64 || b == ts.UInt64)
+            if (comp.Equals(b, ts.Int64) || comp.Equals(b, ts.UInt64))
                 return b;
 
-            if (!a.IsByReference || !b.IsByReference)
+            if (!a.IsByRef || !b.IsByRef)
                 return ts.Object;
 
-            var ad = a.Resolve();
-            var bd = b.Resolve();
+            var ad = a.ToTypeDefOrRef().ResolveTypeDefThrow();
+            var bd = b.ToTypeDefOrRef().ResolveTypeDefThrow();
 
             if ((!ad.IsSequentialLayout || !ad.IsExplicitLayout) && (!bd.IsSequentialLayout || !bd.IsExplicitLayout))
                 return ts.IntPtr;
 
             // close enough
-            return ad.PackingSize > bd.PackingSize ? ad : bd;
+            return ad.PackingSize > bd.PackingSize ? a : b;
         }
         // NOTE: stack may contain an int/uint when the actual C# type is a byte/..., because most structural primitives are all (u)ints in IL
         // NOTE: not sure if it would work correctly with branching
-        public static void EnumerateWithStackAnalysis(this MethodBody body, Action<Instruction, Stack<Tuple<TypeReference, Instruction>>> cb)
+        public static void EnumerateWithStackAnalysis(this MethodDef method, Action<Instruction, Stack<Tuple<TypeSig, Instruction>>> cb)
         {
             if (cb == null)
                 throw new ArgumentNullException("cb");
 
-            var ts = body.Method.Module.TypeSystem;
+            var body = method.Body;
+            var ts = method.Module.CorLibTypes;
 
-            var stack = new Stack<Tuple<TypeReference, Instruction>>(body.MaxStackSize);
-            Func<TypeReference> pop = () => stack.Pop().Item1;
+            var stack = new Stack<Tuple<TypeSig, Instruction>>(body.MaxStack);
+            Func<TypeSig> pop = () => stack.Pop().Item1;
 
             var ins = body.Instructions;
             for (int i = 0; i < ins.Count; i++)
@@ -292,7 +310,7 @@ namespace Prism.Injector.Patcher
                 var n = ins[i];
                 var c = n.OpCode.Code;
 
-                Action<TypeReference> push = tr => stack.Push(Tuple.Create(tr, n));
+                Action<TypeSig> push = tr => stack.Push(Tuple.Create(tr, n));
 
                 cb(n, stack);
 
@@ -324,7 +342,7 @@ namespace Prism.Injector.Patcher
                         push(pop());
                         break;
                     case Code.Newarr:
-                        push((TypeReference)n.Operand);
+                        push(((ITypeDefOrRef)n.Operand).ToTypeSig());
                         break;
                     case Code.Arglist:
                         throw new NotSupportedException();
@@ -337,15 +355,39 @@ namespace Prism.Injector.Patcher
                     case Code.Callvirt:
                     case Code.Newobj:
                         {
-                            var mr = (MethodReference)n.Operand;
+                            if (n.Operand is MemberRef)
+                            {
+                                var mr = (MemberRef)n.Operand;
 
-                            if (mr.HasThis && n.OpCode.Code != Code.Newobj)
-                                stack.Pop();
+                                for (int j = n.OpCode.Code == Code.Newobj ? 1 : 0; j < mr.MethodSig.Params.Count; j++)
+                                    stack.Pop();
 
-                            for (int j = n.OpCode.Code == Code.Newobj ? 1 : 0; j < mr.Parameters.Count; j++)
-                                stack.Pop();
+                                push(mr.MethodSig.RetType);
+                            }
+                            else if (n.Operand is MethodSpec)
+                            {
+                                var ms = (MethodSpec)n.Operand;
 
-                            push(mr.ReturnType);
+                                for (int j = n.OpCode.Code == Code.Newobj ? 1 : 0; j < ms.Method.MethodSig.Params.Count; j++)
+                                    stack.Pop();
+
+                                push(ms.Method.MethodSig.RetType);
+                            }
+                            else if (n.Operand is MethodDef)
+                            {
+                                var md = (MethodDef)n.Operand;
+
+                                for (int j = n.OpCode.Code == Code.Newobj ? 1 : 0; j < md.Parameters.Count; j++)
+                                    stack.Pop();
+
+                                push(md.ReturnType);
+                            }
+                            else
+                            {
+                                //! PLACE BREAKPOINT HERE
+                                int iii = 0;
+                                iii = ++iii - 1;
+                            }
                         }
                         break;
                     case Code.Castclass:
@@ -353,7 +395,7 @@ namespace Prism.Injector.Patcher
                         if (c == Code.Castclass)
                             stack.Pop();
 
-                        push((TypeReference)n.Operand);
+                        push(((ITypeDefOrRef)n.Operand).ToTypeSig());
                         break;
                     case Code.Ceq:
                     case Code.Cgt:
@@ -456,10 +498,11 @@ namespace Prism.Injector.Patcher
                             var pi = 0;
 
                             if (c == Code.Ldarg || c == Code.Ldarg_S)
-                                pi = n.Operand is int ? (int)n.Operand : ((ParameterDefinition)n.Operand).Index;
+                                pi = n.Operand is int ? (int)n.Operand : ((Parameter)n.Operand).Index;
                             else
                                 switch (c)
                                 {
+                                    // ldarg.0: default val is 0
                                     case Code.Ldarg_1:
                                         pi = 1;
                                         break;
@@ -471,11 +514,7 @@ namespace Prism.Injector.Patcher
                                         break;
                                 }
 
-                            bool inst = !body.Method.IsStatic;
-                            if (inst && pi == 0)
-                                push(body.Method.DeclaringType);
-                            else
-                                push(body.Method.Parameters[pi - (inst ? 1 : 0)].ParameterType);
+                            push(method.Parameters[pi].Type);
                         }
                         break;
                     case Code.Beq:
@@ -567,17 +606,22 @@ namespace Prism.Injector.Patcher
                         stack.Pop();
                         push(ts.Double);
                         break;
-                    case Code.Ldelem_Any:
-                        stack.Pop();
-                        push(ts.IntPtr);
-                        break;
                     case Code.Ldelem_Ref:
                         stack.Pop();
-                        push((TypeReference)n.Operand);
+                        push(n.Operand == null ? ts.IntPtr : ((ITypeDefOrRef)n.Operand).ToTypeSig());
                         break;
                     case Code.Ldfld:
                     case Code.Ldsfld:
-                        push(((FieldReference)n.Operand).FieldType);
+                        if (n.Operand is FieldDef)
+                            push(((FieldDef)n.Operand).FieldType);
+                        else if (n.Operand is MemberRef)
+                           push(((MemberRef)n.Operand).FieldSig.Type);
+                        else
+                        {
+                            //! PLACE BREAKPOINT HERE
+                            int iii = 0;
+                            iii = ++iii - 1;
+                        }
                         break;
                     case Code.Ldflda:
                     case Code.Ldsflda:
@@ -595,10 +639,11 @@ namespace Prism.Injector.Patcher
                             var li = 0;
 
                             if (c == Code.Ldloc || c == Code.Ldloc_S)
-                                li = n.Operand is int ? (int)n.Operand : ((VariableDefinition)n.Operand).Index;
+                                li = n.Operand is int ? (int)n.Operand : ((Local)n.Operand).Index;
                             else
                                 switch (c)
                                 {
+                                    // ldloc.0: default val is 0
                                     case Code.Ldloc_1:
                                         li = 1;
                                         break;
@@ -610,7 +655,7 @@ namespace Prism.Injector.Patcher
                                         break;
                                 }
 
-                            push(body.Variables[li].VariableType);
+                            push(body.Variables[li].Type);
                         }
                         break;
                     case Code.Ldnull:
@@ -620,6 +665,7 @@ namespace Prism.Injector.Patcher
                     case Code.Ldstr:
                         push(ts.String);
                         break;
+                    case Code.Ldftn:
                     case Code.Ldvirtftn:
                         push(ts.IntPtr);
                         break;
@@ -638,7 +684,6 @@ namespace Prism.Injector.Patcher
                         break;
                     case Code.Starg:
                     case Code.Starg_S:
-                    case Code.Stelem_Any:
                     case Code.Stelem_I:
                     case Code.Stelem_I1:
                     case Code.Stelem_I2:
@@ -667,7 +712,7 @@ namespace Prism.Injector.Patcher
                         stack.Pop();
                         break;
                     case Code.Unbox:
-                        push((TypeReference)n.Operand);
+                        push(((ITypeDefOrRef)n.Operand).ToTypeSig());
                         break;
                     case Code.Unbox_Any:
                         stack.Pop();

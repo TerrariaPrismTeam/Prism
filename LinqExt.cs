@@ -6,7 +6,8 @@ using System.Text;
 
 // one of these is defined for Prism.csproj
 // otherwise, it must be Prism.Injector.csproj
-#if WINDOWS || LINUX || OSX
+#if WINDOWS || UNIX || LINUX || OSX
+//|| MAIN_PROJ || DEV_BUILD
 namespace Prism.Util
 #else
 namespace Prism.Injector

@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
+using dnlib.DotNet;
+using dnlib.DotNet.Emit;
 
 namespace Prism.Injector
 {
@@ -21,21 +21,28 @@ namespace Prism.Injector
 
     public static class MemberResolverExtensions
     {
+        readonly static SigComparer comp = new SigComparer(SigComparerOptions.PrivateScopeIsComparable);
+
         readonly static string CTOR = ".ctor", CCTOR = ".cctor";
 
-        [DebuggerStepThrough]
-        public static FieldDefinition GetField(this TypeDefinition type, string name)
+        //[DebuggerStepThrough]
+        public static FieldDef GetField(this TypeDef type, string name)
         {
             return type.Fields.FirstOrDefault(fd => fd.Name == name);
         }
-        [DebuggerStepThrough]
-        public static PropertyDefinition GetProperty(this TypeDefinition type, string name)
+        //[DebuggerStepThrough]
+        public static PropertyDef GetProperty(this TypeDef type, string name)
         {
             return type.Properties.FirstOrDefault(pd => pd.Name == name);
         }
 
-        [DebuggerStepThrough]
-        public static MethodDefinition[] GetMethods(this TypeDefinition type                      , string name, MethodFlags flags = MethodFlags.All, params TypeReference[] arguments)
+        //[DebuggerStepThrough]
+        public static MethodDef[] GetMethods(this TypeDef type, string name, MethodFlags flags, TypeSig[] arguments)
+        {
+            return type.GetMethods(name, flags, arguments.Select(ts => ts.ToTypeDefOrRef()).ToArray());
+        }
+        //[DebuggerStepThrough]
+        public static MethodDef[] GetMethods(this TypeDef type                   , string name, MethodFlags flags = MethodFlags.All, params ITypeDefOrRef[] arguments)
         {
             bool argsSpec = arguments != null && arguments.Length > 0;
 
@@ -57,66 +64,78 @@ namespace Prism.Injector
                 if (!argsSpec)
                     return true;
 
-                if (arguments.Length != md.Parameters.Count)
+                var start = md.IsStatic ? 0 : 1;
+
+                if (arguments.Length + start != md.Parameters.Count)
                     return false;
 
                 for (int i = 0; i < arguments.Length; i++)
-                    if (arguments[i] != md.Parameters[i].ParameterType)
+                    if (!comp.Equals(arguments[i], md.Parameters[i + start].Type))
                         return false;
 
                 return true;
             }).ToArray();
         }
-        [DebuggerStepThrough]
-        public static MethodDefinition[] GetMethods(this TypeDefinition type, CecilContext context, string name, MethodFlags flags = MethodFlags.All, params Type         [] arguments)
+        //[DebuggerStepThrough]
+        public static MethodDef[] GetMethods(this TypeDef type, DNContext context, string name, MethodFlags flags = MethodFlags.All, params Type         [] arguments)
         {
             return GetMethods(type, name, flags, arguments.Select(t =>
             {
-                if (context.Comparer.AssemblyEquals(type.Module.Assembly, t.Assembly))
+                if (context.RefComparer.AssemblyEquals(type.Module.Assembly, t.Assembly))
                     return context.Resolver.GetType(t);
 
-                return context.PrimaryAssembly.MainModule.Import(t);
+                return context.PrimaryAssembly.ManifestModule.Import(t);
             }).ToArray());
         }
-
-        [DebuggerStepThrough]
-        public static MethodDefinition GetMethod(this TypeDefinition type                      , string name, MethodFlags flags = MethodFlags.All, params TypeReference[] arguments)
+        
+        //[DebuggerStepThrough]
+        public static MethodDef GetMethod(this TypeDef type, string name, MethodFlags flags, TypeSig[] arguments)
+        {
+            return type.GetMethod(name, flags, arguments.Select(ts => ts.ToTypeDefOrRef()).ToArray());
+        }
+        //[DebuggerStepThrough]
+        public static MethodDef GetMethod(this TypeDef type                   , string name, MethodFlags flags = MethodFlags.All, params ITypeDefOrRef[] arguments)
         {
             return GetMethods(type         , name, flags, arguments).FirstOrDefault();
         }
-        [DebuggerStepThrough]
-        public static MethodDefinition GetMethod(this TypeDefinition type, CecilContext context, string name, MethodFlags flags = MethodFlags.All, params Type         [] arguments)
+        //[DebuggerStepThrough]
+        public static MethodDef GetMethod(this TypeDef type, DNContext context, string name, MethodFlags flags = MethodFlags.All, params Type         [] arguments)
         {
             return GetMethods(type, context, name, flags, arguments).FirstOrDefault();
         }
 
-        [DebuggerStepThrough]
-        public static MethodDefinition GetConstructor(this TypeDefinition type                      , bool isNonPublic = false, params TypeReference[] arguments)
+        //[DebuggerStepThrough]
+        public static MethodDef GetConstructor(this TypeDef type, bool isNonPublic, TypeSig[] arguments)
+        {
+            return GetMethod(type, CTOR, (isNonPublic ? MethodFlags.NonPublic : MethodFlags.Public) | MethodFlags.Instance, arguments.Select(ts => ts.ToTypeDefOrRef()).ToArray());
+        }
+        //[DebuggerStepThrough]
+        public static MethodDef GetConstructor(this TypeDef type                   , bool isNonPublic = false, params ITypeDefOrRef[] arguments)
         {
             return GetMethod(type         , CTOR, (isNonPublic ? MethodFlags.NonPublic : MethodFlags.Public) | MethodFlags.Instance, arguments);
         }
-        [DebuggerStepThrough]
-        public static MethodDefinition GetConstructor(this TypeDefinition type, CecilContext context, bool isNonPublic = false, params Type         [] arguments)
+        //[DebuggerStepThrough]
+        public static MethodDef GetConstructor(this TypeDef type, DNContext context, bool isNonPublic = false, params Type         [] arguments)
         {
             return GetMethod(type, context, CTOR, (isNonPublic ? MethodFlags.NonPublic : MethodFlags.Public) | MethodFlags.Instance, arguments);
         }
 
-        [DebuggerStepThrough]
-        public static MethodDefinition GetOrCreateStaticCtor(this TypeDefinition type, Action<ILProcessor> onCreate = null)
+        //[DebuggerStepThrough]
+        public static MethodDef GetOrCreateStaticCtor(this TypeDef type, Action<CilBody> onCreate = null)
         {
             var cctor = type.Methods.FirstOrDefault(m => m.Name == CCTOR);
 
             if (cctor != null)
                 return cctor;
 
-            cctor = new MethodDefinition(CCTOR, MethodAttributes.Private | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName, type.Module.TypeSystem.Void);
+            cctor = new MethodDefUser(CCTOR, MethodSig.CreateInstance(type.Module.CorLibTypes.Void), MethodAttributes.Private | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
 
-            var cproc = cctor.Body.GetILProcessor();
+            var cb = cctor.Body = new CilBody();
 
             if (onCreate != null)
-                onCreate(cproc);
+                onCreate(cb);
 
-            cproc.Emit(OpCodes.Ret);
+            cb.Instructions.Add(Instruction.Create(OpCodes.Ret));
 
             return cctor;
         }

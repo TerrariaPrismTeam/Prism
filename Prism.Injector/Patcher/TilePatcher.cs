@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
+using dnlib.DotNet;
+using dnlib.DotNet.Emit;
 
 namespace Prism.Injector.Patcher
 {
@@ -12,11 +12,11 @@ namespace Prism.Injector.Patcher
             LARGEST_WLD_X = 8400,
             LARGEST_WLD_Y = 2400;
 
-        static CecilContext context;
+        static DNContext context;
         static MemberResolver memRes;
 
-        static TypeSystem typeSys;
-        static TypeDefinition typeDef_Tile;
+        static ICorLibTypes typeSys;
+        static TypeDef typeDef_Tile;
 
         readonly static Code[] Stlocs = { Code.Stloc, Code.Stloc_0, Code.Stloc_1, Code.Stloc_2, Code.Stloc_3, Code.Stloc_S };
 
@@ -28,7 +28,7 @@ namespace Prism.Injector.Patcher
         {
             var wall = typeDef_Tile.GetField("wall");
 
-            foreach (var td in context.PrimaryAssembly.MainModule.Types)
+            foreach (var td in context.PrimaryAssembly.ManifestModule.Types)
                 foreach (var md in td.Methods)
                 {
                     if (!md.HasBody)
@@ -39,7 +39,7 @@ namespace Prism.Injector.Patcher
                     if (!body.InitLocals) // no local vars
                         continue;
 
-                    body.EnumerateWithStackAnalysis((i, s) =>
+                    md.EnumerateWithStackAnalysis((i, s) =>
                     {
                         if (s.Count == 0)
                             return;
@@ -50,15 +50,35 @@ namespace Prism.Injector.Patcher
 
                         // ldfld Tile::wall
                         // stloc*
-                        if (c.OpCode.Code == Code.Ldfld && c.Operand == wall && Array.IndexOf(Stlocs, i.OpCode.Code) != -1)
+                        if (c.OpCode.Code == Code.Ldfld)
                         {
+                            if (c.Operand is FieldDef)
+                            {
+                                if (!context.SigComparer.Equals((FieldDef )c.Operand, wall))
+                                    return;
+                            }
+                            else if (c.Operand is MemberRef)
+                            {
+                                if (!context.SigComparer.Equals((MemberRef)c.Operand, wall))
+                                    return;
+                            }
+                            else
+                            {
+                                //! PLACE BREAKPOINT HERE
+                                int iii = 0;
+                                iii = ++iii - 1;
+                            }
+
+                            if (Array.IndexOf(Stlocs, i.OpCode.Code) == -1)
+                                return;
+
                             var li = 0;
 
                             switch (i.OpCode.Code)
                             {
                                 case Code.Stloc:
                                 case Code.Stloc_S:
-                                    li = i.Operand is int ? (int)i.Operand : ((VariableDefinition)i.Operand).Index;
+                                    li = i.Operand is int ? (int)i.Operand : ((Local)i.Operand).Index;
                                     break;
                                 // 0 not needed (default)
                                 case Code.Stloc_1:
@@ -72,15 +92,15 @@ namespace Prism.Injector.Patcher
                                     break;
                             }
 
-                            if (body.Variables[li].VariableType == typeSys.Byte)
-                                body.Variables[li].VariableType = typeSys.UInt16;
+                            if (context.SigComparer.Equals(body.Variables[li].Type, typeSys.Byte))
+                                body.Variables[li].Type = typeSys.UInt16;
                         }
                     });
                 }
         }
 
         #region unused
-        static bool IsGet2DArrCall(TypeReference arrayType, Instruction i)
+        /*static bool IsGet2DArrCall(TypeReference arrayType, Instruction i)
         {
             var inner = arrayType.GetElementType();
 
@@ -334,7 +354,7 @@ namespace Prism.Injector.Patcher
             wall.Name = "P_wall";
 
             wall.Attributes = FieldAttributes.Assembly;
-        }
+        }*/
         #endregion
 
         internal static void Patch()
@@ -342,7 +362,7 @@ namespace Prism.Injector.Patcher
             context = TerrariaPatcher.context;
             memRes  = TerrariaPatcher.memRes ;
 
-            typeSys = context.PrimaryAssembly.MainModule.TypeSystem;
+            typeSys = context.PrimaryAssembly.ManifestModule.CorLibTypes;
             typeDef_Tile = memRes.GetType("Terraria.Tile");
 
             ChangeFieldType ();

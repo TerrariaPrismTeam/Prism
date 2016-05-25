@@ -1,26 +1,27 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
+using dnlib.DotNet;
+using dnlib.DotNet.Emit;
 
 namespace Prism.Injector.Patcher
 {
     static class MainPatcher
     {
-        static CecilContext context;
+        static DNContext context;
         static MemberResolver memRes;
 
-        static TypeSystem typeSys;
-        static TypeDefinition typeDef_Main;
+        static ICorLibTypes typeSys;
+        static TypeDef typeDef_Main;
 
         static void WrapMethods()
         {
             typeDef_Main.GetMethod("UpdateMusic").Wrap(context);
-            typeDef_Main.GetMethod("PlaySound", MethodFlags.Static | MethodFlags.Public, typeSys.Int32, typeSys.Int32, typeSys.Int32, typeSys.Int32).Wrap(context, "Terraria.PrismInjections", "Main_PlaySoundDel", "P_OnPlaySound");
-            typeDef_Main.GetMethod("DrawNPC", MethodFlags.Instance | MethodFlags.Public, typeSys.Int32, typeSys.Boolean).Wrap(context);
-            typeDef_Main.GetMethod("DrawProj", MethodFlags.Instance | MethodFlags.Public, typeSys.Int32).Wrap(context);
-            typeDef_Main.GetMethod("DrawPlayer", MethodFlags.Instance | MethodFlags.Public).Wrap(context);
+            typeDef_Main.GetMethod("PlaySound"     , MethodFlags.Static   | MethodFlags.Public, new[] { typeSys.Int32, typeSys.Int32, typeSys.Int32, typeSys.Int32 })
+                .Wrap(context, "Terraria.PrismInjections", "Main_PlaySoundDel", "P_OnPlaySound");
+            typeDef_Main.GetMethod("DrawNPC"       , MethodFlags.Instance | MethodFlags.Public, new[] { typeSys.Int32, typeSys.Boolean                             }).Wrap(context);
+            typeDef_Main.GetMethod("DrawProj"      , MethodFlags.Instance | MethodFlags.Public, new[] { typeSys.Int32                                              }).Wrap(context);
+            typeDef_Main.GetMethod("DrawPlayer"    , MethodFlags.Instance | MethodFlags.Public).Wrap(context);
             typeDef_Main.GetMethod("DrawBackground", MethodFlags.Instance | MethodFlags.Public).Wrap(context);
         }
         static void RemoveVanillaNpcDrawLimitation()
@@ -46,10 +47,14 @@ namespace Prism.Injector.Patcher
                 OpCodes.Bge
             };
 
-            var drawNpcs = typeDef_Main.GetMethod("DrawNPCs", MethodFlags.Instance | MethodFlags.Public, typeSys.Boolean);
+            var drawNpcs = typeDef_Main.GetMethod("DrawNPCs", MethodFlags.Instance | MethodFlags.Public, new[] { typeSys.Boolean });
 
             var firstInstr = drawNpcs.Body.FindInstrSeqStart(seqToRemove);
-            drawNpcs.Body.GetILProcessor().RemoveInstructions(firstInstr, seqToRemove.Length);
+
+            using (var p = drawNpcs.Body.GetILProcessor())
+            {
+                p.RemoveInstructions(firstInstr, seqToRemove.Length);
+            }
         }
         static void AddIsChatAllowedHook()
         {
@@ -81,7 +86,10 @@ namespace Prism.Injector.Patcher
             var mainUpdate = typeDef_Main.GetMethod("Update").Body;
 
             //public virtual bool IsChatAllowedHook() { return Main.netMode == 1; }
-            var chatCheckHook = new MethodDefinition("IsChatAllowedHook", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, typeSys.Boolean);
+            var chatCheckHook = new MethodDefUser("IsChatAllowedHook", MethodSig.CreateInstance(typeSys.Boolean),
+                MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual);
+            chatCheckHook.Body = new CilBody();
+
             var proc = chatCheckHook.Body.GetILProcessor();
 
             proc.Append(Instruction.Create(OpCodes.Ldsfld, typeDef_Main.GetField("netMode")));
@@ -97,11 +105,11 @@ namespace Prism.Injector.Patcher
             var instrToInsert = Instruction.Create(OpCodes.Bne_Un, nextInstrReturnFalse);
             proc.InsertAfter(instrAfterWhichToInsert, instrToInsert);
             typeDef_Main.Methods.Add(chatCheckHook);
-
-
+            
+            // ---
 
             proc = mainUpdate.GetILProcessor();
-            var mainInstrs = mainUpdate.FindInstrSeq(searchSeq);
+            var mainInstrs = mainUpdate.FindInstrSeq(proc, searchSeq);
 
             if (mainInstrs[0] == null)
             {
@@ -244,32 +252,34 @@ namespace Prism.Injector.Patcher
             #endregion
 
             //public virtual bool PlayerChatLocalHook() { return true; }
-            var localChatHook = new MethodDefinition("PlayerChatLocalHook", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, typeSys.Boolean);
-            var proc = localChatHook.Body.GetILProcessor();
+            var localChatHook = new MethodDefUser("PlayerChatLocalHook", MethodSig.CreateInstance(typeSys.Boolean),
+                MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual);
+            localChatHook.Body = new CilBody();
 
-            // Return true;
-            proc.Emit(OpCodes.Ldc_I4_1);
-            proc.Emit(OpCodes.Ret);
-
-
+            using (var proc = localChatHook.Body.GetILProcessor())
+            {
+                // Return true;
+                proc.Emit(OpCodes.Ldc_I4_1);
+                proc.Emit(OpCodes.Ret);
+            }
+            
             typeDef_Main.Methods.Add(localChatHook);
 
             var mainUpdate = typeDef_Main.GetMethod("Update");
-            proc = mainUpdate.Body.GetILProcessor();
-
-            var instrSeq = mainUpdate.Body.FindInstrSeq(searchSeq);
-
-            if (instrSeq[0] == null)
+            using (var proc = mainUpdate.Body.GetILProcessor())
             {
-                Console.Error.WriteLine("MainPatcher.AddLocalChatHook() could not find all the local chat opcodes. The search array needs to be updated.");
-            }
-            else
-            {
-                var newInstrBrfalse = Instruction.Create(OpCodes.Brfalse_S, (Instruction)(instrSeq[1].Operand));
-                proc.InsertBefore(instrSeq[1], newInstrBrfalse);
+                var instrSeq = mainUpdate.Body.FindInstrSeq(proc, searchSeq);
 
-                var newInstrCall = Instruction.Create(OpCodes.Call, localChatHook);
-                proc.InsertBefore(instrSeq[1], newInstrCall);
+                if (instrSeq[0] == null)
+                    Console.Error.WriteLine("MainPatcher.AddLocalChatHook() could not find all the local chat opcodes. The search array needs to be updated.");
+                else
+                {
+                    var newInstrBrfalse = Instruction.Create(OpCodes.Brfalse_S, (Instruction)(instrSeq[1].Operand));
+                    proc.InsertBefore(instrSeq[1], newInstrBrfalse);
+
+                    var newInstrCall = Instruction.Create(OpCodes.Call, localChatHook);
+                    proc.InsertBefore(instrSeq[1], newInstrCall);
+                }
             }
         }
         static void FixOnEngineLoadField()
@@ -298,7 +308,10 @@ namespace Prism.Injector.Patcher
                     if (i == null)
                         break;
 
-                    drawPlayerHead.Body.GetILProcessor().RemoveInstructions(i, toRem.Length);
+                    using (var p = drawPlayerHead.Body.GetILProcessor())
+                    {
+                        p.RemoveInstructions(i, toRem.Length);
+                    }
                 }
             }
             #endregion
@@ -322,7 +335,10 @@ namespace Prism.Injector.Patcher
                     if (i == null)
                         break;
 
-                    drawPlayer.Body.GetILProcessor().RemoveInstructions(i, toRem.Length);
+                    using (var p = drawPlayer.Body.GetILProcessor())
+                    {
+                        p.RemoveInstructions(i, toRem.Length);
+                    }
                 }
             }
             #endregion
@@ -334,17 +350,17 @@ namespace Prism.Injector.Patcher
                 /*
                     spriteBatch.Draw(...);
 
-                	IL_29AF: ldsfld    class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SpriteBatch Terraria.Main::spriteBatch
-	                IL_29B4: ldc.i4.0
-	                IL_29B5: ldsfld    class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.BlendState [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.BlendState::AlphaBlend
-	                IL_29BA: ldsfld    class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SamplerState [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SamplerState::LinearClamp
-	                IL_29BF: ldsfld    class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.DepthStencilState [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.DepthStencilState::None
-	                IL_29C4: ldarg.0
-	                IL_29C5: ldfld     class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.RasterizerState Terraria.Main::Rasterizer
-	                IL_29CA: ldnull
-	                IL_29CB: ldarg.0
-	                IL_29CC: ldfld     valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Matrix Terraria.Main::Transform
-	                IL_29D1: callvirt  instance void [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SpriteBatch::Begin(valuetype [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SpriteSortMode, class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.BlendState, class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SamplerState, class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.DepthStencilState, class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.RasterizerState, class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.Effect, valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Matrix)
+                    IL_29AF: ldsfld    class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SpriteBatch Terraria.Main::spriteBatch
+                    IL_29B4: ldc.i4.0
+                    IL_29B5: ldsfld    class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.BlendState [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.BlendState::AlphaBlend
+                    IL_29BA: ldsfld    class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SamplerState [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SamplerState::LinearClamp
+                    IL_29BF: ldsfld    class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.DepthStencilState [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.DepthStencilState::None
+                    IL_29C4: ldarg.0
+                    IL_29C5: ldfld     class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.RasterizerState Terraria.Main::Rasterizer
+                    IL_29CA: ldnull
+                    IL_29CB: ldarg.0
+                    IL_29CC: ldfld     valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Matrix Terraria.Main::Transform
+                    IL_29D1: callvirt  instance void [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SpriteBatch::Begin(valuetype [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SpriteSortMode, class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.BlendState, class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SamplerState, class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.DepthStencilState, class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.RasterizerState, class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.Effect, valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Matrix)
                 */
 
                 OpCodes.Ldsfld,
@@ -364,35 +380,36 @@ namespace Prism.Injector.Patcher
 
             var spriteBatch = typeDef_Main.GetField("spriteBatch");
 
-            MethodDefinition invokePreDraw;
+            MethodDef invokePreDraw;
             var onPreDrawDel = context.CreateDelegate("Terraria.PrismInjections", "Main_OnPreDrawDel", typeSys.Void, out invokePreDraw, spriteBatch.FieldType);
 
-            var onPreDraw = new FieldDefinition("P_OnPreDraw", FieldAttributes.Public | FieldAttributes.Static, onPreDrawDel);
+            var onPreDraw = new FieldDefUser("P_OnPreDraw", new FieldSig(onPreDrawDel.ToTypeSig()), FieldAttributes.Public | FieldAttributes.Static);
             typeDef_Main.Fields.Add(onPreDraw);
 
             var drb = draw.Body;
-            var drbproc = drb.GetILProcessor();
-
-            Instruction[] toInj =
+            using (var drbproc = drb.GetILProcessor())
             {
-                Instruction.Create(OpCodes.Ldsfld  , onPreDraw    ),
-                Instruction.Create(OpCodes.Ldsfld  , spriteBatch  ),
-                Instruction.Create(OpCodes.Callvirt, invokePreDraw)
-            };
+                Instruction[] toInj =
+                {
+                    Instruction.Create(OpCodes.Ldsfld  , onPreDraw    ),
+                    Instruction.Create(OpCodes.Ldsfld  , spriteBatch  ),
+                    Instruction.Create(OpCodes.Callvirt, invokePreDraw)
+                };
 
-            var first = drb.FindInstrSeqStart(toFind);
-            for (int i = 0; i < toFind.Length; i++)
-                first = first.Next;
+                var first = drb.FindInstrSeqStart(toFind);
+                for (int i = 0; i < toFind.Length; i++)
+                    first = first.Next(drbproc);
 
-            foreach (var i in toInj.Reverse())
-                drbproc.InsertAfter(first, i);
+                foreach (var i in toInj.Reverse())
+                    drbproc.InsertAfter(first, i);
 
-            // rewire the if before it to end at the injected instructions instead of the code we looked for
-            foreach (var i in drb.Instructions)
-                if (i.Operand == first)
-                    i.Operand = toInj[0];
+                // rewire the if before it to end at the injected instructions instead of the code we looked for
+                //foreach (var i in drb.Instructions)
+                //    if (i.Operand == first)
+                //        i.Operand = toInj[0];
 
-            // not rewiring the if will lead to invalid IL, because the target instruction won't exist (because we're removing it here)
+                // not rewiring the if will lead to invalid IL, because the target instruction won't exist (because we're removing it here)
+            }
         }
         static void AddOnUpdateKeyboardHook()
         {
@@ -440,18 +457,17 @@ namespace Prism.Injector.Patcher
             var mainUpdate = typeDef_Main.GetMethod("Update");
             var mainUpdateBody = mainUpdate.Body;
             var first = mainUpdateBody.FindInstrSeqStart(search);
+            var mainUpdateProc = mainUpdateBody.GetILProcessor();
 
-            if (!(first != null && (first = first.Next) != null && (first = first.Next) != null))
+            if (!(first != null && (first = first.Next(mainUpdateProc)) != null && (first = first.Next(mainUpdateProc)) != null))
                 Console.Error.WriteLine("Couldn't find instructions for MainPatcher::AddOnUpdateKeyboardHook()");
 
             //public virtual void P_OnUpdateInputHook() { }
-            MethodDefinition invokeOnUpdateKeyboardHook;
-            var onUpdateKeyboardDelType = context.CreateDelegate("Terraria.PrismInjections", "Main_Update_OnUpdateKeyboardDel", typeSys.Void, out invokeOnUpdateKeyboardHook, typeDef_Main, mainUpdate.Parameters[0].ParameterType /* HAH I WIN, XNA */);
-            var onUpdateKeyboardDelField = new FieldDefinition("P_OnUpdateKeyboard", FieldAttributes.Public | FieldAttributes.Static, onUpdateKeyboardDelType);
+            MethodDef invokeOnUpdateKeyboardHook;
+            var onUpdateKeyboardDelType = context.CreateDelegate("Terraria.PrismInjections", "Main_Update_OnUpdateKeyboardDel", typeSys.Void, out invokeOnUpdateKeyboardHook, typeDef_Main.ToTypeSig(), mainUpdate.Parameters[0].Type /* HAH I WIN, XNA */);
+            var onUpdateKeyboardDelField = new FieldDefUser("P_OnUpdateKeyboard", new FieldSig(onUpdateKeyboardDelType.ToTypeSig()), FieldAttributes.Public | FieldAttributes.Static);
             typeDef_Main.Fields.Add(onUpdateKeyboardDelField);
-
-            var mainUpdateProc = mainUpdateBody.GetILProcessor();
-
+            
             mainUpdateProc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, onUpdateKeyboardDelField));
             mainUpdateProc.EmitWrapperCall(invokeOnUpdateKeyboardHook, first);
             //mainUpdateProc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeOnUpdateKeyboardHook));
@@ -469,33 +485,34 @@ namespace Prism.Injector.Patcher
 
             var spriteBatch = typeDef_Main.GetField("spriteBatch");
 
-            MethodDefinition invokePostScrCl;
+            MethodDef invokePostScrCl;
             var onPostScrClDel = context.CreateDelegate("Terraria.PrismInjections", "Main_OnPostScrClDel", typeSys.Void, out invokePostScrCl);
 
-            var onPostScrClDraw = new FieldDefinition("P_OnPostScrClDraw", FieldAttributes.Public | FieldAttributes.Static, onPostScrClDel);
+            var onPostScrClDraw = new FieldDefUser("P_OnPostScrClDraw", new FieldSig(onPostScrClDel.ToTypeSig()), FieldAttributes.Public | FieldAttributes.Static);
             typeDef_Main.Fields.Add(onPostScrClDraw);
 
             var drb = draw.Body;
-            var drbproc = drb.GetILProcessor();
-
-            Instruction[] toInj =
+            using (var drbproc = drb.GetILProcessor())
             {
-                Instruction.Create(OpCodes.Ldsfld  , onPostScrClDraw),
-                Instruction.Create(OpCodes.Callvirt, invokePostScrCl)
-            };
+                Instruction[] toInj =
+                {
+                    Instruction.Create(OpCodes.Ldsfld  , onPostScrClDraw),
+                    Instruction.Create(OpCodes.Callvirt, invokePostScrCl)
+                };
 
-            var first = drb.FindInstrSeqStart(toFind).Next /* call 2 */.Next /* callvirt */.Next; // ldsfld (spriteBatch)
+                var first = drb.FindInstrSeqStart(toFind).Next(drbproc) /* call 2 */.Next(drbproc) /* callvirt */.Next(drbproc); // ldsfld (spriteBatch)
 
-            foreach (var i in toInj)
-                drbproc.InsertBefore(first, i);
+                foreach (var i in toInj)
+                    drbproc.InsertBefore(first, i);
+            }
         }
 
         internal static void Patch()
         {
             context = TerrariaPatcher.context;
-            memRes = TerrariaPatcher.memRes;
+            memRes  = TerrariaPatcher.memRes ;
 
-            typeSys = context.PrimaryAssembly.MainModule.TypeSystem;
+            typeSys      = context.PrimaryAssembly.ManifestModule.CorLibTypes;
             typeDef_Main = memRes.GetType("Terraria.Main");
 
             WrapMethods();

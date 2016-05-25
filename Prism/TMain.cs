@@ -40,20 +40,20 @@ namespace Prism
         {
             versionNumber += ", " + PrismApi.NiceVersionString;
 
-            SavePath += "\\Prism";
+            SavePath += "/Prism";
 
-            PlayerPath = SavePath + "\\Players";
-            WorldPath  = SavePath + "\\Worlds" ;
+            PlayerPath = SavePath + "/Players";
+            WorldPath  = SavePath + "/Worlds" ;
 
-            PrismApi.ModDirectory = SavePath + "\\Mods";
+            PrismApi.ModDirectory = SavePath + "/Mods";
 
             CloudPlayerPath = "players_Prism";
             CloudWorldPath  = "worlds_Prism" ;
 
-            LocalFavoriteData  = new FavoritesFile(SavePath + "\\favorites.json", false);
+            LocalFavoriteData  = new FavoritesFile(SavePath + "/favorites.json", false);
             CloudFavoritesData = new FavoritesFile("/favorites_Prism.json", false);
 
-            Configuration = new Preferences(SavePath + "\\config.json", false, false);
+            Configuration = new Preferences(SavePath + "/config.json", false, false);
 
             ElapsedTime = 0;
 

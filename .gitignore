@@ -199,3 +199,5 @@ FakesAssemblies/
 /References/Terraria-*.exe
 /References/[Pp]rism.[Tt]erraria.dll
 todo.txt
+/References/dnlib - kopie.*
+/References/dnlib_debug.dll

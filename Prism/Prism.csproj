@@ -3,49 +3,56 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="$(SolutionDir)\Patcher\Prism.Build.props" Condition="Exists('$(SolutionDir)\Patcher\Prism.Build.props')" />
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">DevBuild</Configuration>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{75264225-6481-4139-95DD-11D62BBFE691}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Prism</RootNamespace>
     <AssemblyName>Prism</AssemblyName>
+    <DefineConstants>MAIN_PROJ</DefineConstants>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
     <ErrorReport>prompt</ErrorReport>
-    <PlatformTarget Condition="'$(OS)' == 'Windows_NT'">x86</PlatformTarget>
-    <PlatformTarget Condition="'$(OS)' != 'Windows_NT'">x64</PlatformTarget>
+    <PlatformTarget Condition="'$(OS)' != 'Unix'">x86</PlatformTarget>
+    <PlatformTarget Condition="'$(OS)' == 'Unix'">x64</PlatformTarget>
     <WarningLevel>4</WarningLevel>
+    <UseMSBuildEngine Condition=" '$(OS)' == 'Unix'">False</UseMSBuildEngine>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DevBuild|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>
     <DebugType>full</DebugType>
-    <DefineConstants>TRACE;DEBUG;DEV_BUILD</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE;DEBUG;DEV_BUILD</DefineConstants>
     <!-- trick VS that it resides in a normal dir -->
     <OutputPath Condition="'$(OS)' == 'Windows_NT'">..\Bin\DevBuild</OutputPath>
+    <NoWarn>1692</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
     <!-- trick VS that it resides in a normal dir -->
-    <OutputPath Condition="'$(OS)' == 'Windows_NT'">..\Bin\Debug</OutputPath>
+    <OutputPath Condition="'$(OS)' != 'Unix'">..\Bin\Debug</OutputPath>
+    <EnvironmentVariables Condition=" '$(OS)' == 'Unix'">
+      <EnvironmentVariables>
+        <Variable name="LD_LINKER_PATH" value="lib64" />
+      </EnvironmentVariables>
+    </EnvironmentVariables>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
     <!-- trick VS that it resides in a normal dir -->
-    <OutputPath Condition="'$(OS)' == 'Windows_NT'">..\Bin\Release</OutputPath>
+    <OutputPath Condition="'$(OS)' != 'Unix'">..\Bin\Release</OutputPath>
   </PropertyGroup>
   <PropertyGroup>
-    <DefineConstants Condition="'$(OS)' == 'Windows_NT'">$(DefineConstants);WINDOWS</DefineConstants>
-    <DefineConstants Condition="'$(OS)' != 'Windows_NT'">$(DefineConstants);UNIX</DefineConstants>
-    <DefineConstants Condition="'$(OS)' != 'Windows_NT' And '$(IsOSX)' == 'false'">$(DefineConstants);LINUX</DefineConstants>
-    <DefineConstants Condition="'$(OS)' != 'Windows_NT' And '$(IsOSX)' != 'false'">$(DefineConstants);OSX</DefineConstants>
+    <DefineConstants Condition="'$(OS)' != 'Unix'">$(DefineConstants);WINDOWS</DefineConstants>
+    <DefineConstants Condition="'$(OS)' == 'Unix'">$(DefineConstants);UNIX</DefineConstants>
+    <DefineConstants Condition="'$(OS)' == 'Unix' And '$(IsOSX)' == 'false'">$(DefineConstants);LINUX</DefineConstants>
+    <DefineConstants Condition="'$(OS)' == 'Unix' And '$(IsOSX)' != 'false'">$(DefineConstants);OSX</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>Prism.Program</StartupObject>
@@ -56,46 +63,36 @@
   <PropertyGroup>
     <ApplicationIcon>..\res\Icons\PrismIcon_Main.ico</ApplicationIcon>
     <!-- reset it in the end, so it works correctly for building -->
-    <OutputPath Condition="'$(OS)' != 'Windows_NT'">..\Bin\$(Configuration)\$(OSEnum)</OutputPath>
+    <OutputPath Condition="'$(OS)' != 'Unix'">..\Bin\$(Configuration)\$(OSEnum)</OutputPath>
   </PropertyGroup>
-  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
-    <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
-    <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
-    <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
-    <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework.Xact, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
-    <Reference Condition="'$(OS)' == 'Windows_NT'" Include="WindowsBase" />
-    <Reference Condition="'$(OS)' == 'Windows_NT'" Include="PresentationCore" />
-    <Reference Condition="'$(OS)' == 'Windows_NT'" Include="PresentationFramework" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
-    <Reference Condition="'$(OS)' != 'Windows_NT'" Include="FNA, Version=0.0.0.1, Culture=neutral, PublicKeyToken=null">
-      <SpecificVersion>False</SpecificVersion>
+  <ItemGroup>
+    <Reference Condition="'$(OS)' != 'Unix'" Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
+    <Reference Condition="'$(OS)' != 'Unix'" Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
+    <Reference Condition="'$(OS)' != 'Unix'" Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
+    <Reference Condition="'$(OS)' != 'Unix'" Include="Microsoft.Xna.Framework.Xact, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
+    <Reference Condition="'$(OS)' != 'Unix'" Include="WindowsBase" />
+    <Reference Condition="'$(OS)' != 'Unix'" Include="PresentationCore" />
+    <Reference Condition="'$(OS)' != 'Unix'" Include="PresentationFramework" />
+    <Reference Include="FNA" Condition="'$(OS)' == 'Unix'">
       <HintPath>..\References\FNA.dll</HintPath>
-      <Private>True</Private>
     </Reference>
-    <Reference Condition="'$(OS)' != 'Windows_NT'" Include="WindowsBase, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="WindowsBase" Condition="'$(OS)' == 'Unix'">
       <HintPath>..\References\WindowsBase.dll</HintPath>
-      <Private>True</Private>
+    </Reference>
+    <Reference Include="Ionic.Zip.CF">
+      <HintPath>..\References\Ionic.Zip.CF.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\References\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Prism.Terraria">
+      <HintPath>..\References\Prism.Terraria.dll</HintPath>
+    </Reference>
+    <Reference Include="Steamworks.NET">
+      <HintPath>..\References\Steamworks.NET.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Ionic.Zip.CF, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\Ionic.Zip.CF.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Prism.Terraria, Version=1.3.0.7, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\Prism.Terraria.dll</HintPath>
-    </Reference>
-    <Reference Include="Steamworks.NET, Version=7.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\Steamworks.NET.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
@@ -277,16 +274,16 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Patcher\Prism.TerrariaPatcher\Prism.TerrariaPatcher.csproj">
-      <Project>{6b42eb0b-afa3-4449-acda-aa91c8a39dc0}</Project>
+      <Project>{6B42EB0B-AFA3-4449-ACDA-AA91C8A39DC0}</Project>
       <Name>Prism.TerrariaPatcher</Name>
     </ProjectReference>
     <ProjectReference Include="..\Prism.Injector\Prism.Injector.csproj">
-      <Project>{fa53dc38-9b2b-45d3-818e-3e60f69143f6}</Project>
+      <Project>{FA53DC38-9B2B-45D3-818E-3E60F69143F6}</Project>
       <Name>Prism.Injector</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
-    <Content Condition="'$(OS)' != 'Windows_NT'" Include="..\Prism.sh">
+  <ItemGroup Condition="'$(OS)' == 'Unix'">
+    <Content Condition="'$(OS)' == 'Unix'" Include="..\Prism.sh">
       <Link>Prism.sh</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

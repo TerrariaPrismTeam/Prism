@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Prism.Mods;
 using Prism.Util;
@@ -25,7 +26,7 @@ namespace Prism
 
         public readonly static string
             JsonManifestFileName       = "manifest.json" ,
-            DefaultDllRefsSubdirectory = "\\References"  ,
+            DefaultDllRefsSubdirectory = "/References"   ,
             VanillaString              = "Vanilla"       ,
             TerrariaString             = "Terraria"      ,
             PrismString                = "Prism"         ,
