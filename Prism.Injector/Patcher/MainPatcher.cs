@@ -464,7 +464,7 @@ namespace Prism.Injector.Patcher
 
             //public virtual void P_OnUpdateInputHook() { }
             MethodDef invokeOnUpdateKeyboardHook;
-            var onUpdateKeyboardDelType = context.CreateDelegate("Terraria.PrismInjections", "Main_Update_OnUpdateKeyboardDel", typeSys.Void, out invokeOnUpdateKeyboardHook, typeDef_Main.ToTypeSig(), mainUpdate.Parameters[0].Type /* HAH I WIN, XNA */);
+            var onUpdateKeyboardDelType = context.CreateDelegate("Terraria.PrismInjections", "Main_Update_OnUpdateKeyboardDel", typeSys.Void, out invokeOnUpdateKeyboardHook, typeDef_Main.ToTypeSig(), mainUpdate.Parameters[1].Type /* HAH I WIN, XNA */);
             var onUpdateKeyboardDelField = new FieldDefUser("P_OnUpdateKeyboard", new FieldSig(onUpdateKeyboardDelType.ToTypeSig()), FieldAttributes.Public | FieldAttributes.Static);
             typeDef_Main.Fields.Add(onUpdateKeyboardDelField);
             

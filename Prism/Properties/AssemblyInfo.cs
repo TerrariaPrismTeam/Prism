@@ -2,11 +2,11 @@
 using Prism;
 
 #if !UNIX
-//[assembly: AssemblyTitle("Prism")]
-#endif
+[assembly: AssemblyTitle("Prism")]
 
-//[assembly: AssemblyDescription("Modding API for Terraria 1.3 and beyond")]
-//[assembly: AssemblyInformationalVersion(AssemblyInfo.NICE_VERSION)]
+[assembly: AssemblyDescription("Modding API for Terraria 1.3 and beyond")]
+[assembly: AssemblyInformationalVersion(AssemblyInfo.NICE_VERSION)]
+#endif
 
 static partial class AssemblyInfo
 {

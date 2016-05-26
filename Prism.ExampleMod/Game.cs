@@ -32,7 +32,7 @@ namespace Prism.ExampleMod
 
         public override void PostUpdate()
         {
-            if (Main.gameMenu || !Main.hasFocus || Main.chatMode)
+            if (Main.gameMenu || !Main.hasFocus || TMain.ChatMode)
                 return;
 
             var p = Main.player[Main.myPlayer];

@@ -36,6 +36,21 @@ namespace Prism
             private set;
         }
 
+        public static bool ChatMode
+        {
+            get
+            {
+                return drawingPlayerChat || editSign || editChest || blockInput;
+            }
+        }
+        public static bool NotInChatMode
+        {
+            get
+            {
+                return !drawingPlayerChat && !editSign && !editChest && !blockInput;
+            }
+        }
+
         internal TMain()
         {
             versionNumber += ", " + PrismApi.NiceVersionString;
@@ -160,12 +175,12 @@ namespace Prism
 
             Player.P_OnGetFileData += PlayerHooks.OnGetFiledata;
             Player.P_OnItemCheck   += PlayerHooks.OnItemCheck  ;
-            Player.OnEnterWorld    += PlayerHooks.OnEnterWorld ;
             Player.P_OnKillMe      += PlayerHooks.OnKillMe     ;
             Player.P_OnUpdate      += PlayerHooks.OnUpdate     ;
             Player.P_OnMidUpdate   += PlayerHooks.OnMidUpdate  ;
             Player.P_OnUpdateBuffs += PlayerHooks.OnUpdateBuffs;
             Player.P_OnAddBuff     += PlayerHooks.OnAddBuff    ;
+            Player.Hooks.OnEnterWorld += PlayerHooks.OnEnterWorld;
 
             UICharacterSelect.P_OnNewCharacterClick += PlayerHooks.OnNewCharacterClick;
 

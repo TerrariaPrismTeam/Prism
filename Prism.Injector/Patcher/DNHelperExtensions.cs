@@ -118,7 +118,7 @@ namespace Prism.Injector.Patcher
             var typeSys = context.PrimaryAssembly.ManifestModule.CorLibTypes;
 
             var delegateType = new TypeDefUser(@namespace, name, cResolver.ReferenceOf(typeof(MulticastDelegate)));
-            delegateType.Attributes = TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.AnsiClass | TypeAttributes.Sealed;
+            delegateType.Attributes = TypeAttributes.Public /*| TypeAttributes.AutoClass*/ | TypeAttributes.Sealed;
 
             var ctor = new MethodDefUser(".ctor", MethodSig.CreateInstance(typeSys.Void, typeSys.Object, typeSys.IntPtr),
                 MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
@@ -128,6 +128,8 @@ namespace Prism.Injector.Patcher
             ctor.Parameters[1].ParamDef.Name = "object";
             ctor.Parameters[2].CreateParamDef();
             ctor.Parameters[2].ParamDef.Name = "method";
+
+            delegateType.Methods.Add(ctor);
 
             invoke = new MethodDefUser("Invoke", MethodSig.CreateInstance(returnType, parameters), MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual);
             invoke.ImplAttributes |= MethodImplAttributes.Runtime;

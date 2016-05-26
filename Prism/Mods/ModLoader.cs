@@ -1,5 +1,6 @@
 ﻿
 #if !UNIX && !WINDOWS
+// wat?
 #define WINDOWS
 #endif
 
@@ -206,11 +207,13 @@ namespace Prism.Mods
             Assembly asm = null;
             try
             {
+                var terAsm = typeof(Terraria.Main).Assembly;
                 var curn = Assembly.GetExecutingAssembly().GetName();
                 var p = path + Path.DirectorySeparatorChar + info.AssemblyFileName;
                 var rasm = Assembly.ReflectionOnlyLoadFrom(p);
                 var refs = rasm.GetReferencedAssemblies();
                 var refn = refs.FirstOrDefault(an => an.Name == curn.Name);
+                var reft = refs.FirstOrDefault(an => an.Name == terAsm.GetName().Name);
 
                 var loadAssembly = true;
 
@@ -222,10 +225,31 @@ namespace Prism.Mods
 
                 var refVer = refn.Version;
                 var curVer = curn.Version;
+                var terVer = reft.Version;
+
+                Version curTerVer;
+                {
+                    var _vers = terAsm.GetCustomAttributes(typeof(AssemblyVersionAttribute), false);
+
+                    if (_vers == null || _vers.Length != 1 || _vers[0] as AssemblyVersionAttribute == null
+                        || !Version.TryParse(((AssemblyVersionAttribute)_vers[0]).Version, out curTerVer))
+                    {
+                        // I'll kill myself (figuratively) when this error occurs
+                        errors.Add(new LoaderError(info, "Version info in Prism.Terraria.dll could not be found. This error shouldn't happen, please contact the maintainer of the project."));
+                      //loadAssembly = false; // not really needed
+                        return null;
+                    }
+                }
+
+                if (terVer != curTerVer)
+                {
+                    errors.Add(new LoaderError(info, "Mod was built for a different version of Terraria.")); // Make it sound complicated lmao
+                    loadAssembly = false;
+                }
 
                 if (refVer.ToString() == AssemblyInfo.DEV_BUILD_VERSION && PrismApi.VersionType != VersionType.DevBuild)
                 {
-                    errors.Add(new LoaderError(info, "Mod was built with an unstable developer build of Prism for testing purposes and can only be loaded by builds in the master branch of the Prism repository.")); // Make it sound complicated lmao
+                    errors.Add(new LoaderError(info, "Mod was built with an unstable developer build of Prism for testing purposes and can only be loaded by other developer builds.")); // Make it sound complicated lmao
                     loadAssembly = false;
                 }
 

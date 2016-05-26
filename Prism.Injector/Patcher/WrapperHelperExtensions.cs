@@ -134,7 +134,13 @@ namespace Prism.Injector.Patcher
             for (int i = statAdd; i < toHook.Parameters.Count; i++)
             {
                 newMethod.Parameters[i].CreateParamDef();
-                newMethod.Parameters[i].ParamDef.Name = toHook.Parameters[i].Name;
+                newMethod.Parameters[i].ParamDef.Name        = toHook.Parameters[i].Name;
+                newMethod.Parameters[i].ParamDef.Attributes  = toHook.Parameters[i].ParamDef.Attributes;
+                newMethod.Parameters[i].ParamDef.Constant    = toHook.Parameters[i].ParamDef.Constant;
+                newMethod.Parameters[i].ParamDef.MarshalType = toHook.Parameters[i].ParamDef.MarshalType;
+
+                foreach (var ca in toHook.Parameters[i].ParamDef.CustomAttributes)
+                    newMethod.Parameters[i].ParamDef.CustomAttributes.Add(ca);
             }
 
             //if (<hookField> != null) return <hookField>((this,)? <args>); else return (this.)?<realMethod>(<args>);

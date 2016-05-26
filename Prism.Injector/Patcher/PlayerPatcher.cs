@@ -762,11 +762,14 @@ namespace Prism.Injector.Patcher
             }
             #endregion
         }
-        /*static void FixOnEnterWorldField()
+        static void FixOnEnterWorldBackingFieldName()
         {
-            // wtf?
-            typeDef_Player.GetField("OnEnterWorld").Name = "_onEnterWorld_backingField";
-        }*/
+            var hooks_t = memRes.GetType("Terraria.Player/Hooks");
+
+            var onEnterWorld = hooks_t.GetField("OnEnterWorld");
+
+            onEnterWorld.Name = "_onEnterWorld_backingField";
+        }
         static void InjectMidUpdate()
         {
             var update = typeDef_Player.GetMethod("RealUpdate" /* method is wrapped */, MethodFlags.Public | MethodFlags.Instance, typeSys.Int32.ToTypeDefOrRef());
@@ -850,7 +853,7 @@ namespace Prism.Injector.Patcher
             RemoveBuggyPlayerLoading();
             RemoveStatCaps();
             ReplaceUseSoundCalls();
-            //FixOnEnterWorldField();
+            FixOnEnterWorldBackingFieldName();
             InjectMidUpdate();
             InitBuffBHandlerArray();
         }
