@@ -27,5 +27,5 @@ static partial class AssemblyInfo
 static partial class GitInfo
 {
     public const string REPO = "Prism";
-    public const string BRANCH = "develop";
+    public const string BRANCH = "v1-3-0";
 }
