@@ -118,7 +118,7 @@ namespace Prism.Injector.Patcher
             var typeSys = context.PrimaryAssembly.ManifestModule.CorLibTypes;
 
             var delegateType = new TypeDefUser(@namespace, name, cResolver.ReferenceOf(typeof(MulticastDelegate)));
-            delegateType.Attributes = TypeAttributes.Public /*| TypeAttributes.AutoClass*/ | TypeAttributes.Sealed;
+            delegateType.Attributes = TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.Sealed;
 
             var ctor = new MethodDefUser(".ctor", MethodSig.CreateInstance(typeSys.Void, typeSys.Object, typeSys.IntPtr),
                 MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
@@ -136,7 +136,7 @@ namespace Prism.Injector.Patcher
             for (int i = 1; i <= parameters.Length; i++)
             {
                 invoke.Parameters[i].CreateParamDef();
-                invoke.Parameters[i].ParamDef.Name = "arg" + i;
+                invoke.Parameters[i].ParamDef.Name = "arg" + (i - 1);
             }
 
             delegateType.Methods.Add(invoke);
@@ -145,10 +145,10 @@ namespace Prism.Injector.Patcher
                     parameters.Concat(new[] { cResolver.ReferenceOf(typeof(AsyncCallback)).ToTypeSig(), typeSys.Object }).ToArray()),
                 MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual);
             beginInvoke.ImplAttributes |= MethodImplAttributes.Runtime;
-            for (int i = 1; i < parameters.Length - 1; i++)
+            for (int i = 0; i < parameters.Length; i++)
             {
-                beginInvoke.Parameters[i].CreateParamDef();
-                beginInvoke.Parameters[i].ParamDef.Name = "arg" + i;
+                beginInvoke.Parameters[i + 1].CreateParamDef();
+                beginInvoke.Parameters[i + 1].ParamDef.Name = "arg" + i;
             }
             beginInvoke.Parameters[beginInvoke.Parameters.Count - 2].CreateParamDef();
             beginInvoke.Parameters[beginInvoke.Parameters.Count - 2].ParamDef.Name = "callback";
@@ -159,7 +159,7 @@ namespace Prism.Injector.Patcher
 
             var endInvoke = new MethodDefUser("EndInvoke", MethodSig.CreateInstance(typeSys.Void, cResolver.ReferenceOf(typeof(IAsyncResult)).ToTypeSig()),
                 MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual);
-            beginInvoke.ImplAttributes |= MethodImplAttributes.Runtime;
+            endInvoke.ImplAttributes |= MethodImplAttributes.Runtime;
             endInvoke.Parameters[1].CreateParamDef();
             endInvoke.Parameters[1].ParamDef.Name = "result";
 

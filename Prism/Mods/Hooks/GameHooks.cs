@@ -21,7 +21,7 @@ namespace Prism.Mods.Hooks
 
         public override void Create()
         {
-            behaviours = new List<GameBehaviour>(ModData.mods.Values.Select(m => m.gameBehaviour));
+            behaviours = new List<GameBehaviour>(ModData.mods.Values.Select(m => m.gameBehaviour).Where(gb => gb != null));
 
             base.Create();
 

@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Prism.Debugging;
 using Prism.Mods;
 using Prism.Util;
 using Steamworks;
+using Terraria.Initializers;
 using Terraria.Social;
 
 using T = Terraria;
@@ -87,15 +87,20 @@ namespace Prism
             using (var m = new TMain())
             {
                 SocialAPI.Initialize(SteamExists() ? SocialMode.Steam : SocialMode.None);
+                LaunchInitializer.LoadParameters(m);
+
                 PrismDebug.Init();
 
                 try
                 {
                     T.Main.OnEngineLoad += () =>
                     {
-                        T.Program.ForceLoadAssembly(typeof(T.Program).Assembly /* Terraria */, true);
+                        T.Program.StartForceLoad();
+
+                        //TODO: move this to another thread (in StartForceLoad)
+                        //T.Program.ForceLoadAssembly(typeof(T.Program).Assembly /* Terraria */, true);
 #if !DEV_BUILD
-                        T.Program.ForceLoadAssembly(Assembly.GetExecutingAssembly() /* Prism */, true);
+                        //T.Program.ForceLoadAssembly(Assembly.GetExecutingAssembly() /* Prism */, true);
 #endif
                     };
 

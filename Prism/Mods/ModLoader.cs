@@ -56,7 +56,7 @@ namespace Prism.Mods
                 var errorDump = new StringBuilder(String.Format("Encountered {0} errors while loading mods:\n\n\n", errors.Count));
 
                 for (int i = 0; i < errors.Count; i++)
-                    errorDump.AppendLine(String.Format("[{0} of {1}] ", i + 1, errors.Count) + errors[i].ToString());
+                    errorDump.Append(String.Format("[{0} of {1}] ", i + 1, errors.Count)).AppendLine(errors[i].ToString());
 
                 var dialog = new ExceptionDialogForm(String.Format("{0} Error(s)", errors.Count), errorDump.ToString());
                 dialog.ShowDialog();
@@ -224,30 +224,18 @@ namespace Prism.Mods
                 }
 
                 var refVer = refn.Version;
+                var refVers = refVer.ToString();
                 var curVer = curn.Version;
-                var terVer = reft.Version;
-
-                Version curTerVer;
+              //var curVers = curVer.ToString();
+                var terVer = reft == null ? null : reft.Version;
+                
+                if (terVer != null && terVer != terAsm.GetName().Version) // null -> version-agnostic (e.g. only using prism internals)
                 {
-                    var _vers = terAsm.GetCustomAttributes(typeof(AssemblyVersionAttribute), false);
-
-                    if (_vers == null || _vers.Length != 1 || _vers[0] as AssemblyVersionAttribute == null
-                        || !Version.TryParse(((AssemblyVersionAttribute)_vers[0]).Version, out curTerVer))
-                    {
-                        // I'll kill myself (figuratively) when this error occurs
-                        errors.Add(new LoaderError(info, "Version info in Prism.Terraria.dll could not be found. This error shouldn't happen, please contact the maintainer of the project."));
-                      //loadAssembly = false; // not really needed
-                        return null;
-                    }
-                }
-
-                if (terVer != curTerVer)
-                {
-                    errors.Add(new LoaderError(info, "Mod was built for a different version of Terraria.")); // Make it sound complicated lmao
+                    errors.Add(new LoaderError(info, "Mod was built for a different version of Terraria."));
                     loadAssembly = false;
                 }
 
-                if (refVer.ToString() == AssemblyInfo.DEV_BUILD_VERSION && PrismApi.VersionType != VersionType.DevBuild)
+                if (refVers == AssemblyInfo.DEV_BUILD_VERSION && PrismApi.VersionType != VersionType.DevBuild)
                 {
                     errors.Add(new LoaderError(info, "Mod was built with an unstable developer build of Prism for testing purposes and can only be loaded by other developer builds.")); // Make it sound complicated lmao
                     loadAssembly = false;
@@ -265,7 +253,7 @@ namespace Prism.Mods
                     }
 
 
-                if (refVer > curVer)
+                if (refVer > curVer && PrismApi.VersionType != VersionType.DevBuild)
                 {
                     errors.Add(new LoaderError(info, "Mod was built with a newer version of Prism than the installed version. Update to the latest version of Prism (>=" + refVer + ") in order to load this mod."));
                     loadAssembly = false;

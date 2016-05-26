@@ -13,6 +13,7 @@ namespace Prism.Mods.DefHandlers
     using TileUnion = Either<TileRef, CraftGroup<TileDef, TileRef>>;
 
     //TODO: we might need to rethink this
+    //TODO: switch to RecipeGroups
     sealed class RecipeDefHandler
     {
         internal static bool SettingUpRecipes = false;
@@ -121,8 +122,11 @@ namespace Prism.Mods.DefHandlers
         internal void Reset()
         {
             recipes.Clear();
+            RecipeGroup.recipeGroupIDs.Clear();
+            RecipeGroup.recipeGroups  .Clear();
 
             Recipe.maxRecipes = DefMaxRecipes;
+            RecipeGroup.nextRecipeGroupIndex = 0;
 
             ExtendVanillaArrays(-1);
 
