@@ -30,7 +30,7 @@ Prism is licensed under the ~~Artistic License~~ WTFPL, because it is no longer 
  * **`Steamworks.NET.dll`** - Steamworks lib required by vanilla Terraria (and therefore by Prism as well) ~~[May be removed in the future as vanilla has it embedded into the assembly]~~ It doesn't anymore.
  * **`Ionic.Zip.CF`** - Lib used by vanilla Terraria for compressing saves.
  * **`Newtonsoft.Json.dll`** - Lib used by vanilla Terraria for Json support (not to be confused with LitJson, which Prism uses)
- * **`Mono.Cecil.dll`** - Powerful IL manipulation lib used by `Prism.Injector.csproj`
+ * **`dnlib.dll`** - Very powerful IL manipulation lib used by `Prism.Injector.csproj`
  * **[_Windows Only_]: `Microsoft.Xna.Framework.*`** The entire Xna Framework. For some reason you have to include the whole thing like this if you load an Xna assembly indirectly.
  * **[_OS X & Linux Only_]: `FNA.dll`** - This handy open platform version of Xna: https://github.com/flibitijibibo/FNA
 
