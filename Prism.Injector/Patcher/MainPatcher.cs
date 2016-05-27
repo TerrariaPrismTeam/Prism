@@ -24,6 +24,7 @@ namespace Prism.Injector.Patcher
             typeDef_Main.GetMethod("DrawPlayer"    , MethodFlags.Instance | MethodFlags.Public).Wrap(context);
             typeDef_Main.GetMethod("DrawBackground", MethodFlags.Instance | MethodFlags.Public).Wrap(context);
         }
+
         static void RemoveVanillaNpcDrawLimitation()
         {
             OpCode[] seqToRemove =

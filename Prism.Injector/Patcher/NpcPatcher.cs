@@ -26,6 +26,7 @@ namespace Prism.Injector.Patcher
             typeDef_NPC.GetMethod("AddBuff"  , MethodFlags.Public | MethodFlags.Instance).Wrap(context);
             typeDef_NPC.GetMethod("FindFrame", MethodFlags.Public | MethodFlags.Instance).Wrap(context);
         }
+
         static void AddFieldForBHandler()
         {
             typeDef_NPC.Fields.Add(new FieldDefUser("P_BHandler"    , new FieldSig(typeSys.Object)                                  , FieldAttributes.Public));

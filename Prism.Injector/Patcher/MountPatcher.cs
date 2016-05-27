@@ -25,6 +25,7 @@ namespace Prism.Injector.Patcher
             typeDef_Mount.GetMethod("JumpHeight"   ).Wrap(context);
             typeDef_Mount.GetMethod("JumpSpeed"    ).Wrap(context);
         }
+
         static void AddFieldForBHandler()
         {
             typeDef_Mount.Fields.Add(new FieldDefUser("P_BHandler", new FieldSig(typeSys.Object), FieldAttributes.Public));

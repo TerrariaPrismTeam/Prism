@@ -128,9 +128,8 @@ namespace Prism.Injector.Patcher
             //return true;
 
             return mtd != null && mtd.Name == "Get" && mtd.DeclaringType.FullName == arrayType.FullName && mtd.ReturnType == inner && !mtd.HasGenericParameters && mtd.Parameters.Count == 2 && mtd.Parameters.All(pd => pd.ParameterType == typeSys.Int32) && mtd.HasThis;
-        }
-
-        static void AddExtendedWallTypeField()
+        }*/
+        /*static void AddExtendedWallTypeField()
         {
             var wallTypeEx = new FieldDefinition("P_wallTypeEx", FieldAttributes.Assembly | FieldAttributes.Static, memRes.ReferenceOf(typeof(ushort[])));
 
@@ -259,8 +258,8 @@ namespace Prism.Injector.Patcher
                 }
             }
             #endregion
-        }
-        static void ReplaceGetWallTypeCalls()
+        }*/
+        /*static void ReplaceGetWallTypeCalls()
         {
             var gw = typeDef_Tile.GetMethod("GetWallTypeI"); // using the internal version
 
@@ -308,8 +307,8 @@ namespace Prism.Injector.Patcher
                         }
                     }
                 }
-        }
-        static void ReplaceSetWallTypeCalls()
+        }*/
+        /*static void ReplaceSetWallTypeCalls()
         {
             var sw = typeDef_Tile.GetMethod("SetWallTypeI"); // using the internal version
 

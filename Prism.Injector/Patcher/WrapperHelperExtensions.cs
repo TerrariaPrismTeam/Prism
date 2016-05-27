@@ -22,7 +22,7 @@ namespace Prism.Injector.Patcher
         /// <param name="targetRef">The <see cref="MethodReference"/> to replace.</param>
         /// <param name="newRef">The <see cref="MethodReference"/> to replace targetRef with.</param>
         /// <param name="exitRecursion">Excludes recursive method calls from the replacement operation (may have undesired consequences with recursive methods).</param>
-        public static void ReplaceAllMethodRefs(this MethodDef targetRef, MethodDef newRef, DNContext context, bool exitRecursion = true)
+        public static void ReplaceAllMethodRefs(this IMethod targetRef, IMethod newRef, DNContext context, bool exitRecursion = true)
         {
             foreach (var tDef in context.PrimaryAssembly.ManifestModule.Types)
                 foreach (var mDef in tDef.Methods)
@@ -34,7 +34,7 @@ namespace Prism.Injector.Patcher
                         continue;
 
                     foreach (var i in mDef.Body.Instructions)
-                        if (i.Operand is MemberRef && ((MemberRef)i.Operand).IsMethodRef && comp.Equals(targetRef, (MemberRef)i.Operand))
+                        if (i.Operand is IMethod && comp.Equals(targetRef, (IMethod)i.Operand))
                             i.Operand = newRef;
                 }
         }

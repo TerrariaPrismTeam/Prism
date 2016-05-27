@@ -13,6 +13,7 @@ namespace Prism.Mods.Hooks
     using ItemUnion = Either<ItemRef, CraftGroup<ItemDef, ItemRef>>;
     using TileUnion = Either<TileRef, CraftGroup<TileDef, TileRef>>;
 
+    [Obsolete]
     static class RecipeHooks
     {
         static Func<ItemRef, bool> RefEq(int netID)
@@ -68,9 +69,9 @@ namespace Prism.Mods.Hooks
 
             var mp = Main.player[Main.myPlayer];
             Item item = null;
-            Item[] inv = mp.inventory;
+            var inv = mp.inventory;
 
-            for (int k = 0; k < 58; k++)
+            for (int k = 0; k < Main.maxInventory; k++)
             {
                 item = inv[k];
 
@@ -81,14 +82,14 @@ namespace Prism.Mods.Hooks
                         dict.Add(item.netID, item.stack);
             }
 
-            if (mp.chest != -1)
+            if (mp.chest != -1 && mp.chest > -4)
             {
-                if (mp.chest > -1)
-                    inv = Main.chest[mp.chest].item;
-                else if (mp.chest == -2)
+                if (mp.chest == -2)
                     inv = mp.bank.item;
                 else if (mp.chest == -3)
                     inv = mp.bank2.item;
+                else
+                    inv = Main.chest[mp.chest].item;
 
                 for (int l = 0; l < Chest.maxItems; l++)
                 {
@@ -106,10 +107,9 @@ namespace Prism.Mods.Hooks
         }
         static void FindRecipesInner()
         {
-            var items = MergeInventory();
-
             var mp = Main.player[Main.myPlayer];
-
+            var items = MergeInventory();
+            
             for (int i = 0; i < Recipe.maxRecipes && !Main.recipe[i].createItem.IsEmpty(); i++)
             {
                 var r = Main.recipe[i];
@@ -256,7 +256,7 @@ namespace Prism.Mods.Hooks
             var inv = mp.inventory;
             Item item = null;
 
-            for (int i = 0; i < 58 && stack > 0; i++)
+            for (int i = 0; i < Main.maxInventory && stack > 0; i++)
             {
                 item = inv[i];
 
@@ -341,7 +341,7 @@ namespace Prism.Mods.Hooks
                 var inv = mp.inventory;
                 Item invItem = null;
 
-                for (int j = 0; j < 58 && stack > 0; j++)
+                for (int j = 0; j < Main.maxInventory && stack > 0; j++)
                 {
                     invItem = inv[j];
 

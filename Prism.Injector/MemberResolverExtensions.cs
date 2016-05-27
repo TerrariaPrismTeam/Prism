@@ -25,23 +25,23 @@ namespace Prism.Injector
 
         readonly static string CTOR = ".ctor", CCTOR = ".cctor";
 
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static FieldDef GetField(this TypeDef type, string name)
         {
             return type.Fields.FirstOrDefault(fd => fd.Name == name);
         }
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static PropertyDef GetProperty(this TypeDef type, string name)
         {
             return type.Properties.FirstOrDefault(pd => pd.Name == name);
         }
 
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static MethodDef[] GetMethods(this TypeDef type, string name, MethodFlags flags, TypeSig[] arguments)
         {
             return type.GetMethods(name, flags, arguments.Select(ts => ts.ToTypeDefOrRef()).ToArray());
         }
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static MethodDef[] GetMethods(this TypeDef type                   , string name, MethodFlags flags = MethodFlags.All, params ITypeDefOrRef[] arguments)
         {
             bool argsSpec = arguments != null && arguments.Length > 0;
@@ -76,7 +76,7 @@ namespace Prism.Injector
                 return true;
             }).ToArray();
         }
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static MethodDef[] GetMethods(this TypeDef type, DNContext context, string name, MethodFlags flags = MethodFlags.All, params Type         [] arguments)
         {
             return GetMethods(type, name, flags, arguments.Select(t =>
@@ -88,39 +88,39 @@ namespace Prism.Injector
             }).ToArray());
         }
         
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static MethodDef GetMethod(this TypeDef type, string name, MethodFlags flags, TypeSig[] arguments)
         {
             return type.GetMethod(name, flags, arguments.Select(ts => ts.ToTypeDefOrRef()).ToArray());
         }
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static MethodDef GetMethod(this TypeDef type                   , string name, MethodFlags flags = MethodFlags.All, params ITypeDefOrRef[] arguments)
         {
             return GetMethods(type         , name, flags, arguments).FirstOrDefault();
         }
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static MethodDef GetMethod(this TypeDef type, DNContext context, string name, MethodFlags flags = MethodFlags.All, params Type         [] arguments)
         {
             return GetMethods(type, context, name, flags, arguments).FirstOrDefault();
         }
 
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static MethodDef GetConstructor(this TypeDef type, bool isNonPublic, TypeSig[] arguments)
         {
             return GetMethod(type, CTOR, (isNonPublic ? MethodFlags.NonPublic : MethodFlags.Public) | MethodFlags.Instance, arguments.Select(ts => ts.ToTypeDefOrRef()).ToArray());
         }
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static MethodDef GetConstructor(this TypeDef type                   , bool isNonPublic = false, params ITypeDefOrRef[] arguments)
         {
             return GetMethod(type         , CTOR, (isNonPublic ? MethodFlags.NonPublic : MethodFlags.Public) | MethodFlags.Instance, arguments);
         }
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static MethodDef GetConstructor(this TypeDef type, DNContext context, bool isNonPublic = false, params Type         [] arguments)
         {
             return GetMethod(type, context, CTOR, (isNonPublic ? MethodFlags.NonPublic : MethodFlags.Public) | MethodFlags.Instance, arguments);
         }
 
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static MethodDef GetOrCreateStaticCtor(this TypeDef type, Action<CilBody> onCreate = null)
         {
             var cctor = type.Methods.FirstOrDefault(m => m.Name == CCTOR);

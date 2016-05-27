@@ -102,7 +102,7 @@ namespace Prism.Injector.Patcher
 
         static void AddInternalsVisibleToAttr()
         {
-            // raises attribute not imported error on write
+            //! raises attribute not imported error on write
             var ivt_t = memRes.ReferenceOf(typeof(InternalsVisibleToAttribute)).ResolveTypeDefThrow();
             var ivt_ctor = ivt_t.Methods.First(md => (md.Attributes & (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName)) != 0);
 
@@ -134,27 +134,6 @@ namespace Prism.Injector.Patcher
             instrs.RemoveAt(instrs.IndexOf(callWriteLine) - 1);
             instrs.Remove(callWriteLine);
         }
-        /*static void Fix1308AssemblyVersion()
-        {
-            // only applies to 1.3.0.7 assemblies (atm)
-            if (context.PrimaryAssembly.Name.Version != new Version(1, 3, 0, 7))
-                return;
-            // this type has been added in 1.3.0.8
-            if (memRes.GetType("Terraria.Utilities.PlatformUtilties") == null)
-                return;
-
-            context.PrimaryAssembly.Name.Version = new Version(1, 3, 0, 8);
-
-            var fileVer = context.PrimaryAssembly.CustomAttributes.FirstOrDefault(ca => ca.AttributeType.FullName == "System.Reflection.AssemblyFileVersionAttribute");
-
-            if (fileVer != null)
-            {
-                int index = context.PrimaryAssembly.CustomAttributes.IndexOf(fileVer);
-
-                var fileVer_ = context.PrimaryAssembly.CustomAttributes[index] = new CustomAttribute(fileVer.Constructor);
-                fileVer_.ConstructorArguments.Add(new CustomAttributeArgument(fileVer.ConstructorArguments[0].Type, context.PrimaryAssembly.Name.Version.ToString()));
-            }
-        }*/
         public static void OptimizeAll()
         {
             foreach (var td in context.PrimaryAssembly.ManifestModule.Types)
@@ -179,7 +158,6 @@ namespace Prism.Injector.Patcher
             Publicify();
             //AddInternalsVisibleToAttr();
             RemoveConsoleWriteLineInWndProcHook();
-            //Fix1308AssemblyVersion(); // we're at 1.3.1 now
 
             ItemPatcher      .Patch();
             NpcPatcher       .Patch();

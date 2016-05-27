@@ -219,8 +219,8 @@ namespace Prism
             WorldFile.P_OnSaveWorld += SaveDataHandler.SaveWorld;
             WorldFile.P_OnLoadWorld += SaveDataHandler.LoadWorld;
 
-            Recipe.P_OnFindRecipes += RecipeHooks.FindRecipes;
-            Recipe.P_OnCreate      += RecipeHooks.Create     ;
+            //Recipe.P_OnFindRecipes += RecipeHooks.FindRecipes;
+            //Recipe.P_OnCreate      += RecipeHooks.Create     ;
         }
 
         protected override void Initialize()

@@ -357,39 +357,12 @@ namespace Prism.Injector.Patcher
                     case Code.Callvirt:
                     case Code.Newobj:
                         {
-                            if (n.Operand is MemberRef)
-                            {
-                                var mr = (MemberRef)n.Operand;
+                            var m = (IMethod)n.Operand;
 
-                                for (int j = n.OpCode.Code == Code.Newobj ? 1 : 0; j < mr.MethodSig.Params.Count; j++)
-                                    stack.Pop();
+                            for (int j = n.OpCode.Code == Code.Newobj ? 1 : 0; j < m.MethodSig.Params.Count; j++)
+                                stack.Pop();
 
-                                push(mr.MethodSig.RetType);
-                            }
-                            else if (n.Operand is MethodSpec)
-                            {
-                                var ms = (MethodSpec)n.Operand;
-
-                                for (int j = n.OpCode.Code == Code.Newobj ? 1 : 0; j < ms.Method.MethodSig.Params.Count; j++)
-                                    stack.Pop();
-
-                                push(ms.Method.MethodSig.RetType);
-                            }
-                            else if (n.Operand is MethodDef)
-                            {
-                                var md = (MethodDef)n.Operand;
-
-                                for (int j = n.OpCode.Code == Code.Newobj ? 1 : 0; j < md.Parameters.Count; j++)
-                                    stack.Pop();
-
-                                push(md.ReturnType);
-                            }
-                            else
-                            {
-                                //! PLACE BREAKPOINT HERE
-                                int iii = 0;
-                                iii = ++iii - 1;
-                            }
+                            push(m.MethodSig.RetType);
                         }
                         break;
                     case Code.Castclass:
@@ -614,16 +587,7 @@ namespace Prism.Injector.Patcher
                         break;
                     case Code.Ldfld:
                     case Code.Ldsfld:
-                        if (n.Operand is FieldDef)
-                            push(((FieldDef)n.Operand).FieldType);
-                        else if (n.Operand is MemberRef)
-                           push(((MemberRef)n.Operand).FieldSig.Type);
-                        else
-                        {
-                            //! PLACE BREAKPOINT HERE
-                            int iii = 0;
-                            iii = ++iii - 1;
-                        }
+                        push(((IField)n.Operand).FieldSig.Type);
                         break;
                     case Code.Ldflda:
                     case Code.Ldsflda:

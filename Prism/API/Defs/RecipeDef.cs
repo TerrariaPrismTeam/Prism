@@ -23,6 +23,8 @@ namespace Prism.API.Defs
 
     public class RecipeDef
     {
+        public const int MaxVanillaGroups = 8;
+
         public static IEnumerable<RecipeDef> Recipes
         {
             get

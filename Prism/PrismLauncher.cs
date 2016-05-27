@@ -97,8 +97,8 @@ namespace Prism
                     {
                         T.Program.StartForceLoad();
 
-                        //TODO: move this to another thread (in StartForceLoad)
-                        //T.Program.ForceLoadAssembly(typeof(T.Program).Assembly /* Terraria */, true);
+                        ////TODO: move this to another thread (in StartForceLoad)
+                        // not really needed, prism is quite small, compared to terraria (and it doesn't have any HUGE methods ;) )
 #if !DEV_BUILD
                         //T.Program.ForceLoadAssembly(Assembly.GetExecutingAssembly() /* Prism */, true);
 #endif

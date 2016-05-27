@@ -279,6 +279,68 @@ namespace Prism.API.Defs
             new ItemRef(ItemID.AdamantiteBar),
             new ItemRef(ItemID.TitaniumBar  )
         });
+
+        public static ItemGroup Birds = new ItemGroup(new[]
+        {
+            new ItemRef(ItemID.Bird    ),
+            new ItemRef(ItemID.BlueJay ),
+            new ItemRef(ItemID.Cardinal)
+        }, "Bird");
+        public static ItemGroup Scorpions = new ItemGroup(new[]
+        {
+            new ItemRef(ItemID.BlackScorpion),
+            new ItemRef(ItemID.Scorpion     )
+        }, "Scorpion");
+        public static ItemGroup Squirrels = new ItemGroup(new[]
+        {
+            new ItemRef(ItemID.Squirrel   ),
+            new ItemRef(ItemID.SquirrelRed)
+        }, "Squirrel");
+        public static ItemGroup Bugs = new ItemGroup(new[]
+        {
+            new ItemRef(ItemID.Grubby),
+            new ItemRef(ItemID.Sluggy),
+            new ItemRef(ItemID.Buggy ),
+        }, "Bug");
+        public static ItemGroup Ducks = new ItemGroup(new[]
+        {
+            new ItemRef(ItemID.MallardDuck),
+            new ItemRef(ItemID.Duck       )
+        }, "Duck");
+        public static ItemGroup Butterflies = new ItemGroup(new[]
+        {
+            new ItemRef(ItemID.MonarchButterfly         ),
+            new ItemRef(ItemID.PurpleEmperorButterfly   ),
+            new ItemRef(ItemID.RedAdmiralButterfly      ),
+            new ItemRef(ItemID.UlyssesButterfly         ),
+            new ItemRef(ItemID.SulphurButterfly         ),
+            new ItemRef(ItemID.TreeNymphButterfly       ),
+            new ItemRef(ItemID.ZebraSwallowtailButterfly),
+            new ItemRef(ItemID.JuliaButterfly           )
+        });
+        public static ItemGroup Fireflies = new ItemGroup(new[]
+        {
+            new ItemRef(ItemID.Firefly     ),
+            new ItemRef(ItemID.LightningBug)
+        }, "Firefly");
+        public static ItemGroup Snails = new ItemGroup(new[]
+        {
+            new ItemRef(ItemID.Snail       ),
+            new ItemRef(ItemID.GlowingSnail)
+        }, "Snail");
+
+        public static ItemGroup GoldCritters = new ItemGroup(new[]
+        {
+            new ItemRef(ItemID.GoldBird       ),
+            new ItemRef(ItemID.GoldBunny      ),
+            new ItemRef(ItemID.GoldButterfly  ),
+            new ItemRef(ItemID.GoldenCarp     ),
+            new ItemRef(ItemID.GoldFrog       ),
+            new ItemRef(ItemID.GoldGrasshopper),
+            new ItemRef(ItemID.GoldMouse      ),
+            new ItemRef(ItemID.GoldWorm       ),
+            new ItemRef(ItemID.SquirrelGold   )
+        }, "Gold critter");
         #endregion
     }
     public class TileGroup : CraftGroup<TileDef, TileRef>
