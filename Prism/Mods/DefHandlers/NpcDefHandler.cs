@@ -10,7 +10,7 @@ using Terraria.ID;
 
 namespace Prism.Mods.DefHandlers
 {
-    sealed partial class NpcDefHandler : TEntityDefHandler<NpcDef, NpcBehaviour, NPC>
+    sealed partial class NpcDefHandler : EEntityDefHandler<NpcDef, NpcBehaviour, NPC>
     {
         const int VanillaBossHeadCount = 31;
 

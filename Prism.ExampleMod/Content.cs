@@ -9,6 +9,7 @@ using Prism.API.Audio;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Prism.ExampleMod.Behaviours.NPC;
+using Prism.Util;
 using Terraria;
 using Terraria.ID;
 
@@ -24,7 +25,8 @@ namespace Prism.ExampleMod
 #pragma warning disable 618
                 // Pizza done with JSON method using an external resource
                 { "Pizza", new ItemDef("Pizza", GetResource<JsonData>("Resources/Items/Pizza.json"),
-                    () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png")) {
+                    () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                {
                     Mount = new MountRef("NyanCat")
                 } },
                 // Ant done with JSON method using an embedded resource
@@ -70,6 +72,28 @@ namespace Prism.ExampleMod
                     HoldStyle = ItemHoldStyle.Default,
                     Value = new CoinValue(2, 51, 3, 9),
                     Scale = 1.1f
+                } },
+                { "TilePlacer", new ItemDef("ExampleMod tile placer", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                {
+                    UseAnimation = 15,
+                    AutoReuse = true,
+                    UseTime = 15,
+                    UseStyle = ItemUseStyle.Swing,
+                    //MaxStack = 999, // not consumable
+                    Width  = 16,
+                    Height = 16,
+                    CreateTile = new TileRef("TestTile")
+                } },
+                { "WallPlacer", new ItemDef("ExampleMod wall placer", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                {
+                    UseAnimation = 15,
+                    UseTime = 15,
+                    AutoReuse = true,
+                    UseStyle = ItemUseStyle.Swing,
+                    //MaxStack = 999, // not consumable
+                    Width  = 16,
+                    Height = 16,
+                    CreateWall = new WallRef("TestWall")
                 } }
             };
         }
@@ -77,7 +101,7 @@ namespace Prism.ExampleMod
         {
             return new Dictionary<string, MountDef>
             {
-                { "NyanCat", new MountDef("Nyan Cat", front: new MountTextureData(() => GetEmbeddedResource<Texture2D>("Resources/Textures/Nyan Cat.png")))
+                { "NyanCat", new MountDef("Nyan Cat", front: new MountTextureData(() => GetEmbeddedResource<Texture2D>("Resources/Textures/Misc/Nyan Cat.png")))
                 {
                     Buff = new BuffRef(BuffID.ObsidianSkin), // too lazy to create a separate buff (the player will dismount when the buff runs out - after 60 seconds)
                     // ExtraBuff is set to Buff if it is null
@@ -162,16 +186,58 @@ namespace Prism.ExampleMod
                 }
             };
         }
+        protected override Dictionary<string, TileDef> GetTileDefs()
+        {
+            return new Dictionary<string, TileDef>
+            {
+                {"TestTile", new TileDef("Test tile", null, () => GetEmbeddedResource<Texture2D>("Resources/Textures/Misc/TestTile.png"))
+                {
+                    SubtypeData = new TileSubtypeData()
+                    {
+                        IsBrick = true
+                    },
+                    Size = new Point(1, 1),
+                    LightingData = new TileLightingData()
+                    {
+                        BlocksLight    = true,
+                        BlocksSunlight = true
+                    },
+                    CollisionData = new TileCollisionData()
+                    {
+                        IsSolid  = true,
+                        IsBouncy = true
+                    }
+                } }
+            };
+        }
+        protected override Dictionary<string, WallDef> GetWallDefs()
+        {
+            return new Dictionary<string, WallDef>
+            {
+                { "TestWall", new WallDef("Test wall", () => GetEmbeddedResource<Texture2D>("Resources/Textures/Misc/TestWall.png"))
+                {
+                    IsSuitableForHousing = true,
+                    IsTransparent = false,
+                    Light = true
+                } }
+            };
+        }
 
         protected override IEnumerable<RecipeDef> GetRecipeDefs()
         {
+            var AnyGel = new ItemGroup(new[]
+            {
+                new ItemRef(ItemID.    Gel),
+                new ItemRef(ItemID.PinkGel)
+            }, "Any gel");
+
             return new[]
             {
                 new RecipeDef(
                     new ItemRef("Pizza"), 8,
                     new RecipeItems
                     {
-                        { new ItemRef(ItemID.Gel), 30 }
+                        { AnyGel, 30 }
                     }
                 ),
                 new RecipeDef(
@@ -179,7 +245,7 @@ namespace Prism.ExampleMod
                     new RecipeItems
                     {
                         { new ItemRef("Pizza"   ),  1 },
-                        { new ItemRef(ItemID.Gel), 20 }
+                        {              AnyGel    , 20 }
                     }
                 ),
                 new RecipeDef(
@@ -188,7 +254,7 @@ namespace Prism.ExampleMod
                     {
                         { new ItemRef("Pizza"   ), 1 },
                         { new ItemRef("Ant"     ), 1 },
-                        { new ItemRef(ItemID.Gel), 4 }
+                        {              AnyGel    , 4 }
                     },
                     new[] { new TileRef(TileID.TinkerersWorkbench) }
                 ),
@@ -198,9 +264,23 @@ namespace Prism.ExampleMod
                     {
                         { new ItemRef("Pizza"   ), 3 },
                         { new ItemRef("Pizzant" ), 1 },
-                        { new ItemRef(ItemID.Gel), 4 }
+                        {              AnyGel    , 4 }
                     },
                     new[] { new TileRef(TileID.Dirt) }
+                ),
+                new RecipeDef(
+                    new ItemRef("WallPlacer"), 1,
+                    new RecipeItems
+                    {
+                        { AnyGel, 1 }
+                    }
+                ),
+                new RecipeDef(
+                    new ItemRef("TilePlacer"), 1,
+                    new RecipeItems
+                    {
+                        { AnyGel, 1 }
+                    }
                 )
             };
         }

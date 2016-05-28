@@ -14,6 +14,9 @@ namespace Prism.API.Behaviours
             internal set;
         }
 
+        /// <summary>
+        /// A hook called when the behaviour is created, not always when the entity itself is created.
+        /// </summary>
         [Hook]
         public virtual void OnInit     () { }
 

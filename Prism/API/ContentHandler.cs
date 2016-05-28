@@ -86,7 +86,7 @@ namespace Prism.API
             var asmNamePfix = c.GetName().Name + ".";
             var path_ = ResourceLoader.NormalizeResourceFilePath(path, asmNamePfix);
 
-            var fromFilePath = Path.GetDirectoryName(path).Replace('/', '.').Replace('\\', '.') + "." + Path.GetFileName(path);
+            var fromFilePath  = Path.GetDirectoryName(path ).Replace('/', '.').Replace('\\', '.') + "." + Path.GetFileName(path );
             var fromFilePath_ = Path.GetDirectoryName(path_).Replace('/', '.').Replace('\\', '.') + "." + Path.GetFileName(path_);
 
             var tries = new[]
@@ -198,6 +198,17 @@ namespace Prism.API
         {
             return Empty<string, TileDef>.Dictionary;
         }
+        /// <summary>
+        /// Gets all wall definitions created by the mod.
+        /// </summary>
+        /// <returns>
+        /// A dictionary containing all wall definitions.
+        /// The key of each key/value pair is the internal name of the wall.
+        /// </returns>
+        protected virtual Dictionary<string, WallDef> GetWallDefs()
+        {
+            return Empty<string, WallDef>.Dictionary;
+        }
 
         /// <summary>
         /// Gets all recipe definitions created by the mod.
@@ -239,6 +250,10 @@ namespace Prism.API
         {
             return null;
         }
+        /// <summary>
+        /// By-type only, not a tile-specific instance.
+        /// </summary>
+        /// <returns></returns>
         protected virtual TileBehaviour CreateGlobalTileBehaviour()
         {
             return null;
@@ -278,6 +293,10 @@ namespace Prism.API
         internal Dictionary<string, TileDef> GetTileDefsInternally()
         {
             return GetTileDefs();
+        }
+        internal Dictionary<string, WallDef> GetWallDefsInternally()
+        {
+            return GetWallDefs();
         }
 
         internal IEnumerable<RecipeDef> GetRecipeDefsInternally()

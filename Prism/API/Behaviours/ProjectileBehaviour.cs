@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.Mods.Hooks;
 using Terraria;
@@ -32,5 +33,8 @@ namespace Prism.API.Behaviours
         }
         [Hook]
         public virtual void OnDraw(SpriteBatch sb) { }
+
+        [Hook]
+        public virtual bool IsColliding(Rectangle projRect, Rectangle targetRect) { return projRect.Intersects(targetRect); }
     }
 }

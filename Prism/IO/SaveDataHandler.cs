@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Prism.API;
 using Prism.API.Defs;
 using Prism.Debugging;
 using Prism.Mods;
@@ -12,6 +13,7 @@ using Prism.Mods.BHandlers;
 using Prism.Mods.DefHandlers;
 using Prism.Mods.Hooks;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.IO;
 
@@ -22,14 +24,33 @@ namespace Prism.IO
     /// </summary>
     static class SaveDataHandler
     {
+        [Flags]
+        enum TileDataEntryFlags : byte
+        {
+            Finished = 0,
+            Tile    = 1,
+            Type    = 2
+        }
+
         /// <summary>
-        /// Save file version for .plr.prism files. Change whenever the format changes, and make checks in the loading code for backwards compatibility.
+        /// Save file version for .plr.prism files. Change whenever the format changes, and make checks in the loading code for backwards compatibility. Please add a changelog entry when changing.
         /// </summary>
+        /// <remarks>
+        /// VERSION 0: created
+        /// VERSION 1: small header changes
+        /// </remarks>
         const byte PLAYER_VERSION = 1;
         /// <summary>
-        /// Save file version for .wld.prism files. Change whenever the format changes, and make checks in the loading code for backwards compatibility.
+        /// Save file version for .wld.prism files. Change whenever the format changes, and make checks in the loading code for backwards compatibility. Please add a changelog entry when changing.
         /// </summary>
-        const byte WORLD_VERSION = 0;
+        /// <remarks>
+        /// VERSION 0: created
+        /// VERSION 1: added wall type support, fixed some issues
+        /// VERSION 2: added tile type support
+        /// VERSION 3: added TileBehaviour support
+        /// VERSION 4: rewritten TileBehaviour support, so it's not a dirty hack anymore.
+        /// </remarks>
+        const byte WORLD_VERSION  = 4;
 
         const byte
             MIN_PLAYER_SUPPORT_VER = 1,
@@ -303,9 +324,121 @@ namespace Prism.IO
                 // Character could not be properly loaded, report and prevent playing
                 //TODO: report
                 Logging.LogError("Could not load player " + player.name + ": " + e);
-                Trace.WriteLine("Could not load player " + player.name + ": " + e.Message);
+                Trace.WriteLine ("Could not load player " + player.name + ": " + e.Message);
                 player.loadStatus = 1;
             }
+        }
+
+        //TODO: make these faster (especially write)
+        static void Write2DArray(BinBuffer bb, ModIdMap map, int xLen, int yLen, Func  <int, int, bool> isEmpty , Func  <int, int, int      > getElemV, Func<int, int, ObjectRef> getElemM)
+        {
+            var ov = 0;
+            var ot = ObjectRef.Null;
+            bool isOV = true;
+
+            int amt = 0;
+            bool once = true;
+
+            int dictOffsetPosition = bb.Position;
+            bb.Write(0); // dictionary position
+
+            for (int y = 0; y < yLen; y++)
+                for (int x = 0; x < xLen; x++)
+                {
+                    var e = isEmpty(x, y);
+                    var v = e ? 0 : getElemV(x, y);
+                    var t = ObjectRef.Null;
+                    var isV = e || v > 0;
+
+                    if (!e && v == 0)
+                    {
+                        t = getElemM(x, y);
+                        isV = false;
+                    }
+
+                    if (once)
+                    {
+                        if (isV) ov = v;
+                        else     ot = t;
+                        isOV = isV;
+
+                        bb.Write((uint)(isV ? map.Register(v) : map.Register(t)));
+
+                        once = false;
+                    }
+                    else if (isV == isOV && (isV ? v == ov : t == ot) && amt < UInt16.MaxValue)
+                        amt++;
+                    else
+                    {
+                        bb.Write((ushort)amt); // write the amount of successing elements of the same type,
+                                               // instead of the type over and over again, to save some space
+                        amt = 0; // amt == 0 -> one element
+
+                        if (isV) ov = v;
+                        else     ot = t;
+                        isOV = isV;
+
+                        bb.Write((uint)(isV ? map.Register(v) : map.Register(t)));
+                    }
+                }
+
+            bb.Write((ushort)amt); // write final amt
+
+            var afterData = bb.Position;
+            bb.Position = dictOffsetPosition;
+            bb.Write(afterData); // dictionary position
+            bb.Position = afterData;
+
+            map.WriteDictionary(bb);
+        }
+        static void Read2DArray (BinBuffer bb, ModIdMap map, int xLen, int yLen, Action<int, int, int > setElemV, Action<int, int, ObjectRef> setElemM)
+        {
+            var dictPos = bb.ReadInt32();
+            var dataStart = bb.Position;
+            bb.Position = dictPos;
+
+            map.ReadDictionary(bb);
+
+            var endOfStream = bb.Position;
+
+            bb.Position = dataStart;
+
+            int amt = 0;
+
+            bool isM = false;
+            ObjectRef curM = ObjectRef.Null;
+            int curV = 0;
+
+            for (int y = 0; y < yLen; y++)
+                for (int x = 0; x < xLen; x++)
+                    if (amt == 0)
+                    {
+                        map.GetRef(bb.ReadUInt32(),
+                            oid =>
+                            {
+                                curV = oid;
+                                isM = false;
+
+                                setElemV(x, y, curV); // amt == 0 -> one element
+                            },
+                            or  =>
+                            {
+                                curM = or;
+                                isM = true;
+
+                                setElemM(x, y, curM); // amt == 0 -> one element
+                            });
+                        amt = bb.ReadUInt16();
+                    }
+                    else
+                    {
+                        if (isM) setElemM(x, y, curM);
+                        else     setElemV(x, y, curV);
+
+                        amt--;
+                    }
+
+            bb.Position = endOfStream;
         }
 
         static void SavePrismData (BinBuffer bb)
@@ -318,54 +451,13 @@ namespace Prism.IO
         }
         static void SaveTileTypes (BinBuffer bb)
         {
-            // don't write anything for now, custom tiles aren't implemented
-            return;
+            var map = new ModIdMap(TileID.Count, or => TileDef.Defs[or].Type, id => Handler.TileDef.DefsByType[id]);
 
-#pragma warning disable 162
-            var map = new ModIdMap(TileID.Count, or => new TileRef(or).Resolve().Type, id => new TileRef(id));
-#pragma warning restore 162
-
-            int ot = 0;
-            int amt = 0;
-            bool once = true;
-
-            int op = bb.Position;
-            bb.Write(0);
-
-            for (int y = 0; y < Main.maxTilesY; y++)
-                for (int x = 0; x < Main.maxTilesX; x++)
-                {
-                    int t = Main.tile[x, y] == null || !Main.tile[x, y].active() ? 0 : Main.tile[x, y].type;
-
-                    if (once)
-                    {
-                        ot = t;
-                        bb.Write(map.Register(new TileRef(t)));
-
-                        once = false;
-                        continue;
-                    }
-
-                    if (t == ot && amt < UInt16.MaxValue)
-                        amt++;
-                    else
-                    {
-                        bb.Write((ushort)amt); // write the amount of successing tiles of the same type,
-                                               // instead of the type over and over again, to save some space
-                        amt = 0;
-
-                        ot = t;
-                        bb.Write(map.Register(new TileRef(t)));
-                    }
-                }
-            bb.Write((ushort)amt);
-
-            var p = bb.Position;
-            bb.Position = op;
-            bb.Write(p - op); // dictionary offset
-            bb.Position = p;
-
-            map.WriteDictionary(bb);
+            Write2DArray(bb, map, Main.maxTilesX, Main.maxTilesY,
+                (x, y) => Main.tile[x, y] == null || Main.tile[x, y].type <= 0, // 0 -> dirt wall, but this works here, too
+                (x, y) => Main.tile[x, y].type >= TileID.Count ? 0 : Main.tile[x, y].type,
+                (x, y) => Main.tile[x, y].type <  TileID.Count ||
+                    !Handler.TileDef.DefsByType.ContainsKey(Main.tile[x, y].type) ? ObjectRef.Null : Handler.TileDef.DefsByType[Main.tile[x, y].type]);
         }
         static void SaveChestItems(BinBuffer bb)
         {
@@ -381,13 +473,13 @@ namespace Prism.IO
         {
             for (int i = 0; i < Main.npc.Length; i++)
             {
-                bb.Write(true);
                 var n = Main.npc[i];
-                if (n == null || !n.active || !(n.townNPC || n.type != NPCID.TravellingMerchant))
+                if (n == null || !n.active || !n.townNPC || n.type == NPCID.TravellingMerchant)
                     continue;
 
+                bb.Write(true);
                 if (n.P_BHandler == null)
-                    bb.Write(0);
+                    bb.Write(0); // as length for the IOBHandler
                 else
                 {
                     var bh = n.P_BHandler as NpcBHandler;
@@ -400,13 +492,13 @@ namespace Prism.IO
             // blame red for the double loop. see Terraria.IO.WorldFile.SaveNPCs/LoadNPCs
             for (int i = 0; i < Main.npc.Length; i++)
             {
-                bb.Write(true);
                 var n = Main.npc[i];
-                if (n == null || !n.active || !NPCID.Sets.SavesAndLoads[n.type])
+                if (n == null || !n.active || !NPCID.Sets.SavesAndLoads[n.type] || (n.townNPC && n.type != NPCID.TravellingMerchant))
                     continue;
 
+                bb.Write(true);
                 if (n.P_BHandler == null)
-                    bb.Write(0);
+                    bb.Write(0); // as length for the IOBHandler
                 else
                 {
                     var bh = n.P_BHandler as NpcBHandler;
@@ -415,6 +507,57 @@ namespace Prism.IO
                 }
             }
             bb.Write(false);
+        }
+        static void SaveWallTypes (BinBuffer bb)
+        {
+            var map = new ModIdMap(WallID.Count, or => WallDef.Defs[or].Type, id => Handler.WallDef.DefsByType[id]);
+
+            Write2DArray(bb, map, Main.maxTilesX, Main.maxTilesY,
+                (x, y) => Main.tile[x, y] == null || Main.tile[x, y].wall <= 0,
+                (x, y) => Main.tile[x, y].wall >= WallID.Count ? 0 : Main.tile[x, y].wall,
+                (x, y) => Main.tile[x, y].wall <  WallID.Count ||
+                    !Handler.WallDef.DefsByType.ContainsKey(Main.tile[x, y].wall) ? ObjectRef.Null : Handler.WallDef.DefsByType[Main.tile[x, y].wall]);
+        }
+        static void SaveTileData  (BinBuffer bb)
+        {
+            for (int y = 0; y < Main.maxTilesY; y++)
+                for (int x = 0; x < Main.maxTilesX; x++)
+                {
+                    var p = new Point16(x, y);
+                    var t = Main.tile[x, y].type;
+
+                    var fl = TileDataEntryFlags.Finished;
+
+                    if (TileHooks.TileSpecificHandlers.ContainsKey(p))
+                        fl |= TileDataEntryFlags.Tile;
+                    if (TileHooks.TypeSpecificHandlers.ContainsKey(t))
+                        fl |= TileDataEntryFlags.Type;
+
+                    if (fl == TileDataEntryFlags.Finished)
+                        continue;
+
+                    bb.Write((byte)fl);
+                    bb.Write(p.X);
+                    bb.Write(p.Y);
+
+                    if ((fl & TileDataEntryFlags.Tile) != 0)
+                    {
+                        var bh = TileHooks.TileSpecificHandlers[p];
+
+                        bh.Save(bb);
+                    }
+                    if ((fl & TileDataEntryFlags.Type) != 0)
+                    {
+                        var bh = TileHooks.TypeSpecificHandlers[t];
+
+                        foreach (var b in bh.behaviours)
+                            b.Position = p;
+
+                        bh.Save(bb);
+                    }
+                }
+
+            bb.Write(0);
         }
 
         internal static void SaveWorld(bool toCloud)
@@ -427,20 +570,18 @@ namespace Prism.IO
             Main.statusText = "Saving Prism data...";
 
             using (FileStream fs = File.OpenWrite(path))
-            using (BinBuffer bb = new BinBuffer(fs, dispose: false))
+            using (BinBuffer bb = new BinBuffer(fs, dispose: false/*1 << 24*/))
             {
                 //TODO: item frame item IDs are still written as ints
                 //TODO: mannequins are probably broken
-                //TODO: should tile data be saved? shouldn't tile entities be used instead? or global saving?
-                //TODO: save tile & wall types, when support has been added
 
                 SavePrismData (bb);
                 SaveGlobalData(bb);
                 SaveChestItems(bb);
                 SaveNpcData   (bb);
-                SaveTileTypes (bb); // NOTE: immediately returns (for now)
-              //SaveTileData  (bb);
-              //SaveWallTypes (bb);
+                SaveWallTypes (bb);
+                SaveTileTypes (bb);
+                SaveTileData  (bb);
             }
         }
 
@@ -461,44 +602,12 @@ namespace Prism.IO
         }
         static void LoadTileTypes (BinBuffer bb, int v)
         {
-            // don't read anything for now, custom tiles aren't implemented
-            return;
-
-#pragma warning disable 162
-            // to be used in future versions
-            if (v == 0)
+            if (v < 2 /* v2: added tile support */)
                 return;
-#pragma warning restore 162
 
-            var map = new ModIdMap(TileID.Count, or => new TileRef(or).Resolve().Type, id => new TileRef(id));
+            var map = new ModIdMap(TileID.Count, or => TileDef.Defs[or].Type, id => Handler.TileDef.DefsByType[id]);
 
-            var tp = bb.Position;
-            var dictOffset = bb.ReadInt32();
-            bb.Position += dictOffset;
-
-            map.ReadDictionary(bb);
-
-            var end = bb.Position;
-
-            bb.Position = tp;
-
-            int amt = 0;
-
-            for (int y = 0; y < Main.maxTilesY; y++)
-                for (int x = 0; x < Main.maxTilesX; x++)
-                {
-                    if (amt == 0)
-                    {
-                        var t = bb.ReadUInt32();
-                        Main.tile[x, y].type = (ushort)new TileRef(map.GetRef(t)).Resolve().Type;
-
-                        amt = bb.ReadUInt16();
-                    }
-                    else
-                        amt--;
-                }
-
-            bb.Position = end;
+            Read2DArray(bb, map, Main.maxTilesX, Main.maxTilesY, (x, y, id) => Main.tile[x, y].type = (ushort)id, (x, y, or) => Main.tile[x, y].type = (ushort)TileDef.Defs[or].Type);
         }
         static void LoadChestItems(BinBuffer bb, int v)
         {
@@ -510,6 +619,9 @@ namespace Prism.IO
         }
         static void LoadNpcData   (BinBuffer bb, int v)
         {
+            if (v < 1) // was borked in v0
+                return;
+
             int i = 0;
             while (bb.ReadBoolean())
             {
@@ -530,6 +642,69 @@ namespace Prism.IO
             //    ((NpcBHandler)n.P_BHandler).Load(bb);
             //}
         }
+        static void LoadWallTypes (BinBuffer bb, int v)
+        {
+            if (v < 1) // custom walls introduced in v1
+                return;
+
+            var map = new ModIdMap(WallID.Count, or => WallDef.Defs[or].Type, id => Handler.WallDef.DefsByType[id]);
+
+            Read2DArray(bb, map, Main.maxTilesX, Main.maxTilesY, (x, y, id) => Main.tile[x, y].wall = (ushort)id, (x, y, or) => Main.tile[x, y].wall = (ushort)WallDef.Defs[or].Type);
+        }
+        static void LoadTileData  (BinBuffer bb, int v)
+        {
+            if (v < 4)
+                return;
+
+            TileDataEntryFlags fl;
+            while ((fl = (TileDataEntryFlags)bb.ReadByte()) != TileDataEntryFlags.Finished)
+            {
+                var x = bb.ReadInt16();
+                var y = bb.ReadInt16();
+                var p = new Point16(x, y);
+                var t = Main.tile[x, y].type;
+
+                var bs = TileHooks.CreateBHandler(p);
+
+                if ((fl & TileDataEntryFlags.Tile) != 0)
+                {
+                    var bh = bs.Item1;
+
+                    foreach (var b in bh.behaviours)
+                    {
+                        b.HasTile  = true;
+                        b.Position = p;
+                    }
+
+                    bh.Load(bb);
+                }
+                if ((fl & TileDataEntryFlags.Type) != 0)
+                {
+                    var bh = bs.Item2;
+
+                    foreach (var b in bh.behaviours)
+                    {
+                        b.HasTile = true;
+                        b.Position = p;
+                    }
+
+                    bh.Load(bb);
+                }
+            }
+        }
+
+        [Obsolete]
+        static void LoadBehaviours(BinBuffer bb, int v)
+        {
+            if (v != 3) // TileBehaviour data introduced in v3
+                return;
+
+            while (bb.ReadBoolean())
+            {
+                bb.ReadInt16();
+                bb.ReadInt16();
+            }
+        }
 
         internal static void LoadWorld(bool fromCloud)
         {
@@ -548,9 +723,14 @@ namespace Prism.IO
                 LoadGlobalData(bb, v);
                 LoadChestItems(bb, v);
                 LoadNpcData   (bb, v);
-                LoadTileTypes (bb, v); // NOTE: immediately returns (for now)
-              //LoadTileData  (bb, v);
-              //LoadWallTypes (bb, v);
+                LoadWallTypes (bb, v);
+                LoadTileTypes (bb, v);
+#pragma warning disable 612
+                // TileHooks.CreateBHandlers(); // after all tiles have their correct type
+
+                LoadBehaviours(bb, v); // after the bhandlers are created (i.e. can load)
+#pragma warning restore 612
+                LoadTileData  (bb, v);
             }
         }
     }

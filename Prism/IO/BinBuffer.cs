@@ -120,9 +120,14 @@ namespace Prism.IO
         }
 
         #region Write methods
+        public void Write(byte v)
+        {
+            WriteByte(v);
+        }
+
         public void Write(bool v)
         {
-            Write((byte)(v ? 1 : 0));
+            WriteByte((byte)(v ? 1 : 0));
         }
 
         public void Write(sbyte v)
@@ -271,8 +276,7 @@ namespace Prism.IO
         }
         public void Write(BinBuffer bb, int count)
         {
-            for (int i = 0; i < count; i++)
-                Write(bb.ReadByte());
+            Write(bb.ReadBytes(count), 0, count);
         }
         #endregion
 

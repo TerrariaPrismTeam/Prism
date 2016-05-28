@@ -14,6 +14,7 @@ using Prism.Util;
 using Terraria;
 using Terraria.GameContent.UI.States;
 using Terraria.IO;
+using Terraria.Map;
 
 namespace Prism
 {
@@ -35,25 +36,39 @@ namespace Prism
             private set;
         }
 
+        public static bool ChatMode
+        {
+            get
+            {
+                return drawingPlayerChat || editSign || editChest || blockInput;
+            }
+        }
+        public static bool NotInChatMode
+        {
+            get
+            {
+                return !drawingPlayerChat && !editSign && !editChest && !blockInput;
+            }
+        }
+
         internal TMain()
-        : base()
         {
             versionNumber += ", " + PrismApi.NiceVersionString;
 
-            SavePath += "\\Prism";
+            SavePath += "/Prism";
 
-            PlayerPath = SavePath + "\\Players";
-            WorldPath  = SavePath + "\\Worlds" ;
+            PlayerPath = SavePath + "/Players";
+            WorldPath  = SavePath + "/Worlds" ;
 
-            PrismApi.ModDirectory = SavePath + "\\Mods";
+            PrismApi.ModDirectory = SavePath + "/Mods";
 
             CloudPlayerPath = "players_Prism";
             CloudWorldPath  = "worlds_Prism" ;
 
-            LocalFavoriteData  = new FavoritesFile(SavePath + "\\favorites.json", false);
+            LocalFavoriteData  = new FavoritesFile(SavePath + "/favorites.json", false);
             CloudFavoritesData = new FavoritesFile("/favorites_Prism.json", false);
 
-            Configuration = new Preferences(SavePath + "\\config.json", false, false);
+            Configuration = new Preferences(SavePath + "/config.json", false, false);
 
             ElapsedTime = 0;
 
@@ -100,11 +115,32 @@ namespace Prism
         {
             HookManager.GameBehaviour.OnUpdateKeyboard();
         }
+        static void OnPreDraw(SpriteBatch sb)
+        {
+            HookManager.GameBehaviour.PreDraw(sb);
+        }
+        static void OnPostScreenClear()
+        {
+            HookManager.GameBehaviour.PostScreenClear();
+        }
+        static void OnDrawBackground(Main m)
+        {
+            if (HookManager.GameBehaviour.PreDrawBackground(spriteBatch))
+            {
+                m.RealDrawBackground();
+
+                HookManager.GameBehaviour.PostDrawBackground(spriteBatch);
+            }
+        }
 
         static void HookWrappedMethods()
         {
             P_OnUpdateMusic += Bgm.Update;
-            P_Main_Update_OnUpdateKeyboard += OnUpdateKeyboard;
+            P_OnUpdateKeyboard += OnUpdateKeyboard;
+
+            P_OnPreDraw        += OnPreDraw        ;
+            P_OnDrawBackground += OnDrawBackground ;
+            P_OnPostScrClDraw  += OnPostScreenClear;
 
 #pragma warning disable 618
             P_OnPlaySound += (t, x, y, s) => Sfx.Play(t, new Vector2(x, y), s);
@@ -119,6 +155,7 @@ namespace Prism
             Player.P_OnUpdateEquips    += ItemHooks.OnUpdateEquips    ;
             Player.P_OnUpdateArmorSets += ItemHooks.OnUpdateArmourSets;
             Player.P_OnWingMovement    += ItemHooks.WingMovement      ;
+            Player.P_OnPlaceThing      += TileHooks.OnPlaceThing      ;
 
             NPC.P_OnNewNPC    += NpcHooks.OnNewNPC   ;
             NPC.P_OnUpdateNPC += NpcHooks.OnUpdateNPC;
@@ -138,12 +175,12 @@ namespace Prism
 
             Player.P_OnGetFileData += PlayerHooks.OnGetFiledata;
             Player.P_OnItemCheck   += PlayerHooks.OnItemCheck  ;
-            Player.OnEnterWorld    += PlayerHooks.OnEnterWorld ;
             Player.P_OnKillMe      += PlayerHooks.OnKillMe     ;
             Player.P_OnUpdate      += PlayerHooks.OnUpdate     ;
             Player.P_OnMidUpdate   += PlayerHooks.OnMidUpdate  ;
             Player.P_OnUpdateBuffs += PlayerHooks.OnUpdateBuffs;
             Player.P_OnAddBuff     += PlayerHooks.OnAddBuff    ;
+            Player.Hooks.OnEnterWorld += PlayerHooks.OnEnterWorld;
 
             UICharacterSelect.P_OnNewCharacterClick += PlayerHooks.OnNewCharacterClick;
 
@@ -163,6 +200,7 @@ namespace Prism
             Projectile.P_OnKill          += ProjHooks.OnKill         ;
             Projectile.P_OnNewProjectile += ProjHooks.OnNewProjectile;
             Projectile.P_OnUpdate        += ProjHooks.OnUpdate       ;
+            Projectile.P_OnColliding     += ProjHooks.OnColliding    ;
 
             P_OnDrawProj += ProjHooks.OnDrawProj;
 
@@ -180,6 +218,9 @@ namespace Prism
 
             WorldFile.P_OnSaveWorld += SaveDataHandler.SaveWorld;
             WorldFile.P_OnLoadWorld += SaveDataHandler.LoadWorld;
+
+            //Recipe.P_OnFindRecipes += RecipeHooks.FindRecipes;
+            //Recipe.P_OnCreate      += RecipeHooks.Create     ;
         }
 
         protected override void Initialize()
@@ -189,6 +230,8 @@ namespace Prism
             base.Initialize(); // terraria init and LoadContent happen here
 
             ModLoader.Load();
+
+            Handler.DefaultColourLookupLength = MapHelper.colorLookup.Length;
 
             ApplyHotfixes();
 
@@ -225,12 +268,12 @@ namespace Prism
         /// </summary>
         void ApplyHotfixes()
         {
-            foreach (Player p in from plr in player where plr.active == true select plr)
-            {
-                int prevLength = p.npcTypeNoAggro.Length;
-                if (prevLength < Handler.NpcDef.NextTypeIndex)
+            foreach (Player p in from plr in player where plr.active select plr)
+                if (p.npcTypeNoAggro.Length < Handler.NpcDef.NextTypeIndex)
                     Array.Resize(ref p.npcTypeNoAggro, Handler.NpcDef.NextTypeIndex);
-            }
+
+            if (WorldGen.tileCounts.Length < tileSetsLoaded.Length)
+                Array.Resize(ref WorldGen.tileCounts, tileSetsLoaded.Length);
         }
 
         // See MainPatcher.Patch()...
@@ -257,6 +300,8 @@ namespace Prism
 
                 base.Update(gt);
 
+                HookManager.GameBehaviour.UpdateDebug();
+
                 if (!gameMenu && prevGameMenu)
                     Helpers.Main.RandColorText("Welcome to " + PrismApi.NiceVersionString + ".", true);
 
@@ -275,7 +320,11 @@ namespace Prism
         {
             try
             {
+                HookManager.GameBehaviour.PreScreenClear();
+
                 base.Draw(gt);
+
+                HookManager.GameBehaviour.PostDraw(spriteBatch);
 
 #if TRACE
                 TraceDrawer.DrawTrace(spriteBatch, PrismDebug.lines);

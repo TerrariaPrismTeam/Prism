@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Prism.API;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Terraria;
@@ -11,10 +12,8 @@ namespace Prism.Mods.DefHandlers
     /// <summary>
     /// Handles all the entity defs.
     /// </summary>
-    abstract class EntityDefHandler<TEntityDef, TBehaviour, TEntity>
-        where TEntity : class
-        where TBehaviour : EntityBehaviour<TEntity>
-        where TEntityDef : EntityDef<TBehaviour, TEntity>//, new()
+    abstract class EntityDefHandler<TEntityDef, TEntity>
+        where TEntityDef : ObjectDef//, new()
     {
         /// <summary>
         /// The entity type index to which the next entity added will be assigned;
@@ -97,7 +96,6 @@ namespace Prism.Mods.DefHandlers
 
         protected abstract TEntity GetVanillaEntityFromID(int id);
         protected abstract TEntityDef NewDefFromVanilla(TEntity entity);
-        protected abstract string GetNameVanillaMethod(TEntity entity);
 
         protected abstract void CopyEntityToDef(TEntity entity, TEntityDef def);
         protected abstract void CopyDefToEntity(TEntityDef def, TEntity entity);
@@ -108,12 +106,18 @@ namespace Prism.Mods.DefHandlers
 
         protected abstract int GetRegularType(TEntity entity);
 
+        protected virtual string GetNameVanillaMethod(TEntity entity)
+        {
+            return null;
+        }
         protected virtual string InternalName(TEntity entity)
         {
             return null;
         }
 
         protected virtual void PostFillVanilla() { }
+        protected virtual void PostLoad(Dictionary<string, TEntityDef> dict) { }
+        protected virtual void PostLoadEntity(TEntityDef entity) { }
 
         internal void FillVanilla()
         {
@@ -144,11 +148,13 @@ namespace Prism.Mods.DefHandlers
                 var iname_ = InternalName(entity);
                 var iname = String.IsNullOrEmpty(iname_) ? IDNames[index] : iname_;
 
+                def.InternalName = iname;
+
                 DefsByType.Add(id, def);
                 VanillaDefsByName.Add(iname, def);
 
                 var n = GetNameVanillaMethod(entity);
-                if (!byDisplayName.ContainsKey(n) && !VanillaDefsByName.ContainsKey(n))
+                if (!String.IsNullOrEmpty(n) && !byDisplayName.ContainsKey(n) && !VanillaDefsByName.ContainsKey(n))
                     byDisplayName.Add(n, def);
 
                 def.Mod = PrismApi.VanillaInfo;
@@ -210,17 +216,28 @@ namespace Prism.Mods.DefHandlers
 
                 CopySetProperties(def);
                 DefsByType.Add(NextTypeIndex++, def);
+
+                PostLoadEntity(def);
             }
+
+            PostLoad(dict);
 
             return err;
         }
     }
 
+    abstract class GEntityDefHandler<TEntityDef, TBehaviour, TEntity> : EntityDefHandler<TEntityDef, TEntity>
+        where TEntity : class
+        where TBehaviour : EntityBehaviour<TEntity>
+        where TEntityDef : EntityDef<TBehaviour, TEntity>//, new()
+    {
+
+    }
     // because I can
     /// <summary>
-    /// <see cref="EntityDefHandler{TEntityDef, TBehaviour, TEntity}" /> helper class for <see cref="Entity" />s.
+    /// <see cref="GEntityDefHandler{TEntityDef, TBehaviour, TEntity}" /> helper class for <see cref="Entity" />s.
     /// </summary>
-    abstract class TEntityDefHandler<TEntityDef, TBehaviour, TEntity> : EntityDefHandler<TEntityDef, TBehaviour, TEntity>
+    abstract class EEntityDefHandler<TEntityDef, TBehaviour, TEntity> : GEntityDefHandler<TEntityDef, TBehaviour, TEntity>
         where TEntity : Entity
         where TBehaviour : EntityBehaviour<TEntity>
         where TEntityDef : EntityDef<TBehaviour, TEntity>//, new()

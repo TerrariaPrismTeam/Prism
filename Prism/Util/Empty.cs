@@ -17,11 +17,12 @@ namespace Prism.Util
         [Obsolete("Please use String.Empty instead.")]
         public readonly static string String = String.Empty;
     }
-    public static class Empty<T>
+    public static partial class Empty<T>
     {
         [Obsolete("Please use the default keyword instead.")]
         public readonly static T Value = default(T);
-        public readonly static T[] Array = new T[0];
+        // see LinqExt
+      //public readonly static T[] Array = new T[0];
         public readonly static List<T> List = new List<T>();
         public readonly static Ref<T> Ref = new Ref<T>(default(T));
 
@@ -32,6 +33,11 @@ namespace Prism.Util
         where T : class, new()
     {
         public readonly static T Default = new T();
+    }
+    public static class EmptyStruct<T>
+        where T : struct
+    {
+        public readonly static T? Nullable = null;
     }
     public static class Empty<T1, T2>
     {

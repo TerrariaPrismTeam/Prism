@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Mono.Cecil;
-using Mono.Collections.Generic;
+using dnlib.DotNet;
 
-using TypeAttributes = Mono.Cecil.TypeAttributes;
+using TypeAttributes = dnlib.DotNet.TypeAttributes;
 
 namespace Prism.Injector
 {
@@ -15,10 +14,10 @@ namespace Prism.Injector
         readonly static string MODULE = "<Module>";
         readonly static string COMPILER_GENERATED = typeof(CompilerGeneratedAttribute).FullName;
 
-        public readonly AssemblyDefinition assembly;
-        public readonly List<TypeDefinition> types;
+        public readonly AssemblyDef assembly;
+        public readonly List<TypeDef> types;
 
-        public AsmInfo(AssemblyDefinition def)
+        public AsmInfo(AssemblyDef def)
         {
             assembly = def;
 
@@ -51,12 +50,12 @@ namespace Prism.Injector
             return assembly == other.assembly && types == other.types;
         }
 
-        static IEnumerable<TypeDefinition> FilterCompilerGenerated(IEnumerable<TypeDefinition> coll)
+        static IEnumerable<TypeDef> FilterCompilerGenerated(IEnumerable<TypeDef> coll)
         {
             return coll.Where(td => (td.Attributes & (TypeAttributes.RTSpecialName | TypeAttributes.SpecialName)) == 0
                     && td.Name != MODULE && !td.CustomAttributes.Any(ca => ca.AttributeType.FullName == COMPILER_GENERATED));
         }
-        static IEnumerable<TypeDefinition> GetNestedTypesRec(TypeDefinition d)
+        static IEnumerable<TypeDef> GetNestedTypesRec(TypeDef d)
         {
             if (!d.HasNestedTypes)
                 return null;
@@ -75,12 +74,15 @@ namespace Prism.Injector
         }
     }
 
-    public class CecilContext
+    public class DNContext
     {
         internal AsmInfo primaryAssembly;
         Assembly reflectionOnlyAsm;
 
-        public AssemblyDefinition PrimaryAssembly
+        public readonly SigComparer          SigComparer;
+        public readonly DNReflectionComparer RefComparer;
+
+        public AssemblyDef PrimaryAssembly
         {
             get
             {
@@ -88,7 +90,7 @@ namespace Prism.Injector
             }
         }
 
-        public AssemblyNameReference[] References
+        public AssemblyNameInfo[] References
         {
             //get
             //{
@@ -97,26 +99,21 @@ namespace Prism.Injector
             get;
             private set;
         }
-
-        public CecilReflectionComparer Comparer
-        {
-            get;
-            private set;
-        }
+        
         public MemberResolver Resolver
         {
             get;
             private set;
         }
 
-        public CecilContext(string asmToLoad)
+        public DNContext(string asmToLoad)
         {
-            var pa = AssemblyDefinition.ReadAssembly(asmToLoad);
+            var pa = AssemblyDef.Load(asmToLoad);
 
             reflectionOnlyAsm = Assembly.ReflectionOnlyLoadFrom(asmToLoad);
 
             var refs = reflectionOnlyAsm.GetReferencedAssemblies();
-            References = refs.Select(TranslateReference).ToArray();
+            References = refs.Select(r => new AssemblyNameInfo(r)).ToArray();
 
             //stdLibAsms = refs.Where(n =>
             //{
@@ -132,21 +129,9 @@ namespace Prism.Injector
 
             primaryAssembly = new AsmInfo(pa); // load types after stdlib/gac references are loaded
 
-            Comparer = new CecilReflectionComparer(this);
-            Resolver = new MemberResolver       (this);
-        }
-
-        AssemblyNameReference TranslateReference(AssemblyName name)
-        {
-            var anr = new AssemblyNameReference(name.Name, name.Version);
-
-            anr.Attributes = (AssemblyAttributes)name.Flags;
-            anr.Culture = name.CultureInfo.Name;
-            anr.HashAlgorithm = (AssemblyHashAlgorithm)name.HashAlgorithm;
-            anr.PublicKey = name.GetPublicKey();
-            anr.PublicKeyToken = name.GetPublicKeyToken();
-
-            return anr;
+            SigComparer = new SigComparer(SigComparerOptions.PrivateScopeIsComparable);
+            RefComparer = new DNReflectionComparer(this);
+            Resolver    = new MemberResolver      (this);
         }
     }
 }

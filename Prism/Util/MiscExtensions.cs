@@ -5,20 +5,13 @@ using Terraria;
 
 namespace Prism.Util
 {
-    public static class MiscExtensions
+    public static partial class MiscExtensions
     {
-        public static string SafeToString(this object v, string defValue = null)
-        {
-            if (ReferenceEquals(v, null))
-                return defValue;
-
-            return v.ToString();
-        }
-
-        public static T Identity<T>(T t)
-        {
-            return t;
-        }
+        // see LinqExt
+        //public static T Identity<T>(T t)
+        //{
+        //    return t;
+        //}
 
         public static Ref<TOut> Bind<TIn, TOut>(this Ref<TIn> m, Func<TIn, TOut> map)
         {
@@ -64,6 +57,37 @@ namespace Prism.Util
         public static Tuple<TOut1, TOut2, TOut3> Bind<TIn1, TOut1, TIn2, TOut2, TIn3, TOut3>(this Tuple<TIn1, TIn2, TIn3> m, Func<TIn1, TOut1> map1, Func<TIn2, TOut2> map2, Func<TIn3, TOut3> map3)
         {
             return m == null ? null : Tuple.Create(map1(m.Item1), map2(m.Item2), map3(m.Item3));
+        }
+        public static IEnumerable<TOut> Bind<TIn, TOut>(this IEnumerable<TIn> m, Func<TIn, IEnumerable<TOut>> map)
+        {
+            if (map == null)
+                throw new ArgumentNullException("map");
+
+            if (m == null)
+                yield break;
+
+            foreach (var t in m)
+                foreach (var t_ in map(t))
+                    yield return t_;
+
+            yield break;
+        }
+
+        public static Func<    T> Delay<T    >(T value)
+        {
+            return () => value;
+        }
+        public static Func<T2, T> Delay<T, T2>(T value)
+        {
+            return _ => value;
+        }
+
+        public static TResult Match<T1, T2, TResult>(this Either<T1, T2> m, Func<T1, TResult> mapR, Func<T2, TResult> mapL)
+        {
+            if (m.Kind == EitherKind.Right)
+                return mapR(m.Right);
+            else
+                return mapL(m.Left );
         }
     }
 }

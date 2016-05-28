@@ -12,7 +12,7 @@ using Terraria.ID;
 
 namespace Prism.Mods.DefHandlers
 {
-    sealed class ProjDefHandler : TEntityDefHandler<ProjectileDef, ProjectileBehaviour, Projectile>
+    sealed class ProjDefHandler : EEntityDefHandler<ProjectileDef, ProjectileBehaviour, Projectile>
     {
         protected override Type IDContainerType
         {
@@ -49,12 +49,12 @@ namespace Prism.Mods.DefHandlers
 
                 if (d.CreateBehaviour != null)
                 {
-                    h = new ProjBHandler();
-
                     var b = d.CreateBehaviour();
 
                     if (b != null)
                     {
+                        h = new ProjBHandler();
+
                         b.Mod = d.Mod == PrismApi.VanillaInfo ? null : ModData.mods[d.Mod];
 
                         h.behaviours.Add(b);
@@ -204,7 +204,7 @@ namespace Prism.Mods.DefHandlers
                 return ret;
             }
 
-            Main.projectileTexture[def.Type] = def.GetTexture();
+            Main.projectileTexture[def.Type] = t;
             Main.projectileLoaded [def.Type] = true;
 
             return ret;

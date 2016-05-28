@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Prism.API;
-using Prism.API.Behaviours;
-using Prism.API.Defs;
 using Prism.Mods.DefHandlers;
 using Terraria;
+using Terraria.Map;
 
 namespace Prism.Mods
 {
@@ -23,8 +22,8 @@ namespace Prism.Mods
         /// <param name="def"></param>
         /// <param name="dict"></param>
         /// <returns></returns>
-        static Dictionary<string, TEntityDef> SetEntityModDefs<TEntityDef, TBehaviour>(ModDef def, Dictionary<string, TEntityDef> dict)
-            where TEntityDef : ObjectDef<TBehaviour>
+        static Dictionary<string, TEntityDef> SetEntityModDefs<TEntityDef>(ModDef def, Dictionary<string, TEntityDef> dict)
+            where TEntityDef : ObjectDef
         {
             foreach (var kvp in dict)
             {
@@ -48,6 +47,9 @@ namespace Prism.Mods
             Handler.NpcDef  .Reset();
             Handler.ProjDef .Reset();
             Handler.TileDef .Reset();
+            Handler.WallDef .Reset();
+
+            Handler.DefaultColourLookupLength = MapHelper.colorLookup.Length;
         }
         /// <summary>
         /// Sets up this EntityDefLoader for loading mods, creating/adding all of the vanilla content defs, etc.
@@ -60,8 +62,11 @@ namespace Prism.Mods
             Handler.NpcDef  .FillVanilla();
             Handler.ProjDef .FillVanilla();
             Handler.TileDef .FillVanilla();
+            Handler.WallDef .FillVanilla();
 
             Handler.RecipeDef.FillVanilla();
+
+            Handler.RecipeDef.CheckRecipes();
         }
 
         /// <summary>
@@ -75,12 +80,13 @@ namespace Prism.Mods
 
             var ch = mod.ContentHandler;
 
-            mod.BuffDefs       = SetEntityModDefs<BuffDef, BuffBehaviour            >(mod, ch.GetBuffDefsInternally ());
-            mod.ItemDefs       = SetEntityModDefs<ItemDef, ItemBehaviour            >(mod, ch.GetItemDefsInternally ());
-            mod.MountDefs      = SetEntityModDefs<MountDef, MountBehaviour          >(mod, ch.GetMountDefsInternally());
-            mod.NpcDefs        = SetEntityModDefs<NpcDef, NpcBehaviour              >(mod, ch.GetNpcDefsInternally  ());
-            mod.ProjectileDefs = SetEntityModDefs<ProjectileDef, ProjectileBehaviour>(mod, ch.GetProjDefsInternally ());
-            mod.TileDefs       = SetEntityModDefs<TileDef, TileBehaviour            >(mod, ch.GetTileDefsInternally ());
+            mod.BuffDefs       = SetEntityModDefs(mod, ch.GetBuffDefsInternally ());
+            mod.ItemDefs       = SetEntityModDefs(mod, ch.GetItemDefsInternally ());
+            mod.MountDefs      = SetEntityModDefs(mod, ch.GetMountDefsInternally());
+            mod.NpcDefs        = SetEntityModDefs(mod, ch.GetNpcDefsInternally  ());
+            mod.ProjectileDefs = SetEntityModDefs(mod, ch.GetProjDefsInternally ());
+            mod.TileDefs       = SetEntityModDefs(mod, ch.GetTileDefsInternally ());
+            mod.WallDefs       = SetEntityModDefs(mod, ch.GetWallDefsInternally ());
 
             mod.RecipeDefs = RecipeDefHandler.SetRecipeModDefs(mod, ch.GetRecipeDefsInternally());
 
@@ -90,6 +96,7 @@ namespace Prism.Mods
             ret.AddRange(Handler.NpcDef  .Load(mod.NpcDefs       ));
             ret.AddRange(Handler.ProjDef .Load(mod.ProjectileDefs));
             ret.AddRange(Handler.TileDef .Load(mod.TileDefs      ));
+            ret.AddRange(Handler.WallDef .Load(mod.WallDefs      ));
 
             ret.AddRange(Handler.RecipeDef.Load(mod.RecipeDefs));
 

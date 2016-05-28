@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -42,6 +43,8 @@ namespace Prism.TerrariaPatcher
                 if (MsBuild)
                     Environment.CurrentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
+                TerrariaExecutable = Path.GetFullPath(TerrariaExecutable);
+
                 if (!File.Exists(TerrariaExecutable))
                 {
                     Console.WriteLine("Terraria.exe not found. (full path: \"" + Path.GetFullPath(TerrariaExecutable) + "\")");
@@ -53,31 +56,50 @@ namespace Prism.TerrariaPatcher
                     return 1;
                 }
 
-                var d = Path.GetDirectoryName(TerrariaExecutable);
+                var dir = Path.GetDirectoryName(TerrariaExecutable);
+                if (!MsBuild)
+                    Environment.CurrentDirectory = dir;
 
                 // just copy the files so the assembly resolving works, they'll be removed when it finished
                 if (!MsBuild)
                 {
-                    var  fs = new[] { "Newtonsoft.Json", "Steamworks.NET", "Ionic.Zip.CF" }.Select(n => Path.Combine(d, n + ".dll"));
-                    var ufs = new[] { "WindowsBase"    , "FNA"                            }.Select(n => Path.Combine(d, n + ".dll"));
+                    var  fs = new[] { "Newtonsoft.Json", "Steamworks.NET", "Ionic.Zip.CF" }.Select(n => Path.Combine(dir, n + ".dll"));
+                    var ufs = new[] { "WindowsBase"    , "FNA"                            }.Select(n => Path.Combine(dir, n + ".dll"));
 
-                    foreach (var s in fs.Concat(IsWindows ? new string[0] : ufs))
+                    foreach (var source in fs.Concat(IsWindows ? new string[0] : ufs))
                     {
-                        var t = Path.Combine(Environment.CurrentDirectory, Path.GetFileName(s));
+                        var target = Path.Combine(Environment.CurrentDirectory, Path.GetFileName(source));
 
-                        if (File.Exists(s) && !File.Exists(t) /* don't do a useless copy (and worse, remove it afterwards, even when it could be needed later) */)
+                        if (!File.Exists(target) /* don't do a useless copy (and worse, remove it afterwards, even when it could be needed later) */)
                         {
-                            File.Copy(s, t);
-                            toRem.Add(t);
+                            // unpack when file file does not exist
+                            if (!File.Exists(source))
+                            {
+                                var dll = Assembly.GetExecutingAssembly().GetManifestResourceStream("Prism.TerrariaPatcher.RefDlls." + Path.GetFileName(source));
+
+                                if (dll != null)
+                                    using (var fstr = File.OpenWrite(source))
+                                    {
+                                        dll.CopyTo(fstr);
+                                        fstr.Flush(true);
+                                    }
+                            }
+
+                            try // #15
+                            {
+                                File.Copy(source, target, false);
+                                toRem.Add(target);
+                            }
+                            catch (IOException) { } // well fuck
                         }
                     }
                 }
 
-                var c = new CecilContext(TerrariaExecutable);
+                var c = new DNContext(TerrariaExecutable);
 
-                d = Path.GetDirectoryName(PrismAssembly);
-                if (!Directory.Exists(d))
-                    Directory.CreateDirectory(d);
+                dir = Path.GetDirectoryName(PrismAssembly);
+                if (!Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
 
                 // this will stop the build process if the patcher fails, because a reference in Prism.csproj will be missing
                 if (MsBuild && File.Exists(PrismAssembly))
@@ -89,7 +111,7 @@ namespace Prism.TerrariaPatcher
 
                     Patcher.Patch(c, PrismAssembly);
                 }
-                catch (Exception e)
+                catch (Exception e) when (!Debugger.IsAttached)
                 {
                     Console.WriteLine("Something went wrong while patching " + Path.GetFileName(TerrariaExecutable) + ":");
                     Console.WriteLine(e);

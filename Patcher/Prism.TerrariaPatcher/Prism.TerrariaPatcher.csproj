@@ -12,6 +12,8 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <UseMSBuildEngine Condition=" '$(OS)' == 'Unix'">False</UseMSBuildEngine>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -41,45 +43,31 @@
     <ApplicationIcon>..\..\res\Icons\PrismIcon_Misc.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
-  <PropertyGroup>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
+    <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework.Xact, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="WindowsBase" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
-    <Reference Condition="'$(OS)' != 'Windows_NT'" Include="FNA, Version=0.0.0.1, Culture=neutral, PublicKeyToken=null">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="FNA" Condition="'$(OS)' != 'Windows_NT'">
       <HintPath>..\..\References\FNA.dll</HintPath>
-      <Private>True</Private>
     </Reference>
-    <Reference Condition="'$(OS)' != 'Windows_NT'" Include="WindowsBase, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="WindowsBase" Condition="'$(OS)' != 'Windows_NT'">
       <HintPath>..\..\References\WindowsBase.dll</HintPath>
-      <Private>True</Private>
+    </Reference>
+    <Reference Include="Ionic.Zip.CF">
+      <HintPath>..\..\References\Ionic.Zip.CF.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\References\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Steamworks.NET">
+      <HintPath>..\..\References\Steamworks.NET.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Ionic.Zip.CF, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\References\Ionic.Zip.CF.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\References\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Steamworks.NET, Version=7.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\References\Steamworks.NET.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
@@ -95,21 +83,40 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Prism.Injector\Prism.Injector.csproj">
-      <Project>{fa53dc38-9b2b-45d3-818e-3e60f69143f6}</Project>
+      <Project>{FA53DC38-9B2B-45D3-818E-3E60F69143F6}</Project>
       <Name>Prism.Injector</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="..\..\References\FNA.dll.config">
+      <Link>RefDlls\FNA.dll.config</Link>
+    </EmbeddedResource>
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="..\..\References\FNA.dll">
+      <Link>RefDlls\FNA.dll</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\References\Ionic.Zip.CF.dll">
+      <Link>RefDlls\Ionic.Zip.CF.dll</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\References\Newtonsoft.Json.dll">
+      <Link>RefDlls\Newtonsoft.Json.dll</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\References\Steamworks.NET.dll">
+      <Link>RefDlls\Steamworks.NET.dll</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\References\WindowsBase.dll">
+      <Link>RefDlls\WindowsBase.dll</Link>
+    </EmbeddedResource>
     <Content Include="..\..\res\Icons\PrismIcon_Misc.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent Condition="'$(OS)' == 'Windows_NT'">
+    <PostBuildEvent Condition="'$(OS)' != 'Unix'">
       rem first, merge the patcher, injector and mono.cecil assemblies into one, useful for distribution
-      "$(ProjectDir)..\ILRepack\ILRepack.exe" /union /target:exe "/out:$(ProjectDir)..\..\Bin\$(Configuration)\Prism.TerrariaPatcher-merged.exe" "$(TargetPath)" "$(TargetDir)Prism.Injector.dll" "$(TargetDir)Mono.Cecil.dll"
+      md "$(ProjectDir)..\..\Bin\$(Configuration)\$(OSEnum)\"
+      "$(ProjectDir)..\ILRepack\ILRepack.exe" /union /target:exe "/out:$(ProjectDir)..\..\Bin\$(Configuration)\$(OSEnum)\Prism.TerrariaPatcher-merged.exe" "$(TargetPath)" "$(TargetDir)Prism.Injector.dll" "$(TargetDir)Mono.Cecil.dll"
 
       rem this patches the Terraria assembly
       rem in order to build, one must provide their own .exe.
@@ -119,10 +126,11 @@
 
       "$(TargetPath)" msbuild "$(ProjectDir)..\..\References\Terraria.exe" "$(ProjectDir)..\..\References\Prism.Terraria.dll"
     </PostBuildEvent>
-    <PostBuildEvent Condition="'$(OS)' != 'Windows_NT'">
+    <PostBuildEvent Condition="'$(OS)' == 'Unix'">
       # first, merge the patcher, injector and mono.cecil assemblies into one, useful for distribution
       # fyi, sometimes, xbuild variables can get borked in the postbuild
-      mono "$(ProjectDir)..\ILRepack\ILRepack.exe" /union /kind:exe "/out:$(ProjectDir)../../Bin/$(Configuration)/Prism.TerrariaPatcher-merged.exe" "$(ProjectDir)bin/$(Configuration)/Prism.TerrariaPatcher.exe" "$(ProjectDir)bin/$(Configuration)/Prism.Injector.dll" "$(ProjectDir)bin/$(Configuration)/Mono.Cecil.dll"
+      mkdir "$(ProjectDir)../../Bin/$(Configuration)/$(OSEnum)/"
+      mono "$(ProjectDir)..\ILRepack\ILRepack.exe" --union --target:exe "--out:$(ProjectDir)../../Bin/$(Configuration)/$(OSEnum)/Prism.TerrariaPatcher-merged.exe" "$(ProjectDir)bin/$(Configuration)/Prism.TerrariaPatcher.exe" "$(ProjectDir)bin/$(Configuration)/Prism.Injector.dll" "$(ProjectDir)bin/$(Configuration)/Mono.Cecil.dll"
 
       # this patches the Terraria assembly
       # in order to build, one must provide their own .exe.
@@ -132,6 +140,21 @@
 
       mono "$(ProjectDir)bin/$(Configuration)/Prism.TerrariaPatcher.exe" msbuild "$(ProjectDir)../../References/Terraria.exe" "$(ProjectDir)../../References/Prism.Terraria.dll"
     </PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>
+      rem first, merge the patcher, injector and mono.cecil assemblies into one, useful for distribution
+      md "$(ProjectDir)..\..\Bin\$(Configuration)\$(OSEnum)\"
+      "$(ProjectDir)..\ILRepack\ILRepack.exe" /union /target:exe "/out:$(ProjectDir)..\..\Bin\$(Configuration)\$(OSEnum)\Prism.TerrariaPatcher-merged.exe" "$(TargetPath)" "$(TargetDir)Prism.Injector.dll" "$(TargetDir)dnlib.dll"
+
+      rem this patches the Terraria assembly
+      rem in order to build, one must provide their own .exe.
+      rem this will create a patched terraria assembly, which is referenced by Prism.csproj.
+      rem a shell script is used in unix environments.
+      rem executing it here will make sure the assembly exists before the assembly resolution is started when building Prism.csproj.
+
+      "$(TargetPath)" msbuild "$(ProjectDir)..\..\References\Terraria.exe" "$(ProjectDir)..\..\References\Prism.Terraria.dll"
+</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

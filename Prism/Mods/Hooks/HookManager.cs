@@ -59,6 +59,8 @@ namespace Prism.Mods.Hooks
 
             ModDef        = null;
             GameBehaviour = null;
+
+            TileHooks.Reset();
         }
 
         /// <summary>
@@ -118,6 +120,9 @@ namespace Prism.Mods.Hooks
         /// <returns>The return values of all called hooks.</returns>
         public static object[] Call(IEnumerable<Delegate> delegates, params object[] args)
         {
+            if (delegates == null)
+                throw new ArgumentNullException("delegates");
+
             if (!CanCallHooks && !delegates.IsEmpty())
             {
                 var stackTrace = new StackTrace(1);
@@ -129,7 +134,14 @@ namespace Prism.Mods.Hooks
                 return Empty<object>.Array;
             }
 
-            return delegates.Select(del => del.DynamicInvoke(args)).ToArray();
+            // using this instead of a map |> toArray will make it easier to debug (no lazy eval. etc)
+            object[] ret = new object[delegates.Count()];
+
+            int i = 0;
+            foreach (var del in delegates)
+                ret[i++] = del.DynamicInvoke(args);
+
+            return ret;
         }
 
         /// <summary>

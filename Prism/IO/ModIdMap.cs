@@ -5,16 +5,16 @@ using Prism.API;
 using Prism.Util;
 
 using ModName = System.String;
-using ModID   = System.Byte  ;
+using ModID = System.Byte;
 
 using ObjName = System.String;
-using ObjID   = System.Int16 ;
+using ObjID = System.UInt16;
 
 using PackedValue = System.UInt32;
 
 namespace Prism.IO
 {
-    // let's hope nobody will ever run >255 mods at once, or with >32 767 objects in total
+    // let's hope nobody will ever run >255 mods at once, or with >65 535 objects in total
     public class ModIdMap
     {
         const uint IsModFlag = 0x01000000;
@@ -24,8 +24,8 @@ namespace Prism.IO
         Func<ObjID, ObjectRef> GetVanillaRef;
         ObjID maxVanillaId;
 
-        BiDictionary<ModName, ModID> Mods;
-        Dictionary<ModID, BiDictionary<ObjName, ObjID>> ModObjects;
+        BiDictionary<ModName, ModID> Mods = new BiDictionary<ModName, ModID>();
+        Dictionary<ModID, BiDictionary<ObjName, ObjID>> ModObjects = new Dictionary<ModID, BiDictionary<ModName, ObjID>>();
 
         public ModIdMap(int maxVanilla, Func<ObjectRef, int> vanillaId, Func<int, ObjectRef> vanillaRef)
         {
@@ -40,6 +40,10 @@ namespace Prism.IO
             GetVanillaRef = id =>                  vanillaRef(id) ;
         }
 
+        public PackedValue Register(int       vid)
+        {
+            return vid == 0 ? 0 : unchecked((PackedValue)(vid & 0xFFFF));
+        }
         public PackedValue Register(ObjectRef obj)
         {
             if (obj.IsNull)
@@ -77,12 +81,18 @@ namespace Prism.IO
             return unchecked((PackedValue)oid | ((PackedValue)mid << 8 * sizeof(ObjID)) | IsModFlag);
 #pragma warning restore 675
         }
-        public ObjectRef GetRef(PackedValue id)
+        public void GetRef(PackedValue id, Action<ObjID> cVanilla, Action<ObjectRef> cMod)
         {
             if (id == 0)
-                return new ObjectRef();
+            {
+                cVanilla(0);
+                return;
+            }
             if ((id & IsModFlag) == 0)
-                return GetVanillaRef(unchecked((ObjID)id));
+            {
+                cVanilla(unchecked((ObjID)id));
+                return;
+            }
 
             ObjID oid;
             ModID mid;
@@ -96,7 +106,7 @@ namespace Prism.IO
             var mn = Mods.Reverse[mid];
             var on = ModObjects[mid].Reverse[oid];
 
-            return new ObjectRef(on, mn);
+            cMod(new ObjectRef(on, mn));
         }
 
         public void WriteDictionary(BinBuffer bb)
@@ -143,7 +153,7 @@ namespace Prism.IO
                 short objAmt = bb.ReadInt16();
 
                 for (int j = 0; j < objAmt; j++)
-                    modObjs.Add(bb.ReadString(), bb.ReadInt16());
+                    modObjs.Add(bb.ReadString(), bb.ReadUInt16());
 
                 ModObjects.Add(mid, modObjs);
             }

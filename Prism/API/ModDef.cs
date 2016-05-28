@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using Prism.API.Audio;
@@ -8,9 +7,6 @@ using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Prism.Mods;
 using Prism.Mods.Hooks;
-using Prism.Mods.Resources;
-using Prism.Util;
-using Terraria;
 
 namespace Prism.API
 {
@@ -117,6 +113,15 @@ namespace Prism.API
         /// </summary>
         /// <remarks>The key of the dictionary is the tile's internal name (without mod internal name).</remarks>
         public Dictionary<string, TileDef> TileDefs
+        {
+            get;
+            internal set;
+        }
+        /// <summary>
+        /// Gets the mod's wall definitions.
+        /// </summary>
+        /// <remarks>The key of the dictionary is the wall's internal name (without mod internal name).</remarks>
+        public Dictionary<string, WallDef> WallDefs
         {
             get;
             internal set;

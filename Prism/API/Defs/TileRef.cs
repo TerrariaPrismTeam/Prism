@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Prism.Mods;
 using Prism.Mods.DefHandlers;
+using Prism.Util;
 using Terraria.ID;
 
 namespace Prism.API.Defs
@@ -54,6 +55,15 @@ namespace Prism.API.Defs
                 throw new InvalidOperationException("Tile reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the tile is not loaded.");
 
             return ModData.ModsFromInternalName[ModName].TileDefs[ResourceName];
+        }
+
+        public static implicit operator Either<TileRef, CraftGroup<TileDef, TileRef>>(TileRef r)
+        {
+            return Either<TileRef, CraftGroup<TileDef, TileRef>>.NewRight(r);
+        }
+        public static implicit operator Either<TileRef, TileGroup>(TileRef r)
+        {
+            return Either<TileRef, TileGroup>.NewRight(r);
         }
     }
 }

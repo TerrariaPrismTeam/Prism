@@ -12,7 +12,7 @@
     <AssemblyName>Prism.Injector</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <UseMSBuildEngine Condition=" '$(OS)' == 'Unix'">False</UseMSBuildEngine>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -38,52 +38,33 @@
   <PropertyGroup>
     <ApplicationIcon>..\res\Icons\PrismIcon_Misc.ico</ApplicationIcon>
   </PropertyGroup>
-  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
-    <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
-    <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
-    <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
-    <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework.Xact, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
-    <Reference Condition="'$(OS)' == 'Windows_NT'" Include="WindowsBase" />
+  <ItemGroup Condition="'$(OS)' != 'Unix'">
+    <Reference Condition="'$(OS)' != 'Unix'" Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
+    <Reference Condition="'$(OS)' != 'Unix'" Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
+    <Reference Condition="'$(OS)' != 'Unix'" Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
+    <Reference Condition="'$(OS)' != 'Unix'" Include="Microsoft.Xna.Framework.Xact, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
+    <Reference Condition="'$(OS)' != 'Unix'" Include="WindowsBase" />
   </ItemGroup>
-  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
-    <Reference Condition="'$(OS)' != 'Windows_NT'" Include="FNA, Version=0.0.0.1, Culture=neutral, PublicKeyToken=null">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\FNA.dll</HintPath>
-      <Private>True</Private>
+  <ItemGroup>
+    <Reference Include="dnlib">
+      <HintPath>..\References\dnlib.dll</HintPath>
     </Reference>
-    <Reference Condition="'$(OS)' != 'Windows_NT'" Include="WindowsBase, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\WindowsBase.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="FNA" Condition="'$(OS)' == 'Unix'">
+      <HintPath>../References/FNA.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" Condition="'$(OS)' == 'Unix'">
+      <HintPath>../References/WindowsBase.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>../References/Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Steamworks.NET">
+      <HintPath>../References/Steamworks.NET.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Ionic.Zip.CF">
       <HintPath>..\References\Ionic.Zip.CF.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\Mono.Cecil.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Mdb, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\Mono.Cecil.Mdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Pdb, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\Mono.Cecil.Pdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Rocks, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\Mono.Cecil.Rocks.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Steamworks.NET, Version=7.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\Steamworks.NET.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -94,22 +75,17 @@
     <Compile Include="..\GlobalSuppressions.cs">
       <Link>Properties\GlobalSuppressions.cs</Link>
     </Compile>
+    <Compile Include="..\LinqExt.cs">
+      <Link>LinqExt.cs</Link>
+    </Compile>
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <EmbeddedResource Include="ILAsm\asm-manif.il" />
-    <EmbeddedResource Include="ILAsm\asm-refs.il" />
-    <Compile Include="CecilContext.cs" />
-    <Compile Include="CecilReflectionComparer.cs" />
-    <Compile Include="ILAsm\ILCompiler.cs" />
-    <Compile Include="ILAsm\ILProvider.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ILAsm\ILSnippetCompiler.cs" />
-    <Compile Include="ILInjector.cs" />
-    <Compile Include="InjectionData.cs" />
-    <Compile Include="Patcher\CecilHelperExtensions.cs" />
-    <Compile Include="LinqExt.cs" />
+    <Compile Include="DNContext.cs" />
+    <Compile Include="DNReflectionComparer.cs" />
+    <Compile Include="Patcher\ILProcessor.cs" />
+    <Compile Include="Patcher\BuffPatcher.cs" />
+    <Compile Include="Patcher\DNHelperExtensions.cs" />
     <Compile Include="MemberResolver.cs" />
     <Compile Include="MemberResolverExtensions.cs" />
     <Compile Include="Patcher\MainPatcher.cs" />
@@ -118,7 +94,9 @@
     <Compile Include="Patcher\ProjectilePatcher.cs" />
     <Compile Include="Patcher\ItemPatcher.cs" />
     <Compile Include="Patcher\NpcPatcher.cs" />
+    <Compile Include="Patcher\RecipePatcher.cs" />
     <Compile Include="Patcher\TerrariaPatcher.cs" />
+    <Compile Include="Patcher\TilePatcher.cs" />
     <Compile Include="Patcher\WorldFilePatcher.cs" />
     <Compile Include="Patcher\WrapperHelperExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

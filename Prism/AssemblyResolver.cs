@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Windows;
+using Microsoft.Xna.Framework;
 using Prism.Debugging;
+using Prism.Util;
 
 namespace Prism
 {
@@ -12,6 +15,7 @@ namespace Prism
         readonly static Assembly[] DllContainingAssemblies =
         {
             Assembly.Load(AssemblyName.GetAssemblyName("Prism.Terraria.dll")), // can't use typeof(...).Assembly here, see comment in Program.Main
+                                                                               // NOTE: do not change this element's index (i.e. move it around), it is sometimes referenced as ...[0].
             Assembly.GetExecutingAssembly()
         };
         readonly static string[] DllContainedAssemblies =
@@ -24,6 +28,12 @@ namespace Prism
         {
             "dll",
             "exe"
+        };
+        readonly static Assembly[] CplImplAsm = // assemblies with the same types but different implementation assemblies (Terraria (Prism.Terraria), XNA/FNA, WindowsBase)
+        {
+            DllContainingAssemblies[0], // reuse code (see the other comment)
+            typeof(Vector2         ).Assembly,
+            typeof(DependencyObject).Assembly
         };
 
         readonly static string DOT = ".";
@@ -98,11 +108,19 @@ namespace Prism
 
                 string displayName = new AssemblyName(rea.Name).Name;
 
-                if (displayName == PrismApi.TerrariaString)
+                // return outside of the 'try', this doesn't need to be logged.
+                for (int i = 0; i < CplImplAsm.Length; i++)
+                    if (displayName == CplImplAsm[i].GetName().Name)
+                    {
+                        inCallback = false;
+
+                        return CplImplAsm[i];
+                    }
+                if (displayName == PrismApi.PrismTerrariaString || displayName == PrismApi.TerrariaString) // if it fails when checking the CplImplAsms or something is somehow linked to vanilla terraria
                 {
                     inCallback = false;
 
-                    return DllContainingAssemblies[0]; // return outside of the 'try', this doesn't need to be logged.
+                    return DllContainingAssemblies[0];
                 }
 
                 Assembly ret = null;
@@ -119,16 +137,17 @@ namespace Prism
                             : searchPaths.Select(p => // for every search path
                                 AssemblyExts.Select(e => // for every extension
                                     SafeLoadFile(p + displayName + DOT + e) // try to load the assembly
-                            )).Aggregate(Enumerable.Concat) // joins the nested collections back to a normal one
+                            )).Flatten() // joins the nested collections back to a normal one
                         ).FirstOrDefault(a => a != null);
                 }
                 finally // abusing 'finally' so it will log success or failure, but without c/ping this code before every return.
                         // also quite useful for setting inCallback to false
                 {
-                    if (ret == null)
-                        Logging.LogWarning("Could not resolve assembly " + rea.Name);
-                    else
-                        Logging.LogInfo("Resolved assembly " + rea.Name + ".");
+                    if (!rea.Name.Contains(".resources") /* some assemblies look for a resources assembly, even when it doesn't exist */)
+                        if (ret == null)
+                            Logging.LogWarning("Could not resolve assembly " + rea.Name);
+                        else
+                            Logging.LogInfo("Resolved assembly " + rea.Name + ".");
 
                     inCallback = false;
                 }

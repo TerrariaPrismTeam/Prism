@@ -235,6 +235,9 @@ namespace Prism.Mods.Hooks
 
         internal static void OnEnterWorld(Player p)
         {
+            Array.Resize(ref p.   adjTile, Main.tileSetsLoaded.Length);
+            Array.Resize(ref p.oldAdjTile, Main.tileSetsLoaded.Length);
+
             var bh = p.P_BHandler as PlayerBHandler;
 
             if (bh != null)

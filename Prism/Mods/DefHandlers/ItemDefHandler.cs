@@ -11,7 +11,7 @@ using Terraria.ID;
 
 namespace Prism.Mods.DefHandlers
 {
-    sealed partial class ItemDefHandler : TEntityDefHandler<ItemDef, ItemBehaviour, Item>
+    sealed partial class ItemDefHandler : EEntityDefHandler<ItemDef, ItemBehaviour, Item>
     {
         internal static int UnknownItemID = 0;
 
@@ -69,6 +69,11 @@ namespace Prism.Mods.DefHandlers
             return new ItemDef(Lang.itemName(item.netID, true), getTexture: () => Main.itemTexture[item.type]);
         }
 
+        static Func<ItemRef, bool> DRMatch(ItemDef d)
+        {
+            return r => r.Resolve().NetID == d.NetID;
+        }
+
         protected override void CopyEntityToDef(Item item, ItemDef def)
         {
             def.DisplayName         = item.name;
@@ -118,12 +123,12 @@ namespace Prism.Mods.DefHandlers
             def.Buff                = new AppliedBuff(new BuffRef(item.buffType), item.buffTime);
 
             def.UsedAmmo            = item.useAmmo    ==  0 ? null : new ItemRef      (item.useAmmo   );
-            def.ShootProjectile     = item.shoot      ==  0 ? null : new ProjectileRef(item.shoot     );
+            def.ShootProjectile     = item.shoot      <=  0 ? null : new ProjectileRef(item.shoot     );
             def.AmmoType            = item.ammo       ==  0 ? null : new ItemRef      (item.ammo      );
-            def.CreateTile          = item.createTile == -1 ? null : new TileRef      (item.createTile);
-            def.CreateWall          = item.createWall;
+            def.CreateTile          = item.createTile <= -1 ? null : new TileRef      (item.createTile);
+            def.CreateWall          = item.createWall <=  0 ? null : new WallRef      (item.createWall);
             def.GetTexture          = () => Main.itemTexture[item.type];
-            def.UseSound = item.P_UseSound as SfxRef != null ? (SfxRef)item.P_UseSound : new SfxRef("UseItem", variant: item.useSound);
+            def.UseSound = item.P_UseSound as SfxRef != null ? (SfxRef)item.P_UseSound : item.useSound == 0 ? null : new SfxRef("UseItem", variant: item.useSound);
 
             #region ArmourData
             def.ArmourData = new ItemArmourData(() =>
@@ -264,7 +269,7 @@ namespace Prism.Mods.DefHandlers
 
             def.Dye = item.dye;
             def.HairDye = item.hairDye;
-            def.Mount = item.mountType == -1 ? null : new MountRef(item.mountType);
+            def.Mount = item.mountType <= -1 ? null : new MountRef(item.mountType);
             def.FishingPole = item.fishingPole;
 
             def.material = item.material;
@@ -285,7 +290,11 @@ namespace Prism.Mods.DefHandlers
         protected override void CopyDefToEntity(ItemDef def, Item item)
         {
             if (!def.material.HasValue)
-                def.material = RecipeDef.Recipes.Any(r => r.RequiredItems.Any(ir => ir.Key.Resolve().NetID == def.NetID));
+            {
+                var m = DRMatch(def);
+
+                def.material = RecipeDef.Recipes.Any(r => r.RequiredItems.Keys.Any(ir => ir.Match(m, g => g.Any(m))));
+            }
 
             item.name         = def.DisplayName;
             item.type         = def.Type;
@@ -336,11 +345,11 @@ namespace Prism.Mods.DefHandlers
             item.shoot        = def.ShootProjectile == null ?  0 : def.ShootProjectile.Resolve().Type ;
             item.ammo         = def.AmmoType        == null ?  0 : def.AmmoType       .Resolve().NetID;
             item.createTile   = def.CreateTile      == null ? -1 : def.CreateTile     .Resolve().Type ;
-            item.createWall   = def.CreateWall;
+            item.createWall   = def.CreateWall      == null ?  0 : def.CreateWall     .Resolve().Type ;
             item.useAmmo      = def.UsedAmmo        == null ?  0 : def.UsedAmmo       .Resolve().Type ;
 
             item.P_UseSound = def.UseSound;
-            item.useSound = def.UseSound == null ? 1 : def.UseSound.VariantID;
+            item.useSound = def.UseSound == null ? 0 : def.UseSound.VariantID;
 
             if (def.ArmourData != null)
             {

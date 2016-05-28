@@ -21,7 +21,7 @@ namespace Prism.Debugging
             Warn    = "Warning: "    ,
             UTC     = "UTC "         ,
 
-            LogFile = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\prism.log";
+            LogFile = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/prism.log";
 
         static StreamWriter sw = null;
 

@@ -1,13 +1,22 @@
+Chat with us on the `#tapi` channel on `irc.esper.net`.
+
 # Prism
-Modding API for Terraria 1.3.0.* (Yet Another Mod To Make Mods!)
+
+Modding API for Terraria 1.3.* (Yet Another Mod To Make Mods!) (not a spying program, we promise!)
 
 Prism files are placed in the ```My Games\Terraria\Prism\``` folder (Located in `Documents\` on windows, `~/.local/share/Terraria/` on Linux and `~/Library/Application Support/Terraria/` on OS X,
 but the Windows notation will be used here), so it doesn't mess with vanilla files.
 
-Prism is licensed under the Artistic License.
+Prism is licensed under the ~~Artistic License~~ WTFPL, because it ~~is~~ was no longer in developement.
+
+For the latest release, see the `master` branch. The in-developement version can be found on the `develop` branch. The Terraria 1.3.0 version is on the `v1-3-0` branch.
+
+Binaries can be found [here](https://github.com/TerrariaPrismTeam/Prism/releases). Documentation is available [here](https://github.com/TerrariaPrismTeam/Prism/wiki)
 
 ## Building
-Copy your `Terraria.exe` file into `.\References` before attempting to build.
+
+***Copy your `Terraria.exe` file into `.\References` before attempting to build.***
+
 * _Windows_:
  * Install Visual Studio 2015 if you don't have it (You can get the Community version for free).
  * Open the solution in Visual Studio.
@@ -22,28 +31,31 @@ Copy your `Terraria.exe` file into `.\References` before attempting to build.
  * **`Prism.Injector.dll / Prism.Injector.pdb`** - Core injection lib used by `Prism.TerrariaPatcher.csproj` (and later by the installer).
  * **`Prism.Terraria.dll`** - The patched version of the Terraria.exe that was provided.
  * **`Prism.TerrariaPatcher.exe / Prism.TerrariaPatcher.pdb`** - The patcher (run when you build `Prism.csproj`)
- * **`Steamworks.NET.dll`** - Steamworks lib required by vanilla Terraria (and therefore by Prism as well) [May be removed in the future as vanilla has it embedded into the assembly]
+ * **`Steamworks.NET.dll`** - Steamworks lib required by vanilla Terraria (and therefore by Prism as well) ~~[May be removed in the future as vanilla has it embedded into the assembly]~~ It doesn't anymore.
  * **`Ionic.Zip.CF`** - Lib used by vanilla Terraria for compressing saves.
  * **`Newtonsoft.Json.dll`** - Lib used by vanilla Terraria for Json support (not to be confused with LitJson, which Prism uses)
- * **`Mono.Cecil.dll`** - Powerful IL manipulation lib used by `Prism.Injector.csproj`
+ * **`dnlib.dll`** - Very powerful IL manipulation lib used by `Prism.Injector.csproj`
  * **[_Windows Only_]: `Microsoft.Xna.Framework.*`** The entire Xna Framework. For some reason you have to include the whole thing like this if you load an Xna assembly indirectly.
  * **[_OS X & Linux Only_]: `FNA.dll`** - This handy open platform version of Xna: https://github.com/flibitijibibo/FNA
 
 ## Launching Prism
-* On _Windows_, you have 4 different options:
- * Run Prism.exe directly from the build folder. You must copy Terraria's `.\Content` folder in order for the game to have access to the content (and therefore not crash immediately upon opening).
- * Copy **all** of the files from the Prism build folder into your Terraria installation's folder and: 
-   * Run `Prism.exe` [Recommended, although there is a _very_ small chance of Steam refusing to let you launch the game like this because of the DRM]
-    * [_Windows Only_]: Rename your original `Terraria.exe` to something else (e.g. `Terraria_Backup.exe`), rename `Prism.exe` to `Terraria.exe`, then launch Terraria from your Steam game library [not reccommended, as it's not as easy to go back to original Terraria if you wish]
-    * [_Windows Only_]: Add `Prism.exe` to GameLauncher's App list and run it from there.
 
+* On _Windows_, choose one of the following options:
+ * Run Prism.exe directly from the build folder. You must copy Terraria's `.\Content` folder in order for the game to have access to the content (and therefore not crash immediately upon opening).
+ * Copy **all** of the files from the Prism build folder into your Terraria installation's folder and do *one of the following*: 
+     * Run `Prism.exe` [Recommended, although there is a _very_ small chance of Steam refusing to let you launch the game like this because of the DRM]
+     * Rename your original `Terraria.exe` to something else (e.g. `Terraria_Backup.exe`), rename `Prism.exe` to `Terraria.exe`, then launch Terraria from your Steam game library [not reccommended, as it's not as easy to go back to original Terraria if you wish]
+     * Add `Prism.exe` to GameLauncher's App list and run it from there.
 * On _OSX & Linux_ you have the same options except:
  * Run the game with `Prism.sh` (sets the lib path and runs `mono Prism.exe`)
  * If you rename `Prism.exe`, open `Prism.sh` in a text editor and edit the `mono Prism.exe` line to reflect the change.
+ * GameLauncher is Windows-only as far as we know.
 
 ## Mods
+
 Mods are loaded in the ```My Games\Terraria\Prism\Mods\``` folder. Each individual mod is placed in its own folder.
 Each mod folder must contain:
+
 * A ```manifest.json``` file, which contains these information fields: 
  * **"internalName"** - The mod's internal name.
  * **"displayName"** - The mod's display name.

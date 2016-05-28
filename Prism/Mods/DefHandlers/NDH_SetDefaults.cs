@@ -60,12 +60,12 @@ namespace Prism.Mods.DefHandlers
 
                 if (d.CreateBehaviour != null)
                 {
-                    h = new NpcBHandler();
-
                     var b = d.CreateBehaviour();
 
                     if (b != null)
                     {
+                        h = new NpcBHandler();
+
                         b.Mod = d.Mod == PrismApi.VanillaInfo ? null : ModData.mods[d.Mod];
 
                         h.behaviours.Add(b);
@@ -97,7 +97,7 @@ namespace Prism.Mods.DefHandlers
                 foreach (var b in h.Behaviours)
                     b.Entity = n;
 
-                h.OnInit();
+                //h.OnInit();
             }
         }
         internal static void OnSetDefaultsByName(NPC n, string name)

@@ -28,9 +28,9 @@ namespace Prism.Mods.Hooks
 
                     if (b != null)
                     {
-                        b.Mod = d.Mod == PrismApi.VanillaInfo ? null : ModData.mods[d.Mod];
-
                         h = new BuffBHandler();
+
+                        b.Mod = d.Mod == PrismApi.VanillaInfo ? null : ModData.mods[d.Mod];
 
                         h.behaviours.Add(b);
                     }
@@ -122,10 +122,15 @@ namespace Prism.Mods.Hooks
 
             var n = Main.npc[id];
 
-            var h = n.P_BHandler as NpcBHandler;
+            var h = n.P_BHandler as NpcBHandler; // attached in SetDefaults
 
             if (h != null)
+            {
+                if (!h.created)
+                    h.Create();
+
                 h.OnInit();
+            }
 
             return id;
         }
@@ -136,6 +141,9 @@ namespace Prism.Mods.Hooks
 
             var bh = n.P_BHandler as NpcBHandler;
 
+            if (bh != null && !bh.created)
+                bh.Create();
+
             if (bh == null || bh.PreUpdate())
             {
                 try
@@ -144,7 +152,7 @@ namespace Prism.Mods.Hooks
                 }
                 catch (IndexOutOfRangeException ioore)
                 {
-                    if (ioore.TargetSite.DeclaringType != typeof(EmoteBubble)) // this somehow, sometimes crashes.
+                    if (ioore.TargetSite.DeclaringType != typeof(EmoteBubble)) // this somehow, somewhere, sometimes crashes.
                         throw new IndexOutOfRangeException(ioore.Message, ioore);
                 }
 
@@ -193,6 +201,9 @@ namespace Prism.Mods.Hooks
         {
             var n = Main.npc[nid];
             var bh = n.P_BHandler as NpcBHandler;
+
+            if (bh != null && !bh.created)
+                bh.Create();
 
             if (bh == null || bh.PreDraw(Main.spriteBatch, behindTiles))
             {

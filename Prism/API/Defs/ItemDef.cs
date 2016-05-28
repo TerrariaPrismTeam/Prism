@@ -459,12 +459,11 @@ namespace Prism.API.Defs
             get;
             set;
         }
-        //TODO: use a reference for this... later
         /// <summary>
         /// Gets or sets the wall which this item places upon use.
         /// </summary>
         /// <remarks>Item.createWall</remarks>
-        public int CreateWall
+        public WallRef CreateWall
         {
             get;
             set;
@@ -524,10 +523,8 @@ namespace Prism.API.Defs
 
             Colour = Color.White;
 
-            CreateWall = -1;
-
             // null when filling vanilla items
-            UseSound = new SfxRef("UseItem", variant: 1);
+            //UseSound = new SfxRef("UseItem", variant: 1);
         }
 
         [Obsolete("JSON files aren't supported for now, please use the other constructor and/or a custom deserializer.")]
@@ -630,7 +627,9 @@ namespace Prism.API.Defs
                 CreateTile = json["createTile"].ParseTileRef();
 
             UseSound = VanillaSfxes.NpcHit[json.Has("useSound") ? (int)json["useSound"] : 1];
-            CreateWall = json.Has("createWall") ? (int)json["createWall"] : -1;
+
+            if (json.Has("createWall"))
+                CreateWall = json["creatWall"].ParseWallRef();
         }
 
         public static implicit operator ItemRef(ItemDef  def)

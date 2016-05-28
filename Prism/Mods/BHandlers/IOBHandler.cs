@@ -4,6 +4,7 @@ using System.Linq;
 using Prism.API.Behaviours;
 using Prism.IO;
 using Prism.Mods.Hooks;
+using Prism.Util;
 
 namespace Prism.Mods.BHandlers
 {
@@ -15,6 +16,8 @@ namespace Prism.Mods.BHandlers
         IEnumerable<Action<BinBuffer>> save, load;
 
         internal Dictionary<string, BinBuffer> data = new Dictionary<string, BinBuffer>();
+
+        internal bool created;
 
         public IEnumerable<TBehaviour> Behaviours
         {
@@ -28,9 +31,13 @@ namespace Prism.Mods.BHandlers
         {
             save = HookManager.CreateHooks<TBehaviour, Action<BinBuffer>>(behaviours, "Save");
             load = HookManager.CreateHooks<TBehaviour, Action<BinBuffer>>(behaviours, "Load");
+
+            created = true;
         }
         public virtual void Clear ()
         {
+            created = false;
+
             save = load = null;
         }
 
@@ -39,7 +46,7 @@ namespace Prism.Mods.BHandlers
             // populate data dictionary
             foreach (var act in save)
             {
-                BinBuffer bb_ = new BinBuffer();
+                BinBuffer bb_ = new BinBuffer(128);
 
                 act(bb_);
 
@@ -59,7 +66,7 @@ namespace Prism.Mods.BHandlers
             {
                 bb.Write(kvp.Key       );
                 bb.Write(kvp.Value.Size);
-                bb.Write(kvp.Value     );
+                bb.Write(kvp.Value.AsByteArray().Subarray(0, kvp.Value.Size));
             }
         }
         public void Load(BinBuffer bb)
@@ -69,7 +76,7 @@ namespace Prism.Mods.BHandlers
             for (int i = 0; i < count; i++)
             {
                 var k = bb.ReadString();
-                var l = bb.ReadInt32();
+                var l = bb.ReadInt32 ();
                 var v = new BinBuffer(bb.ReadBytes(l), false);
 
                 // keeping the data in the dictionary will make sure data from IOBehaviours will not get lost when the mod is unloaded

@@ -99,24 +99,28 @@ namespace Prism.API
         public T ByObjRef(ObjectRef or, ModDef requesting)
         {
             var req = requesting ?? or.requesting;
+            T ret;
 
-            if (String.IsNullOrEmpty(or.ModName) && req != null && GetModDefs(req).ContainsKey(or.Name))
-                return GetModDefs(req)[or.Name];
+            if (String.IsNullOrEmpty(or.ModName) && req != null && GetModDefs(req).TryGetValue(or.Name, out ret))
+                return ret;
 
             if (or.Mod == PrismApi.VanillaInfo)
             {
-                if (!VanillaDefsByName.ContainsKey(or.Name))
-                    throw new InvalidOperationException("Vanilla " + objName + " definition '" + or.Name + "' is not found.");
+                if (VanillaDefsByName.TryGetValue(or.Name, out ret))
+                    return ret;
 
-                return VanillaDefsByName[or.Name];
+                throw new InvalidOperationException("Vanilla " + objName + " definition '" + or.Name + "' is not found.");
             }
 
-            if (!ModData.ModsFromInternalName.ContainsKey(or.ModName))
-                throw new InvalidOperationException(objName + " definition '" + or.Name + "' in mod '" + or.ModName + "' could not be returned because the mod is not loaded.");
-            if (!ModData.ModsFromInternalName[or.ModName].ItemDefs.ContainsKey(or.Name))
-                throw new InvalidOperationException(objName + " definition '" + or.Name + "' in mod '" + or.ModName + "' could not be resolved because the " + objName + " is not loaded.");
+            ModDef md;
 
-            return GetModDefs(ModData.ModsFromInternalName[or.ModName])[or.Name];
+            if (!ModData.ModsFromInternalName.TryGetValue(or.ModName, out md))
+                throw new InvalidOperationException(objName + " definition '" + or.Name + "' in mod '" + or.ModName + "' could not be returned because the mod is not loaded.");
+
+            if (GetModDefs(md).TryGetValue(or.Name, out ret))
+                return ret;
+
+            throw new InvalidOperationException(objName + " definition '" + or.Name + "' in mod '" + or.ModName + "' could not be resolved because the " + objName + " is not loaded.");
         }
         public T ById(int id)
         {
