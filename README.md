@@ -11,7 +11,7 @@ Prism is licensed under the ~~Artistic License~~ WTFPL, because it ~~is~~ was no
 
 For the latest release, see the `master` branch. The in-developement version can be found on the `develop` branch. The Terraria 1.3.0 version is on the `v1-3-0` branch.
 
-Binaries can be found [here](https://github.com/TerrariaPrismTeam/Prism/releases).
+Binaries can be found [here](https://github.com/TerrariaPrismTeam/Prism/releases). Documentation is available [here](https://github.com/TerrariaPrismTeam/Prism/wiki)
 
 ## Building
 
