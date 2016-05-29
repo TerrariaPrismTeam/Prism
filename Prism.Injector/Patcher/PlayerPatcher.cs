@@ -115,7 +115,7 @@ namespace Prism.Injector.Patcher
 
                 var onSavePlayer = new FieldDefUser("P_OnSavePlayer", new FieldSig(onSavePlayerDel.ToTypeSig()), FieldAttributes.Public | FieldAttributes.Static);
                 typeDef_Player.Fields.Add(onSavePlayer);
-                
+
                 var spb = savePlayer.Body;
                 using (var spproc = spb.GetILProcessor())
                 {
@@ -128,7 +128,7 @@ namespace Prism.Injector.Patcher
                     spproc.Emit(OpCodes.Ldarg_0);
                     spproc.Emit(OpCodes.Callvirt, invokeSavePlayer);
                     spproc.Emit(OpCodes.Ret);
-                    
+
                     for (int i = 0; i < spb.Instructions.Count; i++)
                         if (spb.Instructions[i].Operand == last)
                             spb.Instructions[i].Operand = newF;
@@ -194,20 +194,19 @@ namespace Prism.Injector.Patcher
             #endregion
         }
         /// <summary>
-        /// Removes the ID checks from player loading, so that invalid items
-        /// are removed instead of resulting in the character being declared
-        /// invalid. If this gets fixed in the original, this code should be
-        /// removed.
+        /// Removes the max item type limitation in vanilla player loading code.
+        /// If an item's id is >= Main.maxItems (i.e. a mod item), it is defaulted to 0.
+        /// This method removes that limitation.
         /// </summary>
-        static void RemoveBuggyPlayerLoading()
+        static void RemoveItemTypeLimitation()
         {
             /*
              *     ldloc.s <item netid>
              *     ldc.i4 <max item id>
              *     blt[.s] NORMAL
-             * 
+             *
              *     // set netid to 0, skip prefix
-             * 
+             *
              * NORMAL:
              *     // ...
              */
@@ -805,7 +804,7 @@ namespace Prism.Injector.Patcher
                         break;
 
                     startInd = ub.Instructions.IndexOf(instrs) + 3;
-                    
+
                     var mtdToCall = instrs.Next(uproc).Next(uproc).Operand as MethodDef;
 
                     if (mtdToCall == null)
@@ -850,7 +849,7 @@ namespace Prism.Injector.Patcher
             AddFieldForBHandler();
             AddPlaceThingHook();
             InsertSaveLoadHooks();
-            RemoveBuggyPlayerLoading();
+            RemoveItemTypeLimitation();
             RemoveStatCaps();
             ReplaceUseSoundCalls();
             FixOnEnterWorldBackingFieldName();
