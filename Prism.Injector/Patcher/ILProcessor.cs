@@ -262,7 +262,7 @@ namespace Prism.Injector.Patcher
             return this;
         }
 
-        public ILProcessor InsertBeforeMany(Instruction target, IEnumerable<Instruction> toIns)
+        public ILProcessor InsertBefore(Instruction target, IEnumerable<Instruction> toIns)
         {
             var tari = instrs.IndexOf(target);
 
@@ -274,7 +274,7 @@ namespace Prism.Injector.Patcher
 
             return this;
         }
-        public ILProcessor InsertAftereMany(Instruction target, IEnumerable<Instruction> toIns)
+        public ILProcessor InsertAfter(Instruction target, IEnumerable<Instruction> toIns)
         {
             var tari = instrs.IndexOf(target) + 1;
 
@@ -287,17 +287,17 @@ namespace Prism.Injector.Patcher
             return this;
         }
 
-        public ILProcessor AppendMany(IEnumerable<Instruction> toIns)
+        public ILProcessor Append(IEnumerable<Instruction> toIns)
         {
             foreach (var i in toIns)
                 instrs.Add(i);
 
             return this;
         }
-        public ILProcessor PrependMany(IEnumerable<Instruction> toIns)
+        public ILProcessor Prepend(IEnumerable<Instruction> toIns)
         {
             if (instrs.Count == 0)
-                return AppendMany(toIns); // doesn't make a diff in this case
+                return Append(toIns); // doesn't make a diff in this case
 
             var tari = 0;
 
@@ -306,14 +306,14 @@ namespace Prism.Injector.Patcher
 
             return this;
         }
-        public ILProcessor RemoveMany(IEnumerable<Instruction> toRem)
+        public ILProcessor Remove(IEnumerable<Instruction> toRem)
         {
             foreach (var i in toRem)
                 instrs.Remove(i);
 
             return this;
         }
-        public ILProcessor RemoveMany(Instruction first, int count)
+        public ILProcessor Remove(Instruction first, int count)
         {
             var tari = instrs.IndexOf(first);
 
