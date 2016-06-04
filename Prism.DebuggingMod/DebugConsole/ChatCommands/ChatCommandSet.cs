@@ -9,12 +9,12 @@ namespace Prism.DebuggingMod.ChatConsole.ChatCommands
     {
         public ChatCommandSet()
             : base(name          : "Set"
-                  ,description   : ""  
-                  ,usageText     : ""  
+                  ,description   : "Sets a debug variable."  
+                  ,usageText     : "/Set {VariableName} {NewValue}"  
                   ,requiresArgs  : true
                   ,caseSensitive : true
-                  ,minArgs       : 1   
-                  ,maxArgs       : 1    
+                  ,minArgs       : 2
+                  ,maxArgs       : 2
                   )
         {
 
@@ -22,7 +22,7 @@ namespace Prism.DebuggingMod.ChatConsole.ChatCommands
 
         public override void Run(string args, List<string> splitArgs)
         {
-            
+            ChatConsole.Error("Will be implemented as soon as the debug variable system is created and implemented.");
         }
     }
 }

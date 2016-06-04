@@ -131,6 +131,7 @@ namespace Prism.Mods.DefHandlers
             def.DisplayName  = proj.name  ;
             def.Type         = proj.type  ;
             def.Damage       = proj.damage;
+            def.Knockback    = proj.knockBack;
             def.Width        = proj.width ;
             def.Height       = proj.height;
             def.Alpha        = proj.alpha ;
@@ -165,23 +166,24 @@ namespace Prism.Mods.DefHandlers
         }
         protected override void CopyDefToEntity(ProjectileDef def, Projectile proj)
         {
-            proj.name    = def.DisplayName;
-            proj.type    = def.Type;
-            proj.damage  = def.Damage;
-            proj.width   = def.Width;
-            proj.height  = def.Height;
-            proj.alpha   = def.Alpha;
-            proj.scale   = def.Scale;
-            proj.melee   = def.DamageType == ProjectileDamageType.Melee;
-            proj.ranged  = def.DamageType == ProjectileDamageType.Ranged;
-            proj.magic   = def.DamageType == ProjectileDamageType.Magic;
-            proj.minion  = def.DamageType == ProjectileDamageType.Summoner;
-            proj.thrown  = def.DamageType == ProjectileDamageType.Thrown;
-            proj.hostile = def.IsHostile;
-            proj.aiStyle = (int)def.AiStyle;
-            //tar.counterweight;
-            //tar.arrow;
-            //tar.bobber;
+            proj.name       = def.DisplayName;
+            proj.type       = def.Type;
+            proj.damage     = def.Damage;
+            proj.knockBack  = def.Knockback;
+            proj.width      = def.Width;
+            proj.height     = def.Height;
+            proj.alpha      = def.Alpha;
+            proj.scale      = def.Scale;
+            proj.melee      = def.DamageType == ProjectileDamageType.Melee;
+            proj.ranged     = def.DamageType == ProjectileDamageType.Ranged;
+            proj.magic      = def.DamageType == ProjectileDamageType.Magic;
+            proj.minion     = def.DamageType == ProjectileDamageType.Summoner;
+            proj.thrown     = def.DamageType == ProjectileDamageType.Thrown;
+            proj.hostile    = def.IsHostile;
+            proj.aiStyle    = (int)def.AiStyle;
+            //proj.counterweight
+            //proj.arrow
+            //proj.bobber
         }
 
         protected override List<LoaderError> CheckTextures(ProjectileDef def)
