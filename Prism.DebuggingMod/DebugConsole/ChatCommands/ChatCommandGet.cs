@@ -9,11 +9,11 @@ namespace Prism.DebuggingMod.ChatConsole.ChatCommands
     {
         public ChatCommandGet()
             : base(name          : "Get"
-                  ,description   : ""  
-                  ,usageText     : ""  
+                  ,description   : "Gets the value of a debugging variable."  
+                  ,usageText     : "/Get [VariableName]"  
                   ,requiresArgs  : true
                   ,caseSensitive : true
-                  ,minArgs       : 1   
+                  ,minArgs       : 1 
                   ,maxArgs       : 1    
                   )
         {
@@ -22,7 +22,7 @@ namespace Prism.DebuggingMod.ChatConsole.ChatCommands
 
         public override void Run(string args, List<string> splitArgs)
         {
-            
+            ChatConsole.Error("Will be implemented as soon as the debug variable system is created and implemented.");
         }
     }
 }

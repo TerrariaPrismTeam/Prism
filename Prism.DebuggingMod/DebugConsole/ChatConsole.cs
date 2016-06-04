@@ -14,9 +14,14 @@ namespace Prism.DebuggingMod.ChatConsole
             new ChatCommandCS   (),
             new ChatCommandGet  (),
             new ChatCommandSet  (),
-            new ChatCommandSpawn(),
+            new ChatCommandNpc(),
         }
         .Select(x => new KeyValuePair<string, ChatCommand>(x.Name, x)).ToDictionary();
+
+        public static void Error(string format, params object[] args)
+        {
+            TMain.NewText(string.Format(format, args), 255, 0, 0, true);
+        }
 
         public static List<string> ParseArgs(params string[] args)
         {
@@ -114,11 +119,6 @@ namespace Prism.DebuggingMod.ChatConsole
         {
             var splitArgs = ParseArgs(text.Trim().Split(' '));
             return splitArgs.ToArray().Reverse().Take(splitArgs.Count - 1).Reverse().ToList();//LOL
-        }
-
-        public static void RunCS(string code)
-        {
-            Main.NewText("This feature is not implemented yet due to OS X / Linux compatibility issues.", 255, 0, 0, true);
         }
     }
 }

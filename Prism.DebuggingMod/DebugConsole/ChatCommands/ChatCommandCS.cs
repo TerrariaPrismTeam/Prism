@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Terraria;
 
 namespace Prism.DebuggingMod.ChatConsole.ChatCommands
 {
@@ -9,8 +10,8 @@ namespace Prism.DebuggingMod.ChatConsole.ChatCommands
     {
         public ChatCommandCS()
             : base(name          : "CS"
-                  ,description   : ""  
-                  ,usageText     : ""  
+                  ,description   : "Runs static C# code."  
+                  ,usageText     : "/cs {code}"  
                   ,requiresArgs  : true
                   ,caseSensitive : true
                   ,minArgs       : 1   
@@ -22,7 +23,7 @@ namespace Prism.DebuggingMod.ChatConsole.ChatCommands
 
         public override void Run(string args, List<string> splitArgs)
         {
-            
+            ChatConsole.Error("Not yet implemented; PoroCYon is currently (supposedly) writing the lib for this...");
         }
     }
 }
