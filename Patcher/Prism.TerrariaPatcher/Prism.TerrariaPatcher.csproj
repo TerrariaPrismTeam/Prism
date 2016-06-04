@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="$(SolutionDir)\Patcher\Prism.Build.props" Condition="Exists('$(SolutionDir)\Patcher\Prism.Build.props')" />
   <PropertyGroup>
@@ -13,7 +13,6 @@
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <UseMSBuildEngine Condition=" '$(OS)' == 'Unix'">False</UseMSBuildEngine>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -45,7 +44,7 @@
   <PropertyGroup>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
   </PropertyGroup>
-  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
+  <ItemGroup>
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Condition="'$(OS)' == 'Windows_NT'" Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
@@ -112,8 +111,8 @@
     <Content Include="..\..\res\Icons\PrismIcon_Misc.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent Condition="'$(OS)' != 'Unix'">
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <PostBuildEvent Condition="'$(OS)' == 'Windows_NT'">
       rem first, merge the patcher, injector and mono.cecil assemblies into one, useful for distribution
       md "$(ProjectDir)..\..\Bin\$(Configuration)\$(OSEnum)\"
       "$(ProjectDir)..\ILRepack\ILRepack.exe" /union /target:exe "/out:$(ProjectDir)..\..\Bin\$(Configuration)\$(OSEnum)\Prism.TerrariaPatcher-merged.exe" "$(TargetPath)" "$(TargetDir)Prism.Injector.dll" "$(TargetDir)Mono.Cecil.dll"
@@ -126,6 +125,8 @@
 
       "$(TargetPath)" msbuild "$(ProjectDir)..\..\References\Terraria.exe" "$(ProjectDir)..\..\References\Prism.Terraria.dll"
     </PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(OS)' == 'Unix'">
     <PostBuildEvent Condition="'$(OS)' == 'Unix'">
       # first, merge the patcher, injector and mono.cecil assemblies into one, useful for distribution
       # fyi, sometimes, xbuild variables can get borked in the postbuild

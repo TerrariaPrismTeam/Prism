@@ -438,10 +438,7 @@ namespace Prism.Injector.Patcher
                 OpCodes.Ldsfld   , //IL_27d7: ldsfld class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SpriteFont Terraria.Main::fontMouseText
                 OpCodes.Ldstr    , //IL_27dc: ldstr "1"
                 OpCodes.Callvirt , //IL_27e1: callvirt instance valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Vector2 [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SpriteFont::MeasureString(string)
-
-                TerrariaPatcher.Platform == Platform.Windows ? OpCodes.Endfinally : OpCodes.Stloc_S,
-                TerrariaPatcher.Platform == Platform.Windows ? OpCodes.Endfinally : OpCodes.Ldloca_S,
-
+                
                 OpCodes.Ldfld    , //IL_27e6: ldfld float32 [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Vector2::Y
                 OpCodes.Div      , //IL_27eb: div
                 OpCodes.Conv_I4  , //IL_27ec: conv.i4
@@ -453,7 +450,6 @@ namespace Prism.Injector.Patcher
                 OpCodes.Call     , //IL_27fb: call instance bool [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.KeyboardState::IsKeyDown(valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.Keys)
                 OpCodes.Brfalse_S, //IL_2800: brfalse.s IL_2864
             };
-            search = search.Where(o => o.Code != Code.Endfinally).ToArray();
 
             var mainUpdate = typeDef_Main.GetMethod("Update");
             var mainUpdateBody = mainUpdate.Body;

@@ -14,26 +14,7 @@ namespace Prism.Injector.Patcher
         Linux,
         OSX
     }
-
-    public enum PatchPhase
-    {
-        FixBefore,
-
-        Items,
-        NPCs,
-        Projs,
-        Player,
-        Mount,
-        Main,
-        Tile,
-        World,
-        Recipe,
-        Buff,
-
-        FixAfter,
-        Finished
-    }
-
+    
     public static class TerrariaPatcher
     {
         internal static Platform Platform;
@@ -113,12 +94,15 @@ namespace Prism.Injector.Patcher
         {
             var kbi_t = memRes.GetType("Terraria.keyBoardInput");
 
-            if (kbi_t.NestedTypes.Count == 0) // *nix version, only windows uses WndProc for text input (obviously)
+            if (kbi_t == null || kbi_t.NestedTypes.Count == 0) // *nix version, only windows uses WndProc for text input (obviously)
                 return;
 
             var inKey_t = kbi_t.NestedTypes[0];
 
             var preFilterMessage = inKey_t.GetMethod("PreFilterMessage");
+
+            if (preFilterMessage == null) // other *nix versions
+                return;
 
             var instrs = preFilterMessage.Body.Instructions;
 

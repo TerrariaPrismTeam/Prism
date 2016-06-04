@@ -149,17 +149,15 @@ namespace Prism.Injector.Patcher
 
                 var onLoadPlayer = new FieldDefUser("P_OnLoadPlayer", new FieldSig(onLoadPlayerDel.ToTypeSig()), FieldAttributes.Public | FieldAttributes.Static);
                 typeDef_Player.Fields.Add(onLoadPlayer);
-
+                
                 var lpb = loadPlayer.Body;
                 using (var lpproc = lpb.GetILProcessor())
                 {
-
-                    var ldPlayerLoc = TerrariaPatcher.Platform == Platform.Windows ? OpCodes.Ldloc_1 : OpCodes.Ldloc_2;
                     // player.skinVariant = (int)MathHelper.Clamp((float)player.skinVariant, 0f, 7f);
                     OpCode[] toFind =
                     {
-                        ldPlayerLoc, // player (for the stfld instruction at the end)
-                        ldPlayerLoc,
+                        OpCodes.Ldloc_1, // player (for the stfld instruction at the end)
+                        OpCodes.Ldloc_1,
                         OpCodes.Ldfld,   // player.skinVariant
                         OpCodes.Conv_R4, // (float)^
                         OpCodes.Ldc_R4,
@@ -421,24 +419,22 @@ namespace Prism.Injector.Patcher
                 {
                     // change local 0 to an item (instead of item.useSound int)
                     qbb.Variables[0].Type = typeDef_Item.ToTypeSig();
-
-                    // windows build uses short form -> addresses get messed up, but they're too specific to use anything else
+                    
+                    // things are too specific -> offsets have to be used
 
                     // remove .useSound
-                    var inst = qbb.Instructions.First(i => i.Offset == (TerrariaPatcher.Platform == Platform.Windows ? 0x0247 : 0x02aa));
+                    var inst = qbb.Instructions.First(i => i.Offset == (TerrariaPatcher.Platform == Platform.Windows ? 0x0247 : 0x0248));
                     qbproc.Remove(inst);
 
                     // change ldc.i4.0 to ldnull
-                    inst = qbb.Instructions.First(i => i.Offset == (TerrariaPatcher.Platform == Platform.Windows ? 0x02d2 : 0x033e));
-                    var p = inst.Previous(qbproc);
-                    qbproc.Remove(inst);
-                    qbproc.InsertAfter(p, Instruction.Create(OpCodes.Ldnull));
+                    inst = qbb.Instructions.First(i => i.Offset == 0x0009);
+                    inst.OpCode = OpCodes.Ldnull;
+                    inst = qbb.Instructions.First(i => i.Offset == (TerrariaPatcher.Platform == Platform.Windows ? 0x02D2 : 0x02D3));
+                    inst.OpCode = OpCodes.Ldnull;
 
                     // change ble(.s) to beq(.s)
-                    inst = qbb.Instructions.First(i => i.Offset == (TerrariaPatcher.Platform == Platform.Windows ? 0x02d3 : 0x033f));
-                    p = inst.Previous(qbproc);
-                    qbproc.Remove(inst);
-                    qbproc.InsertAfter(p, Instruction.Create(TerrariaPatcher.Platform == Platform.Windows ? OpCodes.Beq_S : OpCodes.Beq, (Instruction)inst.Operand));
+                    inst = qbb.Instructions.First(i => i.Offset == (TerrariaPatcher.Platform == Platform.Windows ? 0x02D3 : 0x02D4));
+                    inst.OpCode = OpCodes.Beq_S;
 
                     OpCode[] toRem =
                     {
@@ -456,12 +452,13 @@ namespace Prism.Injector.Patcher
                     };
 
                     var first = qbb.FindInstrSeqStart(toRem);
-                    first = qbproc.RemoveInstructions(first, toRem.Length);
 
                     qbproc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, quickBuff_PlayUseSound));
                     qbproc.InsertBefore(first, Instruction.Create(OpCodes.Ldloc_0)); // load item instance ons stack
                     qbproc.InsertBefore(first, Instruction.Create(OpCodes.Ldarg_0));
                     qbproc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeUseSound));
+
+                    first = qbproc.RemoveInstructions(first, toRem.Length);
                 }
             }
             #endregion
@@ -487,7 +484,7 @@ namespace Prism.Injector.Patcher
                     OpCodes.Ldflda, // Entity.position
                     OpCodes.Ldfld, // Vector2.Y
                     OpCodes.Conv_I4,
-                    OpCodes.Ldloc_3,
+                    TerrariaPatcher.Platform == Platform.Windows ? OpCodes.Ldloc_3 : OpCodes.Ldloc_0,
                     OpCodes.Ldfld, // Item.useSound
                     OpCodes.Call // Main.PlaySound(int, int, int, int)
                 };
@@ -582,7 +579,7 @@ namespace Prism.Injector.Patcher
                 {
                     var first = quickMana.Body.FindInstrSeqStart(toRem);
                     var first_ = qmproc.RemoveInstructions(first, toRem.Length);
-
+                    
                     Instruction newF;
                     qmproc.InsertBefore(first_, newF = Instruction.Create(OpCodes.Ldsfld, quickMana_PlayUseSound));
                     qmproc.InsertBefore(first_, Instruction.Create(OpCodes.Ldarg_0));
@@ -662,7 +659,7 @@ namespace Prism.Injector.Patcher
                     var next = quickMount.Body.Instructions[index + toRem.Length];
 
                     first = qmproc.RemoveInstructions(first, toRem.Length);
-
+                    
                     qmproc.InsertBefore(next, Instruction.Create(OpCodes.Ldsfld, quickMount_PlayUseSound));
                     qmproc.InsertBefore(next, Instruction.Create(OpCodes.Ldloc_0));
                     qmproc.InsertBefore(next, Instruction.Create(OpCodes.Ldarg_0));
@@ -704,7 +701,7 @@ namespace Prism.Injector.Patcher
                 {
                     var first = updatePet.Body.FindInstrSeqStart(toRem);
                     first = upproc.RemoveInstructions(first, toRem.Length);
-
+                    
                     upproc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, updatePet_PlayUseSound));
                     upproc.InsertBefore(first, Instruction.Create(OpCodes.Ldarg_0));
                     upproc.InsertBefore(first, Instruction.Create(OpCodes.Ldfld, typeDef_Player.GetField("miscEquips")));
@@ -749,7 +746,7 @@ namespace Prism.Injector.Patcher
                 {
                     var first = updatePetLight.Body.FindInstrSeqStart(toRem);
                     first = uplproc.RemoveInstructions(first, toRem.Length);
-
+                    
                     uplproc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, updatePetLight_PlayUseSound));
                     uplproc.InsertBefore(first, Instruction.Create(OpCodes.Ldarg_0));
                     uplproc.InsertBefore(first, Instruction.Create(OpCodes.Ldfld, typeDef_Player.GetField("miscEquips")));
