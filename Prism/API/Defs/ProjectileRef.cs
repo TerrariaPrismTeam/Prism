@@ -32,6 +32,17 @@ namespace Prism.API.Defs
 
         }
 
+        ProjectileRef(int resourceId, object ignore)
+            : base(resourceId, id => Handler.ProjDef.DefsByType.ContainsKey(id) ? Handler.ProjDef.DefsByType[id].InternalName : String.Empty)
+        {
+
+        }
+
+        public static ProjectileRef FromIDUnsafe(int resourceId)
+        {
+            return new ProjectileRef(resourceId, null);
+        }
+
         public override ProjectileDef Resolve()
         {
             if (ResourceID.HasValue && Handler.ProjDef.DefsByType.ContainsKey(ResourceID.Value))

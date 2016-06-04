@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Xna.Framework;
+using Terraria;
 using Prism.API.Behaviours;
+using Prism.API.Defs;
 using Prism.Mods.BHandlers;
 using Prism.Mods.DefHandlers;
-using Terraria;
 
 namespace Prism.Mods.Hooks
 {
@@ -94,7 +96,7 @@ namespace Prism.Mods.Hooks
             p.RealUpdateArmorSets(_);
 
             DoSetBonusStuff(p, 10);
-            DoSetBonusStuff(p, 0);
+            DoSetBonusStuff(p,  0);
         }
 
         internal static void WingMovement(Player p)
@@ -115,6 +117,29 @@ namespace Prism.Mods.Hooks
                     break;
                 }
             }
+        }
+
+        internal static int PreShoot(float x, float y, float vx, float vy, int t, int d, float kb, int pid, float ai0, float ai1)
+        {
+            var pos = new Vector2( x,  y);
+            var vel = new Vector2(vx, vy);
+
+            if (pid == 0xFF)
+                goto NORMAL;
+
+            var pref = ProjectileRef.FromIDUnsafe(t);
+
+            var p = Main.player[pid];
+            var item = p.inventory[p.selectedItem];
+
+            var bh = item.P_BHandler as ItemBHandler;
+
+            if (bh != null)
+                if (!(bh.PreShoot(p, pos, vel, pref, d, kb, ai0, ai1) ?? false))
+                    return Main.maxProjectiles - 1;
+
+        NORMAL:
+            return Projectile.NewProjectile(pos.X, pos.Y, vel.X, vel.Y, t, d, kb, pid, ai0, ai1);
         }
     }
 }

@@ -32,6 +32,17 @@ namespace Prism.API.Defs
 
         }
 
+        BuffRef(int resourceId, object ignore)
+            : base(resourceId, id => Handler.BuffDef.DefsByType.ContainsKey(id) ? Handler.BuffDef.DefsByType[id].InternalName : String.Empty)
+        {
+
+        }
+
+        public static BuffRef FromIDUnsafe(int resourceId)
+        {
+            return new BuffRef(resourceId, null);
+        }
+
         public override BuffDef Resolve()
         {
             if (ResourceID.HasValue && Handler.BuffDef.DefsByType.ContainsKey(ResourceID.Value))

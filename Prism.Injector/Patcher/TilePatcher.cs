@@ -39,38 +39,24 @@ namespace Prism.Injector.Patcher
                     if (!body.InitLocals) // no local vars
                         continue;
 
-                    md.EnumerateWithStackAnalysis((i, s) =>
+                    md.EnumerateWithStackAnalysis((ind, i, s) =>
                     {
                         if (s.Count == 0)
-                            return;
+                            return ind;
 
                         var p = s.Peek();
-                        var t = p.Item1;
-                        var c = p.Item2;
+                        var t = p.Type;
+                        var c = p.Instr;
 
                         // ldfld Tile::wall
                         // stloc*
                         if (c.OpCode.Code == Code.Ldfld)
                         {
-                            if (c.Operand is FieldDef)
-                            {
-                                if (!context.SigComparer.Equals((FieldDef )c.Operand, wall))
-                                    return;
-                            }
-                            else if (c.Operand is MemberRef)
-                            {
-                                if (!context.SigComparer.Equals((MemberRef)c.Operand, wall))
-                                    return;
-                            }
-                            else
-                            {
-                                //! PLACE BREAKPOINT HERE
-                                int iii = 0;
-                                iii = ++iii - 1;
-                            }
+                            if (!context.SigComparer.Equals((IField)c.Operand, wall))
+                                return ind;
 
                             if (Array.IndexOf(Stlocs, i.OpCode.Code) == -1)
-                                return;
+                                return ind;
 
                             var li = 0;
 
@@ -95,6 +81,8 @@ namespace Prism.Injector.Patcher
                             if (context.SigComparer.Equals(body.Variables[li].Type, typeSys.Byte))
                                 body.Variables[li].Type = typeSys.UInt16;
                         }
+
+                        return ind;
                     });
                 }
         }

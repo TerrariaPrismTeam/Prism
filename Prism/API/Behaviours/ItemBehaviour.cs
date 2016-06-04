@@ -39,21 +39,21 @@ namespace Prism.API.Behaviours
 
     public abstract class ItemBehaviour : EntityBehaviour<Item>
     {
-        /// <summary>
-        /// Called when this item is used.
-        /// </summary>
-        [Hook]
+        // TODO
+        [Hook, Obsolete("Not implemented yet.")]
         public virtual bool CanUse(Player player)
         {
             return true;
         }
-        [Hook]
+        // TODO
+        [Hook, Obsolete("Not implemented yet.")]
         public virtual bool? UseItem(Player player)
         {
             return null;
         }
+
         [Hook]
-        public virtual bool PreShoot(Player player, Vector2 position, Vector2 velocity, ProjectileRef proj, int damage, float knockback)
+        public virtual bool? PreShoot(Player player, Vector2 position, Vector2 velocity, ProjectileRef proj, int damage, float knockback, float data0, float data1)
         {
             return true;
         }

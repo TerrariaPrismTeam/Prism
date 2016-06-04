@@ -8,8 +8,8 @@ namespace Prism.Injector.Patcher
 {
     static class PlayerPatcher
     {
-        static DNContext   context;
-        static MemberResolver  memRes;
+        static DNContext      context;
+        static MemberResolver memRes ;
 
         static ICorLibTypes typeSys;
         static TypeDef typeDef_Player;
@@ -836,6 +836,79 @@ namespace Prism.Injector.Patcher
                 cproc.InsertBefore(l, Instruction.Create(OpCodes.Stfld, buffBHandler));
             }
         }
+        static void InjectPreShootHook()
+        {
+            // public static int NewProjectile(float X, float Y, float SpeedX, float SpeedY, int Type, int Damage, float KnockBack, int Owner = 255, float ai0 = 0f, float ai1 = 0f)
+            
+            // get stuff
+            var proj_t = memRes.GetType("Terraria.Projectile");
+            var newProj = proj_t.GetMethod("NewProjectile", MethodFlags.Static | MethodFlags.Public, Empty<TypeSig>.Array);
+
+            var itemCheck = typeDef_Player.GetMethod("RealItemCheck"); // already wrapped
+            var icb = itemCheck.Body;
+            var icins = icb.Instructions;
+
+            // create hook delegate
+            MethodDef invokeOnPreShoot;
+            var onPreShootDel   = context.CreateDelegate("Terraria.PrismInjections", "Player_OnPreShoot", newProj.ReturnType, out invokeOnPreShoot, newProj.Parameters.Select(p => p.Type).ToArray());
+            var onPreShootField = new FieldDefUser("P_OnPreShoot", new FieldSig(onPreShootDel.ToTypeSig()), FieldAttributes.Public | FieldAttributes.Static);
+            typeDef_Player.Fields.Add(onPreShootField);
+
+            // create static method that will invoke the handler (so we don't have to mess with weird stack stuff)
+            var invInvOPS = new MethodDefUser("P_InvokeOnPreShoot", MethodSig.CreateStatic(newProj.ReturnType, newProj.Parameters.Select(p => p.Type).ToArray()),
+                MethodAttributes.Public | MethodAttributes.Static | MethodAttributes.HideBySig);
+            for (int i = 0; i < newProj.Parameters.Count; i++)
+            {
+                invInvOPS.Parameters[i].CreateParamDef();
+                invInvOPS.Parameters[i].ParamDef.Name = newProj.Parameters[i].Name;
+            }
+            invInvOPS.Body = new CilBody();
+            invInvOPS.Body.MaxStack = 12;
+            using (var iiopsproc = invInvOPS.Body.GetILProcessor())
+            {
+                /*
+                 *   ldsfld onPreShootField
+                 *   brfalse.s VANILLA
+                 * 
+                 *   ldsfld onPreShootField
+                 *   ldargs...
+                 *   callvirt int32 Invoke
+                 *   ret
+                 * 
+                 * VANILLA:
+                 *   ldargs...
+                 *   call NewProjectile
+                 *   ret
+                 */
+
+                var VANILLA = Instruction.Create(OpCodes.Ldarg_0);
+
+                iiopsproc.Emit(OpCodes.Ldsfld, onPreShootField);
+                iiopsproc.Emit(OpCodes.Brfalse_S, VANILLA);
+
+                iiopsproc.Emit(OpCodes.Ldsfld, onPreShootField);
+                for (ushort i = 0; i < newProj.Parameters.Count; i++)
+                    iiopsproc.Append(newProj.Parameters.GetLdargOf(i, false));
+                iiopsproc.Emit(OpCodes.Callvirt, invokeOnPreShoot);
+                iiopsproc.Emit(OpCodes.Ret);
+
+                iiopsproc.Append(VANILLA); // ldarg.0
+                for (ushort i = 1; i < newProj.Parameters.Count; i++)
+                    iiopsproc.Append(newProj.Parameters.GetLdargOf(i, false));
+                iiopsproc.Emit(OpCodes.Call, newProj);
+                iiopsproc.Emit(OpCodes.Ret);
+            }
+            typeDef_Player.Methods.Add(invInvOPS);
+
+            // replace calls
+            for (int i = 0; i < icins.Count; i++)
+            {
+                var inst = icins[i];
+
+                if (inst.OpCode == OpCodes.Call && context.SigComparer.Equals((IMethod)inst.Operand, newProj))
+                    inst.Operand = invInvOPS;
+            }
+        }
 
         internal static void Patch()
         {
@@ -846,6 +919,7 @@ namespace Prism.Injector.Patcher
             typeDef_Player = memRes.GetType("Terraria.Player");
 
             WrapMethods();
+
             AddFieldForBHandler();
             AddPlaceThingHook();
             InsertSaveLoadHooks();
@@ -855,6 +929,7 @@ namespace Prism.Injector.Patcher
             FixOnEnterWorldBackingFieldName();
             InjectMidUpdate();
             InitBuffBHandlerArray();
+            InjectPreShootHook();
         }
     }
 }

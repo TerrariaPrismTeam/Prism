@@ -33,6 +33,17 @@ namespace Prism.API.Defs
 
         }
 
+        ItemRef(int resourceId, object ignore)
+            : base(resourceId, id => Handler.ItemDef.DefsByType.ContainsKey(id) ? Handler.ItemDef.DefsByType[id].InternalName : String.Empty)
+        {
+
+        }
+
+        public static ItemRef FromIDUnsafe(int resourceId)
+        {
+            return new ItemRef(resourceId, null);
+        }
+
         public override ItemDef Resolve()
         {
             if (ResourceID.HasValue && Handler.ItemDef.DefsByType.ContainsKey(ResourceID.Value))

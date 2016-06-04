@@ -41,27 +41,28 @@ namespace Prism.Injector.Patcher
         internal static DNContext   context;
         internal static MemberResolver  memRes;
 
-        static void FindPlatform()
+        static Platform OSPlatform()
         {
-            if (memRes.GetType("Terraria.WindowsLaunch") != null)
-                Platform = Platform.Windows;
-            else if (memRes.GetType("Terraria.LinuxLaunch"  ) != null)
-                Platform = Platform.Linux;
-            else if (memRes.GetType("Terraria.MacLaunch"    ) != null)
-                Platform = Platform.OSX;
+            switch (Environment.OSVersion.Platform)
+            {
+                case PlatformID.MacOSX:
+                    return Platform.OSX;
+                case PlatformID.Unix:
+                    return Platform.Linux;
+                default:
+                    return Platform.Windows;
+            }
+        }
+        static Platform FindPlatform()
+        {
+            if (memRes.GetType("Terraria.WindowsLaunch"   ) != null)
+                return Platform.Windows;
+            else if (memRes.GetType("Terraria.LinuxLaunch") != null)
+                return Platform.Linux;
+            else if (memRes.GetType("Terraria.MacLaunch"  ) != null)
+                return Platform.OSX;
             else
-                switch (Environment.OSVersion.Platform)
-                {
-                    case PlatformID.MacOSX:
-                        Platform = Platform.OSX;
-                        break;
-                    case PlatformID.Unix:
-                        Platform = Platform.Linux;
-                        break;
-                    default:
-                        Platform = Platform.Windows;
-                        break;
-                }
+                return OSPlatform(); // meh
         }
 
         static void PublicifyRec(TypeDef td)
@@ -145,33 +146,64 @@ namespace Prism.Injector.Patcher
                     }
         }
 
-        public static void Patch(DNContext context, string outputPath)
+        public static void Patch(DNContext context, string outputPath, Action<string> log = null)
         {
+            log = log ?? Console.WriteLine;
+
             TerrariaPatcher.context = context;
             memRes = TerrariaPatcher.context.Resolver;
 
             TerrariaPatcher.context.PrimaryAssembly.Name = "Prism.Terraria";
             TerrariaPatcher.context.PrimaryAssembly.ManifestModule.Name = TerrariaPatcher.context.PrimaryAssembly.Name + ".dll";
 
-            FindPlatform();
+            var ver = TerrariaPatcher.context.PrimaryAssembly.Version;
+            var min = new Version(AssemblyInfo.MIN_TERRARIA_VERSION);
+            var max = new Version(AssemblyInfo.MAX_TERRARIA_VERSION);
 
+            if (ver < min)
+                throw new NotSupportedException("The Terraria.exe version (" + ver + ") is too old!");
+            if (ver > max)
+                log("This Terraria.exe version (" + ver + ") is not supported, patching might fail.");
+            else
+                log("Version is " + ver);
+            
+            Platform = FindPlatform();
+            log("Platform is " + Platform);
+            if (Platform != OSPlatform())
+                log("Warning: Platform is not the same as " + OSPlatform() + ", patching might fail.");
+
+            log("Making members public...");
             Publicify();
+            log("Fixing Terraria internals...");
             //AddInternalsVisibleToAttr();
             RemoveConsoleWriteLineInWndProcHook();
 
+            log("Patching Terraria.Item...");
             ItemPatcher      .Patch();
+            log("Patching Terraria.NPC...");
             NpcPatcher       .Patch();
+            log("Patching Terraria.Projectile...");
             ProjectilePatcher.Patch();
+            log("Patching Terraria.Player...");
             PlayerPatcher    .Patch();
+            log("Patching Terraria.Mount...");
             MountPatcher     .Patch();
+            log("Patching Terraria.Main...");
             MainPatcher      .Patch();
+            log("Patching Terraria.Tile...");
             TilePatcher      .Patch();
+            log("Patching Terraria.IO.WorldFile...");
             WorldFilePatcher .Patch();
+            log("Patching Terraria.Recipe...");
             RecipePatcher    .Patch();
+            log("Patching Terraria.Buff...");
             BuffPatcher      .Patch();
             // do other stuff here
 
+            log("Optimising MSIL...");
             OptimizeAll();
+
+            log("Done!");
 
             // Newtonsoft.Json.dll, Steamworks.NET.dll and Ionic.Zip.CF.dll are required to write the assembly (and FNA and WindowsBase on mono, too)
             TerrariaPatcher.context.PrimaryAssembly.Write(outputPath);

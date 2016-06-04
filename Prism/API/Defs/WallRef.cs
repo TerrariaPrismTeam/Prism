@@ -32,6 +32,17 @@ namespace Prism.API.Defs
 
         }
 
+        WallRef(int resourceId, object ignore)
+            : base(resourceId, id => Handler.WallDef.DefsByType.ContainsKey(id) ? Handler.WallDef.DefsByType[id].InternalName : WallDefHandler.WALL + id)
+        {
+
+        }
+
+        public static WallRef FromIDUnsafe(int resourceId)
+        {
+            return new WallRef(resourceId, null);
+        }
+
         public override WallDef Resolve()
         {
             if (ResourceID.HasValue && Handler.WallDef.DefsByType.ContainsKey(ResourceID.Value))

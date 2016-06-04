@@ -107,9 +107,9 @@ namespace Prism.TerrariaPatcher
 
                 try
                 {
-                    Console.Write("Patching, please wait... ");
+                    //Console.Write("Patching, please wait... ");
 
-                    Patcher.Patch(c, PrismAssembly);
+                    Patcher.Patch(c, PrismAssembly /* logging defaults to stdout */);
                 }
                 catch (Exception e) when (!Debugger.IsAttached)
                 {
@@ -119,7 +119,7 @@ namespace Prism.TerrariaPatcher
                     return 1;
                 }
 
-                Console.WriteLine("Patching finished.");
+                //Console.WriteLine("Patching finished.");
 
                 return 0;
             }

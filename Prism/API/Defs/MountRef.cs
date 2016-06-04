@@ -31,6 +31,17 @@ namespace Prism.API.Defs
 
         }
 
+        MountRef(int resourceId, object ignore)
+            : base(resourceId, id => Handler.MountDef.DefsByType.ContainsKey(id) ? Handler.MountDef.DefsByType[id].InternalName : String.Empty)
+        {
+
+        }
+
+        public static MountRef FromIDUnsafe(int resourceId)
+        {
+            return new MountRef(resourceId, null);
+        }
+
         public override MountDef Resolve()
         {
             if (ResourceID.HasValue && Handler.MountDef.DefsByType.ContainsKey(ResourceID.Value))

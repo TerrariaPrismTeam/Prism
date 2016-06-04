@@ -20,7 +20,9 @@ static partial class AssemblyInfo
 {
     public const string GUID = "fa53dc38-9b2b-45d3-818e-3e60f69143f6";
     public const string VERSION = "1.0.0.0";
-    public const string TERRARIA_VERSION = "1.3.1.0";
+    public const string MIN_TERRARIA_VERSION = "1.3.1.0";
+    public const string MAX_TERRARIA_VERSION = "1.3.1.1";
+    public const string DISP_TERRARIA_VERSION = "1.3.1";
 
     internal const string DEV_BUILD_VERSION = "0.0.0.0";
 }

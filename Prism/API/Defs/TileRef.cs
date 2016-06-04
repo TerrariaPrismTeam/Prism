@@ -33,6 +33,17 @@ namespace Prism.API.Defs
 
         }
 
+        TileRef(int resourceId, object ignore)
+            : base(resourceId, id => Handler.TileDef.DefsByType.ContainsKey(id) ? Handler.TileDef.DefsByType[id].InternalName : String.Empty)
+        {
+
+        }
+
+        public static TileRef FromIDUnsafe(int resourceId)
+        {
+            return new TileRef(resourceId, null);
+        }
+
         public override TileDef Resolve()
         {
             if (ResourceID.HasValue && Handler.TileDef.DefsByType.ContainsKey(ResourceID.Value))

@@ -14,11 +14,21 @@ namespace Prism.Mods.BHandlers
     {
         IEnumerable<Func<Player, bool>> canUse;
         IEnumerable<Func<Player, bool?>> useItem;
-        IEnumerable<Func<Player, Vector2, Vector2, ProjectileRef, int, float, bool>> preShoot;
+        IEnumerable<Func<Player, Vector2, Vector2, ProjectileRef, int, float, float, float, bool?>> preShoot;
 
         IEnumerable<Action<Player, int, EquipSlotKind>> effects, vanityEffects;
         IEnumerable<Action<Player, int>> wingEffects;
         IEnumerable<Action<Player>> setBonus, vanitySetBonus;
+
+        static bool? Prioritize(IEnumerable<bool?> v)
+        {
+            var filter = v.Where(b => b.HasValue).Select(b => b.Value);
+
+            if (filter.IsEmpty())
+                return null;
+
+            return filter.First();
+        }
 
         public override void Create()
         {
@@ -26,7 +36,7 @@ namespace Prism.Mods.BHandlers
 
             canUse   = HookManager.CreateHooks<ItemBehaviour, Func<Player, bool>>(Behaviours, "CanUse");
             useItem  = HookManager.CreateHooks<ItemBehaviour, Func<Player, bool?>>(Behaviours, "UseItem");
-            preShoot = HookManager.CreateHooks<ItemBehaviour, Func<Player, Vector2, Vector2, ProjectileRef, int, float, bool>>(Behaviours, "PreShoot");
+            preShoot = HookManager.CreateHooks<ItemBehaviour, Func<Player, Vector2, Vector2, ProjectileRef, int, float, float, float, bool?>>(Behaviours, "PreShoot");
 
             effects = HookManager.CreateHooks<ItemBehaviour, Action<Player, int, EquipSlotKind>>(Behaviours, "Effects");
             vanityEffects = HookManager.CreateHooks<ItemBehaviour, Action<Player, int, EquipSlotKind>>(Behaviours, "VanityEffects");
@@ -58,18 +68,13 @@ namespace Prism.Mods.BHandlers
 
             return r.Length == 0 || r.All(Convert.ToBoolean);
         }
-        public Maybe<bool?> UseItem(Player p)
+        public bool? UseItem(Player p)
         {
-            var r = HookManager.Call(canUse, p);
-
-            // boo.
-            return r.Length == 0 ? Maybe<bool?>.Nothing : Maybe.Just(r.Cast<bool?>().Aggregate((a, b) => a.Bind(v => b.Bind(v_ => v && v_) ?? v)));
+            return Prioritize(HookManager.Call(canUse, p).Cast<bool?>());
         }
-        public bool PreShoot(Player plr, Vector2 p, Vector2 v, ProjectileRef pr, int d, float kb)
+        public bool? PreShoot(Player plr, Vector2 p, Vector2 v, ProjectileRef pr, int d, float kb, float ai0, float ai1)
         {
-            var r = HookManager.Call(preShoot, plr, p, v, pr, d, kb);
-
-            return r.Length == 0 || r.All(Convert.ToBoolean);
+            return Prioritize(HookManager.Call(preShoot, plr, p, v, pr, d, kb, ai0, ai1).Cast<bool?>());
         }
 
         public void Effects(Player p, int slot, EquipSlotKind kind)

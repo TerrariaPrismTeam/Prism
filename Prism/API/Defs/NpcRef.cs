@@ -32,6 +32,17 @@ namespace Prism.API.Defs
 
         }
 
+        NpcRef(int resourceId, object ignore)
+            : base(resourceId, id => Handler.NpcDef.DefsByType.ContainsKey(id) ? Handler.NpcDef.DefsByType[id].InternalName : String.Empty)
+        {
+
+        }
+
+        public static NpcRef FromIDUnsafe(int resourceId)
+        {
+            return new NpcRef(resourceId, null);
+        }
+
         public override NpcDef Resolve()
         {
             if (ResourceID.HasValue && Handler.NpcDef.DefsByType.ContainsKey(ResourceID.Value))

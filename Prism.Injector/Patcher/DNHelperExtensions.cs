@@ -6,9 +6,53 @@ using dnlib.DotNet.Emit;
 
 namespace Prism.Injector.Patcher
 {
+    using StackInfo = Stack<StackItem>;
+
+    public struct StackItem : IEquatable<StackItem>
+    {
+        public TypeSig Type;
+        public Instruction Instr;
+        public StackItem[] Origin;
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+
+            if (obj is StackItem)
+                return Equals((StackItem)obj);
+            if (obj is IEquatable<StackItem>)
+                return ((IEquatable<StackItem>)obj).Equals(this);
+
+            return false;
+        }
+        public override int GetHashCode()
+        {
+            return Type.GetHashCode() + Instr.GetHashCode() + Origin.GetHashCode();
+        }
+        public override string ToString()
+        {
+            return "{" + Type + " -> " + Instr + "}";
+        }
+
+        public bool Equals(StackItem other)
+        {
+            return DNHelperExtensions.comp.Equals(Type, other.Type) && Instr == other.Instr;
+        }
+
+        public static bool operator ==(StackItem a, StackItem b)
+        {
+            return  a.Equals(b);
+        }
+        public static bool operator !=(StackItem a, StackItem b)
+        {
+            return !a.Equals(b);
+        }
+    }
+
     public static class DNHelperExtensions
     {
-        readonly static SigComparer comp = new SigComparer(SigComparerOptions.PrivateScopeIsComparable);
+        internal readonly static SigComparer comp = new SigComparer(SigComparerOptions.PrivateScopeIsComparable);
 
         /// <summary>
         /// Gets the ldarg instruction of the specified index using the smallest value type it can (because we're targeting the Sega Genesis and need to save memory).
@@ -295,7 +339,7 @@ namespace Prism.Injector.Patcher
         }
         // NOTE: stack may contain an int/uint when the actual C# type is a byte/..., because most structural primitives are all (u)ints in IL
         // NOTE: not sure if it would work correctly with branching
-        public static void EnumerateWithStackAnalysis(this MethodDef method, Action<Instruction, Stack<Tuple<TypeSig, Instruction>>> cb)
+        public static void EnumerateWithStackAnalysis(this MethodDef method, Func<int, Instruction, StackInfo, int> cb)
         {
             if (cb == null)
                 throw new ArgumentNullException("cb");
@@ -303,8 +347,7 @@ namespace Prism.Injector.Patcher
             var body = method.Body;
             var ts = method.Module.CorLibTypes;
 
-            var stack = new Stack<Tuple<TypeSig, Instruction>>(body.MaxStack);
-            Func<TypeSig> pop = () => stack.Pop().Item1;
+            var stack = new StackInfo(body.MaxStack);
 
             var ins = body.Instructions;
             for (int i = 0; i < ins.Count; i++)
@@ -312,9 +355,16 @@ namespace Prism.Injector.Patcher
                 var n = ins[i];
                 var c = n.OpCode.Code;
 
-                Action<TypeSig> push = tr => stack.Push(Tuple.Create(tr, n));
+                Action<TypeSig, StackItem[]> push = (tr, o) => stack.Push(new StackItem
+                {
+                    Type               = tr,
+                    Instr = n ,
+                    Origin             = o
+                });
 
-                cb(n, stack);
+                i = cb(i, n, stack);
+                
+                StackItem pop0 = new StackItem(), pop1;
 
                 #region huge switch
                 switch (c)
@@ -337,20 +387,22 @@ namespace Prism.Injector.Patcher
                     case Code.Sub_Ovf:
                     case Code.Sub_Ovf_Un:
                     case Code.Xor:
-                        push(ICast(pop(), pop(), ts));
+                        pop0 = stack.Pop();
+                        pop1 = stack.Pop();
+                        push(ICast(pop0.Type, pop1.Type, ts), new[] { pop0, pop1 });
                         break;
                     case Code.Neg:
                     case Code.Not:
-                        push(pop());
+                        pop0 = stack.Pop();
+                        push(pop0.Type, new[] { pop0 });
                         break;
                     case Code.Newarr:
-                        push(((ITypeDefOrRef)n.Operand).ToTypeSig());
+                        push(((ITypeDefOrRef)n.Operand).ToTypeSig(), new[] { stack.Peek() });
                         break;
                     case Code.Arglist:
                         throw new NotSupportedException();
                     case Code.Box:
-                        stack.Pop();
-                        push(ts.Object);
+                        push(ts.Object, new[] { stack.Pop() });
                         break;
                     case Code.Call:
                     case Code.Calli:
@@ -359,18 +411,20 @@ namespace Prism.Injector.Patcher
                         {
                             var m = (IMethod)n.Operand;
 
-                            for (int j = n.OpCode.Code == Code.Newobj ? 1 : 0; j < m.MethodSig.Params.Count; j++)
-                                stack.Pop();
+                            List<StackItem> pops = new List<StackItem>();
 
-                            push(m.MethodSig.RetType);
+                            for (int j = n.OpCode.Code == Code.Newobj ? 1 : 0; j < m.MethodSig.Params.Count; j++)
+                                pops.Add(stack.Pop());
+
+                            push(m.MethodSig.RetType, pops.ToArray());
                         }
                         break;
                     case Code.Castclass:
                     case Code.Constrained:
                         if (c == Code.Castclass)
-                            stack.Pop();
+                            pop0 = stack.Pop();
 
-                        push(((ITypeDefOrRef)n.Operand).ToTypeSig());
+                        push(((ITypeDefOrRef)n.Operand).ToTypeSig(), c == Code.Castclass ? new[] { pop0 } : null);
                         break;
                     case Code.Ceq:
                     case Code.Cgt:
@@ -380,88 +434,79 @@ namespace Prism.Injector.Patcher
                     case Code.Clt_Un:
                     case Code.Isinst:
                         if (c != Code.Ckfinite && c != Code.Isinst)
-                            stack.Pop();
-                        stack.Pop();
+                            pop0 = stack.Pop();
+                        pop1 = stack.Pop();
 
-                        push(ts.Boolean);
+                        push(ts.Boolean, c != Code.Ckfinite && c != Code.Isinst ? new[] { pop0, pop1 } : new[] { pop1 });
                         break;
                     case Code.Conv_I:
                     case Code.Conv_Ovf_I:
                     case Code.Conv_Ovf_I_Un:
-                        stack.Pop();
-                        push(ts.IntPtr);
+                        push(ts.IntPtr, new[] { stack.Pop() });
                         break;
                     case Code.Conv_I1:
                     case Code.Conv_Ovf_I1:
                     case Code.Conv_Ovf_I1_Un:
-                        stack.Pop();
-                        push(ts.SByte);
+                        push(ts.SByte, new[] { stack.Pop() });
                         break;
                     case Code.Conv_I2:
                     case Code.Conv_Ovf_I2:
                     case Code.Conv_Ovf_I2_Un:
-                        stack.Pop();
-                        push(ts.Int16);
+                        push(ts.Int16, new[] { stack.Pop() });
                         break;
                     case Code.Conv_I4:
                     case Code.Conv_Ovf_I4:
                     case Code.Conv_Ovf_I4_Un:
-                        stack.Pop();
-                        push(ts.Int32);
+                        push(ts.Int32, new[] { stack.Pop() });
                         break;
                     case Code.Conv_I8:
                     case Code.Conv_Ovf_I8:
                     case Code.Conv_Ovf_I8_Un:
-                        stack.Pop();
-                        push(ts.Int64);
+                        push(ts.Int64, new[] { stack.Pop() });
                         break;
                     case Code.Conv_U:
                     case Code.Conv_Ovf_U:
                     case Code.Conv_Ovf_U_Un:
-                        stack.Pop();
-                        push(ts.UIntPtr);
+                        push(ts.UIntPtr, new[] { stack.Pop() });
                         break;
                     case Code.Conv_U1:
                     case Code.Conv_Ovf_U1:
                     case Code.Conv_Ovf_U1_Un:
-                        stack.Pop();
-                        push(ts.Byte);
+                        push(ts.Byte, new[] { stack.Pop() });
                         break;
                     case Code.Conv_U2:
                     case Code.Conv_Ovf_U2:
                     case Code.Conv_Ovf_U2_Un:
-                        stack.Pop();
-                        push(ts.UInt16);
+                        push(ts.UInt16, new[] { stack.Pop() });
                         break;
                     case Code.Conv_U4:
                     case Code.Conv_Ovf_U4:
                     case Code.Conv_Ovf_U4_Un:
-                        stack.Pop();
-                        push(ts.UInt32);
+                        push(ts.UInt32, new[] { stack.Pop() });
                         break;
                     case Code.Conv_U8:
                     case Code.Conv_Ovf_U8:
                     case Code.Conv_Ovf_U8_Un:
-                        stack.Pop();
-                        push(ts.UInt64);
+                        push(ts.UInt64, new[] { stack.Pop() });
                         break;
                     case Code.Conv_R4:
-                        stack.Pop();
-                        push(ts.Single);
+                        push(ts.Single, new[] { stack.Pop() });
                         break;
                     case Code.Conv_R8:
                     case Code.Conv_R_Un:
-                        stack.Pop();
-                        push(ts.Double);
+                        push(ts.Double, new[] { stack.Pop() });
                         break;
                     case Code.Dup:
-                        push(stack.Peek().Item1);
+                        push(stack.Peek().Type, new[] { stack.Peek() });
                         break;
                     case Code.Ldarga:
                     case Code.Ldarga_S:
                     case Code.Ldelema:
                     case Code.Ldlen:
-                        push(ts.IntPtr);
+                        if (c == Code.Ldelema || c == Code.Ldlen)
+                            pop0 = stack.Pop();
+
+                        push(ts.IntPtr, c == Code.Ldelema || c == Code.Ldlen ? new[] { pop0 } : null);
                         break;
                     case Code.Ldarg:
                     case Code.Ldarg_0:
@@ -489,7 +534,7 @@ namespace Prism.Injector.Patcher
                                         break;
                                 }
 
-                            push(method.Parameters[pi].Type);
+                            push(method.Parameters[pi].Type, null);
                         }
                         break;
                     case Code.Beq:
@@ -530,70 +575,65 @@ namespace Prism.Injector.Patcher
                     case Code.Ldc_I4_8:
                     case Code.Ldc_I4_M1:
                     case Code.Ldc_I4_S:
-                        push(ts.Int32);
+                        push(ts.Int32, null);
                         break;
                     case Code.Ldc_I8:
-                        push(ts.Int64);
+                        push(ts.Int64, null);
                         break;
                     case Code.Ldc_R4:
-                        push(ts.Single);
+                        push(ts.Single, null);
                         break;
                     case Code.Ldc_R8:
-                        push(ts.Double);
+                        push(ts.Double, null);
                         break;
                     case Code.Ldelem_I:
-                        stack.Pop();
-                        push(ts.IntPtr);
+                        push(ts.IntPtr, new[] { stack.Pop() });
                         break;
                     case Code.Ldelem_I1:
-                        stack.Pop();
-                        push(ts.Byte);
+                        push(ts.Byte, new[] { stack.Pop() });
                         break;
                     case Code.Ldelem_I2:
-                        stack.Pop();
-                        push(ts.Int16);
+                        push(ts.Int16, new[] { stack.Pop() });
                         break;
                     case Code.Ldelem_I4:
-                        stack.Pop();
-                        push(ts.Int32);
+                        push(ts.Int32, new[] { stack.Pop() });
                         break;
                     case Code.Ldelem_I8:
-                        stack.Pop();
-                        push(ts.Int64);
+                        push(ts.Int64, new[] { stack.Pop() });
                         break;
                     case Code.Ldelem_U1:
-                        stack.Pop();
-                        push(ts.Byte);
+                        push(ts.Byte, new[] { stack.Pop() });
                         break;
                     case Code.Ldelem_U2:
-                        stack.Pop();
-                        push(ts.UInt16);
+                        push(ts.UInt16, new[] { stack.Pop() });
                         break;
                     case Code.Ldelem_U4:
-                        stack.Pop();
-                        push(ts.UInt32);
+                        push(ts.UInt32, new[] { stack.Pop() });
                         break;
                     case Code.Ldelem_R4:
-                        stack.Pop();
-                        push(ts.Single);
+                        push(ts.Single, new[] { stack.Pop() });
                         break;
                     case Code.Ldelem_R8:
-                        stack.Pop();
-                        push(ts.Double);
+                        push(ts.Double, new[] { stack.Pop() });
                         break;
                     case Code.Ldelem_Ref:
-                        stack.Pop();
-                        push(n.Operand == null ? ts.IntPtr : ((ITypeDefOrRef)n.Operand).ToTypeSig());
+                        push(n.Operand == null ? ts.IntPtr : ((ITypeDefOrRef)n.Operand).ToTypeSig(), new[] { stack.Pop() });
                         break;
                     case Code.Ldfld:
                     case Code.Ldsfld:
-                        push(((IField)n.Operand).FieldSig.Type);
+                        if (c != Code.Ldsfld)
+                            pop0 = stack.Pop();
+
+                        push(((IField)n.Operand).FieldSig.Type, c != Code.Ldsfld ? new[] { pop0 } : null);
                         break;
                     case Code.Ldflda:
                     case Code.Ldsflda:
                     case Code.Ldloca:
                     case Code.Ldloca_S:
-                        push(ts.IntPtr);
+                        if (c == Code.Ldflda)
+                            pop0 = stack.Pop();
+
+                        push(ts.IntPtr, c == Code.Ldflda ? new[] { pop0 } : null);
                         break;
                     case Code.Ldloc:
                     case Code.Ldloc_S:
@@ -621,19 +661,19 @@ namespace Prism.Injector.Patcher
                                         break;
                                 }
 
-                            push(body.Variables[li].Type);
+                            push(body.Variables[li].Type, null);
                         }
                         break;
                     case Code.Ldnull:
                     case Code.Ldobj:
-                        push(ts.Object);
+                        push(ts.Object, null);
                         break;
                     case Code.Ldstr:
-                        push(ts.String);
+                        push(ts.String, null);
                         break;
                     case Code.Ldftn:
                     case Code.Ldvirtftn:
-                        push(ts.IntPtr);
+                        push(ts.IntPtr, null);
                         break;
                     case Code.Nop:
                         break;
@@ -646,7 +686,7 @@ namespace Prism.Injector.Patcher
                     case Code.Throw:
                         return;
                     case Code.Sizeof:
-                        push(ts.Int32);
+                        push(ts.Int32, null);
                         break;
                     case Code.Starg:
                     case Code.Starg_S:
@@ -675,14 +715,20 @@ namespace Prism.Injector.Patcher
                     case Code.Stloc_S:
                     case Code.Stobj:
                     case Code.Stsfld:
+                        if (n.OpCode.Code == Code.Stfld //  field owner
+                                // index
+                                || n.OpCode.Code == Code.Stelem_I || n.OpCode.Code == Code.Stelem_I1 || n.OpCode.Code == Code.Stelem_I2
+                                || n.OpCode.Code == Code.Stelem_I4 || n.OpCode.Code == Code.Stelem_I8 || n.OpCode.Code == Code.Stelem_R4 || n.OpCode.Code == Code.Stelem_R8
+                                || n.OpCode.Code == Code.Stelem_Ref)
+                            stack.Pop();
+
                         stack.Pop();
                         break;
                     case Code.Unbox:
-                        push(((ITypeDefOrRef)n.Operand).ToTypeSig());
+                        push(((ITypeDefOrRef)n.Operand).ToTypeSig(), new[] { stack.Pop() });
                         break;
                     case Code.Unbox_Any:
-                        stack.Pop();
-                        push(ts.IntPtr);
+                        push(ts.IntPtr, new[] { stack.Pop() });
                         break;
                 }
                 #endregion

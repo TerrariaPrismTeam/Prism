@@ -4,7 +4,7 @@ using Prism;
 #if !UNIX
 [assembly: AssemblyTitle("Prism")]
 
-[assembly: AssemblyDescription("Modding API for Terraria 1.3 and beyond (for Terraria " + AssemblyInfo.TERRARIA_VERSION + ")")]
+[assembly: AssemblyDescription("Modding API for Terraria 1.3 and beyond (built for Terraria " + AssemblyInfo.DISP_TERRARIA_VERSION + ")")]
 [assembly: AssemblyInformationalVersion(AssemblyInfo.NICE_VERSION)]
 #endif
 

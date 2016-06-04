@@ -156,6 +156,7 @@ namespace Prism
             Player.P_OnUpdateArmorSets += ItemHooks.OnUpdateArmourSets;
             Player.P_OnWingMovement    += ItemHooks.WingMovement      ;
             Player.P_OnPlaceThing      += TileHooks.OnPlaceThing      ;
+            Player.P_OnPreShoot        += ItemHooks.PreShoot          ;
 
             NPC.P_OnNewNPC    += NpcHooks.OnNewNPC   ;
             NPC.P_OnUpdateNPC += NpcHooks.OnUpdateNPC;

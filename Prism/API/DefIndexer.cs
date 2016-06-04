@@ -14,6 +14,7 @@ namespace Prism.API
     {
         Func<ObjectRef, ModDef, T> byObjRef;
         Func<int, T> byId;
+        Func<int, T> byIdUnsf;
 
         IEnumerable<KeyValuePair<ObjectRef, T>> allDefs;
 
@@ -46,6 +47,11 @@ namespace Prism.API
             }
         }
 
+        public T GetUnsafeFromID(int id)
+        {
+            return byIdUnsf(id);
+        }
+
         public IEnumerable<ObjectRef> Keys
         {
             get
@@ -61,11 +67,12 @@ namespace Prism.API
             }
         }
 
-        public DefIndexer(IEnumerable<KeyValuePair<ObjectRef, T>> allDefs, Func<ObjectRef, ModDef, T> byObjRef, Func<int, T> byId)
+        public DefIndexer(IEnumerable<KeyValuePair<ObjectRef, T>> allDefs, Func<ObjectRef, ModDef, T> byObjRef, Func<int, T> byId, Func<int, T> byIdUnsafe)
         {
-            this.allDefs  = allDefs ;
-            this.byObjRef = byObjRef;
-            this.byId     = byId    ;
+            this.allDefs  = allDefs   ;
+            this.byObjRef = byObjRef  ;
+            this.byId     = byId      ;
+            this.byIdUnsf = byIdUnsafe;
         }
 
         public IEnumerator<KeyValuePair<ObjectRef, T>> GetEnumerator()
@@ -89,11 +96,11 @@ namespace Prism.API
         public DIHelper(int maxIdValue, string objName, Func<ModDef, IDictionary<string, T>> getModDefs, IDictionary<string, T> vByName, IDictionary<int, T> vById)
         {
             this.maxIdValue = maxIdValue;
-            this.objName = objName;
+            this.objName    = objName;
 
-            GetModDefs = getModDefs;
+            GetModDefs        = getModDefs;
             VanillaDefsByName = vByName;
-            VanillaDefsById = vById;
+            VanillaDefsById   = vById;
         }
 
         public T ByObjRef(ObjectRef or, ModDef requesting)
@@ -127,6 +134,10 @@ namespace Prism.API
             if (id >= maxIdValue || !VanillaDefsById.ContainsKey(id))
                 throw new ArgumentOutOfRangeException("id", "The id must be a vanilla " + objName + " id.");
 
+            return VanillaDefsById[id];
+        }
+        public T ByIdUnsafe(int id)
+        {
             return VanillaDefsById[id];
         }
     }
