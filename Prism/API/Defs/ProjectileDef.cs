@@ -22,6 +22,15 @@ namespace Prism.API.Defs
             set;
         }
         /// <summary>
+        /// Gets or sets the knockback this projectile inflicts.
+        /// </summary>
+        /// <remarks>Projectile.knockBack</remarks>
+        public float Knockback
+        {
+            get;
+            set;
+        }
+        /// <summary>
         /// Gets or sets the opacity at which the projectile's sprite is rendered (0 = fully opaque, 255 = fully transparent).
         /// </summary>
         /// <remarks>Projectile.alpha</remarks>

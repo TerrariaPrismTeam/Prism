@@ -87,8 +87,9 @@ namespace Prism.Injector.Patcher
             var mainUpdate = typeDef_Main.GetMethod("Update").Body;
 
             //public virtual bool IsChatAllowedHook() { return Main.netMode == 1; }
-            var chatCheckHook = new MethodDefUser("IsChatAllowedHook", MethodSig.CreateInstance(typeSys.Boolean),
-                MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual);
+            
+            var chatCheckHook = new MethodDefUser("P_IsChatAllowed", MethodSig.CreateStatic(typeSys.Boolean),
+                MethodAttributes.Public | MethodAttributes.Static);
             chatCheckHook.Body = new CilBody();
 
             var proc = chatCheckHook.Body.GetILProcessor();
@@ -105,6 +106,10 @@ namespace Prism.Injector.Patcher
             var instrAfterWhichToInsert = chatCheckHookInstr[1]; //dat variable name tho
             var instrToInsert = Instruction.Create(OpCodes.Bne_Un, nextInstrReturnFalse);
             proc.InsertAfter(instrAfterWhichToInsert, instrToInsert);
+
+            chatCheckHook.Body.SimplifyBranches();
+            chatCheckHook.Body.OptimizeBranches();
+
             typeDef_Main.Methods.Add(chatCheckHook);
             
             // ---
@@ -125,6 +130,8 @@ namespace Prism.Injector.Patcher
                 Instruction.Create(OpCodes.Call, chatCheckHook),
                 Instruction.Create(OpCodes.Brfalse, skipToOffset)
             });
+
+            
         }
         static void AddLocalChatHook()
         {
@@ -253,8 +260,8 @@ namespace Prism.Injector.Patcher
             #endregion
 
             //public virtual bool PlayerChatLocalHook() { return true; }
-            var localChatHook = new MethodDefUser("PlayerChatLocalHook", MethodSig.CreateInstance(typeSys.Boolean),
-                MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual);
+            var localChatHook = new MethodDefUser("P_LocalChat", MethodSig.CreateStatic(typeSys.Boolean),
+                MethodAttributes.Public | MethodAttributes.Static);
             localChatHook.Body = new CilBody();
 
             using (var proc = localChatHook.Body.GetILProcessor())
@@ -262,6 +269,9 @@ namespace Prism.Injector.Patcher
                 // Return true;
                 proc.Emit(OpCodes.Ldc_I4_1);
                 proc.Emit(OpCodes.Ret);
+
+                localChatHook.Body.SimplifyBranches();
+                localChatHook.Body.OptimizeBranches();
             }
             
             typeDef_Main.Methods.Add(localChatHook);
@@ -281,6 +291,9 @@ namespace Prism.Injector.Patcher
                     var newInstrCall = Instruction.Create(OpCodes.Call, localChatHook);
                     proc.InsertBefore(instrSeq[1], newInstrCall);
                 }
+
+                mainUpdate.Body.SimplifyBranches();
+                mainUpdate.Body.OptimizeBranches();
             }
         }
         static void FixOnEngineLoadField()
@@ -521,8 +534,10 @@ namespace Prism.Injector.Patcher
             AddPostScreenClearHook();
 
             //These are causing System.InvalidProgramExceptions so I'm just commenting them out (pls don't remove them)
-            //AddIsChatAllowedHook();
-            //AddLocalChatHook();
+            AddIsChatAllowedHook();
+            typeDef_Main.GetMethod("P_IsChatAllowed", MethodFlags.Public | MethodFlags.Static).Wrap(context);
+            AddLocalChatHook();
+            typeDef_Main.GetMethod("P_LocalChat", MethodFlags.Public | MethodFlags.Static).Wrap(context);
         }
     }
 }

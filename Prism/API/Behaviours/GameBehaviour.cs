@@ -20,6 +20,17 @@ namespace Prism.API.Behaviours
         /// </summary>
         [Hook]
         public virtual void PostUpdate() { }
+        /// <summary>
+        /// A hook called which checks if chat is allowed (returns false in singleplayer and true in multiplayer)
+        /// </summary>
+        [Hook]
+        public virtual bool IsChatAllowed() { return Main.netMode > 0; }
+
+        /// <summary>
+        /// A hook called when a player types something into the chat box during single player (not normally allowed; see GameBehaviour.IsChatAllowed().)
+        /// </summary>
+        [Hook]
+        public virtual bool OnLocalChat() { return true; }
 
         /// <summary>
         /// A hook called right after the game updates Main.keyState

@@ -18,6 +18,7 @@ namespace Prism.Mods.Hooks
         IEnumerable<Action<SpriteBatch>> preDraw, postDraw, postDrawBackground;
         IEnumerable<Func<SpriteBatch, bool>> preDrawBackground;
         IEnumerable<Action<Ref<BgmEntry>>> updateMusic;
+        IEnumerable<Func<bool>> onLocalChat, isChatAllowed;
 
         public override void Create()
         {
@@ -41,6 +42,10 @@ namespace Prism.Mods.Hooks
             updateDebug = HookManager.CreateHooks<GameBehaviour, Action>(behaviours, "UpdateDebug");
 
             updateMusic = HookManager.CreateHooks<GameBehaviour, Action<Ref<BgmEntry>>>(behaviours, "UpdateMusic");
+
+            onLocalChat = HookManager.CreateHooks<GameBehaviour, Func<bool>>(behaviours, "OnLocalChat");
+
+            isChatAllowed = HookManager.CreateHooks<GameBehaviour, Func<bool>>(behaviours, "IsChatAllowed");
         }
         public override void Clear ()
         {
@@ -116,6 +121,18 @@ namespace Prism.Mods.Hooks
             var pe = new Ref<BgmEntry>(e);
             HookManager.Call(updateMusic, pe);
             e = pe.Value;
+        }
+
+        public bool OnLocalChat()
+        {
+            var r = HookManager.Call(onLocalChat);
+            return r.Length == 0 || r.Any(Convert.ToBoolean);
+        }
+
+        public bool IsChatAllowed()
+        {
+            var r = HookManager.Call(isChatAllowed);
+            return r.Length == 0 || r.All(Convert.ToBoolean);
         }
     }
 }

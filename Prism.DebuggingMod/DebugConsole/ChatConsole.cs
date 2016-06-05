@@ -14,15 +14,15 @@ namespace Prism.DebuggingMod.ChatConsole
             new ChatCommandCS (),
             new ChatCommandGet(),
             new ChatCommandSet(),
-          //new ChatCommandNpc(),
+            new ChatCommandSpawn(),
           // I at least test whether my code COMPILES before pushing
           // ...usually
         }
-        .Select(x => new KeyValuePair<string, ChatCommand>(x.Name, x)).ToDictionary();
+        .Select(x => new KeyValuePair<string, ChatCommand>(x.Name.ToLower(), x)).ToDictionary();
 
         public static void Error(string format, params object[] args)
         {
-            TMain.NewText(string.Format(format, args), 255, 0, 0, true);
+            Main.NewText(string.Format(format, args), 255, 0, 0, true);
         }
 
         public static List<string> ParseArgs(params string[] args)
@@ -72,17 +72,17 @@ namespace Prism.DebuggingMod.ChatConsole
                 var cmdName = splitArgs[0].Substring(1);
                 // The args will be everything after the first space.
                 var args = text.Substring(text.IndexOf(' ') + 1);
-                if (Commands.ContainsKey(cmdName))
+                if (Commands.ContainsKey(cmdName.ToLower()))
                 {
-                    if (!RunCmd(cmdName, args, GetSplitArgs(text)))
+                    if (!RunCmd(cmdName.ToLower(), args, GetSplitArgs(text)))
                     {
-                        Main.NewText("The parameters '" + args + "' are invalid for command '" + cmdName + "'. Type '/help " + cmdName + "' for more info.", 255, 0, 0, true);
+                        Main.NewText("The parameters '" + args + "' are invalid for command '" + cmdName.ToLower() + "'. Type '/help " + cmdName + "' for more info.", 255, 0, 0, true);
                         return false;
                     }
                 }
                 else
                 {
-                    Main.NewText("Command not found: '" + cmdName + "'.", 255, 0, 0, true);
+                    Main.NewText("Command not found: '" + cmdName.ToLower() + "'.", 255, 0, 0, true);
                     return false;
                 }
             }
@@ -107,10 +107,10 @@ namespace Prism.DebuggingMod.ChatConsole
         public static bool RunCmd(string cmd, string args, List<string> splitArgs)
         {
             splitArgs = splitArgs ?? new List<string>();
-            if (splitArgs.Count < Commands[cmd].MinArgs)
+            if (splitArgs.Count < Commands[cmd.ToLower()].MinArgs)
                 return false;
             int i = 0;
-            Commands[cmd].Run(Commands[cmd].CaseSensitive ? args : args.ToLowerInvariant(), splitArgs
+            Commands[cmd.ToLower()].Run(Commands[cmd].CaseSensitive ? args : args.ToLowerInvariant(), splitArgs
                             .Select(x => Commands[cmd].CaseSensitive ? x : x.ToLowerInvariant())
                             .Where(x => (i++ < Commands[cmd].MaxArgs))
                             .ToList());

@@ -66,7 +66,7 @@ namespace Prism.Injector.Patcher
         }
         static string[] DefDelTypeName(MethodDef method)
         {
-            return new[] { "Terraria.PrismInjections", method.DeclaringType.Name + "_" + GetOverloadedName(method) + "Delegate" };
+                return new[] { "Terraria.PrismInjections", method.DeclaringType.Name + "_" + GetOverloadedName(method) + "Delegate" };
         }
         /// <summary>
         /// Wraps a method using a fancy delegate. Replaces all references of the method with the wrapped one and creates an "On[MethodName]" hook which passes the method's parent type followed by the type parameters of the original method.

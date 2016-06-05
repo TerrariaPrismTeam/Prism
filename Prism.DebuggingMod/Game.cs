@@ -10,9 +10,16 @@ namespace Prism.DebuggingMod
 {
     sealed class Game : GameBehaviour
     {
-        public override void PostUpdate()
+        public override bool IsChatAllowed()
         {
-            
-		}
+            return true;
+        }
+
+        public override bool OnLocalChat()
+        {
+            ChatConsole.ChatConsole.RunCmd(Main.chatText);
+
+            return true;
+        }
     }
 }

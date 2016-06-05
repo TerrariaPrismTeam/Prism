@@ -132,6 +132,14 @@ namespace Prism
                 HookManager.GameBehaviour.PostDrawBackground(spriteBatch);
             }
         }
+        static bool IsChatAllowed()
+        {
+            return HookManager.GameBehaviour.IsChatAllowed();
+        }
+        static bool OnLocalChat()
+        {
+            return HookManager.GameBehaviour.OnLocalChat();
+        }
 
         static void HookWrappedMethods()
         {
@@ -141,6 +149,16 @@ namespace Prism
             P_OnPreDraw        += OnPreDraw        ;
             P_OnDrawBackground += OnDrawBackground ;
             P_OnPostScrClDraw  += OnPostScreenClear;
+
+            P_OnP_IsChatAllowed  += IsChatAllowed; //Prismception
+
+            P_OnP_LocalChat += OnLocalChat;
+
+            
+
+
+
+            
 
 #pragma warning disable 618
             P_OnPlaySound += (t, x, y, s) => Sfx.Play(t, new Vector2(x, y), s);
