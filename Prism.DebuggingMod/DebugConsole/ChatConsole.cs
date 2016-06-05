@@ -11,10 +11,12 @@ namespace Prism.DebuggingMod.ChatConsole
     {
         internal static Dictionary<string, ChatCommand> Commands = new List<ChatCommand>()
         {
-            new ChatCommandCS   (),
-            new ChatCommandGet  (),
-            new ChatCommandSet  (),
-            new ChatCommandNpc(),
+            new ChatCommandCS (),
+            new ChatCommandGet(),
+            new ChatCommandSet(),
+          //new ChatCommandNpc(),
+          // I at least test whether my code COMPILES before pushing
+          // ...usually
         }
         .Select(x => new KeyValuePair<string, ChatCommand>(x.Name, x)).ToDictionary();
 

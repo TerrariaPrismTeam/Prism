@@ -14,7 +14,7 @@ namespace Prism.Injector.Patcher
         static TypeSig[]
             EmptyTRArr     = new TypeSig[0],
             SingletonTRArr = new TypeSig[1];
-
+        
         /// <summary>
         /// Replaces all method references with the specified reference within the specified context.
         /// </summary>
@@ -30,7 +30,7 @@ namespace Prism.Injector.Patcher
                     if (!mDef.HasBody) // abstract, runtime & external, etc
                         continue;
 
-                    if (exitRecursion && mDef == newRef) // may have undesired consequences with recursive methods
+                    if (exitRecursion && comp.Equals(mDef, newRef)) // may have undesired consequences with recursive methods
                         continue;
 
                     foreach (var i in mDef.Body.Instructions)
