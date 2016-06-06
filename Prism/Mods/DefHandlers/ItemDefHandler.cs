@@ -39,22 +39,46 @@ namespace Prism.Mods.DefHandlers
             Array.Resize(ref Main.itemFrame       , newLen);
             Array.Resize(ref Main.itemFrameCounter, newLen);
             Array.Resize(ref Main.itemName        , newLen);
+            Array.Resize(ref Main.itemFlameLoaded , newLen);
+            Array.Resize(ref Main.itemFlameTexture, newLen);
+            
             Array.Resize(ref Item.bodyType        , newLen);
             Array.Resize(ref Item.claw            , newLen);
             Array.Resize(ref Item.headType        , newLen);
             Array.Resize(ref Item.legType         , newLen);
             Array.Resize(ref Item.staff           , newLen);
+            Array.Resize(ref Item.itemCaches      , newLen);
 
-            Array.Resize(ref ItemID.Sets.AnimatesAsSoul          , newLen);
-            Array.Resize(ref ItemID.Sets.Deprecated              , newLen);
-            Array.Resize(ref ItemID.Sets.ExoticPlantsForDyeTrade , newLen);
-            Array.Resize(ref ItemID.Sets.ExtractinatorMode       , newLen);
-            Array.Resize(ref ItemID.Sets.gunProj                 , newLen);
-            Array.Resize(ref ItemID.Sets.ItemIconPulse           , newLen);
-            Array.Resize(ref ItemID.Sets.ItemNoGravity           , newLen);
-            Array.Resize(ref ItemID.Sets.NebulaPickup            , newLen);
-            Array.Resize(ref ItemID.Sets.NeverShiny              , newLen);
-            Array.Resize(ref ItemID.Sets.StaffMinionSlotsRequired, newLen);
+            Array.Resize(ref ItemID.Sets.AnimatesAsSoul             , newLen);
+            Array.Resize(ref ItemID.Sets.Deprecated                 , newLen);
+            Array.Resize(ref ItemID.Sets.ExoticPlantsForDyeTrade    , newLen);
+            Array.Resize(ref ItemID.Sets.ExtractinatorMode          , newLen);
+            Array.Resize(ref ItemID.Sets.gunProj                    , newLen);
+            Array.Resize(ref ItemID.Sets.ItemIconPulse              , newLen);
+            Array.Resize(ref ItemID.Sets.ItemNoGravity              , newLen);
+            Array.Resize(ref ItemID.Sets.NebulaPickup               , newLen);
+            Array.Resize(ref ItemID.Sets.NeverShiny                 , newLen);
+            Array.Resize(ref ItemID.Sets.StaffMinionSlotsRequired   , newLen);
+            Array.Resize(ref ItemID.Sets.TextureCopyLoad            , newLen);
+
+            //Below items need to be added to ItemDef's fields:
+            Array.Resize(ref ItemID.Sets.TrapSigned                 , newLen);
+            Array.Resize(ref ItemID.Sets.SortingPriorityBossSpawns  , newLen);
+            Array.Resize(ref ItemID.Sets.SortingPriorityExtractibles, newLen);
+            Array.Resize(ref ItemID.Sets.SortingPriorityMaterials   , newLen);
+            Array.Resize(ref ItemID.Sets.SortingPriorityPainting    , newLen);
+            Array.Resize(ref ItemID.Sets.SortingPriorityRopes       , newLen);
+            Array.Resize(ref ItemID.Sets.SortingPriorityTerraforming, newLen);
+            Array.Resize(ref ItemID.Sets.SortingPriorityWiring      , newLen);
+            Array.Resize(ref ItemID.Sets.GamepadExtraRange          , newLen);
+            Array.Resize(ref ItemID.Sets.GamepadSmartQuickReach     , newLen);
+            Array.Resize(ref ItemID.Sets.GamepadWholeScreenUseRange , newLen);
+            Array.Resize(ref ItemID.Sets.SingleUseInGamepad         , newLen);
+            Array.Resize(ref ItemID.Sets.Yoyo                       , newLen);
+            Array.Resize(ref ItemID.Sets.AlsoABuildingItem          , newLen);
+            Array.Resize(ref ItemID.Sets.LockOnIgnoresCollision     , newLen);
+            Array.Resize(ref ItemID.Sets.LockOnAimAbove             , newLen);
+            Array.Resize(ref ItemID.Sets.LockOnAimCompensation      , newLen);
         }
 
         protected override Item GetVanillaEntityFromID(int id)
@@ -128,6 +152,7 @@ namespace Prism.Mods.DefHandlers
             def.CreateTile          = item.createTile <= -1 ? null : new TileRef      (item.createTile);
             def.CreateWall          = item.createWall <=  0 ? null : new WallRef      (item.createWall);
             def.GetTexture          = () => Main.itemTexture[item.type];
+            def.GetFlameTexture     = () => Main.itemFlameTexture[item.type];
             def.UseSound = item.P_UseSound as SfxRef != null ? (SfxRef)item.P_UseSound : item.useSound == 0 ? null : new SfxRef("UseItem", variant: item.useSound);
 
             #region ArmourData

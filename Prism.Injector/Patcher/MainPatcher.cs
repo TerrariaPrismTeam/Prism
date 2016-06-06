@@ -533,7 +533,6 @@ namespace Prism.Injector.Patcher
             AddOnUpdateKeyboardHook();
             AddPostScreenClearHook();
 
-            //These are causing System.InvalidProgramExceptions so I'm just commenting them out (pls don't remove them)
             AddIsChatAllowedHook();
             typeDef_Main.GetMethod("P_IsChatAllowed", MethodFlags.Public | MethodFlags.Static).Wrap(context);
             AddLocalChatHook();
