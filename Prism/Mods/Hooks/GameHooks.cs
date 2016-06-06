@@ -7,6 +7,7 @@ using Prism.API.Audio;
 using Prism.API.Behaviours;
 using Prism.Mods.BHandlers;
 using Terraria;
+using Microsoft.Xna.Framework;
 
 namespace Prism.Mods.Hooks
 {
@@ -14,11 +15,12 @@ namespace Prism.Mods.Hooks
     {
         IEnumerable<Action>
             preUpdate, postUpdate, onUpdateKeyboard,
-            preScreenClear, postScreenClear, updateDebug;
+            preScreenClear, postScreenClear;
         IEnumerable<Action<SpriteBatch>> preDraw, postDraw, postDrawBackground;
         IEnumerable<Func<SpriteBatch, bool>> preDrawBackground;
         IEnumerable<Action<Ref<BgmEntry>>> updateMusic;
         IEnumerable<Func<bool>> onLocalChat, isChatAllowed;
+        IEnumerable<Action<GameTime>> updateDebug;
 
         public override void Create()
         {
@@ -39,7 +41,7 @@ namespace Prism.Mods.Hooks
             preDrawBackground  = HookManager.CreateHooks<GameBehaviour, Func  <SpriteBatch, bool>>(behaviours, "PreDrawBackground" );
             postDrawBackground = HookManager.CreateHooks<GameBehaviour, Action<SpriteBatch      >>(behaviours, "PostDrawBackground");
 
-            updateDebug = HookManager.CreateHooks<GameBehaviour, Action>(behaviours, "UpdateDebug");
+            updateDebug = HookManager.CreateHooks<GameBehaviour, Action<GameTime>>(behaviours, "UpdateDebug");
 
             updateMusic = HookManager.CreateHooks<GameBehaviour, Action<Ref<BgmEntry>>>(behaviours, "UpdateMusic");
 
@@ -110,10 +112,10 @@ namespace Prism.Mods.Hooks
         }
 
         [Conditional("DEV_BUILD")]
-        public void UpdateDebug()
+        public void UpdateDebug(GameTime gt)
         {
             if (PrismApi.VersionType == VersionType.DevBuild)
-                HookManager.Call(updateDebug);
+                HookManager.Call(updateDebug, gt);
         }
 
         public void UpdateMusic(ref BgmEntry e)

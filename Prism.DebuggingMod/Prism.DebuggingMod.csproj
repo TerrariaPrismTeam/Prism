@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="Content.cs" />
     <Compile Include="DebugConsole\ChatCommand.cs" />
+    <Compile Include="DebugConsole\ChatCommands\ChatCommandHelp.cs" />
     <Compile Include="DebugConsole\ChatCommands\ChatCommandCS.cs" />
     <Compile Include="DebugConsole\ChatCommands\ChatCommandSpawn.cs" />
     <Compile Include="DebugConsole\ChatCommands\ChatCommandGet.cs" />

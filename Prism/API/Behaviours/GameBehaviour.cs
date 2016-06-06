@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Prism.API.Audio;
 using Prism.Mods.Hooks;
 using Terraria;
+using Microsoft.Xna.Framework;
 
 namespace Prism.API.Behaviours
 {
@@ -81,6 +82,6 @@ namespace Prism.API.Behaviours
         /// Remember that this will only work on this dev build. Be sure to remove this override (or comment it out) and retarget to the release build before releasing the mod.
         /// </summary>
         [Hook, Obsolete("WARNING: This only works for Prism DevBuilds!")]
-        public virtual void UpdateDebug() { }
+        public virtual void UpdateDebug(GameTime gt) { }
     }
 }

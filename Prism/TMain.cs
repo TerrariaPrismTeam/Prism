@@ -319,7 +319,7 @@ namespace Prism
 
                 base.Update(gt);
 
-                HookManager.GameBehaviour.UpdateDebug();
+                HookManager.GameBehaviour.UpdateDebug(gt);
 
                 if (!gameMenu && prevGameMenu)
                     Helpers.Main.RandColorText("Welcome to " + PrismApi.NiceVersionString + ".", true);

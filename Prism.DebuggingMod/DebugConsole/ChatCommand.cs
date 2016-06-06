@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Terraria;
 
 namespace Prism.DebuggingMod.ChatConsole
 {
@@ -27,5 +28,10 @@ namespace Prism.DebuggingMod.ChatConsole
         }
 
         public abstract void Run(string args, List<string> splitArgs);
+
+        public void DisplayHelp()
+        {
+            ChatConsole.Info(Name + "\n" + Description + "\nUsage: " + UsageText);
+        }
     }
 }

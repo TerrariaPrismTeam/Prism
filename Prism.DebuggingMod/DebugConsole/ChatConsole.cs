@@ -4,6 +4,7 @@ using System.Linq;
 using Prism.DebuggingMod.ChatConsole.ChatCommands;
 using Prism.Util;
 using Terraria;
+using Microsoft.Xna.Framework;
 
 namespace Prism.DebuggingMod.ChatConsole
 {
@@ -15,14 +16,18 @@ namespace Prism.DebuggingMod.ChatConsole
             new ChatCommandGet(),
             new ChatCommandSet(),
             new ChatCommandSpawn(),
-          // I at least test whether my code COMPILES before pushing
-          // ...usually
+            new ChatCommandHelp(),
         }
         .Select(x => new KeyValuePair<string, ChatCommand>(x.Name.ToLower(), x)).ToDictionary();
 
         public static void Error(string format, params object[] args)
         {
             Main.NewText(string.Format(format, args), 255, 0, 0, true);
+        }
+
+        public static void Info(string text)
+        {
+            Main.NewTextMultiline(text, true, new Color(Main.DiscoR, Main.DiscoG, Main.DiscoG));
         }
 
         public static List<string> ParseArgs(params string[] args)

@@ -21,5 +21,18 @@ namespace Prism.DebuggingMod
 
             return true;
         }
+
+        public override void PreUpdate()
+        {
+            base.PreUpdate();
+        }
+
+        public override void UpdateDebug(GameTime gt)
+        {
+            DebugMenu.Update(gt);
+
+            DebugMenu.Node = new DebugMenuNode("Debug Menu");
+            DebugMenu.Node.Add("Value 1", new DebugMenuNode("Value") { DebugValue = "Waffles" } );
+        }
     }
 }
