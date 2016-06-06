@@ -1,5 +1,3 @@
-Chat with us on the `#PrismAPI` channel on `irc.esper.net`.
-
 # Prism
 
 Modding API for Terraria 1.3.* (Yet Another Mod To Make Mods!) (not a spying program, we promise!)
@@ -12,6 +10,11 @@ Prism is licensed under the ~~Artistic License~~ WTFPL, because it ~~is~~ was no
 For the latest release, see the `master` branch. The in-developement version can be found on the `develop` branch. The Terraria 1.3.0 version is on the `v1-3-0` branch.
 
 Binaries can be found [here](https://github.com/TerrariaPrismTeam/Prism/releases). Documentation is available [here](https://github.com/TerrariaPrismTeam/Prism/wiki)
+
+## Support
+For help specifically with getting **Prism** to work as well as using it in your own mods, come chat with us on the **`#PrismAPI`** channel on **`irc.esper.net`** using your favorite IRC client or using **[this quick online one](http://chat.mibbit.com/?server=irc.esper.net&channel=%23PrismAPI)**.
+
+To chat with a variety of mod developers and veteran mod developers about **general Terraria coding**, come chat on the **`#tapi`** channel on **`irc.esper.net`** using your favorite IRC client or using **[this quick online one](http://chat.mibbit.com/?server=irc.esper.net&channel=%23tapi)**
 
 ## Building
 
