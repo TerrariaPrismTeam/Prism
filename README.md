@@ -1,4 +1,4 @@
-Chat with us on the `#tapi` channel on `irc.esper.net`.
+Chat with us on the `#PrismAPI` channel on `irc.esper.net`.
 
 # Prism
 
