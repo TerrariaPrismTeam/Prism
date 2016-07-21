@@ -154,12 +154,6 @@ namespace Prism
 
             P_OnP_LocalChat += OnLocalChat;
 
-            
-
-
-
-            
-
 #pragma warning disable 618
             P_OnPlaySound += (t, x, y, s) => Sfx.Play(t, new Vector2(x, y), s);
 #pragma warning restore 618

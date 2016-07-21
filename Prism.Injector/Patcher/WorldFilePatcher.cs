@@ -37,7 +37,7 @@ namespace Prism.Injector.Patcher
                 Instruction.Create(OpCodes.Ldarg_0),
                 Instruction.Create(OpCodes.Callvirt, invokeSaveWorld)
             };
-            
+
             var swb = saveWorld.Body;
             using (var swbproc = swb.GetILProcessor())
             {
@@ -86,13 +86,14 @@ namespace Prism.Injector.Patcher
         {
             var saveHeader = typeDef_WorldFile.GetMethod("SaveFileFormatHeader");
 
-            if ((int)saveHeader.Body.Instructions[0].Operand != 446)
-                Console.WriteLine("WARNING! max tile type is not 446, SaveFileFormatHeader might've changed!");
+            if ((int)saveHeader.Body.Instructions[0].Operand != 461)
+                Console.WriteLine("WARNING! max tile type is not 461, SaveFileFormatHeader might've changed!");
 
             using (var shp = saveHeader.Body.GetILProcessor())
             {
                 var first = saveHeader.Body.Instructions[0];
 
+                // replace constant (Main.maxTileSets) with the actual length of the array
                 shp.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, memRes.GetType("Terraria.Main").GetField("tileFrameImportant")));
                 shp.InsertAfter(saveHeader.Body.Instructions[0] /* do NOT use 'first' here */, Instruction.Create(OpCodes.Ldlen));
 

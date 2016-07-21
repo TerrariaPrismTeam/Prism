@@ -1,10 +1,12 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <!-- XBuild specifies an OS property, but MSBuild doesn't. This sets the default value on MSBuild. -->
-    <OS Condition="'$(OS)' == ''">Windows_NT</OS>
+    <!--<OS Condition="'$(OS)' == ''">Windows_NT</OS>-->
+    <!-- This is bogus now, checking for windir should do the job -->
+    <OS>Unix</OS>
+    <OS Condition="Exists('C:\Windows\System32')">Windows_NT</OS>
   </PropertyGroup>
   <PropertyGroup>
-    <!-- check whether the Unix version is OSX, but don't edit OS (not compatible with usual XBuild behaviour) -->
     <IsOSX Condition="'$(IsOSX)' == '' And '$(OS)' == 'Unix' And Exists('/Library/Frameworks')">true</IsOSX>
     <IsOSX Condition="'$(IsOSX)' == ''">false</IsOSX>
 

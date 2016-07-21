@@ -131,7 +131,7 @@ namespace Prism.Injector.Patcher
                 Instruction.Create(OpCodes.Brfalse, skipToOffset)
             });
 
-            
+
         }
         static void AddLocalChatHook()
         {
@@ -191,7 +191,8 @@ namespace Prism.Injector.Patcher
                 OpCodes.Stloc_S     ,//IL_29d4: stloc.s 10
 
                 OpCodes.Ldsfld      ,//IL_29d6: ldsfld string Terraria.Main::chatText
-                OpCodes.Stloc_S     ,//IL_29db: stloc.s 11
+              //OpCodes.Stloc_S     ,//IL_29db: stloc.s 11
+                OpCodes.Pop         ,
                 OpCodes.Ldsfld      ,//IL_29dd: ldsfld class Terraria.Player[] Terraria.Main::player
                 OpCodes.Ldsfld      ,//IL_29e2: ldsfld int32 Terraria.Main::myPlayer
                 OpCodes.Ldelem_Ref  ,//IL_29e7: ldelem.ref
@@ -200,7 +201,7 @@ namespace Prism.Injector.Patcher
                 OpCodes.Ldstr       ,//IL_29f2: ldstr " "
                 OpCodes.Ldsfld      ,//IL_29f7: ldsfld string Terraria.Main::chatText
                 OpCodes.Call        ,//IL_29fc: call string [mscorlib]System.String::Concat(string, string, string)
-                OpCodes.Stloc_S     ,//IL_2a01: stloc.s 11
+              //OpCodes.Stloc_S     ,//IL_2a01: stloc.s 11
                 OpCodes.Ldsfld      ,//IL_2a03: ldsfld class Terraria.Player[] Terraria.Main::player
                 OpCodes.Ldsfld      ,//IL_2a08: ldsfld int32 Terraria.Main::myPlayer
                 OpCodes.Ldelem_Ref  ,//IL_2a0d: ldelem.ref
@@ -210,7 +211,12 @@ namespace Prism.Injector.Patcher
                 OpCodes.Ldc_I4_2    ,//IL_2a1d: ldc.i4.2
                 OpCodes.Div         ,//IL_2a1e: div
                 OpCodes.Call        ,//IL_2a1f: call instance void Terraria.Player/OverheadMessage::NewMessage(string, int32)
-                OpCodes.Ldloc_S     ,//IL_2a24: ldloc.s 11
+                OpCodes.Ldc_I4_0,
+                OpCodes.Ldloc_S,
+                OpCodes.Call,
+                OpCodes.Call,
+
+                /*OpCodes.Ldloc_S     ,//IL_2a24: ldloc.s 11
                 OpCodes.Ldloca_S    ,//IL_2a26: ldloca.s 10
                 OpCodes.Call        ,//IL_2a28: call instance uint8 [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Color::get_R()
                 OpCodes.Ldloca_S    ,//IL_2a2d: ldloca.s 10
@@ -219,7 +225,7 @@ namespace Prism.Injector.Patcher
                 OpCodes.Call        ,//IL_2a36: call instance uint8 [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Color::get_B()
                 OpCodes.Ldc_I4_0    ,//IL_2a3b: ldc.i4.0
                 OpCodes.Call        ,//IL_2a3c: call void Terraria.Main::NewText(string, uint8, uint8, uint8, bool)
-
+                */
                 /*
                     if (Main.inputTextEnter && Main.chatRelease)
                     {
@@ -273,7 +279,7 @@ namespace Prism.Injector.Patcher
                 localChatHook.Body.SimplifyBranches();
                 localChatHook.Body.OptimizeBranches();
             }
-            
+
             typeDef_Main.Methods.Add(localChatHook);
 
             var mainUpdate = typeDef_Main.GetMethod("Update");

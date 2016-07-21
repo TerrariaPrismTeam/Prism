@@ -149,7 +149,7 @@ namespace Prism.Injector.Patcher
 
                 var onLoadPlayer = new FieldDefUser("P_OnLoadPlayer", new FieldSig(onLoadPlayerDel.ToTypeSig()), FieldAttributes.Public | FieldAttributes.Static);
                 typeDef_Player.Fields.Add(onLoadPlayer);
-                
+
                 var lpb = loadPlayer.Body;
                 using (var lpproc = lpb.GetILProcessor())
                 {
@@ -229,7 +229,7 @@ namespace Prism.Injector.Patcher
                     {
                         var ldc_i4 = firstInstr.Next(processor);
 
-                        if (!(ldc_i4.Operand is int) || (int)ldc_i4.Operand != 3730)
+                        if (!(ldc_i4.Operand is int) || (int)ldc_i4.Operand != 3770)
                             continue;
 
                         var blt_s = ldc_i4.Next(processor);
@@ -250,11 +250,11 @@ namespace Prism.Injector.Patcher
                     {
                         if (count == 0)
                         {
-                            Console.WriteLine("PlayerPatcher.RemoveBuggyPlayerLoading() could not find the target instruction sequence; Terraria.Player.LoadPlayer() may have been fixed, and this hack can be removed.");
+                            Console.WriteLine("Warning: PlayerPatcher.RemoveItemTypeLimitation() could not find the target instruction sequence; Terraria.Player.LoadPlayer() may have been fixed, and this hack can be removed.");
                         }
                         else if (count != 6)
                         {
-                            Console.WriteLine("PlayerPatcher.RemoveBuggyPlayerLoading() removed " + count.ToString() + " instances of the target instruction sequence instead of 6; Terraria.Player.LoadPlayer() logic may have changed, and this hack may be superflous/harmful!");
+                            Console.WriteLine("Warning: PlayerPatcher.RemoveItemTypeLimitation() removed " + count.ToString() + " instances of the target instruction sequence instead of 6; Terraria.Player.LoadPlayer() logic may have changed, and this hack may be superflous/harmful!");
                         }
 
                         break;

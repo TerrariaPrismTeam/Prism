@@ -28,8 +28,8 @@ namespace Prism.IO
         enum TileDataEntryFlags : byte
         {
             Finished = 0,
-            Tile    = 1,
-            Type    = 2
+            Tile     = 1,
+            Type     = 2
         }
 
         /// <summary>

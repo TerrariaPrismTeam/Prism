@@ -14,7 +14,7 @@ namespace Prism.Injector.Patcher
         Linux,
         OSX
     }
-    
+
     public static class TerrariaPatcher
     {
         internal static Platform Platform;
@@ -147,10 +147,10 @@ namespace Prism.Injector.Patcher
             if (ver < min)
                 throw new NotSupportedException("The Terraria.exe version (" + ver + ") is too old!");
             if (ver > max)
-                log("This Terraria.exe version (" + ver + ") is not supported, patching might fail.");
+                log("Warning: This Terraria.exe version (" + ver + ") is not supported, patching might fail.");
             else
                 log("Version is " + ver);
-            
+
             Platform = FindPlatform();
             log("Platform is " + Platform);
             if (Platform != OSPlatform())

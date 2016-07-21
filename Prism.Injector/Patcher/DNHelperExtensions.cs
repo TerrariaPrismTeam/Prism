@@ -338,7 +338,7 @@ namespace Prism.Injector.Patcher
             return ad.PackingSize > bd.PackingSize ? a : b;
         }
         // NOTE: stack may contain an int/uint when the actual C# type is a byte/..., because most structural primitives are all (u)ints in IL
-        // NOTE: not sure if it would work correctly with branching
+        // NOTE: not sure if it would work correctly with branching for hand-written IL
         public static void EnumerateWithStackAnalysis(this MethodDef method, Func<int, Instruction, StackInfo, int> cb)
         {
             if (cb == null)
@@ -357,13 +357,13 @@ namespace Prism.Injector.Patcher
 
                 Action<TypeSig, StackItem[]> push = (tr, o) => stack.Push(new StackItem
                 {
-                    Type               = tr,
-                    Instr = n ,
-                    Origin             = o
+                    Type   = tr,
+                    Instr  = n ,
+                    Origin = o
                 });
 
                 i = cb(i, n, stack);
-                
+
                 StackItem pop0 = new StackItem(), pop1;
 
                 #region huge switch
@@ -413,7 +413,10 @@ namespace Prism.Injector.Patcher
 
                             List<StackItem> pops = new List<StackItem>();
 
-                            for (int j = n.OpCode.Code == Code.Newobj ? 1 : 0; j < m.MethodSig.Params.Count; j++)
+                            int start = n.OpCode.Code == Code.Newobj ? 1 : 0,
+                                count = m.MethodSig.Params.Count;
+
+                            for (int j = start; j < count; j++)
                                 pops.Add(stack.Pop());
 
                             push(m.MethodSig.RetType, pops.ToArray());
@@ -533,6 +536,17 @@ namespace Prism.Injector.Patcher
                                         pi = 3;
                                         break;
                                 }
+
+                            /*if (!method.IsStatic)
+                            {
+                                if (pi == 0)
+                                {
+                                    push(method.DeclaringType, null);
+                                    break;
+                                }
+
+                                pi--;
+                            }*/
 
                             push(method.Parameters[pi].Type, null);
                         }
@@ -729,6 +743,9 @@ namespace Prism.Injector.Patcher
                         break;
                     case Code.Unbox_Any:
                         push(ts.IntPtr, new[] { stack.Pop() });
+                        break;
+                    case Code.Ldtoken: // typeof etc
+                        push(ts.Object, null);
                         break;
                 }
                 #endregion

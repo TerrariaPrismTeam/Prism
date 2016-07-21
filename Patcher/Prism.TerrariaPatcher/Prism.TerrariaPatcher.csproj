@@ -139,7 +139,7 @@
       # a batch script is used in windows environments.
       # executing it here will make sure the assembly exists before the assembly resolution is started when building Prism.csproj.
 
-      mono "$(ProjectDir)bin/$(Configuration)/Prism.TerrariaPatcher.exe" msbuild "$(ProjectDir)../../References/Terraria.exe" "$(ProjectDir)../../References/Prism.Terraria.dll"
+      mono --debug=mdb-optimizations "$(ProjectDir)bin/$(Configuration)/Prism.TerrariaPatcher.exe" msbuild "$(ProjectDir)../../References/Terraria.exe" "$(ProjectDir)../../References/Prism.Terraria.dll"
     </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
