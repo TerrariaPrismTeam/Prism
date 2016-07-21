@@ -495,7 +495,7 @@ namespace Prism.Injector.Patcher
                     first = qgproc.RemoveInstructions(first, toRem.Length);
 
                     qgproc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, quickGrapple_PlayUseSound));
-                    qgproc.InsertBefore(first, Instruction.Create(OpCodes.Ldloc_0)); // load item instance ons stack
+                    qgproc.InsertBefore(first, Instruction.Create(TerrariaPatcher.Platform == Platform.Windows ? OpCodes.Ldloc_3 : OpCodes.Ldloc_0)); // load item instance ons stack
                     qgproc.InsertBefore(first, Instruction.Create(OpCodes.Ldarg_0));
                     qgproc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeUseSound));
                 }

@@ -483,6 +483,15 @@ namespace Prism.API.Defs
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the item's flame texture...?
+        /// </summary>
+        public Func<Texture2D> GetFlameTexture
+        {
+            get;
+            set;
+        }
+
         public string SetName
         {
             get;
@@ -510,6 +519,7 @@ namespace Prism.API.Defs
             : base(displayName, newBehaviour)
         {
             GetTexture = getTexture ?? Empty<Texture2D>.Func;
+            GetFlameTexture = Empty<Texture2D>.Func;
 
             ArmourData    = new ItemArmourData(null, null, null, null);
             AccessoryData = new ItemAccessoryData(null, null, null, null, null, null, null, null, null, null, null); // this was extremely boring to write
@@ -536,6 +546,7 @@ namespace Prism.API.Defs
             : this(displayName, newBehaviour)
         {
             GetTexture = getTexture ?? Empty<Texture2D>.Func;
+            GetFlameTexture = Empty<Texture2D>.Func;
             ArmourData = armour;
             AccessoryData = accessoryStuff;
 

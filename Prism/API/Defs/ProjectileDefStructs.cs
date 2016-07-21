@@ -10,6 +10,8 @@ namespace Prism.API.Defs
     /// </summary>
     public enum ProjectileAiStyle
     {
+        #region Nopezal's Hard Work
+
         /// <summary>
         /// No AI. Use this if you plan on making completely custom AI.
         /// <para/><b>Used by:</b>Nothing
@@ -301,8 +303,8 @@ namespace Prism.API.Defs
         /// </summary>
         NorthPoleFlakes = 57,
         /// <summary>
-        /// Santank Present AI. (NeedsDesc)
-        /// <para/><b>Used by:</b>Santank
+        /// Santa-NK1 Gift AI. (NeedsDesc)
+        /// <para/><b>Used by:</b>Santa-NK1
         /// </summary>
         SantankPresent = 58,
         /// <summary>
@@ -632,6 +634,8 @@ namespace Prism.API.Defs
         SuspiciousTentacle = 124
 
         //Also, I added the numbers cuz some of them (like the spear one) might be copies
+
+        #endregion
     }
 
     //public enum ProjFlags

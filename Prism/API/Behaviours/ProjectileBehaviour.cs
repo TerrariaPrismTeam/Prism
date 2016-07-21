@@ -23,9 +23,7 @@ namespace Prism.API.Behaviours
             return true;
         }
         [Hook]
-        public virtual void OnAI() {
-        }
-
+        public virtual void OnAI() { }
         [Hook]
         public virtual bool PreDraw(SpriteBatch sb)
         {
@@ -33,7 +31,6 @@ namespace Prism.API.Behaviours
         }
         [Hook]
         public virtual void OnDraw(SpriteBatch sb) { }
-
         [Hook]
         public virtual bool IsColliding(Rectangle projRect, Rectangle targetRect) { return projRect.Intersects(targetRect); }
     }
