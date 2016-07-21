@@ -115,7 +115,7 @@
     <PostBuildEvent Condition="'$(OS)' == 'Windows_NT'">
       rem first, merge the patcher, injector and mono.cecil assemblies into one, useful for distribution
       md "$(ProjectDir)..\..\Bin\$(Configuration)\$(OSEnum)\"
-      "$(ProjectDir)..\ILRepack\ILRepack.exe" /union /target:exe "/out:$(ProjectDir)..\..\Bin\$(Configuration)\$(OSEnum)\Prism.TerrariaPatcher-merged.exe" "$(TargetPath)" "$(TargetDir)Prism.Injector.dll" "$(TargetDir)Mono.Cecil.dll"
+      "$(ProjectDir)..\ILRepack\ILRepack.exe" /union /target:exe "/out:$(ProjectDir)..\..\Bin\$(Configuration)\$(OSEnum)\Prism.TerrariaPatcher-merged.exe" "$(TargetPath)" "$(TargetDir)Prism.Injector.dll" "$(TargetDir)dnlib.dll"
 
       rem this patches the Terraria assembly
       rem in order to build, one must provide their own .exe.
@@ -131,7 +131,7 @@
       # first, merge the patcher, injector and mono.cecil assemblies into one, useful for distribution
       # fyi, sometimes, xbuild variables can get borked in the postbuild
       mkdir "$(ProjectDir)../../Bin/$(Configuration)/$(OSEnum)/"
-      mono "$(ProjectDir)..\ILRepack\ILRepack.exe" --union --target:exe "--out:$(ProjectDir)../../Bin/$(Configuration)/$(OSEnum)/Prism.TerrariaPatcher-merged.exe" "$(ProjectDir)bin/$(Configuration)/Prism.TerrariaPatcher.exe" "$(ProjectDir)bin/$(Configuration)/Prism.Injector.dll" "$(ProjectDir)bin/$(Configuration)/Mono.Cecil.dll"
+      mono "$(ProjectDir)..\ILRepack\ILRepack.exe" --union --target:exe "--out:$(ProjectDir)../../Bin/$(Configuration)/$(OSEnum)/Prism.TerrariaPatcher-merged.exe" "$(ProjectDir)bin/$(Configuration)/Prism.TerrariaPatcher.exe" "$(ProjectDir)bin/$(Configuration)/Prism.Injector.dll" "$(ProjectDir)bin/$(Configuration)/dnlib.dll"
 
       # this patches the Terraria assembly
       # in order to build, one must provide their own .exe.
@@ -141,21 +141,6 @@
 
       mono --debug=mdb-optimizations "$(ProjectDir)bin/$(Configuration)/Prism.TerrariaPatcher.exe" msbuild "$(ProjectDir)../../References/Terraria.exe" "$(ProjectDir)../../References/Prism.Terraria.dll"
     </PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PostBuildEvent>
-      rem first, merge the patcher, injector and mono.cecil assemblies into one, useful for distribution
-      md "$(ProjectDir)..\..\Bin\$(Configuration)\$(OSEnum)\"
-      "$(ProjectDir)..\ILRepack\ILRepack.exe" /union /target:exe "/out:$(ProjectDir)..\..\Bin\$(Configuration)\$(OSEnum)\Prism.TerrariaPatcher-merged.exe" "$(TargetPath)" "$(TargetDir)Prism.Injector.dll" "$(TargetDir)dnlib.dll"
-
-      rem this patches the Terraria assembly
-      rem in order to build, one must provide their own .exe.
-      rem this will create a patched terraria assembly, which is referenced by Prism.csproj.
-      rem a shell script is used in unix environments.
-      rem executing it here will make sure the assembly exists before the assembly resolution is started when building Prism.csproj.
-
-      "$(TargetPath)" msbuild "$(ProjectDir)..\..\References\Terraria.exe" "$(ProjectDir)..\..\References\Prism.Terraria.dll"
-</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
