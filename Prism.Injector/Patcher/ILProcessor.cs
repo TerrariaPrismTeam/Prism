@@ -228,20 +228,20 @@ namespace Prism.Injector.Patcher
         {
             var ind = instrs.IndexOf(ins);
             instrs.Insert(ind + 1, toIns);
-            
+
             return this;
         }
 
         public ILProcessor Append(Instruction ins)
         {
             instrs.Add(ins);
-            
+
             return this;
         }
         public ILProcessor Prepend(Instruction ins)
         {
             instrs.Insert(0, ins);
-            
+
             return this;
         }
 
@@ -258,6 +258,13 @@ namespace Prism.Injector.Patcher
                 return this;
 
             instrs[ind] = toIns;
+
+            return this;
+        }
+        public ILProcessor ReplaceAll(Instruction toRem, Instruction toIns)
+        {
+            for (int ind = instrs.IndexOf(toRem); ind != -1; ind = instrs.IndexOfStart(toRem, ind + 1))
+                instrs[ind] = toIns;
 
             return this;
         }
@@ -322,7 +329,7 @@ namespace Prism.Injector.Patcher
 
             return this;
         }
-        
+
         public IEnumerator<Instruction> GetEnumerator()
         {
             return instrs.GetEnumerator();

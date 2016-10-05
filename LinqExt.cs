@@ -312,5 +312,75 @@ namespace Prism.Injector
             }
             return true;
         }
+
+        static bool EqGeneric<T>(T a, T b)
+        {
+            if (!typeof(T).IsValueType)
+            {
+                if (ReferenceEquals(a, b))
+                    return true;
+                if (ReferenceEquals(a, null) || ReferenceEquals(b, null))
+                    return false;
+            }
+
+            if (a is IEquatable<T>)
+                return ((IEquatable<T>)a).Equals(b);
+
+            return a.Equals(b); // resort to boxing & Object.Equals
+        }
+
+        // favor random access when possible
+        public static int IndexOfStart<T>(this T[] arr, T x, int start = 0)
+        {
+            for (int i = start; i < arr.Length; i++)
+                if (EqGeneric(arr[i], x))
+                    return i;
+
+            return -1;
+        }
+        public static int IndexOfStart<T>(this T[] arr, Predicate<T> comp, int start = 0)
+        {
+            for (int i = start; i < arr.Length; i++)
+                if (comp(arr[i]))
+                    return i;
+
+            return -1;
+        }
+        public static int IndexOfStart<T>(this IList<T> list, T x, int start = 0)
+        {
+            for (int i = start; i < list.Count; i++)
+                if (EqGeneric(list[i], x))
+                    return i;
+
+            return -1;
+        }
+        public static int IndexOfStart<T>(this IList<T> list, Predicate<T> comp, int start = 0)
+        {
+            for (int i = start; i < list.Count; i++)
+                if (comp(list[i]))
+                    return i;
+
+            return -1;
+        }
+        public static int IndexOfStart<T>(this IEnumerable<T> coll, T x, int start = 0)
+        {
+            int i = start;
+
+            foreach (T e in coll.Skip(start))
+                if (EqGeneric(e, x))
+                    return i;
+
+            return -1;
+        }
+        public static int IndexOfStart<T>(this IEnumerable<T> coll, Predicate<T> comp, int start = 0)
+        {
+            int i = start;
+
+            foreach (T e in coll.Skip(start))
+                if (comp(e))
+                    return i;
+
+            return -1;
+        }
     }
 }

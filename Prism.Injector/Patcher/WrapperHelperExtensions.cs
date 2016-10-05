@@ -14,7 +14,7 @@ namespace Prism.Injector.Patcher
         static TypeSig[]
             EmptyTRArr     = new TypeSig[0],
             SingletonTRArr = new TypeSig[1];
-        
+
         /// <summary>
         /// Replaces all method references with the specified reference within the specified context.
         /// </summary>

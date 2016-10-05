@@ -77,7 +77,7 @@ namespace Prism.Injector.Patcher
                     if (index <= Byte.MaxValue)
                         return Instruction.Create(OpCodes.Ldarg_S, @params[index - offset]);
                     //Y U NO HAVE USHORT
-                    return Instruction.Create(OpCodes.Ldarg, @params[index]);
+                    return Instruction.Create(OpCodes.Ldarg, @params[index - offset]);
             }
         }
 
@@ -153,7 +153,7 @@ namespace Prism.Injector.Patcher
                     return b == Code.Stloc || b == Code.Stloc_S;
             }
 
-            return false;
+            return a == b;
         }
 
         public static TypeDef CreateDelegate(this DNContext context, string @namespace, string name, TypeSig returnType, out MethodDef invoke, params TypeSig[] parameters)
@@ -339,6 +339,7 @@ namespace Prism.Injector.Patcher
         }
         // NOTE: stack may contain an int/uint when the actual C# type is a byte/..., because most structural primitives are all (u)ints in IL
         // NOTE: not sure if it would work correctly with branching for hand-written IL
+        // NOTE: neither when popping an exn in an exn handler (i.e. a "catch { }")
         public static void EnumerateWithStackAnalysis(this MethodDef method, Func<int, Instruction, StackInfo, int> cb)
         {
             if (cb == null)
@@ -364,7 +365,8 @@ namespace Prism.Injector.Patcher
 
                 i = cb(i, n, stack);
 
-                StackItem pop0 = new StackItem(), pop1;
+                StackItem pop0 = new StackItem(),
+                          pop1 = new StackItem();
 
                 #region huge switch
                 switch (c)
@@ -399,48 +401,47 @@ namespace Prism.Injector.Patcher
                     case Code.Newarr:
                         push(((ITypeDefOrRef)n.Operand).ToTypeSig(), new[] { stack.Peek() });
                         break;
-                    case Code.Arglist:
-                        throw new NotSupportedException();
                     case Code.Box:
+                        // struct/value type ('bittable type') -> object ref
+                        // eg. int x = 5; Foo((object /* here */)5);
                         push(ts.Object, new[] { stack.Pop() });
                         break;
                     case Code.Call:
-                    case Code.Calli:
-                    case Code.Callvirt:
-                    case Code.Newobj:
+                    case Code.Calli: // indirect call (native or managed), pops address and args
+                    case Code.Callvirt: // virtual call (*always* an instance call)
+                    case Code.Newobj: // said to return void, but actually pushes the class type
                         {
                             var m = (IMethod)n.Operand;
 
                             List<StackItem> pops = new List<StackItem>();
 
+                            if (c == Code.Calli)
+                                pops.Add(stack.Pop()); // address to call
+
+                            // args
                             int start = n.OpCode.Code == Code.Newobj ? 1 : 0,
                                 count = m.MethodSig.Params.Count;
-
                             for (int j = start; j < count; j++)
                                 pops.Add(stack.Pop());
 
-                            push(m.MethodSig.RetType, pops.ToArray());
+                            push(c == Code.Newobj ? m.DeclaringType.ToTypeSig() : m.MethodSig.RetType, pops.ToArray());
                         }
                         break;
-                    case Code.Castclass:
-                    case Code.Constrained:
-                        if (c == Code.Castclass)
-                            pop0 = stack.Pop();
-
-                        push(((ITypeDefOrRef)n.Operand).ToTypeSig(), c == Code.Castclass ? new[] { pop0 } : null);
+                    case Code.Castclass: // cast class instance to another
+                    case Code.Constrained: // ensure that something is of type foo (see eg. the disassembly of (5).ToString())
+                        push(((ITypeDefOrRef)n.Operand).ToTypeSig(), new[] { stack.Pop() });
                         break;
                     case Code.Ceq:
                     case Code.Cgt:
                     case Code.Cgt_Un:
-                    case Code.Ckfinite:
                     case Code.Clt:
                     case Code.Clt_Un:
-                    case Code.Isinst:
-                        if (c != Code.Ckfinite && c != Code.Isinst)
-                            pop0 = stack.Pop();
-                        pop1 = stack.Pop();
-
-                        push(ts.Boolean, c != Code.Ckfinite && c != Code.Isinst ? new[] { pop0, pop1 } : new[] { pop1 });
+                        push(ts.Boolean, new[] { stack.Pop(), stack.Pop() });
+                        break;
+                    case Code.Ckfinite: // throw if infinite or nan
+                        break;
+                    case Code.Isinst: // is obj ref of the given class?
+                        push(ts.Boolean, new[] { stack.Pop() });
                         break;
                     case Code.Conv_I:
                     case Code.Conv_Ovf_I:
@@ -502,16 +503,17 @@ namespace Prism.Injector.Patcher
                     case Code.Dup:
                         push(stack.Peek().Type, new[] { stack.Peek() });
                         break;
-                    case Code.Ldarga:
+                    case Code.Ldarga: // push address of arg #n
                     case Code.Ldarga_S:
-                    case Code.Ldelema:
-                    case Code.Ldlen:
-                        if (c == Code.Ldelema || c == Code.Ldlen)
-                            pop0 = stack.Pop();
-
-                        push(ts.IntPtr, c == Code.Ldelema || c == Code.Ldlen ? new[] { pop0 } : null);
+                        push(ts.IntPtr, null);
                         break;
-                    case Code.Ldarg:
+                    case Code.Ldlen: // push length of arr (as native int)
+                        push(ts.IntPtr, new[] { stack.Pop() });
+                        break;
+                    case Code.Ldelema: // load array element address (requires array & index)
+                        push(ts.IntPtr, new[] { stack.Pop(), stack.Pop() });
+                        break;
+                    case Code.Ldarg: // load array element (requires array & index)
                     case Code.Ldarg_0:
                     case Code.Ldarg_1:
                     case Code.Ldarg_2:
@@ -571,6 +573,9 @@ namespace Prism.Injector.Patcher
                     case Code.Blt_Un_S:
                     case Code.Bne_Un:
                     case Code.Bne_Un_S:
+                        stack.Pop();
+                        stack.Pop();
+                        break;
                     case Code.Brfalse:
                     case Code.Brfalse_S:
                     case Code.Brtrue:
@@ -600,54 +605,53 @@ namespace Prism.Injector.Patcher
                     case Code.Ldc_R8:
                         push(ts.Double, null);
                         break;
-                    case Code.Ldelem_I:
-                        push(ts.IntPtr, new[] { stack.Pop() });
+                    case Code.Ldelem_I: // load element of array
+                        push(ts.IntPtr, new[] { stack.Pop(), stack.Pop() });
                         break;
                     case Code.Ldelem_I1:
-                        push(ts.Byte, new[] { stack.Pop() });
+                        push(ts.Byte, new[] { stack.Pop(), stack.Pop() });
                         break;
                     case Code.Ldelem_I2:
-                        push(ts.Int16, new[] { stack.Pop() });
+                        push(ts.Int16, new[] { stack.Pop(), stack.Pop() });
                         break;
                     case Code.Ldelem_I4:
-                        push(ts.Int32, new[] { stack.Pop() });
+                        push(ts.Int32, new[] { stack.Pop(), stack.Pop() });
                         break;
                     case Code.Ldelem_I8:
-                        push(ts.Int64, new[] { stack.Pop() });
+                        push(ts.Int64, new[] { stack.Pop(), stack.Pop() });
                         break;
                     case Code.Ldelem_U1:
-                        push(ts.Byte, new[] { stack.Pop() });
+                        push(ts.Byte, new[] { stack.Pop(), stack.Pop() });
                         break;
                     case Code.Ldelem_U2:
-                        push(ts.UInt16, new[] { stack.Pop() });
+                        push(ts.UInt16, new[] { stack.Pop(), stack.Pop() });
                         break;
                     case Code.Ldelem_U4:
-                        push(ts.UInt32, new[] { stack.Pop() });
+                        push(ts.UInt32, new[] { stack.Pop(), stack.Pop() });
                         break;
                     case Code.Ldelem_R4:
-                        push(ts.Single, new[] { stack.Pop() });
+                        push(ts.Single, new[] { stack.Pop(), stack.Pop() });
                         break;
                     case Code.Ldelem_R8:
-                        push(ts.Double, new[] { stack.Pop() });
+                        push(ts.Double, new[] { stack.Pop(), stack.Pop() });
                         break;
-                    case Code.Ldelem_Ref:
-                        push(n.Operand == null ? ts.IntPtr : ((ITypeDefOrRef)n.Operand).ToTypeSig(), new[] { stack.Pop() });
+                    case Code.Ldelem_Ref: // load element of array (obj ref)
+                        push(n.Operand == null ? ts.IntPtr : ((ITypeDefOrRef)n.Operand).ToTypeSig(),
+                                new[] { stack.Pop(), stack.Pop() });
                         break;
                     case Code.Ldfld:
-                    case Code.Ldsfld:
-                        if (c != Code.Ldsfld)
-                            pop0 = stack.Pop();
-
-                        push(((IField)n.Operand).FieldSig.Type, c != Code.Ldsfld ? new[] { pop0 } : null);
+                        push(((IField)n.Operand).FieldSig.Type, new[] { stack.Pop() });
                         break;
-                    case Code.Ldflda:
+                    case Code.Ldsfld:
+                        push(((IField)n.Operand).FieldSig.Type, null);
+                        break;
+                    case Code.Ldflda: // load address of field
+                        push(ts.IntPtr, new[] { stack.Pop() });
+                        break;
                     case Code.Ldsflda:
                     case Code.Ldloca:
                     case Code.Ldloca_S:
-                        if (c == Code.Ldflda)
-                            pop0 = stack.Pop();
-
-                        push(ts.IntPtr, c == Code.Ldflda ? new[] { pop0 } : null);
+                        push (ts.IntPtr, null);
                         break;
                     case Code.Ldloc:
                     case Code.Ldloc_S:
@@ -655,7 +659,7 @@ namespace Prism.Injector.Patcher
                     case Code.Ldloc_1:
                     case Code.Ldloc_2:
                     case Code.Ldloc_3:
-                        {
+                         {
                             var li = 0;
 
                             if (c == Code.Ldloc || c == Code.Ldloc_S)
@@ -678,40 +682,62 @@ namespace Prism.Injector.Patcher
                             push(body.Variables[li].Type, null);
                         }
                         break;
-                    case Code.Ldnull:
-                    case Code.Ldobj:
+                    case Code.Ldind_I: // load indirectly (i.e. from address), eg *(foo + bar)
+                        push(ts.IntPtr, new[] { stack.Pop() });
+                        break;
+                    case Code.Ldind_I1:
+                        push(ts.SByte, new[] { stack.Pop() });
+                        break;
+                    case Code.Ldind_I2:
+                        push(ts.Int16, new[] { stack.Pop() });
+                        break;
+                    case Code.Ldind_I4:
+                        push(ts.Int32, new[] { stack.Pop() });
+                        break;
+                    case Code.Ldind_I8:
+                        push(ts.Int64, new[] { stack.Pop() });
+                        break;
+                    case Code.Ldind_U1:
+                        push(ts.Byte, new[] { stack.Pop() });
+                        break;
+                    case Code.Ldind_U2:
+                        push(ts.UInt16, new[] { stack.Pop() });
+                        break;
+                    case Code.Ldind_U4:
+                        push(ts.UInt32, new[] { stack.Pop() });
+                        break;
+                    // apparently doesn't exist (according to M$ docs)
+                    /*case Code.Ldind_U8:
+                        push(ts.UInt64, new[] { stack.Pop() });
+                        break;*/
+                    case Code.Ldnull: // push null
                         push(ts.Object, null);
+                        break;
+                    case Code.Ldobj: // load bittable type from pointer
+                        push(((ITypeDefOrRef)n.Operand).ToTypeSig(), new[] { stack.Pop() });
                         break;
                     case Code.Ldstr:
                         push(ts.String, null);
                         break;
-                    case Code.Ldftn:
-                    case Code.Ldvirtftn:
+                    case Code.Ldftn: // metadata token -> function pointer
+                    case Code.Ldvirtftn: // or ^ -> vtable entry
                         push(ts.IntPtr, null);
                         break;
                     case Code.Nop:
                         break;
                     case Code.Pop:
+                        /*stack.Pop();
+                        break;*/
                     case Code.Ret:
                         if (stack.Count > 0) // can return void
                             stack.Pop();
                         break;
-                    case Code.Rethrow:
+                    case Code.Rethrow: // rethrows the exn, keeps stack trace (unlike throwing an already-existing exn, which makes it loose its stack trace)
                     case Code.Throw:
                         return;
-                    case Code.Sizeof:
-                        push(ts.Int32, null);
+                    case Code.Sizeof: // works with generic types and everything, much better than the C# keyword
+                        push(ts.IntPtr, null);
                         break;
-                    case Code.Starg:
-                    case Code.Starg_S:
-                    case Code.Stelem_I:
-                    case Code.Stelem_I1:
-                    case Code.Stelem_I2:
-                    case Code.Stelem_I4:
-                    case Code.Stelem_I8:
-                    case Code.Stelem_R4:
-                    case Code.Stelem_R8:
-                    case Code.Stelem_Ref:
                     case Code.Stfld:
                     case Code.Stind_I:
                     case Code.Stind_I1:
@@ -721,31 +747,78 @@ namespace Prism.Injector.Patcher
                     case Code.Stind_R4:
                     case Code.Stind_R8:
                     case Code.Stind_Ref:
+                    case Code.Stobj:
+                        stack.Pop();
+                        stack.Pop();
+                        break;
+                    case Code.Stelem_I: // store array element (requires array, index & value)
+                    case Code.Stelem_I1:
+                    case Code.Stelem_I2:
+                    case Code.Stelem_I4:
+                    case Code.Stelem_I8:
+                    case Code.Stelem_R4:
+                    case Code.Stelem_R8:
+                    case Code.Stelem_Ref:
+                        stack.Pop();
+                        stack.Pop();
+                        stack.Pop();
+                        break;
+                    case Code.Starg:
+                    case Code.Starg_S:
                     case Code.Stloc:
                     case Code.Stloc_0:
                     case Code.Stloc_1:
                     case Code.Stloc_2:
                     case Code.Stloc_3:
                     case Code.Stloc_S:
-                    case Code.Stobj:
                     case Code.Stsfld:
-                        if (n.OpCode.Code == Code.Stfld //  field owner
-                                // index
-                                || n.OpCode.Code == Code.Stelem_I || n.OpCode.Code == Code.Stelem_I1 || n.OpCode.Code == Code.Stelem_I2
-                                || n.OpCode.Code == Code.Stelem_I4 || n.OpCode.Code == Code.Stelem_I8 || n.OpCode.Code == Code.Stelem_R4 || n.OpCode.Code == Code.Stelem_R8
-                                || n.OpCode.Code == Code.Stelem_Ref)
-                            stack.Pop();
-
                         stack.Pop();
                         break;
-                    case Code.Unbox:
+                    case Code.Unbox: // unbox obj ref to blittable type
+                    case Code.Unbox_Any:
                         push(((ITypeDefOrRef)n.Operand).ToTypeSig(), new[] { stack.Pop() });
                         break;
-                    case Code.Unbox_Any:
-                        push(ts.IntPtr, new[] { stack.Pop() });
+                    case Code.Ldtoken: // load metadata token
+                        push(ts.Object /* a System.Type (does this work with /any/ type of token?) */, null);
                         break;
-                    case Code.Ldtoken: // typeof etc
-                        push(ts.Object, null);
+                    case Code.Switch: // jump to the offset on the stack
+                        stack.Pop();
+                        break;
+                    case Code.Tailcall: // prefix: perform a tail call (unavailable in C#)
+                        break;
+                    case Code.Unaligned: // pointer access can be unaligned (GC etc. ensure good alignment for faster loading (probably))
+                    case Code.Volatile: // next instruction is volatile
+                        break;
+                    case Code.Arglist: // load pointer to arglist (only available in *true* vararg methods
+                                       // (as in, the C way, not the params T[] way)).
+                                       // if one defines eg.
+                                       //     [DllImport(...)]
+                                       //     export void printf(string format, __arglist);
+                                       // and then calls it with:
+                                       //     printf("foo %i %s\n", __arglist(42), __arglist("bar"))
+                                       // , 'true' vararg stuff is used (the resulting IL code will use some mkrefany/arglist hackery).
+                                       // If one would implement such a function, one would do:
+                                       //     void Foo(__arglist)
+                                       //     {
+                                       //         var aitor = new ArgIterator(__arglist);
+                                       //         // do stuff with aitor
+                                       //     }
+                                       // the '__arglist' keyword here simply emits the 'arglist' instruction, which pushes
+                                       // a pointer to the argument list which can be interpreted by the runtime and ArgIterator
+                        push(ts.IntPtr, null); // actually a RuntimeArgumentHandle
+                        break;
+                    case Code.Break: // tells the debugger a breakpoint is reached
+                        break;
+                    case Code.Mkrefany: // address -> typed reference (strongly-typed pointerish type to a bittable type,
+                                        // has some restrictions in usage compared to normal pointer types, but can be used to
+                                        // implement generic pointers in pure C#)
+                        push(ts.TypedReference, new[] { stack.Pop() });
+                        break;
+                    case Code.Refanytype: // typed reference -> type (of the pointer)
+                        push(ts.Object /* a System.Type */, new[] { stack.Pop() });
+                        break;
+                    case Code.Refanyval: // typed reference -> address (of the pointee)
+                        push(ts.IntPtr, new[] { stack.Pop() });
                         break;
                 }
                 #endregion
