@@ -796,7 +796,7 @@ namespace Prism.Injector.Patcher
                                        //     export void printf(string format, __arglist);
                                        // and then calls it with:
                                        //     printf("foo %i %s\n", __arglist(42), __arglist("bar"))
-                                       // , 'true' vararg stuff is used (the resulting IL code will use some mkrefany/arglist hackery).
+                                       // , 'true' vararg stuff is used (the resulting IL code will use some arglist hackery).
                                        // If one would implement such a function, one would do:
                                        //     void Foo(__arglist)
                                        //     {
@@ -819,6 +819,17 @@ namespace Prism.Injector.Patcher
                         break;
                     case Code.Refanyval: // typed reference -> address (of the pointee)
                         push(ts.IntPtr, new[] { stack.Pop() });
+                        break;
+                    case Code.Endfilter:
+                        stack.Pop();
+                        break;
+                    case Code.Endfinally:
+                        break;
+                    case Code.Leave:
+                    case Code.Leave_S:
+                        break;
+                    case Code.Localloc: // like malloc, but on the stack
+                        push(ts.IntPtr, new [] { stack.Pop() });
                         break;
                 }
                 #endregion
