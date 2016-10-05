@@ -1,11 +1,11 @@
 # Prism
 
-Modding API for Terraria 1.3.* (Yet Another Mod To Make Mods!) (not a spying program, we promise!)
+Modding API for Terraria 1.3.* (Yet Another Mod To Make Mods, batteries not included) (not a spying program, we promise!)
 
 Prism files are placed in the ```My Games\Terraria\Prism\``` folder (Located in `Documents\` on windows, `~/.local/share/Terraria/` on Linux and `~/Library/Application Support/Terraria/` on OS X,
 but the Windows notation will be used here), so it doesn't mess with vanilla files.
 
-Prism is licensed under the ~~Artistic License~~ WTFPL, because it ~~is~~ was no longer in developement.
+Prism is licensed under the ~~Artistic License~~ WTFPL, because it ~~is~~ ~~was~~ is no longer in developement. (It is definitely *very* dead now)
 
 For the latest release, see the `master` branch. The in-developement version can be found on the `develop` branch. The Terraria 1.3.0 version is on the `v1-3-0` branch.
 
