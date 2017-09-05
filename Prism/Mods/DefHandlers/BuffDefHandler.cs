@@ -98,7 +98,7 @@ namespace Prism.Mods.DefHandlers
             Array.Resize(ref Main.vanityPet        , newLen);
             Array.Resize(ref Main.meleeBuff        , newLen);
             Array.Resize(ref Main.persistentBuff   , newLen);
-            Array.Resize(ref Main.buffTip          , newLen);
+          //Array.Resize(ref Main.buffTip          , newLen);
             Array.Resize(ref Main.pvpBuff          , newLen);
         }
 
@@ -113,7 +113,7 @@ namespace Prism.Mods.DefHandlers
             def.IsVanityPet        = Main.vanityPet        [id];
             def.IsWeaponImbuement  = Main.meleeBuff        [id];
             def.PersistsAfterDeath = Main.persistentBuff   [id];
-            def.Tooltip            = Main.buffTip          [id];
+          //def.Tooltip            = Main.buffTip          [id];
             def.WorksInPvP         = Main.pvpBuff          [id];
         }
         void CopySetProperties(BuffDef def)
@@ -125,7 +125,7 @@ namespace Prism.Mods.DefHandlers
             Main.vanityPet        [def.Type] = def.IsVanityPet       ;
             Main.meleeBuff        [def.Type] = def.IsWeaponImbuement ;
             Main.persistentBuff   [def.Type] = def.PersistsAfterDeath;
-            Main.buffTip          [def.Type] = def.Tooltip           ;
+          //Main.buffTip          [def.Type] = def.Tooltip           ;
             Main.pvpBuff          [def.Type] = def.WorksInPvP        ;
         }
 
@@ -152,12 +152,12 @@ namespace Prism.Mods.DefHandlers
                 if (index == -1)
                     continue;
 
-                def = new BuffDef(Main.buffName[id], null, () => Main.buffTexture[id]);
+                def = new BuffDef(Lang.GetBuffName(id), null, () => Main.buffTexture[id]);
 
                 DefsByType.Add(id, def);
                 VanillaDefsByName.Add(IDNames[index], def);
 
-                var n = Main.buffName[id];
+                var n = Lang.GetBuffName(id);
                 if (!byDisplayName.ContainsKey(n) && !VanillaDefsByName.ContainsKey(n))
                     byDisplayName.Add(n, def);
 

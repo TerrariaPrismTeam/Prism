@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Prism.Util;
+using ReLogic.Graphics;
 using Terraria;
+using Prism.Util;
 
 namespace Prism.Debugging
 {
@@ -93,7 +94,7 @@ namespace Prism.Debugging
 
                     fadeAlphas.Add(MathHelper.Clamp(l.Timeleft / 30f, 0f, 1f));
                     drawText.Add(curLine.ToString());
-                    curY += Main.fontItemStack.MeasureString(curLine).Y + TraceMsgPadding;
+                    curY += Main.fontItemStack.MeasureString(curLine.ToString()).Y + TraceMsgPadding;
 
                     curLine.Clear();
                 }

@@ -38,14 +38,14 @@ namespace Prism.Injector.Patcher
                 Instruction.Create(OpCodes.Callvirt, invokeSaveWorld)
             };
 
-            var swb = saveWorld.Body;
+            /*var swb = saveWorld.Body;
             using (var swbproc = swb.GetILProcessor())
             {
                 var instr = swb.FindInstrSeqStart(toFind).Next(swbproc).Next(swbproc);
 
                 for (int i = 0; i < toInject.Length; i++)
                     swbproc.InsertBefore(instr, toInject[i]);
-            }
+            }*/
         }
         static void InjectLoadHook()
         {
@@ -73,14 +73,14 @@ namespace Prism.Injector.Patcher
                 Instruction.Create(OpCodes.Callvirt, invokeLoadWorld)
             };
 
-            var lwb = loadWorld.Body;
+            /*var lwb = loadWorld.Body;
             using (var lwbproc = lwb.GetILProcessor())
             {
                 var instr = lwb.FindInstrSeqStart(toFind).Next(lwbproc).Next(lwbproc).Next(lwbproc).Next(lwbproc);
 
                 for (int i = 0; i < toInject.Length; i++)
                     lwbproc.InsertBefore(instr, toInject[i]);
-            }
+            }*/
         }
         static void EnlargeFrameImportantArray()
         {

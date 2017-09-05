@@ -16,8 +16,10 @@ namespace Prism.Injector.Patcher
 
         static void WrapMethods()
         {
-            typeDef_NPC.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, new[] { typeSys.Int32 , typeSys.Single}).Wrap(context, "Terraria.PrismInjections", "NPC_SetDefaultsDel_Id"  , "P_OnSetDefaultsById"  );
-            typeDef_NPC.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, new[] { typeSys.String                }).Wrap(context, "Terraria.PrismInjections", "NPC_SetDefaultsDel_Name", "P_OnSetDefaultsByName");
+            typeDef_NPC.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, new[] { typeSys.Int32 , typeSys.Single})
+                .Wrap(context, "Terraria.PrismInjections", "NPC_SetDefaultsDel_Id"  , "P_OnSetDefaultsById"  );
+          //typeDef_NPC.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, new[] { typeSys.String                })
+          //    .Wrap(context, "Terraria.PrismInjections", "NPC_SetDefaultsDel_Name", "P_OnSetDefaultsByName");
 
             typeDef_NPC.GetMethod("AI"       , MethodFlags.Public | MethodFlags.Instance                         ).Wrap(context);
             typeDef_NPC.GetMethod("UpdateNPC", MethodFlags.Public | MethodFlags.Instance, new[] { typeSys.Int32 }).Wrap(context);
@@ -127,7 +129,7 @@ namespace Prism.Injector.Patcher
             }
             #endregion
 
-            #region StrikeNPC
+            /*#region StrikeNPC
             {
                 var strikeNpc = typeDef_NPC.GetMethod("StrikeNPC");
 
@@ -144,22 +146,15 @@ namespace Prism.Injector.Patcher
                     OpCode[] toRem =
                     {
                         OpCodes.Ldarg_0,
-                        OpCodes.Ldfld, // NPC.soundHit
-                        OpCodes.Ldc_I4_0,
-                        OpCodes.Ble_S, // <after the call>
+                        OpCodes.Ldfld, // NPC.HitSound
+                        OpCodes.Brfalse_S, // <after the call>
 
-                        OpCodes.Ldc_I4_3, // soundHit ID
                         OpCodes.Ldarg_0,
-                        OpCodes.Ldflda, // Entity.position
-                        OpCodes.Ldfld, // Vector2.X
-                        OpCodes.Conv_I4,
+                        OpCodes.Ldfld, // NPC.HitSound
                         OpCodes.Ldarg_0,
-                        OpCodes.Ldflda, // Entity.position
-                        OpCodes.Ldfld, // Vector2.X
-                        OpCodes.Conv_I4,
-                        OpCodes.Ldarg_0,
-                        OpCodes.Ldfld, // NPC.soundHit
-                        OpCodes.Call // Main.PlaySound(int, int, int, int)
+                        OpCodes.Ldfld, // Entity.position
+                        OpCodes.Call, // Main.PlaySound(LegacySoundStyle, Vector2)
+                        OpCodes.Pop
                     };
 
                     var instrs = snb.FindInstrSeqStart(toRem);
@@ -174,11 +169,11 @@ namespace Prism.Injector.Patcher
                             snb.Instructions[i].Operand = newF;
                 }
             }
-            #endregion
+            #endregion*/
         }
         static void ReplaceSoundKilledCalls()
         {
-            #region checkDead
+            /*#region checkDead
             {
                 var checkDead = typeDef_NPC.GetMethod("checkDead");
 
@@ -194,22 +189,15 @@ namespace Prism.Injector.Patcher
                     OpCode[] toRem =
                     {
                         OpCodes.Ldarg_0,
-                        OpCodes.Ldfld, // NPC.soundHit
-                        OpCodes.Ldc_I4_0,
-                        OpCodes.Ble_S, // <after the call>
+                        OpCodes.Ldfld, // NPC.DeathSound
+                        OpCodes.Brfalse_S, // <after the call>
 
-                        OpCodes.Ldc_I4_4, // soundKilled ID
                         OpCodes.Ldarg_0,
-                        OpCodes.Ldflda, // Entity.position
                         OpCodes.Ldfld, // Vector2.X
-                        OpCodes.Conv_I4,
                         OpCodes.Ldarg_0,
-                        OpCodes.Ldflda, // Entity.position
                         OpCodes.Ldfld, // Vector2.X
-                        OpCodes.Conv_I4,
-                        OpCodes.Ldarg_0,
-                        OpCodes.Ldfld, // NPC.soundKilled
-                        OpCodes.Call // Main.PlaySound(int, int, int, int)
+                        OpCodes.Call, // Main.PlaySound(int, int, int, int)
+                        OpCodes.Pop
                     };
 
                     var instrs = cdb.FindInstrSeqStart(toRem);
@@ -224,12 +212,11 @@ namespace Prism.Injector.Patcher
                             cdb.Instructions[i].Operand = newF;
                 }
             }
-            #endregion
+            #endregion*/
 
-            #region RealAI
+            /*#region RealAI
             {
                 // this happens AFTER AI has been wrapped, thus RealAI has to be used instead of AI
-                
                 var realAI = typeDef_NPC.GetMethod("RealAI");
 
                 MethodDef invokeSoundKilled;
@@ -259,11 +246,16 @@ namespace Prism.Injector.Patcher
                     var first = realAI.Body.FindInstrSeqStart(toRem);
                     first = raproc.RemoveInstructions(first, toRem.Length);
 
+                    // 64 occurrences in total
+                    // int int int int float float
+                    // LegacySoundStyle vector2
+                    // int vector2 int
+
                     raproc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, realAI_PlaySoundKilled));
                     raproc.EmitWrapperCall(invokeSoundKilled, first);
                 }
             }
-            #endregion
+            #endregion*/
         }
         static void InjectBuffEffectsCall()
         {
@@ -282,7 +274,7 @@ namespace Prism.Injector.Patcher
                 OpCodes.Brfalse
             };
 
-            var unb = updateNpc.Body;
+            /*var unb = updateNpc.Body;
             using (var unproc = unb.GetILProcessor())
             {
                 Instruction instr;
@@ -301,7 +293,7 @@ namespace Prism.Injector.Patcher
 
                 unproc.InsertBefore(instr, Instruction.Create(OpCodes.Ldsfld, buffEffects));
                 unproc.EmitWrapperCall(invokeEffects, instr);
-            }
+            }*/
         }
         static void InitBuffBHandlerArray()
         {

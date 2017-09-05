@@ -84,8 +84,8 @@ namespace Prism
 
                 Sfx.Play(r.Resolve(), p.position, r.VariantID);
             }
-            else if (i.useSound > 0)
-                Sfx.Play(VanillaSfxes.UseItem, p.position, i.useSound);
+            /*else if (i.useSound > 0)
+                Sfx.Play(VanillaSfxes.UseItem, p.position, i.useSound);*/
         }
 
         static void PlayHitSound   (NPC n)
@@ -96,8 +96,8 @@ namespace Prism
 
                 Sfx.Play(r.Resolve(), n.position, r.VariantID);
             }
-            else if (n.soundHit > 0)
-                Sfx.Play(VanillaSfxes.NpcHit, n.position, n.soundHit);
+            /*else if (n.soundHit > 0)
+                Sfx.Play(VanillaSfxes.NpcHit, n.position, n.soundHit);*/
         }
         static void PlayKilledSound(NPC n)
         {
@@ -107,43 +107,45 @@ namespace Prism
 
                 Sfx.Play(r.Resolve(), n.position, r.VariantID);
             }
-            else if (n.soundKilled > 0)
-                Sfx.Play(VanillaSfxes.NpcKilled, n.position, n.soundKilled);
+            /*else if (n.soundKilled > 0)
+                Sfx.Play(VanillaSfxes.NpcKilled, n.position, n.soundKilled);*/
         }
 
         static void OnUpdateKeyboard(Main _, GameTime __)
         {
-            HookManager.GameBehaviour.OnUpdateKeyboard();
+            //HookManager.GameBehaviour.OnUpdateKeyboard();
         }
-        static void OnPreDraw(SpriteBatch sb)
+        static new void OnPreDraw(SpriteBatch sb)
         {
-            HookManager.GameBehaviour.PreDraw(sb);
+            //HookManager.GameBehaviour.PreDraw(sb);
         }
         static void OnPostScreenClear()
         {
-            HookManager.GameBehaviour.PostScreenClear();
+            //HookManager.GameBehaviour.PostScreenClear();
         }
         static void OnDrawBackground(Main m)
         {
-            if (HookManager.GameBehaviour.PreDrawBackground(spriteBatch))
+            /*if (HookManager.GameBehaviour.PreDrawBackground(spriteBatch))
             {
                 m.RealDrawBackground();
 
                 HookManager.GameBehaviour.PostDrawBackground(spriteBatch);
-            }
+            }*/
         }
         static bool IsChatAllowed()
         {
-            return HookManager.GameBehaviour.IsChatAllowed();
+            return false;
+            //return HookManager.GameBehaviour.IsChatAllowed();
         }
         static bool OnLocalChat()
         {
-            return HookManager.GameBehaviour.OnLocalChat();
+            return false;
+            //return HookManager.GameBehaviour.OnLocalChat();
         }
 
         static void HookWrappedMethods()
         {
-            P_OnUpdateMusic += Bgm.Update;
+          //P_OnUpdateMusic += Bgm.Update;
             P_OnUpdateKeyboard += OnUpdateKeyboard;
 
             P_OnPreDraw        += OnPreDraw        ;
@@ -155,20 +157,20 @@ namespace Prism
             P_OnP_LocalChat += OnLocalChat;
 
 #pragma warning disable 618
-            P_OnPlaySound += (t, x, y, s) => Sfx.Play(t, new Vector2(x, y), s);
+          //P_OnPlaySound += (t, x, y, s) => Sfx.Play(t, new Vector2(x, y), s);
 #pragma warning restore 618
 
             Item      .P_OnSetDefaultsById   += ItemDefHandler.OnSetDefaults      ;
-            Item      .P_OnSetDefaultsByName += ItemDefHandler.OnSetDefaultsByName;
+          //Item      .P_OnSetDefaultsByName += ItemDefHandler.OnSetDefaultsByName;
             NPC       .P_OnSetDefaultsById   += NpcDefHandler .OnSetDefaults      ;
-            NPC       .P_OnSetDefaultsByName += NpcDefHandler .OnSetDefaultsByName;
+          //NPC       .P_OnSetDefaultsByName += NpcDefHandler .OnSetDefaultsByName;
             Projectile.P_OnSetDefaults       += ProjDefHandler.OnSetDefaults      ;
 
             Player.P_OnUpdateEquips    += ItemHooks.OnUpdateEquips    ;
             Player.P_OnUpdateArmorSets += ItemHooks.OnUpdateArmourSets;
             Player.P_OnWingMovement    += ItemHooks.WingMovement      ;
-            Player.P_OnPlaceThing      += TileHooks.OnPlaceThing      ;
-            Player.P_OnPreShoot        += ItemHooks.PreShoot          ;
+          //Player.P_OnPlaceThing      += TileHooks.OnPlaceThing      ;
+          //Player.P_OnPreShoot        += ItemHooks.PreShoot          ;
 
             NPC.P_OnNewNPC    += NpcHooks.OnNewNPC   ;
             NPC.P_OnUpdateNPC += NpcHooks.OnUpdateNPC;
@@ -179,16 +181,16 @@ namespace Prism
             P_OnDrawNPC += NpcHooks.OnDrawNPC;
 
             NPC.P_ReflectProjectile_PlaySoundHit += (n, _) => PlayHitSound(n);
-            NPC.P_StrikeNPC_PlaySoundHit         += (n, _d, _kb, _hd, _c, _ne, _fn) => PlayHitSound(n);
-            NPC.P_checkDead_PlaySoundKilled      += PlayKilledSound;
-            NPC.P_RealAI_PlaySoundKilled         += PlayKilledSound;
+          //NPC.P_StrikeNPC_PlaySoundHit         += (n, _d, _kb, _hd, _c, _ne, _fn) => PlayHitSound(n);
+          //NPC.P_checkDead_PlaySoundKilled      += PlayKilledSound;
+          //NPC.P_RealAI_PlaySoundKilled         += PlayKilledSound;
 
             NPC.P_OnAddBuff     += NpcHooks.OnAddBuff    ;
             NPC.P_OnBuffEffects += NpcHooks.OnBuffEffects;
 
             Player.P_OnGetFileData += PlayerHooks.OnGetFiledata;
             Player.P_OnItemCheck   += PlayerHooks.OnItemCheck  ;
-            Player.P_OnKillMe      += PlayerHooks.OnKillMe     ;
+          //Player.P_OnKillMe      += PlayerHooks.OnKillMe     ;
             Player.P_OnUpdate      += PlayerHooks.OnUpdate     ;
             Player.P_OnMidUpdate   += PlayerHooks.OnMidUpdate  ;
             Player.P_OnUpdateBuffs += PlayerHooks.OnUpdateBuffs;
@@ -200,7 +202,7 @@ namespace Prism
             P_OnDrawPlayer += PlayerHooks.OnDrawPlayer;
 
             Player.P_ItemCheck_PlayUseSound0     += PlayUseSound;
-            Player.P_ItemCheck_PlayUseSound1     += PlayUseSound;
+          //Player.P_ItemCheck_PlayUseSound1     += PlayUseSound;
             Player.P_QuickBuff_PlayUseSound      += PlayUseSound;
             Player.P_QuickGrapple_PlayUseSound   += PlayUseSound;
             Player.P_QuickHeal_PlayUseSound      += PlayUseSound;
@@ -242,7 +244,7 @@ namespace Prism
 
             base.Initialize(); // terraria init and LoadContent happen here
 
-            ModLoader.Load();
+            //ModLoader.Load();
 
             Handler.DefaultColourLookupLength = MapHelper.colorLookup.Length;
 
@@ -265,7 +267,7 @@ namespace Prism
         }
         protected override void UnloadContent()
         {
-            ModLoader.Unload();
+            //ModLoader.Unload();
 
             UnknownItemTexture.Dispose();
             UnknownItemTexture = null;
@@ -307,18 +309,18 @@ namespace Prism
             {
                 ElapsedTime = (float)gt.ElapsedGameTime.TotalSeconds;
 
-                HookManager.GameBehaviour.PreUpdate();
+                //HookManager.GameBehaviour.PreUpdate();
 
                 ApplyHotfixes(); //The array is initialized every time new Player() is called. Until we have like InitPlayer or something we just have to ghettohack it like this.
 
                 base.Update(gt);
 
-                HookManager.GameBehaviour.UpdateDebug(gt);
+                //HookManager.GameBehaviour.UpdateDebug(gt);
 
                 if (!gameMenu && prevGameMenu)
                     Helpers.Main.RandColorText("Welcome to " + PrismApi.NiceVersionString + ".", true);
 
-                HookManager.GameBehaviour.PostUpdate();
+                //HookManager.GameBehaviour.PostUpdate();
 
                 PrismDebug.Update();
             }
@@ -333,11 +335,11 @@ namespace Prism
         {
             try
             {
-                HookManager.GameBehaviour.PreScreenClear();
+                //HookManager.GameBehaviour.PreScreenClear();
 
                 base.Draw(gt);
 
-                HookManager.GameBehaviour.PostDraw(spriteBatch);
+                //HookManager.GameBehaviour.PostDraw(spriteBatch);
 
 #if TRACE
                 TraceDrawer.DrawTrace(spriteBatch, PrismDebug.lines);

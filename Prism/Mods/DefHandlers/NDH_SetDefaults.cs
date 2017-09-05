@@ -100,7 +100,7 @@ namespace Prism.Mods.DefHandlers
                 //h.OnInit();
             }
         }
-        internal static void OnSetDefaultsByName(NPC n, string name)
+        /*internal static void OnSetDefaultsByName(NPC n, string name)
         {
             bool isSlime = false;
             n.SetDefaults(0, -1f);
@@ -1039,6 +1039,6 @@ namespace Prism.Mods.DefHandlers
 
             if (Main.expertMode && isSlime)
                 n.scaleStats();
-        }
+        }*/
     }
 }

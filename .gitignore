@@ -195,7 +195,7 @@ FakesAssemblies/
 # Visual Studio 6 workspace options file
 *.opt
 
-/References/Terraria.exe
+/References/Terraria.*
 /References/Terraria-*.exe
 /References/[Pp]rism.[Tt]erraria.dll
 todo.txt

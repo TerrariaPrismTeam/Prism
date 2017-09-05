@@ -842,7 +842,15 @@
         <member name="M:dnlib.DotNet.Extensions.IsCorLib(dnlib.DotNet.IAssembly)">
             <summary>
             Checks whether <paramref name="asm"/> appears to be the core library (eg.
-            mscorlib, System.Runtime or corefx)
+            mscorlib, System.Runtime or corefx).
+            
+            If <paramref name="asm"/> is a reference to a private corlib (eg. System.Private.CoreLib),
+            this method returns false unless <paramref name="asm"/> is an <see cref="T:dnlib.DotNet.AssemblyDef"/>
+            whose manifest (first) module defines <c>System.Object</c>. This check is performed in
+            the constructor and the result can be found in <see cref="P:dnlib.DotNet.ModuleDef.IsCoreLibraryModule"/>.
+            
+            Note that this method also returns true if it appears to be a 'public' corlib,
+            eg. mscorlib, etc, even if it internally possibly references a private corlib.
             </summary>
             <param name="asm">The assembly</param>
         </member>
@@ -3381,9 +3389,6 @@
             Created from a row in the ClassLayout table
             </summary>
         </member>
-        <member name="F:dnlib.DotNet.ClassLayoutMD.readerModule">
-            <summary>The module where this instance is located</summary>
-        </member>
         <member name="P:dnlib.DotNet.ClassLayoutMD.OrigRid">
             <inheritdoc/>
         </member>
@@ -3455,9 +3460,6 @@
             <summary>
             Created from a row in the Constant table
             </summary>
-        </member>
-        <member name="F:dnlib.DotNet.ConstantMD.readerModule">
-            <summary>The module where this instance is located</summary>
         </member>
         <member name="P:dnlib.DotNet.ConstantMD.OrigRid">
             <inheritdoc/>
@@ -3950,6 +3952,13 @@
             </summary>
             <param name="message">Error message</param>
             <param name="innerException">Other exception</param>
+        </member>
+        <member name="M:dnlib.DotNet.CABlobParserException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="info"></param>
+            <param name="context"></param>
         </member>
         <member name="T:dnlib.DotNet.CustomAttributeReader">
             <summary>
@@ -4958,6 +4967,13 @@
             <param name="msg">Error message</param>
             <param name="innerException">The inner exception or <c>null</c> if none</param>
         </member>
+        <member name="M:dnlib.DotNet.Emit.InvalidMethodException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="info"></param>
+            <param name="context"></param>
+        </member>
         <member name="T:dnlib.DotNet.Emit.LocalList">
             <summary>
             A collection of <see cref="T:dnlib.DotNet.Emit.Local"/>s
@@ -5191,10 +5207,20 @@
             Gets the locals
             </summary>
         </member>
+        <member name="P:dnlib.DotNet.Emit.CilBody.PdbMethod">
+            <summary>
+            Gets/sets the PDB method. This is <c>null</c> if no PDB has been loaded or if there's
+            no PDB info for this method.
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Emit.CilBody.HasPdbMethod">
+            <summary>
+            <c>true</c> if <see cref="P:dnlib.DotNet.Emit.CilBody.PdbMethod"/> is not <c>null</c>
+            </summary>
+        </member>
         <member name="P:dnlib.DotNet.Emit.CilBody.Scope">
             <summary>
-            Gets/sets the PDB scope. This is <c>null</c> if no PDB has been loaded or if there's
-            no PDB scope for this method.
+            Gets/sets the PDB scope
             </summary>
         </member>
         <member name="P:dnlib.DotNet.Emit.CilBody.HasScope">
@@ -9951,9 +9977,6 @@
             Created from a row in the ImplMap table
             </summary>
         </member>
-        <member name="F:dnlib.DotNet.ImplMapMD.readerModule">
-            <summary>The module where this instance is located</summary>
-        </member>
         <member name="P:dnlib.DotNet.ImplMapMD.OrigRid">
             <inheritdoc/>
         </member>
@@ -10521,6 +10544,9 @@
         <member name="F:dnlib.DotNet.MD.CodedToken.TypeOrMethodDef">
             <summary>TypeOrMethodDef coded token</summary>
         </member>
+        <member name="F:dnlib.DotNet.MD.CodedToken.HasCustomDebugInformation">
+            <summary>HasCustomDebugInformation coded token</summary>
+        </member>
         <member name="P:dnlib.DotNet.MD.CodedToken.TableTypes">
             <summary>
             Returns all types of tables
@@ -10804,6 +10830,30 @@
         <member name="F:dnlib.DotNet.MD.ColumnSize.GenericParamConstraint">
             <summary>RID into GenericParamConstraint table</summary>
         </member>
+        <member name="F:dnlib.DotNet.MD.ColumnSize.Document">
+            <summary>RID into Document table</summary>
+        </member>
+        <member name="F:dnlib.DotNet.MD.ColumnSize.MethodDebugInformation">
+            <summary>RID into MethodDebugInformation table</summary>
+        </member>
+        <member name="F:dnlib.DotNet.MD.ColumnSize.LocalScope">
+            <summary>RID into LocalScope table</summary>
+        </member>
+        <member name="F:dnlib.DotNet.MD.ColumnSize.LocalVariable">
+            <summary>RID into LocalVariable table</summary>
+        </member>
+        <member name="F:dnlib.DotNet.MD.ColumnSize.LocalConstant">
+            <summary>RID into LocalConstant table</summary>
+        </member>
+        <member name="F:dnlib.DotNet.MD.ColumnSize.ImportScope">
+            <summary>RID into ImportScope table</summary>
+        </member>
+        <member name="F:dnlib.DotNet.MD.ColumnSize.StateMachineMethod">
+            <summary>RID into StateMachineMethod table</summary>
+        </member>
+        <member name="F:dnlib.DotNet.MD.ColumnSize.CustomDebugInformation">
+            <summary>RID into CustomDebugInformation table</summary>
+        </member>
         <member name="F:dnlib.DotNet.MD.ColumnSize.Byte">
             <summary>8-bit byte</summary>
         </member>
@@ -10866,6 +10916,9 @@
         </member>
         <member name="F:dnlib.DotNet.MD.ColumnSize.TypeOrMethodDef">
             <summary>TypeOrMethodDef encoded token</summary>
+        </member>
+        <member name="F:dnlib.DotNet.MD.ColumnSize.HasCustomDebugInformation">
+            <summary>HasCustomDebugInformation encoded token</summary>
         </member>
         <member name="T:dnlib.DotNet.MD.ComImageFlags">
             <summary>
@@ -14077,6 +14130,30 @@
         <member name="F:dnlib.DotNet.MD.Table.GenericParamConstraint">
             <summary>GenericParamConstraint table (2Ch)</summary>
         </member>
+        <member name="F:dnlib.DotNet.MD.Table.Document">
+            <summary>(Portable PDB) Document table (30h)</summary>
+        </member>
+        <member name="F:dnlib.DotNet.MD.Table.MethodDebugInformation">
+            <summary>(Portable PDB) MethodDebugInformation table (31h)</summary>
+        </member>
+        <member name="F:dnlib.DotNet.MD.Table.LocalScope">
+            <summary>(Portable PDB) LocalScope table (32h)</summary>
+        </member>
+        <member name="F:dnlib.DotNet.MD.Table.LocalVariable">
+            <summary>(Portable PDB) LocalVariable table (33h)</summary>
+        </member>
+        <member name="F:dnlib.DotNet.MD.Table.LocalConstant">
+            <summary>(Portable PDB) LocalConstant table (34h)</summary>
+        </member>
+        <member name="F:dnlib.DotNet.MD.Table.ImportScope">
+            <summary>(Portable PDB) ImportScope table (35h)</summary>
+        </member>
+        <member name="F:dnlib.DotNet.MD.Table.StateMachineMethod">
+            <summary>(Portable PDB) StateMachineMethod table (36h)</summary>
+        </member>
+        <member name="F:dnlib.DotNet.MD.Table.CustomDebugInformation">
+            <summary>(Portable PDB) CustomDebugInformation table (37h)</summary>
+        </member>
         <member name="T:dnlib.DotNet.MD.TableInfo">
             <summary>
             Info about one MD table
@@ -17179,6 +17256,12 @@
             Gets the global (aka. &lt;Module&gt;) type or <c>null</c> if there are no types
             </summary>
         </member>
+        <member name="P:dnlib.DotNet.ModuleDef.IsCoreLibraryModule">
+            <summary>
+            true if it's the core library module, false if it's not the core library module,
+            and null if it's not known.
+            </summary>
+        </member>
         <member name="P:dnlib.DotNet.ModuleDef.Win32Resources">
             <summary>
             Gets/sets the Win32 resources
@@ -17619,6 +17702,14 @@
             <param name="defaultPointerSize">Default pointer size if it's not known or if it
             can be 32-bit or 64-bit</param>
             <returns>Size of a pointer (4 or 8)</returns>
+        </member>
+        <member name="M:dnlib.DotNet.ModuleDef.GetPointerSize(System.Int32,System.Int32)">
+            <summary>
+            Returns the size of a pointer
+            </summary>
+            <param name="defaultPointerSize">Default pointer size</param>
+            <param name="prefer32bitPointerSize">Pointer size if it's prefer-32-bit (should usually be 4)</param>
+            <returns></returns>
         </member>
         <member name="M:dnlib.DotNet.ModuleDef.dnlib#Utils#IListListener{dnlib#DotNet#TypeDef}#OnLazyAdd(System.Int32,dnlib.DotNet.TypeDef@)">
             <inheritdoc/>
@@ -18798,10 +18889,11 @@
             <param name="gpContext">Generic parameter context</param>
             <returns>A <see cref="T:dnlib.DotNet.Emit.MethodBody"/> or <c>null</c> if none</returns>
         </member>
-        <member name="M:dnlib.DotNet.ModuleDefMD.InitializeBodyFromPdb(dnlib.DotNet.Emit.CilBody,System.UInt32)">
+        <member name="M:dnlib.DotNet.ModuleDefMD.InitializeBodyFromPdb(dnlib.DotNet.MethodDefMD,dnlib.DotNet.Emit.CilBody,System.UInt32)">
             <summary>
             Updates <paramref name="body"/> with the PDB info (if any)
             </summary>
+            <param name="method">Owner method</param>
             <param name="body">Method body</param>
             <param name="rid">Method rid</param>
             <returns>Returns originak <paramref name="body"/> value</returns>
@@ -18978,8 +19070,8 @@
         <member name="M:dnlib.DotNet.ModuleRefUser.#ctor(dnlib.DotNet.ModuleDef,dnlib.DotNet.UTF8String)">
             <summary>
             Constructor
-            <param name="module">Owner module</param>
             </summary>
+            <param name="module">Owner module</param>
             <param name="name">Module name</param>
         </member>
         <member name="T:dnlib.DotNet.ModuleRefMD">
@@ -19148,6 +19240,9 @@
         <member name="F:dnlib.DotNet.NativeType.HString">
             <summary>hstring</summary>
         </member>
+        <member name="F:dnlib.DotNet.NativeType.LPUTF8Str">
+            <summary>UTF-8 encoded string</summary>
+        </member>
         <member name="F:dnlib.DotNet.NativeType.Max">
             <summary>first invalid element type</summary>
         </member>
@@ -19184,6 +19279,19 @@
         </member>
         <member name="M:dnlib.DotNet.NullResolver.Resolve(dnlib.DotNet.MemberRef)">
             <inheritdoc/>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.ISymbolScope2">
+            <summary>
+            The managed version of <c>ISymUnmanagedScope2</c>
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.ISymbolScope2.GetConstants(dnlib.DotNet.ModuleDefMD,dnlib.DotNet.GenericParamContext)">
+            <summary>
+            Gets all the constants
+            </summary>
+            <param name="module">Owner module if a signature must be read from the #Blob</param>
+            <param name="gpContext">Generic parameter context</param>
+            <returns></returns>
         </member>
         <member name="T:dnlib.DotNet.Pdb.Managed.PdbAddress">
             <summary>
@@ -19309,6 +19417,11 @@
             Exception that is thrown when <see cref="T:dnlib.DotNet.Pdb.Managed.PdbReader"/> encounters an error.
             </summary>
         </member>
+        <member name="M:dnlib.DotNet.Pdb.Managed.PdbException.#ctor">
+            <summary>
+            Constructor
+            </summary>
+        </member>
         <member name="M:dnlib.DotNet.Pdb.Managed.PdbException.#ctor(System.String)">
             <summary>
             Constructor
@@ -19320,6 +19433,13 @@
             Constructor
             </summary>
             <param name="innerException">Inner exception</param>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.Managed.PdbException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="info"></param>
+            <param name="context"></param>
         </member>
         <member name="T:dnlib.DotNet.Pdb.Managed.PdbReader">
             <summary>
@@ -19376,6 +19496,596 @@
             </summary>
             <param name="pdbStream">PDB file stream which is now owned by this method</param>
             <returns>A new <see cref="T:System.Diagnostics.SymbolStore.ISymbolReader"/> instance or <c>null</c>.</returns>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.PdbAsyncMethod">
+            <summary>
+            Async method info
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbAsyncMethod.KickoffMethod">
+            <summary>
+            Gets/sets the starting method that initiates the async operation
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbAsyncMethod.CatchHandlerInstruction">
+            <summary>
+            Gets/sets the instruction for the compiler generated catch handler that wraps an async method.
+            This can be null.
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbAsyncMethod.StepInfos">
+            <summary>
+            Gets all step infos used by the debugger
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbAsyncMethod.#ctor">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbAsyncMethod.#ctor(System.Int32)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="stepInfosCapacity">Default capacity for <see cref="P:dnlib.DotNet.Pdb.PdbAsyncMethod.StepInfos"/></param>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.PdbAsyncStepInfo">
+            <summary>
+            Async step info used by debuggers
+            </summary>
+        </member>
+        <member name="F:dnlib.DotNet.Pdb.PdbAsyncStepInfo.YieldInstruction">
+            <summary>
+            The yield instruction
+            </summary>
+        </member>
+        <member name="F:dnlib.DotNet.Pdb.PdbAsyncStepInfo.BreakpointMethod">
+            <summary>
+            Resume method
+            </summary>
+        </member>
+        <member name="F:dnlib.DotNet.Pdb.PdbAsyncStepInfo.BreakpointInstruction">
+            <summary>
+            Resume instruction (where the debugger puts a breakpoint)
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbAsyncStepInfo.#ctor(dnlib.DotNet.Emit.Instruction,dnlib.DotNet.MethodDef,dnlib.DotNet.Emit.Instruction)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="yieldInstruction">The yield instruction</param>
+            <param name="breakpointMethod">Resume method</param>
+            <param name="breakpointInstruction">Resume instruction (where the debugger puts a breakpoint)</param>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.PdbConstant">
+            <summary>
+            A constant in a method scope, eg. "const int SomeConstant = 123;"
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbConstant.Name">
+            <summary>
+            Gets/sets the name
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbConstant.Type">
+            <summary>
+            Gets/sets the type of the constant
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbConstant.Value">
+            <summary>
+            Gets/sets the value of the constant
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbConstant.#ctor(System.String,dnlib.DotNet.TypeSig,System.Object)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="name">Name of constant</param>
+            <param name="type">Type of constant</param>
+            <param name="value">Constant value</param>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbConstant.ToString">
+            <summary>
+            ToString()
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.PdbCustomDebugInfoKind">
+            <summary>
+            Custom debug info kind
+            </summary>
+            <remarks>See <c>CustomDebugInfoKind</c> in Roslyn source code</remarks>
+        </member>
+        <member name="F:dnlib.DotNet.Pdb.PdbCustomDebugInfoKind.UsingGroups">
+            <summary>
+            <see cref="T:dnlib.DotNet.Pdb.PdbUsingGroupsCustomDebugInfo"/>
+            </summary>
+        </member>
+        <member name="F:dnlib.DotNet.Pdb.PdbCustomDebugInfoKind.ForwardMethodInfo">
+            <summary>
+            <see cref="T:dnlib.DotNet.Pdb.PdbForwardMethodInfoCustomDebugInfo"/>
+            </summary>
+        </member>
+        <member name="F:dnlib.DotNet.Pdb.PdbCustomDebugInfoKind.ForwardModuleInfo">
+            <summary>
+            <see cref="T:dnlib.DotNet.Pdb.PdbForwardModuleInfoCustomDebugInfo"/>
+            </summary>
+        </member>
+        <member name="F:dnlib.DotNet.Pdb.PdbCustomDebugInfoKind.StateMachineHoistedLocalScopes">
+            <summary>
+            <see cref="T:dnlib.DotNet.Pdb.PdbStateMachineHoistedLocalScopesCustomDebugInfo"/>
+            </summary>
+        </member>
+        <member name="F:dnlib.DotNet.Pdb.PdbCustomDebugInfoKind.StateMachineTypeName">
+            <summary>
+            <see cref="T:dnlib.DotNet.Pdb.PdbStateMachineTypeNameCustomDebugInfo"/>
+            </summary>
+        </member>
+        <member name="F:dnlib.DotNet.Pdb.PdbCustomDebugInfoKind.DynamicLocals">
+            <summary>
+            <see cref="T:dnlib.DotNet.Pdb.PdbDynamicLocalsCustomDebugInfo"/>
+            </summary>
+        </member>
+        <member name="F:dnlib.DotNet.Pdb.PdbCustomDebugInfoKind.EditAndContinueLocalSlotMap">
+            <summary>
+            <see cref="T:dnlib.DotNet.Pdb.PdbEditAndContinueLocalSlotMapCustomDebugInfo"/>
+            </summary>
+        </member>
+        <member name="F:dnlib.DotNet.Pdb.PdbCustomDebugInfoKind.EditAndContinueLambdaMap">
+            <summary>
+            <see cref="T:dnlib.DotNet.Pdb.PdbEditAndContinueLambdaMapCustomDebugInfo"/>
+            </summary>
+        </member>
+        <member name="F:dnlib.DotNet.Pdb.PdbCustomDebugInfoKind.TupleElementNames">
+            <summary>
+            <see cref="T:dnlib.DotNet.Pdb.PdbTupleElementNamesCustomDebugInfo"/>
+            </summary>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.PdbCustomDebugInfo">
+            <summary>
+            Base class of custom debug info added to the PDB file by the compiler
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbCustomDebugInfo.Kind">
+            <summary>
+            Gets the custom debug info kind
+            </summary>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.PdbUnknownCustomDebugInfo">
+            <summary>
+            Unknown custom debug info. If you see an instance of this class, you're using an old dnlib version or
+            dnlib hasn't been updated to support this new custom debug info kind.
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbUnknownCustomDebugInfo.Kind">
+            <summary>
+            Gets the custom debug info kind
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbUnknownCustomDebugInfo.Data">
+            <summary>
+            Gets the data
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbUnknownCustomDebugInfo.#ctor(dnlib.DotNet.Pdb.PdbCustomDebugInfoKind,System.Byte[])">
+            <summary>
+            Constructor
+            </summary>
+            <param name="kind">Custom debug info kind</param>
+            <param name="data">Raw custom debug info data</param>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.PdbUsingGroupsCustomDebugInfo">
+            <summary>
+            Contains sizes of using groups
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbUsingGroupsCustomDebugInfo.Kind">
+            <summary>
+            Returns <see cref="F:dnlib.DotNet.Pdb.PdbCustomDebugInfoKind.UsingGroups"/>
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbUsingGroupsCustomDebugInfo.UsingCounts">
+            <summary>
+            Gets the using counts
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbUsingGroupsCustomDebugInfo.#ctor">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbUsingGroupsCustomDebugInfo.#ctor(System.Int32)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="capacity">Initial capacity of <see cref="P:dnlib.DotNet.Pdb.PdbUsingGroupsCustomDebugInfo.UsingCounts"/></param>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.PdbForwardMethodInfoCustomDebugInfo">
+            <summary>
+            Contains a reference to another method that contains the import strings
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbForwardMethodInfoCustomDebugInfo.Kind">
+            <summary>
+            Returns <see cref="F:dnlib.DotNet.Pdb.PdbCustomDebugInfoKind.ForwardMethodInfo"/>
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbForwardMethodInfoCustomDebugInfo.Method">
+            <summary>
+            Gets/sets the referenced method
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbForwardMethodInfoCustomDebugInfo.#ctor">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbForwardMethodInfoCustomDebugInfo.#ctor(dnlib.DotNet.IMethodDefOrRef)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="method">The referenced method</param>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.PdbForwardModuleInfoCustomDebugInfo">
+            <summary>
+            Contains a reference to another method that contains the per-module debug info (assembly reference aliases)
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbForwardModuleInfoCustomDebugInfo.Kind">
+            <summary>
+            Returns <see cref="F:dnlib.DotNet.Pdb.PdbCustomDebugInfoKind.ForwardModuleInfo"/>
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbForwardModuleInfoCustomDebugInfo.Method">
+            <summary>
+            Gets/sets the referenced method
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbForwardModuleInfoCustomDebugInfo.#ctor">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbForwardModuleInfoCustomDebugInfo.#ctor(dnlib.DotNet.IMethodDefOrRef)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="method">The referenced method</param>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.StateMachineHoistedLocalScope">
+            <summary>
+            State machine hosted local scope info
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.StateMachineHoistedLocalScope.IsSynthesizedLocal">
+            <summary>
+            true if it's a syntesized local (<see cref="F:dnlib.DotNet.Pdb.StateMachineHoistedLocalScope.Start"/> and <see cref="F:dnlib.DotNet.Pdb.StateMachineHoistedLocalScope.End"/> are both null)
+            </summary>
+        </member>
+        <member name="F:dnlib.DotNet.Pdb.StateMachineHoistedLocalScope.Start">
+            <summary>
+            The instruction of the first operation in the scope. Can be null if it's a synthesized local
+            </summary>
+        </member>
+        <member name="F:dnlib.DotNet.Pdb.StateMachineHoistedLocalScope.End">
+            <summary>
+            The instruction of the first operation outside of the scope or null if it ends at the last instruction in the body.
+            Can also be null if it's a synthesized local (in which case <see cref="F:dnlib.DotNet.Pdb.StateMachineHoistedLocalScope.Start"/> is also null, see <see cref="P:dnlib.DotNet.Pdb.StateMachineHoistedLocalScope.IsSynthesizedLocal"/>)
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.StateMachineHoistedLocalScope.#ctor(dnlib.DotNet.Emit.Instruction,dnlib.DotNet.Emit.Instruction)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="start">Start of the scope</param>
+            <param name="end">First instruction after the end of the scope</param>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.PdbStateMachineHoistedLocalScopesCustomDebugInfo">
+            <summary>
+            Contains local scopes for state machine hoisted local variables.
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbStateMachineHoistedLocalScopesCustomDebugInfo.Kind">
+            <summary>
+            Returns <see cref="F:dnlib.DotNet.Pdb.PdbCustomDebugInfoKind.StateMachineHoistedLocalScopes"/>
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbStateMachineHoistedLocalScopesCustomDebugInfo.Scopes">
+            <summary>
+            Gets the scopes
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbStateMachineHoistedLocalScopesCustomDebugInfo.#ctor">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbStateMachineHoistedLocalScopesCustomDebugInfo.#ctor(System.Int32)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="capacity">Initial capacity of <see cref="P:dnlib.DotNet.Pdb.PdbStateMachineHoistedLocalScopesCustomDebugInfo.Scopes"/></param>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.PdbStateMachineTypeNameCustomDebugInfo">
+            <summary>
+            Contains the state machine type
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbStateMachineTypeNameCustomDebugInfo.Kind">
+            <summary>
+            Returns <see cref="F:dnlib.DotNet.Pdb.PdbCustomDebugInfoKind.StateMachineTypeName"/>
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbStateMachineTypeNameCustomDebugInfo.Type">
+            <summary>
+            Gets/sets the state machine type
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbStateMachineTypeNameCustomDebugInfo.#ctor">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbStateMachineTypeNameCustomDebugInfo.#ctor(dnlib.DotNet.TypeDef)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="type">State machine type</param>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.PdbDynamicLocalsCustomDebugInfo">
+            <summary>
+            Contains dynamic flags for local variables and constants
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbDynamicLocalsCustomDebugInfo.Kind">
+            <summary>
+            Returns <see cref="F:dnlib.DotNet.Pdb.PdbCustomDebugInfoKind.DynamicLocals"/>
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbDynamicLocalsCustomDebugInfo.Locals">
+            <summary>
+            Gets the dynamic locals
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbDynamicLocalsCustomDebugInfo.#ctor">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbDynamicLocalsCustomDebugInfo.#ctor(System.Int32)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="capacity">Initial capacity of <see cref="P:dnlib.DotNet.Pdb.PdbDynamicLocalsCustomDebugInfo.Locals"/></param>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.PdbDynamicLocal">
+            <summary>
+            Dynamic local info
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbDynamicLocal.Flags">
+            <summary>
+            Gets the dynamic flags
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbDynamicLocal.Name">
+            <summary>
+            Gets/sets the name of the local. The name must have at most 64 characters and no char can be NUL (0x0000).
+            If null is written, <see cref="P:dnlib.DotNet.Emit.Local.Name"/> is returned instead.
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbDynamicLocal.IsConstant">
+            <summary>
+            true if it's a constant and not a variable (<see cref="P:dnlib.DotNet.Pdb.PdbDynamicLocal.Local"/> is null)
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbDynamicLocal.IsVariable">
+            <summary>
+            true if it's a variable (<see cref="P:dnlib.DotNet.Pdb.PdbDynamicLocal.Local"/> is not null)
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbDynamicLocal.Local">
+            <summary>
+            Gets/sets the local. Could be null if there's no local (it's a 'const' local).
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbDynamicLocal.#ctor">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbDynamicLocal.#ctor(System.Int32)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="capacity">Initial capacity of <see cref="P:dnlib.DotNet.Pdb.PdbDynamicLocal.Flags"/></param>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.PdbEditAndContinueLocalSlotMapCustomDebugInfo">
+            <summary>
+            Contains the EnC local variable slot map
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbEditAndContinueLocalSlotMapCustomDebugInfo.Kind">
+            <summary>
+            Returns <see cref="F:dnlib.DotNet.Pdb.PdbCustomDebugInfoKind.EditAndContinueLocalSlotMap"/>
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbEditAndContinueLocalSlotMapCustomDebugInfo.Data">
+            <summary>
+            Gets the data. Spec: https://github.com/dotnet/corefx/blob/master/src/System.Reflection.Metadata/specs/PortablePdb-Metadata.md#EditAndContinueLocalSlotMap
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbEditAndContinueLocalSlotMapCustomDebugInfo.#ctor(System.Byte[])">
+            <summary>
+            Constructor
+            </summary>
+            <param name="data">Raw custom debug info data</param>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.PdbEditAndContinueLambdaMapCustomDebugInfo">
+            <summary>
+            Contains the EnC lambda map
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbEditAndContinueLambdaMapCustomDebugInfo.Kind">
+            <summary>
+            Returns <see cref="F:dnlib.DotNet.Pdb.PdbCustomDebugInfoKind.EditAndContinueLambdaMap"/>
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbEditAndContinueLambdaMapCustomDebugInfo.Data">
+            <summary>
+            Gets the data. Spec: https://github.com/dotnet/corefx/blob/master/src/System.Reflection.Metadata/specs/PortablePdb-Metadata.md#EditAndContinueLambdaAndClosureMap
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbEditAndContinueLambdaMapCustomDebugInfo.#ctor(System.Byte[])">
+            <summary>
+            Constructor
+            </summary>
+            <param name="data">Raw custom debug info data</param>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.PdbTupleElementNamesCustomDebugInfo">
+            <summary>
+            Contains tuple element names for local variables and constants
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbTupleElementNamesCustomDebugInfo.Kind">
+            <summary>
+            Returns <see cref="F:dnlib.DotNet.Pdb.PdbCustomDebugInfoKind.TupleElementNames"/>
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbTupleElementNamesCustomDebugInfo.Names">
+            <summary>
+            Gets the tuple element names
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbTupleElementNamesCustomDebugInfo.#ctor">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbTupleElementNamesCustomDebugInfo.#ctor(System.Int32)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="capacity">Initial capacity of <see cref="P:dnlib.DotNet.Pdb.PdbTupleElementNamesCustomDebugInfo.Names"/></param>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.PdbTupleElementNames">
+            <summary>
+            Tuple element name info
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbTupleElementNames.Name">
+            <summary>
+            Gets/sets the name of the local. If null is written, <see cref="P:dnlib.DotNet.Emit.Local.Name"/> is returned instead.
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbTupleElementNames.Local">
+            <summary>
+            Gets/sets the local. It's null if it's a constant, and non-null if it's a variable
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbTupleElementNames.IsConstant">
+            <summary>
+            true if it's a constant. Constants have a scope (<see cref="P:dnlib.DotNet.Pdb.PdbTupleElementNames.ScopeStart"/> and <see cref="P:dnlib.DotNet.Pdb.PdbTupleElementNames.ScopeEnd"/>)
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbTupleElementNames.IsVariable">
+            <summary>
+            true if it's a variable. Variables don't have a scope (<see cref="P:dnlib.DotNet.Pdb.PdbTupleElementNames.ScopeStart"/> and <see cref="P:dnlib.DotNet.Pdb.PdbTupleElementNames.ScopeEnd"/>)
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbTupleElementNames.ScopeStart">
+            <summary>
+            Gets/sets the start of the scope or null. Only constants have a scope.
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbTupleElementNames.ScopeEnd">
+            <summary>
+            Gets/sets the end of the scope or null if it has no scope or if the scope ends at the end of the body. Only constants have a scope.
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbTupleElementNames.TupleElementNames">
+            <summary>
+            Gets the tuple element names
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbTupleElementNames.#ctor">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbTupleElementNames.#ctor(System.Int32)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="capacity">Initial capacity of <see cref="P:dnlib.DotNet.Pdb.PdbTupleElementNames.TupleElementNames"/></param>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.PdbCustomDebugInfoReader">
+            <summary>
+            Reads custom debug infos produced by the C# and Visual Basic compilers. They're stored in PDB files
+            as PDB method custom attributes with the name "MD2".
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbCustomDebugInfoReader.Read(dnlib.DotNet.MethodDef,dnlib.DotNet.Emit.CilBody,System.Collections.Generic.IList{dnlib.DotNet.Pdb.PdbCustomDebugInfo},System.Byte[])">
+            <summary>
+            Reads custom debug info
+            </summary>
+            <param name="method">Method</param>
+            <param name="body">The method's body. Needs to be provided by the caller since we're called from
+            PDB-init code when the Body property hasn't been initialized yet</param>
+            <param name="result">Place all custom debug info in this list</param>
+            <param name="data">Custom debug info from the PDB file</param>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbCustomDebugInfoReader.Read(dnlib.DotNet.MethodDef,dnlib.DotNet.Emit.CilBody,System.Collections.Generic.IList{dnlib.DotNet.Pdb.PdbCustomDebugInfo},dnlib.IO.IBinaryReader)">
+            <summary>
+            Reads custom debug info
+            </summary>
+            <param name="method">Method</param>
+            <param name="body">The method's body. Needs to be provided by the caller since we're called from
+            PDB-init code when the Body property hasn't been initialized yet</param>
+            <param name="result">Place all custom debug info in this list</param>
+            <param name="stream">Custom debug info from the PDB file</param>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.PdbCustomDebugInfoWriter">
+            <summary>
+            Writes custom debug infos produced by the C# and Visual Basic compilers. They're stored in PDB files
+            as PDB method custom attributes with the name "MD2".
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbCustomDebugInfoWriter.Write(dnlib.DotNet.Writer.MetaData,dnlib.DotNet.MethodDef,dnlib.DotNet.Pdb.PdbCustomDebugInfoWriterContext,System.Collections.Generic.IList{dnlib.DotNet.Pdb.PdbCustomDebugInfo})">
+            <summary>
+            Returns the raw custom debug info or null if there was an error
+            </summary>
+            <param name="metaData">Metadata</param>
+            <param name="context">Writer context</param>
+            <param name="method">Method</param>
+            <param name="customDebugInfos">Custom debug infos to write</param>
+            <returns></returns>
+        </member>
+        <member name="T:dnlib.DotNet.Pdb.PdbMethod">
+            <summary>
+            A PDB method
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbMethod.Scope">
+            <summary>
+            Gets/sets the root scope. It contains all scopes of the method, using namespaces, variables and constants
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbMethod.AsyncMethod">
+            <summary>
+            Gets/sets the async method info or null if there's none
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbMethod.CustomDebugInfos">
+            <summary>
+            Gets all custom debug infos
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbMethod.#ctor">
+            <summary>
+            Constructor
+            </summary>
         </member>
         <member name="T:dnlib.DotNet.Pdb.Dss.ImageStreamIStream">
             <summary>
@@ -19689,6 +20399,47 @@
             </summary>
             <param name="metaData">Metadata</param>
         </member>
+        <member name="T:dnlib.DotNet.Pdb.ISymbolWriter3">
+            <summary>
+            Implements <see cref="T:System.Diagnostics.SymbolStore.ISymbolWriter"/> and adds a few extra methods we need that are part of
+            <c>ISymUnmanagedWriter</c> and <c>ISymUnmanagedWriter2</c> but not present in
+            <see cref="T:System.Diagnostics.SymbolStore.ISymbolWriter"/>.
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.ISymbolWriter3.DefineConstant2(System.String,System.Object,System.UInt32)">
+            <summary>
+            Defines a constant
+            </summary>
+            <param name="name">Name of constant</param>
+            <param name="value">Constant value</param>
+            <param name="sigToken">StandAloneSig token of constant field type</param>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.ISymbolWriter3.SupportsAsyncMethods">
+            <summary>
+            true if it supports <see cref="M:dnlib.DotNet.Pdb.ISymbolWriter3.DefineKickoffMethod(System.UInt32)"/>, <see cref="M:dnlib.DotNet.Pdb.ISymbolWriter3.DefineCatchHandlerILOffset(System.UInt32)"/>
+            and <see cref="M:dnlib.DotNet.Pdb.ISymbolWriter3.DefineAsyncStepInfo(System.UInt32[],System.UInt32[],System.UInt32[])"/>
+            </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.ISymbolWriter3.DefineKickoffMethod(System.UInt32)">
+            <summary>
+            Defines an async kickoff method
+            </summary>
+            <param name="kickoffMethod">Kickoff method token</param>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.ISymbolWriter3.DefineCatchHandlerILOffset(System.UInt32)">
+            <summary>
+            Defines an async catch handler
+            </summary>
+            <param name="catchHandlerOffset">Catch handler IL offset</param>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.ISymbolWriter3.DefineAsyncStepInfo(System.UInt32[],System.UInt32[],System.UInt32[])">
+            <summary>
+            Defines async step info
+            </summary>
+            <param name="yieldOffsets">Yield IL offsets</param>
+            <param name="breakpointOffset">Breakpoint method IL offset</param>
+            <param name="breakpointMethod">Breakpoint method</param>
+        </member>
         <member name="T:dnlib.DotNet.Pdb.PdbDocument">
             <summary>
             A PDB document
@@ -19817,6 +20568,16 @@
             <c>true</c> if <see cref="P:dnlib.DotNet.Pdb.PdbScope.Namespaces"/> is not empty
             </summary>
         </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbScope.Constants">
+            <summary>
+            Gets all constants
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.Pdb.PdbScope.HasConstants">
+            <summary>
+            <c>true</c> if <see cref="P:dnlib.DotNet.Pdb.PdbScope.Constants"/> is not empty
+            </summary>
+        </member>
         <member name="T:dnlib.DotNet.Pdb.PdbState">
             <summary>
             PDB state for a <see cref="T:dnlib.DotNet.ModuleDef"/>
@@ -19841,6 +20602,12 @@
             <summary>
             Default constructor
             </summary>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbState.#ctor(dnlib.DotNet.ModuleDef)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="module">Module</param>
         </member>
         <member name="M:dnlib.DotNet.Pdb.PdbState.#ctor(System.Diagnostics.SymbolStore.ISymbolReader,dnlib.DotNet.ModuleDefMD)">
             <summary>
@@ -19909,6 +20676,14 @@
             </summary>
         </member>
         <member name="M:dnlib.DotNet.Pdb.PdbWriter.#ctor(dnlib.DotNet.Pdb.ISymbolWriter2,dnlib.DotNet.Pdb.PdbState,dnlib.DotNet.Writer.MetaData)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="writer">Symbol writer, it should implement <see cref="T:dnlib.DotNet.Pdb.ISymbolWriter3"/></param>
+            <param name="pdbState">PDB state</param>
+            <param name="metaData">Meta data</param>
+        </member>
+        <member name="M:dnlib.DotNet.Pdb.PdbWriter.#ctor(dnlib.DotNet.Pdb.ISymbolWriter3,dnlib.DotNet.Pdb.PdbState,dnlib.DotNet.Writer.MetaData)">
             <summary>
             Constructor
             </summary>
@@ -20159,6 +20934,12 @@
         <member name="F:dnlib.DotNet.ParamAttributes.Out">
             <summary>Param is [out]</summary>
         </member>
+        <member name="F:dnlib.DotNet.ParamAttributes.Lcid">
+            <summary>Param is a locale identifier</summary>
+        </member>
+        <member name="F:dnlib.DotNet.ParamAttributes.Retval">
+            <summary>Param is a return value</summary>
+        </member>
         <member name="F:dnlib.DotNet.ParamAttributes.Optional">
             <summary>Param is optional</summary>
         </member>
@@ -20303,6 +21084,16 @@
         <member name="P:dnlib.DotNet.ParamDef.IsOut">
             <summary>
             Gets/sets the <see cref="F:dnlib.DotNet.ParamAttributes.Out"/> bit
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.ParamDef.IsLcid">
+            <summary>
+            Gets/sets the <see cref="F:dnlib.DotNet.ParamAttributes.Lcid"/> bit
+            </summary>
+        </member>
+        <member name="P:dnlib.DotNet.ParamDef.IsRetval">
+            <summary>
+            Gets/sets the <see cref="F:dnlib.DotNet.ParamAttributes.Retval"/> bit
             </summary>
         </member>
         <member name="P:dnlib.DotNet.ParamDef.IsOptional">
@@ -21119,6 +21910,13 @@
             <param name="message">Exception message</param>
             <param name="innerException">Inner exception or <c>null</c> if none</param>
         </member>
+        <member name="M:dnlib.DotNet.ResolveException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="info"></param>
+            <param name="context"></param>
+        </member>
         <member name="T:dnlib.DotNet.AssemblyResolveException">
             <summary>
             Thrown if an assembly couldn't be resolved
@@ -21141,6 +21939,13 @@
             </summary>
             <param name="message">Exception message</param>
             <param name="innerException">Inner exception or <c>null</c> if none</param>
+        </member>
+        <member name="M:dnlib.DotNet.AssemblyResolveException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="info"></param>
+            <param name="context"></param>
         </member>
         <member name="T:dnlib.DotNet.TypeResolveException">
             <summary>
@@ -21165,6 +21970,13 @@
             <param name="message">Exception message</param>
             <param name="innerException">Inner exception or <c>null</c> if none</param>
         </member>
+        <member name="M:dnlib.DotNet.TypeResolveException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="info"></param>
+            <param name="context"></param>
+        </member>
         <member name="T:dnlib.DotNet.MemberRefResolveException">
             <summary>
             Thrown if a method/field couldn't be resolved
@@ -21187,6 +21999,13 @@
             </summary>
             <param name="message">Exception message</param>
             <param name="innerException">Inner exception or <c>null</c> if none</param>
+        </member>
+        <member name="M:dnlib.DotNet.MemberRefResolveException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="info"></param>
+            <param name="context"></param>
         </member>
         <member name="T:dnlib.DotNet.Resolver">
             <summary>
@@ -21803,11 +22622,23 @@
             Thrown by <see cref="T:dnlib.DotNet.Resources.ResourceReader"/>
             </summary>
         </member>
+        <member name="M:dnlib.DotNet.Resources.ResourceReaderException.#ctor">
+            <summary>
+            Constructor
+            </summary>
+        </member>
         <member name="M:dnlib.DotNet.Resources.ResourceReaderException.#ctor(System.String)">
             <summary>
             Constructor
             </summary>
             <param name="msg">Message</param>
+        </member>
+        <member name="M:dnlib.DotNet.Resources.ResourceReaderException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="info"></param>
+            <param name="context"></param>
         </member>
         <member name="T:dnlib.DotNet.Resources.CreateResourceDataDelegate">
             <summary>
@@ -24231,6 +25062,13 @@
             <param name="message">Error message</param>
             <param name="innerException">Other exception</param>
         </member>
+        <member name="M:dnlib.DotNet.InvalidKeyException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="info"></param>
+            <param name="context"></param>
+        </member>
         <member name="T:dnlib.DotNet.SignatureAlgorithm">
             <summary>
             Type of signature algorithm. See WinCrypt.h in the Windows SDK
@@ -25925,6 +26763,13 @@
             </summary>
             <param name="message">Exception message</param>
             <param name="innerException">Inner exception or <c>null</c> if none</param>
+        </member>
+        <member name="M:dnlib.DotNet.TypeNameParserException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="info"></param>
+            <param name="context"></param>
         </member>
         <member name="T:dnlib.DotNet.IAssemblyRefFinder">
             <summary>
@@ -31431,6 +32276,14 @@
             <param name="origToken">Original <c>StandAloneSig</c> token or 0 if none</param>
             <returns>Its new rid</returns>
         </member>
+        <member name="M:dnlib.DotNet.Writer.MetaData.AddStandAloneSig(dnlib.DotNet.FieldSig,System.UInt32)">
+            <summary>
+            Adds a <see cref="T:dnlib.DotNet.StandAloneSig"/>
+            </summary>
+            <param name="fieldSig">FIeld signature</param>
+            <param name="origToken">Original <c>StandAloneSig</c> token or 0 if none</param>
+            <returns>Its new rid</returns>
+        </member>
         <member name="M:dnlib.DotNet.Writer.MetaData.AddTypeDefOrRef(dnlib.DotNet.ITypeDefOrRef)">
             <summary>
             Adds a <see cref="T:dnlib.DotNet.ITypeDefOrRef"/>
@@ -32507,7 +33360,7 @@
         <member name="P:dnlib.DotNet.Writer.ModuleWriterOptionsBase.CreatePdbSymbolWriter">
             <summary>
             If <see cref="P:dnlib.DotNet.Writer.ModuleWriterOptionsBase.PdbFileName"/> or <see cref="P:dnlib.DotNet.Writer.ModuleWriterOptionsBase.PdbStream"/> aren't enough, this can be used
-            to create a new <see cref="T:dnlib.DotNet.Pdb.ISymbolWriter2"/> instance. <see cref="P:dnlib.DotNet.Writer.ModuleWriterOptionsBase.WritePdb"/> must be
+            to create a new <see cref="T:dnlib.DotNet.Pdb.ISymbolWriter3"/> instance. <see cref="P:dnlib.DotNet.Writer.ModuleWriterOptionsBase.WritePdb"/> must be
             <c>true</c> or this property is ignored.
             </summary>
         </member>
@@ -32818,6 +33671,13 @@
             </summary>
             <param name="message">Error message</param>
             <param name="innerException">Other exception</param>
+        </member>
+        <member name="M:dnlib.DotNet.Writer.ModuleWriterException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="info"></param>
+            <param name="context"></param>
         </member>
         <member name="T:dnlib.DotNet.Writer.NativeModuleWriterOptions">
             <summary>
@@ -33614,6 +34474,9 @@
             <inheritdoc/>
         </member>
         <member name="M:dnlib.DotNet.Writer.PreserveTokensMetaData.AddStandAloneSig(dnlib.DotNet.MethodSig,System.UInt32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:dnlib.DotNet.Writer.PreserveTokensMetaData.AddStandAloneSig(dnlib.DotNet.FieldSig,System.UInt32)">
             <inheritdoc/>
         </member>
         <member name="M:dnlib.DotNet.Writer.PreserveTokensMetaData.AddMethodSpec(dnlib.DotNet.MethodSpec)">

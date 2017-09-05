@@ -232,7 +232,8 @@ namespace Prism.Injector.Patcher
             {
                 for (int j = 0; j < instrs.Length; j++)
                 {
-                    if (!CodeEqIgnoreS(body.Instructions[i + j].OpCode.Code, instrs[j].Code))
+                    if (instrs[j] != null /* allow for wildcards */
+                            && !CodeEqIgnoreS(body.Instructions[i + j].OpCode.Code, instrs[j].Code))
                         goto next_try;
                 }
 

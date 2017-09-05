@@ -5,6 +5,7 @@ using System.Reflection;
 using Prism.API;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
+using Prism.Util;
 using Terraria;
 
 namespace Prism.Mods.DefHandlers
@@ -244,7 +245,7 @@ namespace Prism.Mods.DefHandlers
     {
         protected override string GetNameVanillaMethod(TEntity entity)
         {
-            return entity.name;
+            return entity.Name();
         }
     }
 }

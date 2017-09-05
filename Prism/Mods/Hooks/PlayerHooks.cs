@@ -10,6 +10,7 @@ using Terraria;
 using Terraria.GameContent.UI.States;
 using Terraria.ID;
 using Terraria.IO;
+using Terraria.Localization;
 using Terraria.UI;
 
 namespace Prism.Mods.Hooks
@@ -121,7 +122,7 @@ namespace Prism.Mods.Hooks
                     }
 
                 if (doesntHaveTheBuff)
-                    NetMessage.SendData(55, -1, -1, String.Empty, p.whoAmI, type, time);
+                    NetMessage.SendData(55, -1, -1, NetworkText.Empty, p.whoAmI, type, time);
             }
 
             for (int i = 0; i < Player.maxBuffs; i++)
@@ -243,7 +244,7 @@ namespace Prism.Mods.Hooks
             if (bh != null)
                 bh.OnInit();
         }
-        internal static void OnKillMe(Player p, double dmg, int hd, bool pvp, string dt)
+        /*internal static void OnKillMe(Player p, double dmg, int hd, bool pvp, string dt)
         {
             var bh = p.P_BHandler as PlayerBHandler;
 
@@ -254,7 +255,7 @@ namespace Prism.Mods.Hooks
 
             if (bh != null)
                 bh.OnDestroyed();
-        }
+        }*/
 
         internal static void OnDrawPlayer(Main m, Player p, Vector2 pos, float r, Vector2 o, float shadow)
         {

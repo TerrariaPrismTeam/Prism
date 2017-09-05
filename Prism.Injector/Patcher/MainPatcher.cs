@@ -16,9 +16,9 @@ namespace Prism.Injector.Patcher
 
         static void WrapMethods()
         {
-            typeDef_Main.GetMethod("UpdateMusic").Wrap(context);
-            typeDef_Main.GetMethod("PlaySound"     , MethodFlags.Static   | MethodFlags.Public, new[] { typeSys.Int32, typeSys.Int32, typeSys.Int32, typeSys.Int32 })
-                .Wrap(context, "Terraria.PrismInjections", "Main_PlaySoundDel", "P_OnPlaySound");
+          //typeDef_Main.GetMethod("UpdateMusic").Wrap(context);
+          //typeDef_Main.GetMethod("PlaySound"     , MethodFlags.Static   | MethodFlags.Public, new[] { typeSys.Int32, typeSys.Int32, typeSys.Int32, typeSys.Int32 })
+          //    .Wrap(context, "Terraria.PrismInjections", "Main_PlaySoundDel", "P_OnPlaySound");
             typeDef_Main.GetMethod("DrawNPC"       , MethodFlags.Instance | MethodFlags.Public, new[] { typeSys.Int32, typeSys.Boolean                             }).Wrap(context);
             typeDef_Main.GetMethod("DrawProj"      , MethodFlags.Instance | MethodFlags.Public, new[] { typeSys.Int32                                              }).Wrap(context);
             typeDef_Main.GetMethod("DrawPlayer"    , MethodFlags.Instance | MethodFlags.Public).Wrap(context);
@@ -50,12 +50,12 @@ namespace Prism.Injector.Patcher
 
             var drawNpcs = typeDef_Main.GetMethod("DrawNPCs", MethodFlags.Instance | MethodFlags.Public, new[] { typeSys.Boolean });
 
-            var firstInstr = drawNpcs.Body.FindInstrSeqStart(seqToRemove);
+            /*var firstInstr = drawNpcs.Body.FindInstrSeqStart(seqToRemove);
 
             using (var p = drawNpcs.Body.GetILProcessor())
             {
                 p.RemoveInstructions(firstInstr, seqToRemove.Length);
-            }
+            }*/
         }
         static void AddIsChatAllowedHook()
         {
@@ -87,7 +87,7 @@ namespace Prism.Injector.Patcher
             var mainUpdate = typeDef_Main.GetMethod("Update").Body;
 
             //public virtual bool IsChatAllowedHook() { return Main.netMode == 1; }
-            
+
             var chatCheckHook = new MethodDefUser("P_IsChatAllowed", MethodSig.CreateStatic(typeSys.Boolean),
                 MethodAttributes.Public | MethodAttributes.Static);
             chatCheckHook.Body = new CilBody();
@@ -111,10 +111,10 @@ namespace Prism.Injector.Patcher
             chatCheckHook.Body.OptimizeBranches();
 
             typeDef_Main.Methods.Add(chatCheckHook);
-            
+
             // ---
 
-            proc = mainUpdate.GetILProcessor();
+            /*proc = mainUpdate.GetILProcessor();
             var mainInstrs = mainUpdate.FindInstrSeq(proc, searchSeq);
 
             if (mainInstrs[0] == null)
@@ -123,15 +123,13 @@ namespace Prism.Injector.Patcher
                 return;
             }
 
-            var skipToOffset = ((Instruction)(mainInstrs[2]/*bne.un*/.Operand));
+            var skipToOffset = ((Instruction)(mainInstrs[2]/ *bne.un* /.Operand));
 
             proc.ReplaceInstructions(mainInstrs.Take(3), new Instruction[]
             {
                 Instruction.Create(OpCodes.Call, chatCheckHook),
                 Instruction.Create(OpCodes.Brfalse, skipToOffset)
-            });
-
-
+            });*/
         }
         static void AddLocalChatHook()
         {
@@ -313,7 +311,7 @@ namespace Prism.Injector.Patcher
             {
                 var drawPlayerHead = typeDef_Main.GetMethod("DrawPlayerHead", MethodFlags.Public | MethodFlags.Instance);
 
-                while (true)
+                /*while (true)
                 {
                     OpCode[] toRem =
                     {
@@ -332,7 +330,7 @@ namespace Prism.Injector.Patcher
                     {
                         p.RemoveInstructions(i, toRem.Length);
                     }
-                }
+                }*/
             }
             #endregion
 
@@ -340,7 +338,7 @@ namespace Prism.Injector.Patcher
             {
                 var drawPlayer = typeDef_Main.GetMethod("RealDrawPlayer", MethodFlags.Public | MethodFlags.Instance);
 
-                while (true)
+                /*while (true)
                 {
                     OpCode[] toRem =
                     {
@@ -359,7 +357,7 @@ namespace Prism.Injector.Patcher
                     {
                         p.RemoveInstructions(i, toRem.Length);
                     }
-                }
+                }*/
             }
             #endregion
         }
@@ -407,7 +405,7 @@ namespace Prism.Injector.Patcher
             typeDef_Main.Fields.Add(onPreDraw);
 
             var drb = draw.Body;
-            using (var drbproc = drb.GetILProcessor())
+            /*using (var drbproc = drb.GetILProcessor())
             {
                 Instruction[] toInj =
                 {
@@ -429,7 +427,7 @@ namespace Prism.Injector.Patcher
                 //        i.Operand = toInj[0];
 
                 // not rewiring the if will lead to invalid IL, because the target instruction won't exist (because we're removing it here)
-            }
+            }*/
         }
         static void AddOnUpdateKeyboardHook()
         {
@@ -457,7 +455,7 @@ namespace Prism.Injector.Patcher
                 OpCodes.Ldsfld   , //IL_27d7: ldsfld class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SpriteFont Terraria.Main::fontMouseText
                 OpCodes.Ldstr    , //IL_27dc: ldstr "1"
                 OpCodes.Callvirt , //IL_27e1: callvirt instance valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Vector2 [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SpriteFont::MeasureString(string)
-                
+
                 OpCodes.Ldfld    , //IL_27e6: ldfld float32 [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Vector2::Y
                 OpCodes.Div      , //IL_27eb: div
                 OpCodes.Conv_I4  , //IL_27ec: conv.i4
@@ -483,9 +481,9 @@ namespace Prism.Injector.Patcher
             var onUpdateKeyboardDelType = context.CreateDelegate("Terraria.PrismInjections", "Main_Update_OnUpdateKeyboardDel", typeSys.Void, out invokeOnUpdateKeyboardHook, typeDef_Main.ToTypeSig(), mainUpdate.Parameters[1].Type /* HAH I WIN, XNA */);
             var onUpdateKeyboardDelField = new FieldDefUser("P_OnUpdateKeyboard", new FieldSig(onUpdateKeyboardDelType.ToTypeSig()), FieldAttributes.Public | FieldAttributes.Static);
             typeDef_Main.Fields.Add(onUpdateKeyboardDelField);
-            
-            mainUpdateProc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, onUpdateKeyboardDelField));
-            mainUpdateProc.EmitWrapperCall(invokeOnUpdateKeyboardHook, first);
+
+            /*mainUpdateProc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, onUpdateKeyboardDelField));
+            mainUpdateProc.EmitWrapperCall(invokeOnUpdateKeyboardHook, first);*/
             //mainUpdateProc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeOnUpdateKeyboardHook));
         }
         static void AddPostScreenClearHook()
@@ -507,7 +505,7 @@ namespace Prism.Injector.Patcher
             var onPostScrClDraw = new FieldDefUser("P_OnPostScrClDraw", new FieldSig(onPostScrClDel.ToTypeSig()), FieldAttributes.Public | FieldAttributes.Static);
             typeDef_Main.Fields.Add(onPostScrClDraw);
 
-            var drb = draw.Body;
+            /*var drb = draw.Body;
             using (var drbproc = drb.GetILProcessor())
             {
                 Instruction[] toInj =
@@ -516,10 +514,33 @@ namespace Prism.Injector.Patcher
                     Instruction.Create(OpCodes.Callvirt, invokePostScrCl)
                 };
 
-                var first = drb.FindInstrSeqStart(toFind).Next(drbproc) /* call 2 */.Next(drbproc) /* callvirt */.Next(drbproc); // ldsfld (spriteBatch)
+                var first = drb.FindInstrSeqStart(toFind).Next(drbproc) / * call 2 * /.Next(drbproc) / * callvirt * /.Next(drbproc); // ldsfld (spriteBatch)
 
                 foreach (var i in toInj)
                     drbproc.InsertBefore(first, i);
+            }*/
+        }
+
+        static void RemoveResolutionChangedMessage()
+        {
+            var sdmm = typeDef_Main.GetMethod("SetDisplayMode");
+
+            OpCode[] toFind =
+            {
+                OpCodes.Ldstr,
+                OpCodes.Ldarg_0,
+                OpCodes.Box,
+                OpCodes.Ldarg_1,
+                OpCodes.Box,
+                OpCodes.Call,
+                OpCodes.Call
+            };
+
+            var sdmb = sdmm.Body;
+            using (var sdmproc = sdmb.GetILProcessor())
+            {
+                var first = sdmb.FindInstrSeqStart(toFind);
+                sdmproc.Remove(first, toFind.Length);
             }
         }
 
@@ -538,6 +559,7 @@ namespace Prism.Injector.Patcher
             AddPreDrawHook();
             AddOnUpdateKeyboardHook();
             AddPostScreenClearHook();
+            RemoveResolutionChangedMessage();
 
             AddIsChatAllowedHook();
             typeDef_Main.GetMethod("P_IsChatAllowed", MethodFlags.Public | MethodFlags.Static).Wrap(context);

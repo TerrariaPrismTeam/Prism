@@ -6,6 +6,7 @@ using Prism.Mods.DefHandlers;
 using Prism.Util;
 using Terraria;
 using Terraria.GameContent.UI;
+using Terraria.Localization;
 
 namespace Prism.Mods.Hooks
 {
@@ -71,9 +72,9 @@ namespace Prism.Mods.Hooks
             if (!quiet)
             {
                 if (Main.netMode == 1)
-                    NetMessage.SendData(53, -1, -1, String.Empty, n.whoAmI, type, time);
+                    NetMessage.SendData(53, -1, -1, NetworkText.Empty, n.whoAmI, type, time);
                 else if (Main.netMode == 2)
-                    NetMessage.SendData(54, -1, -1, String.Empty, n.whoAmI);
+                    NetMessage.SendData(54, -1, -1, NetworkText.Empty, n.whoAmI);
             }
             for (int i = 0; i < 5; i++)
                 if (n.buffType[i] == type)

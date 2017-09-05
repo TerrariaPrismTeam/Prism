@@ -24,9 +24,9 @@ namespace Prism
             {
                 if (Environment.OSVersion.Platform == PlatformID.MacOSX || Environment.OSVersion.Platform == PlatformID.Unix)
                 {
-                    bool tryConsole = false;
+                    bool tryConsole = true;
 
-                    try
+                    /*try
                     {
                         if (Process.Start("xmessage \"" + message.Replace('"', '\'') + "\"") == null) // most distros have this
                             tryConsole = true;
@@ -34,7 +34,7 @@ namespace Prism
                     catch
                     {
                         tryConsole = true;
-                    }
+                    }*/
 
                     if (tryConsole)
                         try

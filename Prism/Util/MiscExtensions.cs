@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Terraria;
+using Terraria.Localization;
 
 namespace Prism.Util
 {
@@ -88,6 +89,25 @@ namespace Prism.Util
                 return mapR(m.Right);
             else
                 return mapL(m.Left );
+        }
+
+        public static string Name(this Entity e)
+        {
+            if (e is Player)
+                return ((Player)e).name;
+            if (e is NPC)
+                return ((NPC)e).GivenOrTypeName;
+            if (e is Projectile)
+                return ((Projectile)e).Name;
+            if (e is Item)
+                return ((Item)e).Name;
+
+            return e.ToString(); // *shrug*
+        }
+
+        public static NetworkText ToNT(this string s)
+        {
+            return NetworkText.FromLiteral(s);
         }
     }
 }

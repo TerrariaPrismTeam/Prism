@@ -22,7 +22,7 @@ namespace Prism.Injector.Patcher
 
         static void ChangeFieldType ()
         {
-            typeDef_Tile.GetField("wall").FieldType = typeSys.UInt16;
+            //typeDef_Tile.GetField("wall").FieldType = typeSys.UInt16;
         }
         static void ChangeLocalTypes()
         {
@@ -39,7 +39,7 @@ namespace Prism.Injector.Patcher
                     if (!body.InitLocals) // no local vars
                         continue;
 
-                    md.EnumerateWithStackAnalysis((ind, i, s) =>
+                    /*md.EnumerateWithStackAnalysis((ind, i, s) =>
                     {
                         if (s.Count == 0)
                             return ind;
@@ -83,7 +83,7 @@ namespace Prism.Injector.Patcher
                         }
 
                         return ind;
-                    });
+                    });*/
                 }
         }
 

@@ -60,7 +60,7 @@ namespace Prism.Injector.Patcher
             OpCode[] toFind =
             {
                 OpCodes.Ldsfld,
-                OpCodes.Ldsfld, 
+                OpCodes.Ldsfld,
                 OpCodes.Ldarg_0,
                 OpCodes.Ldfld,
                 OpCodes.Ldarg_0,
@@ -76,7 +76,7 @@ namespace Prism.Injector.Patcher
                 OpCodes.Stloc_S
             };
 
-            var placeThing = typeDef_Player.GetMethod("PlaceThing");
+            /*var placeThing = typeDef_Player.GetMethod("PlaceThing");
 
             MethodDef invokePlaceThing;
             var onPlaceThingDel = context.CreateDelegate("Terraria.PrismInjections", "Player_OnPlaceThingDel", typeSys.Void, out invokePlaceThing, typeSys.Boolean);
@@ -100,7 +100,7 @@ namespace Prism.Injector.Patcher
 
                 foreach (var i in toInj.Reverse())
                     ptbproc.InsertAfter(first, i);
-            }
+            }*/
         }
         static void InsertSaveLoadHooks()
         {
@@ -167,7 +167,7 @@ namespace Prism.Injector.Patcher
                         OpCodes.Stfld    // ^^.skinVariant = ^
                     };
 
-                    Instruction[] toInject =
+                    /*Instruction[] toInject =
                     {
                         Instruction.Create(OpCodes.Ldsfld, onLoadPlayer),
                         Instruction.Create(OpCodes.Ldloc_1),
@@ -186,7 +186,7 @@ namespace Prism.Injector.Patcher
                             i.Operand = toInject[0];
 
                     // not rewiring the if will lead to invalid IL, because the target instruction won't exist (because we're removing it here)
-                    lpproc.RemoveInstructions(first, toFind.Length); // remove the limitation while we're at it
+                    lpproc.RemoveInstructions(first, toFind.Length); // remove the limitation while we're at it*/
                 }
             }
             #endregion
@@ -217,7 +217,7 @@ namespace Prism.Injector.Patcher
             };
 
             var loadPlayerBody = typeDef_Player.GetMethod("LoadPlayer", MethodFlags.Public | MethodFlags.Static, typeSys.String.ToTypeDefOrRef(), typeSys.Boolean.ToTypeDefOrRef()).Body;
-            using (var processor = loadPlayerBody.GetILProcessor())
+            /*using (var processor = loadPlayerBody.GetILProcessor())
             {
 
                 for (int count = 0, firstInd = 0; ;)
@@ -260,7 +260,7 @@ namespace Prism.Injector.Patcher
                         break;
                     }
                 }
-            }
+            }*/
         }
         static void RemoveStatCaps()
         {
@@ -296,7 +296,7 @@ namespace Prism.Injector.Patcher
                     OpCodes.Stfld
                 };
 
-                for (int count = 0; ;)
+                /*for (int count = 0; ;)
                 {
                     var firstI = lpb.FindInstrSeqStart(toRem);
 
@@ -319,7 +319,7 @@ namespace Prism.Injector.Patcher
 
                         break;
                     }
-                }
+                }*/
             }
         }
         static void ReplaceUseSoundCalls()
@@ -357,7 +357,7 @@ namespace Prism.Injector.Patcher
                     OpCodes.Call // Main.PlaySound(int, int, int, int)
                 };
 
-                using (var icproc = itemCheck.Body.GetILProcessor())
+                /*using (var icproc = itemCheck.Body.GetILProcessor())
                 {
                     var first = itemCheck.Body.FindInstrSeqStart(toRem);
                     first = icproc.RemoveInstructions(first, toRem.Length);
@@ -400,7 +400,7 @@ namespace Prism.Injector.Patcher
                     icproc.InsertBefore(first, Instruction.Create(OpCodes.Ldloc_2));
                     icproc.InsertBefore(first, Instruction.Create(OpCodes.Ldarg_0));
                     icproc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeUseSound));
-                }
+                }*/
             }
             #endregion
 
@@ -415,11 +415,11 @@ namespace Prism.Injector.Patcher
                 typeDef_Player.Fields.Add(quickBuff_PlayUseSound);
 
                 var qbb = quickBuff.Body;
-                using (var qbproc = qbb.GetILProcessor())
+                /*using (var qbproc = qbb.GetILProcessor())
                 {
                     // change local 0 to an item (instead of item.useSound int)
                     qbb.Variables[0].Type = typeDef_Item.ToTypeSig();
-                    
+
                     // things are too specific -> offsets have to be used
 
                     // remove .useSound
@@ -459,7 +459,7 @@ namespace Prism.Injector.Patcher
                     qbproc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeUseSound));
 
                     first = qbproc.RemoveInstructions(first, toRem.Length);
-                }
+                }*/
             }
             #endregion
 
@@ -489,7 +489,7 @@ namespace Prism.Injector.Patcher
                     OpCodes.Call // Main.PlaySound(int, int, int, int)
                 };
 
-                using (var qgproc = quickGrapple.Body.GetILProcessor())
+                /*using (var qgproc = quickGrapple.Body.GetILProcessor())
                 {
                     var first = quickGrapple.Body.FindInstrSeqStart(toRem);
                     first = qgproc.RemoveInstructions(first, toRem.Length);
@@ -498,7 +498,7 @@ namespace Prism.Injector.Patcher
                     qgproc.InsertBefore(first, Instruction.Create(TerrariaPatcher.Platform == Platform.Windows ? OpCodes.Ldloc_3 : OpCodes.Ldloc_0)); // load item instance ons stack
                     qgproc.InsertBefore(first, Instruction.Create(OpCodes.Ldarg_0));
                     qgproc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeUseSound));
-                }
+                }*/
             }
             #endregion
 
@@ -528,7 +528,7 @@ namespace Prism.Injector.Patcher
                     OpCodes.Call // Main.PlaySound(int, int, int, int)
                 };
 
-                using (var qhproc = quickHeal.Body.GetILProcessor())
+                /*using (var qhproc = quickHeal.Body.GetILProcessor())
                 {
                     var first = quickHeal.Body.FindInstrSeqStart(toRem);
                     var first_ = qhproc.RemoveInstructions(first, toRem.Length);
@@ -542,7 +542,7 @@ namespace Prism.Injector.Patcher
                     for (int i = 0; i < quickHeal.Body.Instructions.Count; i++)
                         if (quickHeal.Body.Instructions[i].Operand == first)
                             quickHeal.Body.Instructions[i].Operand = newF;
-                }
+                }*/
             }
             #endregion
 
@@ -575,11 +575,11 @@ namespace Prism.Injector.Patcher
                     OpCodes.Call // Main.PlaySound(int, int, int, int)
                 };
 
-                using (var qmproc = quickMana.Body.GetILProcessor())
+                /*using (var qmproc = quickMana.Body.GetILProcessor())
                 {
                     var first = quickMana.Body.FindInstrSeqStart(toRem);
                     var first_ = qmproc.RemoveInstructions(first, toRem.Length);
-                    
+
                     Instruction newF;
                     qmproc.InsertBefore(first_, newF = Instruction.Create(OpCodes.Ldsfld, quickMana_PlayUseSound));
                     qmproc.InsertBefore(first_, Instruction.Create(OpCodes.Ldarg_0));
@@ -592,7 +592,7 @@ namespace Prism.Injector.Patcher
                     for (int i = 0; i < quickMana.Body.Instructions.Count; i++)
                         if (quickMana.Body.Instructions[i].Operand == first)
                             quickMana.Body.Instructions[i].Operand = newF;
-                }
+                }*/
             }
             #endregion
 
@@ -652,19 +652,19 @@ namespace Prism.Injector.Patcher
                         OpCodes.Call // Main.PlaySound(int, int, int, int)
                     };
 
-                using (var qmproc = quickMount.Body.GetILProcessor())
+                /*using (var qmproc = quickMount.Body.GetILProcessor())
                 {
                     var first = quickMount.Body.FindInstrSeqStart(toRem);
                     var index = quickMount.Body.Instructions.IndexOf(first);
                     var next = quickMount.Body.Instructions[index + toRem.Length];
 
                     first = qmproc.RemoveInstructions(first, toRem.Length);
-                    
+
                     qmproc.InsertBefore(next, Instruction.Create(OpCodes.Ldsfld, quickMount_PlayUseSound));
                     qmproc.InsertBefore(next, Instruction.Create(OpCodes.Ldloc_0));
                     qmproc.InsertBefore(next, Instruction.Create(OpCodes.Ldarg_0));
                     qmproc.InsertBefore(next, Instruction.Create(OpCodes.Call, invokeUseSound));
-                }
+                }*/
             }
             #endregion
 
@@ -697,11 +697,11 @@ namespace Prism.Injector.Patcher
                     OpCodes.Call // Main.PlaySound(int, int, int, int)
                 };
 
-                using (var upproc = updatePet.Body.GetILProcessor())
+                /*using (var upproc = updatePet.Body.GetILProcessor())
                 {
                     var first = updatePet.Body.FindInstrSeqStart(toRem);
                     first = upproc.RemoveInstructions(first, toRem.Length);
-                    
+
                     upproc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, updatePet_PlayUseSound));
                     upproc.InsertBefore(first, Instruction.Create(OpCodes.Ldarg_0));
                     upproc.InsertBefore(first, Instruction.Create(OpCodes.Ldfld, typeDef_Player.GetField("miscEquips")));
@@ -709,7 +709,7 @@ namespace Prism.Injector.Patcher
                     upproc.InsertBefore(first, Instruction.Create(OpCodes.Ldelem_Ref));
                     upproc.InsertBefore(first, Instruction.Create(OpCodes.Ldarg_0));
                     upproc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeUseSound));
-                }
+                }*/
             }
             #endregion
 
@@ -742,11 +742,11 @@ namespace Prism.Injector.Patcher
                     OpCodes.Call // Main.PlaySound(int, int, int, int)
                 };
 
-                using (var uplproc = updatePetLight.Body.GetILProcessor())
+                /*using (var uplproc = updatePetLight.Body.GetILProcessor())
                 {
                     var first = updatePetLight.Body.FindInstrSeqStart(toRem);
                     first = uplproc.RemoveInstructions(first, toRem.Length);
-                    
+
                     uplproc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, updatePetLight_PlayUseSound));
                     uplproc.InsertBefore(first, Instruction.Create(OpCodes.Ldarg_0));
                     uplproc.InsertBefore(first, Instruction.Create(OpCodes.Ldfld, typeDef_Player.GetField("miscEquips")));
@@ -754,7 +754,7 @@ namespace Prism.Injector.Patcher
                     uplproc.InsertBefore(first, Instruction.Create(OpCodes.Ldelem_Ref));
                     uplproc.InsertBefore(first, Instruction.Create(OpCodes.Ldarg_0));
                     uplproc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeUseSound));
-                }
+                }*/
             }
             #endregion
         }
@@ -778,7 +778,7 @@ namespace Prism.Injector.Patcher
             typeDef_Player.Fields.Add(onMidUpdate);
 
             var ub = update.Body;
-            using (var uproc = ub.GetILProcessor())
+            /*using (var uproc = ub.GetILProcessor())
             {
                 OpCode[] callGrabItems =
                 {
@@ -816,7 +816,7 @@ namespace Prism.Injector.Patcher
 
                 uproc.InsertBefore(instrs, Instruction.Create(OpCodes.Ldsfld, onMidUpdate));
                 uproc.EmitWrapperCall(invokeMidUpdate, instrs);
-            }
+            }*/
         }
         static void InitBuffBHandlerArray()
         {
@@ -836,7 +836,7 @@ namespace Prism.Injector.Patcher
         static void InjectPreShootHook()
         {
             // public static int NewProjectile(float X, float Y, float SpeedX, float SpeedY, int Type, int Damage, float KnockBack, int Owner = 255, float ai0 = 0f, float ai1 = 0f)
-            
+
             // get stuff
             var proj_t = memRes.GetType("Terraria.Projectile");
             var newProj = proj_t.GetMethod("NewProjectile", MethodFlags.Static | MethodFlags.Public, Empty<TypeSig>.Array);
@@ -866,12 +866,12 @@ namespace Prism.Injector.Patcher
                 /*
                  *   ldsfld onPreShootField
                  *   brfalse.s VANILLA
-                 * 
+                 *
                  *   ldsfld onPreShootField
                  *   ldargs...
                  *   callvirt int32 Invoke
                  *   ret
-                 * 
+                 *
                  * VANILLA:
                  *   ldargs...
                  *   call NewProjectile

@@ -27,12 +27,12 @@ namespace Prism.Mods.DefHandlers
             if (amt == 0)
                 return;
 
-            int newLen = amt > 0 ? Main.npcName.Length + amt : NPCID.Count;
+            int newLen = amt > 0 ? Main.npcFrameCount.Length + amt : NPCID.Count;
 
             if (!Main.dedServ)
                 Array.Resize(ref Main.npcTexture, newLen);
 
-            Array.Resize(ref Main.npcName      , newLen);
+          //Array.Resize(ref Main.npcName      , newLen);
             Array.Resize(ref Main.NPCLoaded    , newLen);
             Array.Resize(ref Main.npcFrameCount, newLen);
             Array.Resize(ref Main.npcCatchable , newLen);
@@ -63,17 +63,17 @@ namespace Prism.Mods.DefHandlers
         protected override NPC GetVanillaEntityFromID(int id)
         {
             var entity = new NPC();
-            entity.netDefaults(id);
+            entity.SetDefaultsFromNetId(id);
             return entity;
         }
         protected override NpcDef NewDefFromVanilla(NPC npc)
         {
-            return new NpcDef(Lang.npcName(npc.netID, true), getTexture: () => Main.npcTexture[npc.type]);
+            return new NpcDef(Lang.GetNPCNameValue(npc.netID), getTexture: () => Main.npcTexture[npc.type]);
         }
 
         protected override void CopyEntityToDef(NPC npc, NpcDef def)
         {
-            def.DisplayName         = npc.displayName;
+            def.DisplayName         = npc.GivenOrTypeName;
             def.Type                = npc.type;
             def.NetID               = npc.netID;
             def.Damage              = npc.damage;
@@ -97,8 +97,8 @@ namespace Prism.Mods.DefHandlers
             def.MaxLife             = npc.lifeMax;
             def.GetTexture          = () => Main.npcTexture[npc.type];
             def.IsImmortal          = npc.immortal;
-            def.SoundOnHit          = npc.P_SoundOnHit   as SfxRef != null ? (SfxRef)npc.P_SoundOnHit : new SfxRef("NpcHit", variant: npc.soundHit);
-            def.SoundOnDeath        = npc.P_SoundOnDeath as SfxRef != null ? (SfxRef)npc.P_SoundOnDeath : new SfxRef("NpcKilled", variant: npc.soundKilled);
+          //def.SoundOnHit          = npc.P_SoundOnHit   as SfxRef != null ? (SfxRef)npc.P_SoundOnHit : new SfxRef("NpcHit", variant: npc.soundHit);
+          //def.SoundOnDeath        = npc.P_SoundOnDeath as SfxRef != null ? (SfxRef)npc.P_SoundOnDeath : new SfxRef("NpcKilled", variant: npc.soundKilled);
             def.TimeLeft            = npc.timeLeft;
             def.AlwaysUpdateInMP    = npc.netAlways;
             def.ImmuneToLava        = npc.lavaImmune;
@@ -113,9 +113,9 @@ namespace Prism.Mods.DefHandlers
             def.IsImmune    = npc.dontTakeDamage;
             def.Rarity      = npc.rarity        ;
 
-            def.TownConfig = new TownNpcConfig(() => Main.npcHeadTexture[NPC.TypeToNum(npc.type)])
+            def.TownConfig = new TownNpcConfig(() => Main.npcHeadTexture[NPC.TypeToHeadIndex(npc.type)])
             {
-                HeadId = NPC.TypeToNum(npc.type)
+                HeadId = NPC.TypeToHeadIndex(npc.type)
             };
 
             if (npc.P_Music != null && npc.P_Music is BgmRef)
@@ -146,8 +146,8 @@ namespace Prism.Mods.DefHandlers
         }
         protected override void CopyDefToEntity(NpcDef def, NPC npc)
         {
-            npc.name            = def.InternalName;
-            npc.displayName     = def.DisplayName;
+          //npc.name            = def.InternalName;
+          //npc.displayName     = def.DisplayName;
             npc.type            = def.Type;
             npc.netID           = def.NetID;
             npc.damage          = def.Damage;
@@ -176,8 +176,8 @@ namespace Prism.Mods.DefHandlers
 
             npc.P_SoundOnHit   = def.SoundOnHit  ;
             npc.P_SoundOnDeath = def.SoundOnDeath;
-            npc.soundHit       = def.SoundOnHit   == null ? 0 : def.SoundOnHit  .VariantID;
-            npc.soundKilled    = def.SoundOnDeath == null ? 0 : def.SoundOnDeath.VariantID;
+          //npc.soundHit       = def.SoundOnHit   == null ? 0 : def.SoundOnHit  .VariantID;
+          //npc.soundKilled    = def.SoundOnDeath == null ? 0 : def.SoundOnDeath.VariantID;
 
             for (int i = 0; i < def.BuffImmunities.Count; i++)
                 npc.buffImmune[i] = true;
@@ -261,7 +261,7 @@ namespace Prism.Mods.DefHandlers
 
         protected override void CopySetProperties(NpcDef def)
         {
-            Main.npcName                     [def.Type] = def.DisplayName;
+          //Main.npcName                     [def.Type] = def.DisplayName;
             Main.npcFrameCount               [def.Type] = def.FrameCount;
             Main.npcCatchable                [def.Type] = def.CaughtAsItem != null;
 
@@ -296,11 +296,11 @@ namespace Prism.Mods.DefHandlers
         // it would be shown as eg. "GoblinTinkerer" instead of "Goblin Tinkerer"
         protected override string GetNameVanillaMethod(NPC npc)
         {
-            return npc.townNPC ? IDNames[Array.IndexOf(IDValues, npc.netID)] : npc.name;
+            return npc.GivenOrTypeName;
         }
         protected override string InternalName(NPC npc)
         {
-            return npc.townNPC ? npc.name : null;
+            return npc.TypeName;
         }
     }
 }

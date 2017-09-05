@@ -7,6 +7,7 @@ using Prism.Util;
 using Terraria;
 using Terraria.GameContent.Achievements;
 using Terraria.ID;
+using Terraria.Localization;
 
 namespace Prism.Mods.Hooks
 {
@@ -210,7 +211,7 @@ namespace Prism.Mods.Hooks
                 Main.availableRecipe[i] = 0;
             Main.numAvailableRecipes = 0;
 
-            if (Main.guideItem.type > 0 && Main.guideItem.stack > 0 && !String.IsNullOrEmpty(Main.guideItem.name)) // in guide UI
+            if (Main.guideItem.type > 0 && Main.guideItem.stack > 0 && !String.IsNullOrEmpty(Main.guideItem.Name)) // in guide UI
                 FindGuideRecipes();
             else
                 FindRecipesInner();
@@ -298,7 +299,7 @@ namespace Prism.Mods.Hooks
                         item.stack -= stack;
 
                         if (Main.netMode == 1 && mp.chest >= 0)
-                            NetMessage.SendData(MessageID.SyncChestItem, -1, -1, String.Empty, mp.chest, i, 0f, 0f, 0, 0, 0);
+                            NetMessage.SendData(MessageID.SyncChestItem, -1, -1, NetworkText.Empty, mp.chest, i, 0f, 0f, 0, 0, 0);
 
                         stack = 0;
                     }
@@ -310,7 +311,7 @@ namespace Prism.Mods.Hooks
                         item.stack = 0;
 
                         if (Main.netMode == 1 && mp.chest >= 0)
-                            NetMessage.SendData(MessageID.SyncChestItem, -1, -1, String.Empty, mp.chest, i, 0f, 0f, 0, 0, 0);
+                            NetMessage.SendData(MessageID.SyncChestItem, -1, -1, NetworkText.Empty, mp.chest, i, 0f, 0f, 0, 0, 0);
                     }
                 }
             }
@@ -388,7 +389,7 @@ namespace Prism.Mods.Hooks
                                 invItem.stack -= stack;
 
                                 if (Main.netMode == 1 && mp.chest >= 0)
-                                    NetMessage.SendData(MessageID.SyncChestItem, -1, -1, String.Empty, mp.chest, k, 0f, 0f, 0, 0, 0);
+                                    NetMessage.SendData(MessageID.SyncChestItem, -1, -1, NetworkText.Empty, mp.chest, k, 0f, 0f, 0, 0, 0);
 
                                 stack = 0;
                             }
@@ -400,7 +401,7 @@ namespace Prism.Mods.Hooks
                                 invItem.stack = 0;
 
                                 if (Main.netMode == 1 && mp.chest >= 0)
-                                    NetMessage.SendData(MessageID.SyncChestItem, -1, -1, String.Empty, mp.chest, k, 0f, 0f, 0, 0, 0);
+                                    NetMessage.SendData(MessageID.SyncChestItem, -1, -1, NetworkText.Empty, mp.chest, k, 0f, 0f, 0, 0, 0);
                             }
                     }
                 }

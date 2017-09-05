@@ -29,12 +29,12 @@ namespace Prism.Mods
 
         public override void Save(BinBuffer bb)
         {
-            bb.Write(Entity.toolTip  ?? String.Empty);
-            bb.Write(Entity.toolTip2 ?? String.Empty);
+            //bb.Write(Entity.toolTip  ?? String.Empty);
+            //bb.Write(Entity.toolTip2 ?? String.Empty);
         }
         public override void Load(BinBuffer bb)
         {
-            Entity.toolTip  = bb.ReadString();
+            /*Entity.toolTip  = bb.ReadString();
             Entity.toolTip2 = bb.ReadString();
 
             if (ModData.modsFromInternalName.ContainsKey(Entity.toolTip))
@@ -43,7 +43,7 @@ namespace Prism.Mods
 
                 if (mod.ItemDefs.ContainsKey(Entity.toolTip2))
                     Entity.SetDefaults(ItemDef.Defs[Entity.toolTip2, Entity.toolTip].Type);
-            }
+            }*/
         }
     }
 }

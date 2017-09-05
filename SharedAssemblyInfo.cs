@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Terraria Prism Team")]
 [assembly: AssemblyProduct("Prism")]
-[assembly: AssemblyCopyright("Copyright © Terraria Prism Team 2016")]
+[assembly: AssemblyCopyright("Copyright (WTFPL) © Terraria Prism Team 2016-2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
@@ -29,5 +29,5 @@ static partial class AssemblyInfo
 static partial class GitInfo
 {
     public const string REPO   = "Prism";
-    public const string BRANCH = "develop";
+    public const string BRANCH = "hack";
 }

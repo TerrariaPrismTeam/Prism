@@ -22,7 +22,8 @@ namespace Prism
         {
             "Newtonsoft.Json",
             "Steamworks.NET",
-            "Ionic.Zip.CF"
+            "Ionic.Zip.CF",
+            "ReLogic"
         };
         readonly static string[] AssemblyExts =
         {

@@ -123,12 +123,12 @@ namespace Prism.Mods.DefHandlers
         }
         protected override ProjectileDef NewDefFromVanilla(Projectile proj)
         {
-            return new ProjectileDef(proj.name, getTexture: () => Main.projectileTexture[proj.type]);
+            return new ProjectileDef(proj.Name, getTexture: () => Main.projectileTexture[proj.type]);
         }
 
         protected override void CopyEntityToDef(Projectile proj, ProjectileDef def)
         {
-            def.DisplayName  = proj.name     ;
+            def.DisplayName  = proj.Name     ;
             def.Type         = proj.type     ;
             def.Damage       = proj.damage   ;
             def.Knockback    = proj.knockBack;
@@ -166,7 +166,7 @@ namespace Prism.Mods.DefHandlers
         }
         protected override void CopyDefToEntity(ProjectileDef def, Projectile proj)
         {
-            proj.name       = def.DisplayName;
+          //proj.name       = def.DisplayName;
             proj.type       = def.Type;
             proj.damage     = def.Damage;
             proj.knockBack  = def.Knockback;

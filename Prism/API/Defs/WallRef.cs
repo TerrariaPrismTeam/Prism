@@ -13,8 +13,9 @@ namespace Prism.API.Defs
         public WallRef(int resourceId)
             : base(resourceId, id => Handler.WallDef.DefsByType.ContainsKey(id) ? Handler.WallDef.DefsByType[id].DisplayName : WallDefHandler.WALL + id)
         {
+            // FIXME: this somehow borks with resourceId == 1 and WallID.Count == 231, WTF?
             if (resourceId >= WallID.Count)
-                throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla wall type.");
+                throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla wall type, but is " + resourceId + "/" + WallID.Count + ".");
         }
         public WallRef(ObjectRef objRef)
             : base(objRef, Assembly.GetCallingAssembly())

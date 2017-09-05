@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Prism.Debugging;
 using Prism.Mods;
 using Prism.Util;
 using Steamworks;
+using ReLogic.OS;
 using Terraria.Initializers;
+using Terraria.Localization;
 using Terraria.Social;
+using Terraria.Utilities;
 
 using T = Terraria;
 
@@ -31,7 +35,8 @@ namespace Prism
             {
                 bool ret = SteamAPI.IsSteamRunning();
 
-                Logging.LogInfo("Steam detected.");
+                if (ret)
+                    Logging.LogInfo("Steam detected.");
 
                 return ret;
             }
@@ -74,7 +79,7 @@ namespace Prism
         {
             try
             {
-                ReadCommandLineArgs(CommandLineArgs.Parse(args, ShortToLongArgs));
+                ReadCommandLineArgs(CommandLineArgs.Parse(ref args, ShortToLongArgs));
             }
             catch (Exception e)
             {
@@ -84,8 +89,20 @@ namespace Prism
                 return ExceptionHandler.GetHResult(e);
             }
 
+            if (!Platform.IsWindows)
+                args = T.Utils.ConvertMonoArgsToDotNet(args);
+
+            if (Platform.IsOSX)
+                T.Main.OnEngineLoad += () => { T.Main.instance.IsMouseVisible = true; };
+
+            T.Program.LaunchParameters = T.Utils.ParseArguments(args);
+            ThreadPool.SetMinThreads(8, 8);
+            LanguageManager.Instance.SetLanguage(GameCulture.English);
+
             using (var m = new TMain())
             {
+                T.Lang.InitializeLegacyLocalization();
+
                 SocialAPI.Initialize(SteamExists() ? SocialMode.Steam : SocialMode.None);
                 LaunchInitializer.LoadParameters(m);
 
@@ -93,16 +110,17 @@ namespace Prism
 
                 try
                 {
-                    T.Main.OnEngineLoad += () =>
+                    T.Main.OnEngineLoad += T.Program.StartForceLoad;
+                    /*T.Main.OnEngineLoad += () =>
                     {
                         T.Program.StartForceLoad();
 
                         ////TODO: move this to another thread (in StartForceLoad)
                         // not really needed, prism is quite small, compared to terraria (and it doesn't have any HUGE methods ;) )
 #if !DEV_BUILD
-                        //T.Program.ForceLoadAssembly(Assembly.GetExecutingAssembly() /* Prism */, true);
+                        //T.Program.ForceLoadAssembly(Assembly.GetExecutingAssembly() / * Prism * /, true);
 #endif
-                    };
+                    };*/
 
                     m.Run();
                 }

@@ -88,6 +88,9 @@
     <Reference Include="Prism.Terraria">
       <HintPath>..\References\Prism.Terraria.dll</HintPath>
     </Reference>
+    <Reference Include="ReLogic">
+      <HintPath>..\References\ReLogic.dll</HintPath>
+    </Reference>
     <Reference Include="Steamworks.NET">
       <HintPath>..\References\Steamworks.NET.dll</HintPath>
     </Reference>

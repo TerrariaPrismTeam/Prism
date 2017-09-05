@@ -146,8 +146,8 @@ namespace Prism.IO
                     {
                         inventory[i].SetDefaults(ItemDefHandler.UnknownItemID);
 
-                        inventory[i].toolTip = mod;
-                        inventory[i].toolTip2 = item;
+                        //inventory[i].toolTip = mod;
+                        //inventory[i].toolTip2 = item;
                     }
                     else
                         inventory[i].SetDefaults(ModData.modsFromInternalName[mod].ItemDefs[item].Type);
@@ -649,7 +649,7 @@ namespace Prism.IO
 
             var map = new ModIdMap(WallID.Count, or => WallDef.Defs[or].Type, id => Handler.WallDef.DefsByType[id]);
 
-            Read2DArray(bb, map, Main.maxTilesX, Main.maxTilesY, (x, y, id) => Main.tile[x, y].wall = (ushort)id, (x, y, or) => Main.tile[x, y].wall = (ushort)WallDef.Defs[or].Type);
+            Read2DArray(bb, map, Main.maxTilesX, Main.maxTilesY, (x, y, id) => Main.tile[x, y].wall = (byte/*ushort*/)id, (x, y, or) => Main.tile[x, y].wall = (byte/*ushort*/)WallDef.Defs[or].Type);
         }
         static void LoadTileData  (BinBuffer bb, int v)
         {

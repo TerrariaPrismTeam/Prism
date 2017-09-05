@@ -201,7 +201,7 @@ namespace Prism.Mods.DefHandlers
         }
         protected override string GetNameVanillaMethod(Tile tile)
         {
-            return Lang.mapLegend[MapHelper.TileToLookup(tile.type, 0)] ?? String.Empty; //! might return empty string (if arr entry is null or empty)
+            return Lang.GetMapObjectName(tile.type) ?? String.Empty; //! might return empty string (if arr entry is null or empty)
         }
 
         protected override void CopyEntityToDef(Tile tile, TileDef def)

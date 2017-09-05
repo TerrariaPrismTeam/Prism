@@ -98,9 +98,9 @@ namespace Prism.Mods.DefHandlers
                 h.OnInit();
             }
         }
-        internal static void OnSetDefaultsByName(Item item, string name)
+        /*internal static void OnSetDefaultsByName(Item item, string name)
         {
-            item.name = String.Empty;
+            item._nameOverride = String.Empty;
             bool noMatCheck = true;
 
             if (Handler.ItemDef.VanillaDefsByName.ContainsKey(name))
@@ -208,6 +208,6 @@ namespace Prism.Mods.DefHandlers
 
                 item.CheckTip();
             }
-        }
+        }*/
     }
 }

@@ -150,9 +150,9 @@ namespace Prism.DebuggingMod.ChatConsole.ChatCommands
                 switch (entityType)
                 {
                     case EntityType.Projectile:
-                    case EntityType.Proj: finalEntityName = Main.projectile[Projectile.NewProjectile(x, y, 2 * (float)Main.rand.NextDouble() - 1, 2 * (float)Main.rand.NextDouble() - 1, id, ProjectileDef.Defs[id].Damage, ProjectileDef.Defs[id].Knockback, Main.myPlayer)].name; break;
-                    case EntityType.Item: finalEntityName = Main.item[Item.NewItem(x, y, 32, 32, id, amt)].name; spawnOnlyOne = true; break; //All in one stack; no need to repeat spawn command.
-                    case EntityType.Npc:  finalEntityName = Main.npc[NPC.NewNPC(x, y, id)].name; break;                    
+                    case EntityType.Proj: finalEntityName = Main.projectile[Projectile.NewProjectile(x, y, 2 * (float)Main.rand.NextDouble() - 1, 2 * (float)Main.rand.NextDouble() - 1, id, ProjectileDef.Defs[id].Damage, ProjectileDef.Defs[id].Knockback, Main.myPlayer)].Name; break;
+                    case EntityType.Item: finalEntityName = Main.item[Item.NewItem(x, y, 32, 32, id, amt)].Name; spawnOnlyOne = true; break; //All in one stack; no need to repeat spawn command.
+                    case EntityType.Npc:  finalEntityName = Main.npc[NPC.NewNPC(x, y, id)].GivenOrTypeName; break;                    
                     case EntityType.Tile: WorldGen.PlaceTile(tileCoord.X, tileCoord.Y, id, false, false, Main.myPlayer); finalEntityName = TileDef.Defs[id].DisplayName.Length > 0 ? TileDef.Defs[id].DisplayName : TileDef.Defs[id].InternalName; spawnOnlyOne = true; break; //You can only place one tile in a location.
                     case EntityType.Wall: WorldGen.PlaceWall(tileCoord.X, tileCoord.Y, id, false); finalEntityName = WallDef.Defs[id].DisplayName.Length > 0 ? WallDef.Defs[id].DisplayName : WallDef.Defs[id].InternalName; spawnOnlyOne = true; break; //You can only place one wall in a location.
                 }

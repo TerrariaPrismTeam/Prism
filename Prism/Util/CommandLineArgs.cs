@@ -57,11 +57,12 @@ namespace Prism.Util
         /// <param name="args"></param>
         /// <param name="shortToLong">Keys must be culture-invariant uppercase.</param>
         /// <returns></returns>
-        public static Argument[] Parse(string[] args, Dictionary<char, string> shortToLong)
+        public static Argument[] Parse(ref string[] args, Dictionary<char, string> shortToLong)
         {
             var ret = new List<Argument>();
 
-            for (int i = 0; i < args.Length; i++)
+            int i = 0;
+            for (i = 0; i < args.Length; i++)
             {
                 if (args[i].StartsWith(FORWARD_SLASH, StringComparison.Ordinal))
                 {
@@ -103,7 +104,7 @@ namespace Prism.Util
 
                     var fu = Char.ToUpperInvariant(t.Key[0]);
                     if (t.Key.Length != 1 || !shortToLong.ContainsKey(fu))
-                        throw new FormatException("Command-line option shorthand '" + fu + "' does not exist.");
+                        goto RETURN;
                     var n = shortToLong[fu].ToUpperInvariant();
 
                     ret.Add(t.Value == null ? new Argument()
@@ -130,6 +131,11 @@ namespace Prism.Util
                         Value = args[i]
                     });
             }
+
+        RETURN:
+            string[] r = new string[args.Length - i];
+            Array.Copy(args, i, r, 0, r.Length);
+            args = r;
 
             return ret.ToArray();
         }

@@ -130,6 +130,11 @@ namespace Prism.Injector.Patcher
                     }
         }
 
+        static void FixParseArguementsTypo()
+        {
+            memRes.GetType("Terraria.Utils").GetMethod("ParseArguements").Name = "ParseArguments";
+        }
+
         public static void Patch(DNContext context, string outputPath, Action<string> log = null)
         {
             log = log ?? Console.WriteLine;
@@ -161,6 +166,7 @@ namespace Prism.Injector.Patcher
             log("Fixing Terraria internals...");
             //AddInternalsVisibleToAttr();
             RemoveConsoleWriteLineInWndProcHook();
+            FixParseArguementsTypo();
 
             log("Patching Terraria.Item...");
             ItemPatcher      .Patch();
