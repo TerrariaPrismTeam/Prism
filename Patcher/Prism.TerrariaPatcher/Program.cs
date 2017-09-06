@@ -109,7 +109,7 @@ namespace Prism.TerrariaPatcher
                 {
                     //Console.Write("Patching, please wait... ");
 
-                    Patcher.Patch(c, PrismAssembly /* logging defaults to stdout */);
+                    Patcher.Patch(c, PrismAssembly, Console.WriteLine /* logging defaults to stderr */);
                 }
                 catch (Exception e) when (!Debugger.IsAttached)
                 {

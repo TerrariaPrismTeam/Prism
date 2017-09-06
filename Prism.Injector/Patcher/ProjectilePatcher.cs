@@ -29,7 +29,7 @@ namespace Prism.Injector.Patcher
             typeDef_Proj.Fields.Add(new FieldDefUser("P_BHandler", new FieldSig(typeSys.Object), FieldAttributes.Public));
         }
 
-        internal static void Patch()
+        internal static void Patch(Action<string> log)
         {
             context = TerrariaPatcher.context;
             memRes = TerrariaPatcher.memRes;

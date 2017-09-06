@@ -92,6 +92,7 @@
     <Compile Include="Patcher\PlayerPatcher.cs" />
     <Compile Include="Patcher\ProjectilePatcher.cs" />
     <Compile Include="Patcher\ItemPatcher.cs" />
+    <Compile Include="Patcher\LangPatcher.cs" />
     <Compile Include="Patcher\NpcPatcher.cs" />
     <Compile Include="Patcher\RecipePatcher.cs" />
     <Compile Include="Patcher\TerrariaPatcher.cs" />

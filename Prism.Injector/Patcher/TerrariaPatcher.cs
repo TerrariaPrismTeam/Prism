@@ -74,7 +74,7 @@ namespace Prism.Injector.Patcher
                 foreach (TypeDef d in td.NestedTypes)
                     PublicifyRec(d);
         }
-        static void Publicify()
+        static void Publicify(Action<string> log)
         {
             // make all types public
 
@@ -82,7 +82,7 @@ namespace Prism.Injector.Patcher
                 PublicifyRec(td);
         }
 
-        static void AddInternalsVisibleToAttr()
+        static void AddInternalsVisibleToAttr(Action<string> log)
         {
             //! raises attribute not imported error on write
             var ivt_t = memRes.ReferenceOf(typeof(InternalsVisibleToAttribute)).ResolveTypeDefThrow();
@@ -90,7 +90,7 @@ namespace Prism.Injector.Patcher
 
             context.PrimaryAssembly.CustomAttributes.Add(new CustomAttribute(ivt_ctor, Encoding.UTF8.GetBytes("Prism")));
         }
-        static void RemoveConsoleWriteLineInWndProcHook()
+        static void RemoveConsoleWriteLineInWndProcHook(Action<string> log)
         {
             var kbi_t = memRes.GetType("Terraria.keyBoardInput");
 
@@ -119,7 +119,7 @@ namespace Prism.Injector.Patcher
             instrs.RemoveAt(instrs.IndexOf(callWriteLine) - 1);
             instrs.Remove(callWriteLine);
         }
-        public static void OptimizeAll()
+        public static void OptimizeAll(Action<string> log)
         {
             foreach (var td in context.PrimaryAssembly.ManifestModule.Types)
                 foreach (var m in td.Methods)
@@ -130,14 +130,14 @@ namespace Prism.Injector.Patcher
                     }
         }
 
-        static void FixParseArguementsTypo()
+        static void FixParseArguementsTypo(Action<string> log)
         {
             memRes.GetType("Terraria.Utils").GetMethod("ParseArguements").Name = "ParseArguments";
         }
 
         public static void Patch(DNContext context, string outputPath, Action<string> log = null)
         {
-            log = log ?? Console.WriteLine;
+            log = log ?? Console.Error.WriteLine;
 
             TerrariaPatcher.context = context;
             memRes = TerrariaPatcher.context.Resolver;
@@ -152,7 +152,7 @@ namespace Prism.Injector.Patcher
             if (ver < min)
                 throw new NotSupportedException("The Terraria.exe version (" + ver + ") is too old!");
             if (ver > max)
-                log("Warning: This Terraria.exe version (" + ver + ") is not supported, patching might fail.");
+                log("Warning: This Terraria.exe version (" + ver + ") is not supported, patching will probably fail.");
             else
                 log("Version is " + ver);
 
@@ -162,36 +162,38 @@ namespace Prism.Injector.Patcher
                 log("Warning: Platform is not the same as " + OSPlatform() + ", patching might fail.");
 
             log("Making members public...");
-            Publicify();
+            Publicify(log);
             log("Fixing Terraria internals...");
-            //AddInternalsVisibleToAttr();
-            RemoveConsoleWriteLineInWndProcHook();
-            FixParseArguementsTypo();
+            //AddInternalsVisibleToAttr(log);
+            RemoveConsoleWriteLineInWndProcHook(log);
+            FixParseArguementsTypo(log);
 
             log("Patching Terraria.Item...");
-            ItemPatcher      .Patch();
+            ItemPatcher      .Patch(log);
             log("Patching Terraria.NPC...");
-            NpcPatcher       .Patch();
+            NpcPatcher       .Patch(log);
             log("Patching Terraria.Projectile...");
-            ProjectilePatcher.Patch();
+            ProjectilePatcher.Patch(log);
             log("Patching Terraria.Player...");
-            PlayerPatcher    .Patch();
+            PlayerPatcher    .Patch(log);
             log("Patching Terraria.Mount...");
-            MountPatcher     .Patch();
+            MountPatcher     .Patch(log);
+            log("Patching Terraria.Lang...");
+            LangPatcher      .Patch(log);
             log("Patching Terraria.Main...");
-            MainPatcher      .Patch();
+            MainPatcher      .Patch(log);
             log("Patching Terraria.Tile...");
-            TilePatcher      .Patch();
+            TilePatcher      .Patch(log);
             log("Patching Terraria.IO.WorldFile...");
-            WorldFilePatcher .Patch();
+            WorldFilePatcher .Patch(log);
             log("Patching Terraria.Recipe...");
-            RecipePatcher    .Patch();
+            RecipePatcher    .Patch(log);
             log("Patching Terraria.Buff...");
-            BuffPatcher      .Patch();
+            BuffPatcher      .Patch(log);
             // do other stuff here
 
             log("Optimising MSIL...");
-            OptimizeAll();
+            OptimizeAll(log);
 
             log("Done!");
 

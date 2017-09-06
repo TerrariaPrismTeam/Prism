@@ -131,7 +131,7 @@ namespace Prism.Injector.Patcher
                 Instruction.Create(OpCodes.Brfalse, skipToOffset)
             });*/
         }
-        static void AddLocalChatHook()
+        static void AddLocalChatHook(Action<string> log)
         {
             #region VERY LONG OPCODE SEARCH
             OpCode[] searchSeq =
@@ -286,7 +286,7 @@ namespace Prism.Injector.Patcher
                 var instrSeq = mainUpdate.Body.FindInstrSeq(proc, searchSeq);
 
                 if (instrSeq[0] == null)
-                    Console.Error.WriteLine("MainPatcher.AddLocalChatHook() could not find all the local chat opcodes. The search array needs to be updated.");
+                    log("MainPatcher.AddLocalChatHook() could not find all the local chat opcodes. The search array needs to be updated.");
                 else
                 {
                     var newInstrBrfalse = Instruction.Create(OpCodes.Brfalse_S, (Instruction)(instrSeq[1].Operand));
@@ -429,7 +429,7 @@ namespace Prism.Injector.Patcher
                 // not rewiring the if will lead to invalid IL, because the target instruction won't exist (because we're removing it here)
             }*/
         }
-        static void AddOnUpdateKeyboardHook()
+        static void AddOnUpdateKeyboardHook(Action<string> log)
         {
             OpCode[] search =
             {
@@ -474,7 +474,7 @@ namespace Prism.Injector.Patcher
             var mainUpdateProc = mainUpdateBody.GetILProcessor();
 
             if (!(first != null && (first = first.Next(mainUpdateProc)) != null && (first = first.Next(mainUpdateProc)) != null))
-                Console.Error.WriteLine("Couldn't find instructions for MainPatcher::AddOnUpdateKeyboardHook()");
+                log("Couldn't find instructions for MainPatcher::AddOnUpdateKeyboardHook()");
 
             //public virtual void P_OnUpdateInputHook() { }
             MethodDef invokeOnUpdateKeyboardHook;
@@ -544,7 +544,7 @@ namespace Prism.Injector.Patcher
             }
         }
 
-        internal static void Patch()
+        internal static void Patch(Action<string> log)
         {
             context = TerrariaPatcher.context;
             memRes  = TerrariaPatcher.memRes ;
@@ -557,13 +557,13 @@ namespace Prism.Injector.Patcher
             FixOnEngineLoadField();
             RemoveArmourDrawLimitations();
             AddPreDrawHook();
-            AddOnUpdateKeyboardHook();
+            AddOnUpdateKeyboardHook(log);
             AddPostScreenClearHook();
             RemoveResolutionChangedMessage();
 
             AddIsChatAllowedHook();
             typeDef_Main.GetMethod("P_IsChatAllowed", MethodFlags.Public | MethodFlags.Static).Wrap(context);
-            AddLocalChatHook();
+            AddLocalChatHook(log);
             typeDef_Main.GetMethod("P_LocalChat", MethodFlags.Public | MethodFlags.Static).Wrap(context);
         }
     }

@@ -344,7 +344,7 @@ namespace Prism.Injector.Patcher
         }*/
         #endregion
 
-        internal static void Patch()
+        internal static void Patch(Action<string> log)
         {
             context = TerrariaPatcher.context;
             memRes  = TerrariaPatcher.memRes ;

@@ -28,7 +28,7 @@ namespace Prism.Injector.Patcher
             typeDef_Item.Fields.Add(new FieldDefUser("P_UseSound", new FieldSig(typeSys.Object), FieldAttributes.Public));
         }
 
-        internal static void Patch()
+        internal static void Patch(Action<string> log)
         {
             context = TerrariaPatcher.context;
             memRes  = TerrariaPatcher.memRes ;

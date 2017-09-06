@@ -82,12 +82,13 @@ namespace Prism.Injector.Patcher
                     lwbproc.InsertBefore(instr, toInject[i]);
             }*/
         }
-        static void EnlargeFrameImportantArray()
+        static void EnlargeFrameImportantArray(Action<string> log)
         {
             var saveHeader = typeDef_WorldFile.GetMethod("SaveFileFormatHeader");
 
             if ((int)saveHeader.Body.Instructions[0].Operand != 461)
-                Console.WriteLine("WARNING! max tile type is not 461, SaveFileFormatHeader might've changed!");
+                log("WARNING! max tile type is not 461 but " + saveHeader.Body.Instructions[0].Operand
+                        + ", SaveFileFormatHeader might've changed!");
 
             using (var shp = saveHeader.Body.GetILProcessor())
             {
@@ -102,7 +103,7 @@ namespace Prism.Injector.Patcher
             }
         }
 
-        internal static void Patch()
+        internal static void Patch(Action<string> log)
         {
             context = TerrariaPatcher.context;
             memRes  = TerrariaPatcher.memRes;
@@ -112,7 +113,7 @@ namespace Prism.Injector.Patcher
 
             InjectSaveHook();
             InjectLoadHook();
-            EnlargeFrameImportantArray();
+            EnlargeFrameImportantArray(log);
         }
     }
 }

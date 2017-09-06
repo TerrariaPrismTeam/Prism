@@ -293,7 +293,7 @@ namespace Prism.Injector.Patcher
                 unproc.EmitWrapperCall(invokeEffects, instr);
             }*/
         }
-        static void InitBuffBHandlerArray()
+        static void InitBuffBHandlerArray(Action<string> log)
         {
             var ctor = typeDef_NPC.GetConstructor();
             var buffBHandler = typeDef_NPC.GetField("P_BuffBHandler");
@@ -309,7 +309,7 @@ namespace Prism.Injector.Patcher
             }
         }
 
-        internal static void Patch()
+        internal static void Patch(Action<string> log)
         {
             context = TerrariaPatcher.context;
             memRes  = TerrariaPatcher.memRes ;
@@ -326,7 +326,7 @@ namespace Prism.Injector.Patcher
             ReplaceSoundHitCalls();
             ReplaceSoundKilledCalls();
             InjectBuffEffectsCall();
-            InitBuffBHandlerArray();
+            InitBuffBHandlerArray(log);
         }
     }
 }
