@@ -19,3 +19,4 @@ namespace Prism.Mods.DefHandlers
         internal static RecipeDefHandler RecipeDef = new RecipeDefHandler();
     }
 }
+

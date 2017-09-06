@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
+using Prism.API;
 using Prism.API.Audio;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Prism.Util;
 using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 
 namespace Prism.Mods.DefHandlers
 {
@@ -38,9 +40,11 @@ namespace Prism.Mods.DefHandlers
             Array.Resize(ref Main.itemFlameTexture, newLen);
             Array.Resize(ref Main.itemFrame       , newLen);
             Array.Resize(ref Main.itemFrameCounter, newLen);
-          //Array.Resize(ref Main.itemName        , newLen);
             Array.Resize(ref Main.itemFlameLoaded , newLen);
             Array.Resize(ref Main.itemFlameTexture, newLen);
+
+            Array.Resize(ref Lang._itemNameCache   , newLen);
+            Array.Resize(ref Lang._itemTooltipCache, newLen);
 
             Array.Resize(ref Item.bodyType        , newLen);
             Array.Resize(ref Item.claw            , newLen);
@@ -90,7 +94,8 @@ namespace Prism.Mods.DefHandlers
 
         protected override ItemDef NewDefFromVanilla(Item item)
         {
-            return new ItemDef(Lang.GetItemNameValue(item.netID), getTexture: () => Main.itemTexture[item.type]);
+            return new ItemDef(new ObjectName(Lang.GetItemNameValue(item.netID)),
+                    getTexture: () => Main.itemTexture[item.type]);
         }
 
         static Func<ItemRef, bool> DRMatch(ItemDef d)
@@ -100,7 +105,7 @@ namespace Prism.Mods.DefHandlers
 
         protected override void CopyEntityToDef(Item item, ItemDef def)
         {
-            def.DisplayName         = item.Name;
+            def.DisplayName         = new ObjectName(item.Name);
             def.Type                = item.type;
             def.NetID               = item.netID;
             def.Damage              = item.damage;
@@ -143,7 +148,9 @@ namespace Prism.Mods.DefHandlers
                                     : item.thrown ? ItemDamageType.Thrown
                                          : ItemDamageType.None;
             def.Value               = new CoinValue(item.value);
-          //def.Description         = new ItemDescription(item.toolTip, item.toolTip2, item.vanity, item.expert, item.questItem, item.notAmmo);
+            def.Description         = new ItemDescription(
+                                        Lang._itemTooltipCache[item.type].ToLines(),
+                                        item.vanity, item.expert, item.questItem, item.notAmmo, !item.material);
             def.Buff                = new AppliedBuff(new BuffRef(item.buffType), item.buffTime);
 
             def.UsedAmmo            = item.useAmmo    ==  0 ? null : new ItemRef      (item.useAmmo   );
@@ -299,7 +306,8 @@ namespace Prism.Mods.DefHandlers
 
             def.material = item.material;
 
-          //def.Description = new ItemDescription(item.toolTip, item.toolTip2, item.vanity, item.expert, item.questItem, item.notAmmo, !item.material);
+            def.Description = new ItemDescription(Lang._itemTooltipCache[item.type].ToLines(),
+                                item.vanity, item.expert, item.questItem, item.notAmmo, !item.material);
 
             def.IsSoul                   = ItemID.Sets.AnimatesAsSoul           [def.Type];
             def.IsStrangePlant           = ItemID.Sets.ExoticPlantsForDyeTrade  [def.Type];
@@ -321,7 +329,8 @@ namespace Prism.Mods.DefHandlers
                 def.material = RecipeDef.Recipes.Any(r => r.RequiredItems.Keys.Any(ir => ir.Match(m, g => g.Any(m))));
             }
 
-            item._nameOverride = def.DisplayName;
+            item._nameOverride = def.DisplayName.ToString();
+
             item.type         = def.Type;
             item.netID        = def.NetID;
             item.damage       = def.Damage;
@@ -402,8 +411,6 @@ namespace Prism.Mods.DefHandlers
             else
                 item.backSlot = item.balloonSlot = item.faceSlot = item.handOffSlot = item.handOnSlot = item.neckSlot = item.shieldSlot = item.shoeSlot = item.waistSlot = item.wingSlot;
 
-          //item.toolTip   =  def.Description.Description     ;
-          //item.toolTip2  =  def.Description.ExtraDescription;
             item.vanity    =  def.Description.ShowVanity      ;
             item.questItem =  def.Description.ShowQuestItem   ;
             item.expert    =  def.Description.ShowExpert      ;
@@ -546,7 +553,8 @@ namespace Prism.Mods.DefHandlers
 
         protected override void CopySetProperties(ItemDef def)
         {
-          //Main.itemName[def.Type] = def.DisplayName;
+            Lang._itemNameCache   [def.Type] = (LocalizedText)def.DisplayName;
+            Lang._itemTooltipCache[def.Type] = def.Description.Description.ToTooltip();
 
             ItemID.Sets.AnimatesAsSoul          [def.Type] = def.IsSoul                  ;
             ItemID.Sets.ExoticPlantsForDyeTrade [def.Type] = def.IsStrangePlant          ;

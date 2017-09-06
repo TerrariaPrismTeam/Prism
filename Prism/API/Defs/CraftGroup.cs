@@ -15,7 +15,7 @@ namespace Prism.API.Defs
         readonly static string COR = ", or ";
         readonly static string COM = ", "   ;
 
-        string dispName, defDn;
+        ObjectName dispName, defDn;
         TRef dispT, defDt;
         TDef dispTcache = null;
 
@@ -41,18 +41,19 @@ namespace Prism.API.Defs
                 return dispTcache;
             }
         }
-        public string DisplayName
+        public ObjectName DisplayName
         {
             get
             {
-                if (String.IsNullOrEmpty(dispName))
+                if (String.IsNullOrEmpty(dispName.ToString()))
                     // a
                     // a or b
                     // a, b[...] or c
-                    dispName = String.IsNullOrEmpty(defDn)
-                        ? list.Select(r => CachedDisplayT.DisplayName).Join(i =>
+                    dispName = String.IsNullOrEmpty(defDn.ToString())
+                        ? new ObjectName(list.Select(r =>
+                                    CachedDisplayT.DisplayName.ToString()).Join(i =>
                             i == 0 ? String.Empty : i == list.Count - 1
-                                ? (list.Count == 2 ? OR : COR) : COM)
+                                ? (list.Count == 2 ? OR : COR) : COM))
                         : defDn;
 
                 return dispName;
@@ -71,7 +72,7 @@ namespace Prism.API.Defs
         {
             list = new List<TRef>(initial);
         }
-        public CraftGroup(IEnumerable<TRef> initial, string displayName, TRef displayT = null)
+        public CraftGroup(IEnumerable<TRef> initial, ObjectName displayName, TRef displayT = null)
         {
             list = new List<TRef>(initial);
 
@@ -82,7 +83,7 @@ namespace Prism.API.Defs
         void Invalidate()
         {
             dispT    = null;
-            dispName = null;
+            dispName = ObjectName.Empty;
         }
 
         #region IList impl
@@ -190,13 +191,14 @@ namespace Prism.API.Defs
         {
 
         }
-        public ItemGroup(IEnumerable<ItemRef> initial, string displayName, ItemRef displayT = null)
+        public ItemGroup(IEnumerable<ItemRef> initial, ObjectName displayName, ItemRef displayT = null)
             : base(initial, displayName, displayT)
         {
 
         }
 
         #region predefined groups
+        // TODO: translate these
         public static ItemGroup Wood = new ItemGroup(new[]
         {
             new ItemRef(ItemID.Wood        ),
@@ -208,28 +210,28 @@ namespace Prism.API.Defs
             new ItemRef(ItemID.DynastyWood ),
             new ItemRef(ItemID.PalmWood    ),
             new ItemRef(ItemID.SpookyWood  )
-        }, "Any wood");
+        }, new ObjectName("Any wood"));
         public static ItemGroup Sand = new ItemGroup(new[]
         {
             new ItemRef(ItemID.SandBlock     ),
             new ItemRef(ItemID.EbonsandBlock ),
             new ItemRef(ItemID.PearlsandBlock),
             new ItemRef(ItemID.CrimsandBlock )
-        }, "Any sand");
+        }, new ObjectName("Any sand"));
         public static ItemGroup Stone = new ItemGroup(new[]
         {
             new ItemRef(ItemID.StoneBlock     ),
             new ItemRef(ItemID.EbonstoneBlock ),
             new ItemRef(ItemID.PearlstoneBlock),
             new ItemRef(ItemID.CrimstoneBlock )
-        }, "Any stone");
+        }, new ObjectName("Any stone"));
         public static ItemGroup Fragment = new ItemGroup(new[]
         {
             new ItemRef(ItemID.FragmentSolar   ),
             new ItemRef(ItemID.FragmentVortex  ),
             new ItemRef(ItemID.FragmentNebula  ),
             new ItemRef(ItemID.FragmentStardust)
-        }, "Any fragment");
+        }, new ObjectName("Any fragment"));
         public static ItemGroup PressurePlate = new ItemGroup(new[]
         {
             new ItemRef(ItemID.GrayPressurePlate    ),
@@ -238,7 +240,7 @@ namespace Prism.API.Defs
             new ItemRef(ItemID.RedPressurePlate     ),
             new ItemRef(ItemID.GreenPressurePlate   ),
             new ItemRef(ItemID.YellowPressurePlate  )
-        }, "Any pressure plate");
+        }, new ObjectName("Any pressure plate"));
         public static ItemGroup Tier1Bar = new ItemGroup(new[]
         {
             new ItemRef(ItemID.CopperBar),
@@ -285,28 +287,28 @@ namespace Prism.API.Defs
             new ItemRef(ItemID.Bird    ),
             new ItemRef(ItemID.BlueJay ),
             new ItemRef(ItemID.Cardinal)
-        }, "Bird");
+        }, new ObjectName("Bird"));
         public static ItemGroup Scorpions = new ItemGroup(new[]
         {
             new ItemRef(ItemID.BlackScorpion),
             new ItemRef(ItemID.Scorpion     )
-        }, "Scorpion");
+        }, new ObjectName("Scorpion"));
         public static ItemGroup Squirrels = new ItemGroup(new[]
         {
             new ItemRef(ItemID.Squirrel   ),
             new ItemRef(ItemID.SquirrelRed)
-        }, "Squirrel");
+        }, new ObjectName("Squirrel"));
         public static ItemGroup Bugs = new ItemGroup(new[]
         {
             new ItemRef(ItemID.Grubby),
             new ItemRef(ItemID.Sluggy),
             new ItemRef(ItemID.Buggy ),
-        }, "Bug");
+        }, new ObjectName("Bug"));
         public static ItemGroup Ducks = new ItemGroup(new[]
         {
             new ItemRef(ItemID.MallardDuck),
             new ItemRef(ItemID.Duck       )
-        }, "Duck");
+        }, new ObjectName("Duck"));
         public static ItemGroup Butterflies = new ItemGroup(new[]
         {
             new ItemRef(ItemID.MonarchButterfly         ),
@@ -322,12 +324,12 @@ namespace Prism.API.Defs
         {
             new ItemRef(ItemID.Firefly     ),
             new ItemRef(ItemID.LightningBug)
-        }, "Firefly");
+        }, new ObjectName("Firefly"));
         public static ItemGroup Snails = new ItemGroup(new[]
         {
             new ItemRef(ItemID.Snail       ),
             new ItemRef(ItemID.GlowingSnail)
-        }, "Snail");
+        }, new ObjectName("Snail"));
 
         public static ItemGroup GoldCritters = new ItemGroup(new[]
         {
@@ -340,7 +342,7 @@ namespace Prism.API.Defs
             new ItemRef(ItemID.GoldMouse      ),
             new ItemRef(ItemID.GoldWorm       ),
             new ItemRef(ItemID.SquirrelGold   )
-        }, "Gold critter");
+        }, new ObjectName("Gold critter"));
         #endregion
     }
     public class TileGroup : CraftGroup<TileDef, TileRef>
@@ -350,7 +352,7 @@ namespace Prism.API.Defs
         {
 
         }
-        public TileGroup(IEnumerable<TileRef> initial, string displayName, TileRef displayT = null)
+        public TileGroup(IEnumerable<TileRef> initial, ObjectName displayName, TileRef displayT = null)
             : base(initial, displayName, displayT)
         {
 

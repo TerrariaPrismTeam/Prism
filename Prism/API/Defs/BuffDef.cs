@@ -21,7 +21,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets the text on this buff's tooltip.
         /// </summary>
-        public string Tooltip
+        public ObjectName Tooltip
         {
             get;
             set;
@@ -86,12 +86,12 @@ namespace Prism.API.Defs
             set;
         }
 
-        public BuffDef(string displayName, Func<BuffBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null)
+        public BuffDef(ObjectName displayName, Func<BuffBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null)
             : base(displayName, newBehaviour)
         {
             GetTexture = getTexture ?? Empty<Texture2D>.Func;
 
-            Tooltip = String.Empty;
+            Tooltip = ObjectName.Empty;
         }
 
         public static implicit operator BuffRef(BuffDef def)

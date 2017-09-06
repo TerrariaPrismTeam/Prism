@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Prism.API;
 using Prism.API.Defs;
 using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 
 namespace Prism.Mods.DefHandlers
 {
@@ -86,7 +88,7 @@ namespace Prism.Mods.DefHandlers
             if (amt == 0)
                 return;
 
-            int newLen = amt > 0 ? Main.buffNoSave.Length + amt : BuffID.Count;
+            int newLen = amt > 0 ? Main.debuff.Length + amt : BuffID.Count;
 
             if (!Main.dedServ)
                 Array.Resize(ref Main.buffTexture, newLen);
@@ -98,7 +100,8 @@ namespace Prism.Mods.DefHandlers
             Array.Resize(ref Main.vanityPet        , newLen);
             Array.Resize(ref Main.meleeBuff        , newLen);
             Array.Resize(ref Main.persistentBuff   , newLen);
-          //Array.Resize(ref Main.buffTip          , newLen);
+            Array.Resize(ref Lang._buffNameCache   , newLen);
+            Array.Resize(ref Lang._buffDescriptionCache, newLen);
             Array.Resize(ref Main.pvpBuff          , newLen);
         }
 
@@ -113,8 +116,11 @@ namespace Prism.Mods.DefHandlers
             def.IsVanityPet        = Main.vanityPet        [id];
             def.IsWeaponImbuement  = Main.meleeBuff        [id];
             def.PersistsAfterDeath = Main.persistentBuff   [id];
-          //def.Tooltip            = Main.buffTip          [id];
             def.WorksInPvP         = Main.pvpBuff          [id];
+
+            // TODO: make this keep all translations
+            def.Tooltip            = new ObjectName(Lang._buffDescriptionCache[id]);
+            def.DisplayName        = new ObjectName(Lang._buffNameCache       [id]);
         }
         void CopySetProperties(BuffDef def)
         {
@@ -125,8 +131,10 @@ namespace Prism.Mods.DefHandlers
             Main.vanityPet        [def.Type] = def.IsVanityPet       ;
             Main.meleeBuff        [def.Type] = def.IsWeaponImbuement ;
             Main.persistentBuff   [def.Type] = def.PersistsAfterDeath;
-          //Main.buffTip          [def.Type] = def.Tooltip           ;
             Main.pvpBuff          [def.Type] = def.WorksInPvP        ;
+
+            Lang._buffDescriptionCache[def.Type] = (LocalizedText)def.Tooltip;
+            Lang._buffNameCache       [def.Type] = (LocalizedText)def.DisplayName;
         }
 
         internal void FillVanilla()
@@ -135,7 +143,7 @@ namespace Prism.Mods.DefHandlers
 
             int id = 0;
 
-            var def = new BuffDef(String.Empty);
+            var def = new BuffDef(ObjectName.Empty);
             def.InternalName = String.Empty;
 
             DefsByType.Add(id, def);
@@ -152,7 +160,8 @@ namespace Prism.Mods.DefHandlers
                 if (index == -1)
                     continue;
 
-                def = new BuffDef(Lang.GetBuffName(id), null, () => Main.buffTexture[id]);
+                def = new BuffDef(new ObjectName(Lang.GetBuffName(id)),
+                        null, () => Main.buffTexture[id]);
 
                 DefsByType.Add(id, def);
                 VanillaDefsByName.Add(IDNames[index], def);
@@ -249,3 +258,4 @@ namespace Prism.Mods.DefHandlers
         }
     }
 }
+

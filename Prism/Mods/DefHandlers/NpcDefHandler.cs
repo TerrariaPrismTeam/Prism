@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
+using Prism.API;
 using Prism.API.Audio;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
@@ -32,7 +33,8 @@ namespace Prism.Mods.DefHandlers
             if (!Main.dedServ)
                 Array.Resize(ref Main.npcTexture, newLen);
 
-          //Array.Resize(ref Main.npcName      , newLen);
+            Array.Resize(ref Lang._npcNameCache, newLen);
+
             Array.Resize(ref Main.NPCLoaded    , newLen);
             Array.Resize(ref Main.npcFrameCount, newLen);
             Array.Resize(ref Main.npcCatchable , newLen);
@@ -68,12 +70,13 @@ namespace Prism.Mods.DefHandlers
         }
         protected override NpcDef NewDefFromVanilla(NPC npc)
         {
-            return new NpcDef(Lang.GetNPCNameValue(npc.netID), getTexture: () => Main.npcTexture[npc.type]);
+            return new NpcDef(new ObjectName(Lang.GetNPCNameValue(npc.netID)),
+                    getTexture: () => Main.npcTexture[npc.type]);
         }
 
         protected override void CopyEntityToDef(NPC npc, NpcDef def)
         {
-            def.DisplayName         = npc.GivenOrTypeName;
+            def.DisplayName         = new ObjectName(npc.GivenOrTypeName);
             def.Type                = npc.type;
             def.NetID               = npc.netID;
             def.Damage              = npc.damage;
@@ -146,8 +149,7 @@ namespace Prism.Mods.DefHandlers
         }
         protected override void CopyDefToEntity(NpcDef def, NPC npc)
         {
-          //npc.name            = def.InternalName;
-          //npc.displayName     = def.DisplayName;
+            npc._givenName      = def.DisplayName.ToString();
             npc.type            = def.Type;
             npc.netID           = def.NetID;
             npc.damage          = def.Damage;
@@ -261,7 +263,11 @@ namespace Prism.Mods.DefHandlers
 
         protected override void CopySetProperties(NpcDef def)
         {
-          //Main.npcName                     [def.Type] = def.DisplayName;
+            if (def.NetID < 0)
+                Lang._negativeNpcNameCache[-def.NetID - 1] = def.DisplayName.ToLocalization();
+            else
+                Lang._npcNameCache[def.Type] = def.DisplayName.ToLocalization();
+
             Main.npcFrameCount               [def.Type] = def.FrameCount;
             Main.npcCatchable                [def.Type] = def.CaughtAsItem != null;
 

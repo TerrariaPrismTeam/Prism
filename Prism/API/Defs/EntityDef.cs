@@ -69,7 +69,7 @@ namespace Prism.API.Defs
             }
         }
 
-        protected EntityDef(string displayName, Func<TBehaviour> newBehaviour = null)
+        protected EntityDef(ObjectName displayName, Func<TBehaviour> newBehaviour = null)
             : base(displayName, newBehaviour)
         {
 

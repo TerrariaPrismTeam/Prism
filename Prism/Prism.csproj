@@ -169,6 +169,7 @@
     <Compile Include="API\Defs\TileDefStructs.cs" />
     <Compile Include="API\Defs\TileRef.cs" />
     <Compile Include="API\ObjectRef.cs" />
+    <Compile Include="API\ObjectName.cs" />
     <Compile Include="AssemblyResolver.cs" />
     <Compile Include="Debugging\Logging.cs" />
     <Compile Include="IO\BinBuffer.cs" />

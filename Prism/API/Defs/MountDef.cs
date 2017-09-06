@@ -248,7 +248,7 @@ namespace Prism.API.Defs
             set;
         }
 
-        public MountDef(string displayName, Func<MountBehaviour> newBehaviour = null, MountTextureData front = default(MountTextureData), MountTextureData back = default(MountTextureData), BuffRef buff = null)
+        public MountDef(ObjectName displayName, Func<MountBehaviour> newBehaviour = null, MountTextureData front = default(MountTextureData), MountTextureData back = default(MountTextureData), BuffRef buff = null)
             : base(displayName, newBehaviour)
         {
             Front = front;

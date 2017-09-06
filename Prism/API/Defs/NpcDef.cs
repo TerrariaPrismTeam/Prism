@@ -379,7 +379,7 @@ namespace Prism.API.Defs
             set;
         }
 
-        public NpcDef(string displayName, Func<NpcBehaviour> newBehaviour = null, int lifeMax = 1, Func<Texture2D> getTexture = null, Func<Texture2D> getBossHeadTexture = null)
+        public NpcDef(ObjectName displayName, Func<NpcBehaviour> newBehaviour = null, int lifeMax = 1, Func<Texture2D> getTexture = null, Func<Texture2D> getBossHeadTexture = null)
             : base(displayName, newBehaviour)
         {
             Width = Height = 16;

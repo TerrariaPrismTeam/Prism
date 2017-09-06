@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
+using Prism.Util;
 
 namespace Prism.API.Defs
 {
@@ -237,14 +238,7 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets the item's description.
         /// </summary>
-        /// <remarks>Item.toolTip</remarks>
-        public readonly string Description;
-
-        /// <summary>
-        /// Gets or sets the item's extra description (funny quote, reference, etc).
-        /// </summary>
-        /// <remarks>Item.toolTip2</remarks>
-        public readonly string ExtraDescription;
+        public readonly ObjectName[] Description;
 
         /// <summary>
         /// Gets or sets whether this item is labeled as "Vanity item" in its tool-tip.
@@ -279,10 +273,9 @@ namespace Prism.API.Defs
         /// <param name="expert"><see cref="ShowExpert"/></param>
         /// <param name="quest"><see cref="ShowQuestItem"/></param>
         /// <param name="hideAmmo"><see cref="HideAmmoFlag"/></param>
-        public ItemDescription(string desc, string extraDesc = null, bool vanity = false, bool expert = false, bool quest = false, bool hideAmmo = false, bool hideMat = false)
+        public ItemDescription(ObjectName[] desc, bool vanity = false, bool expert = false, bool quest = false, bool hideAmmo = false, bool hideMat = false)
         {
-            Description      = desc      ?? String.Empty;
-            ExtraDescription = extraDesc ?? String.Empty;
+            Description      = desc      ?? Empty<ObjectName>.Array;
             ShowVanity       = vanity;
             ShowExpert       = expert;
             ShowQuestItem    = quest;
@@ -292,7 +285,7 @@ namespace Prism.API.Defs
 
         public bool Equals(ItemDescription other)
         {
-            return Description == other.Description && ExtraDescription == other.ExtraDescription && ShowVanity == other.ShowVanity && HideAmmoFlag == other.HideAmmoFlag && HideMaterialFlag == other.HideMaterialFlag;
+            return Description == other.Description && ShowVanity == other.ShowVanity && HideAmmoFlag == other.HideAmmoFlag && HideMaterialFlag == other.HideMaterialFlag;
         }
 
         public override bool Equals(object obj)
@@ -307,7 +300,8 @@ namespace Prism.API.Defs
         }
         public override int GetHashCode()
         {
-            return (Description.GetHashCode() & ExtraDescription.GetHashCode()) + (ShowVanity.GetHashCode() ^ ShowExpert.GetHashCode() ^ ShowQuestItem.GetHashCode()) + (HideAmmoFlag.GetHashCode() ^ HideMaterialFlag.GetHashCode());
+            return Description.GetHashCode() + (ShowVanity.GetHashCode() ^ (ShowExpert.GetHashCode() << 8) ^ (ShowQuestItem.GetHashCode() << 24))
+                + ((HideAmmoFlag.GetHashCode() << 30) ^ (HideMaterialFlag.GetHashCode() << 16));
         }
 
         public static bool operator ==(ItemDescription a, ItemDescription b)

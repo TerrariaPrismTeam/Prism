@@ -25,7 +25,7 @@ namespace Prism.Mods.DefHandlers
         static int
             DefMaxRecipes = Recipe.maxRecipes,
             DefNumRecipes = -1;
-        
+
         internal static List<RecipeDef> SetRecipeModDefs(ModDef mod, IEnumerable<RecipeDef> defs)
         {
             return defs.Select(d =>
@@ -38,7 +38,8 @@ namespace Prism.Mods.DefHandlers
         static CraftGroup<ItemDef, ItemRef> ItemGroupFromVanilla(RecipeGroup g)
         {
             return new CraftGroup<ItemDef, ItemRef>(
-                g.ValidItems.Select(t => new ItemRef(t)), g.GetText(), new ItemRef(g.IconicItemIndex));
+                g.ValidItems.Select(t => new ItemRef(t)),
+                new ObjectName(g.GetText()), new ItemRef(g.IconicItemIndex));
         }
         static void CopyDefToVanilla(RecipeDef def, Recipe r)
         {

@@ -18,8 +18,6 @@ namespace Prism.Injector.Patcher
         {
             typeDef_NPC.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, new[] { typeSys.Int32 , typeSys.Single})
                 .Wrap(context, "Terraria.PrismInjections", "NPC_SetDefaultsDel_Id"  , "P_OnSetDefaultsById"  );
-          //typeDef_NPC.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, new[] { typeSys.String                })
-          //    .Wrap(context, "Terraria.PrismInjections", "NPC_SetDefaultsDel_Name", "P_OnSetDefaultsByName");
 
             typeDef_NPC.GetMethod("AI"       , MethodFlags.Public | MethodFlags.Instance                         ).Wrap(context);
             typeDef_NPC.GetMethod("UpdateNPC", MethodFlags.Public | MethodFlags.Instance, new[] { typeSys.Int32 }).Wrap(context);

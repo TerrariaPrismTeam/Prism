@@ -93,6 +93,11 @@ namespace Prism.Injector
 
         public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> dict)
         {
+            if (dict is Dictionary<TKey, TValue>)
+                return (Dictionary<TKey, TValue>)dict;
+            if (dict is IDictionary<TKey, TValue>)
+                return new Dictionary<TKey, TValue>((IDictionary<TKey, TValue>)dict);
+
             var ret = new Dictionary<TKey, TValue>();
 
             foreach (var kvp in dict)

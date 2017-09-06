@@ -11,7 +11,10 @@ namespace Prism.API.Defs
     public class WallRef : EntityRefWithId<WallDef>
     {
         public WallRef(int resourceId)
-            : base(resourceId, id => Handler.WallDef.DefsByType.ContainsKey(id) ? Handler.WallDef.DefsByType[id].DisplayName : WallDefHandler.WALL + id)
+            : base(resourceId, id =>
+                    Handler.WallDef.DefsByType.ContainsKey(id)
+                        ? Handler.WallDef.DefsByType[id].InternalName
+                        : WallDefHandler.WALL + id)
         {
             // FIXME: this somehow borks with resourceId == 1 and WallID.Count == 231, WTF?
             if (resourceId >= WallID.Count)

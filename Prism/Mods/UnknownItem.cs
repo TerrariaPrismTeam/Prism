@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Terraria;
+using Prism.API;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Prism.IO;
@@ -9,9 +11,11 @@ namespace Prism.Mods
 {
     class UnknownItem : ItemBehaviour
     {
+        readonly static ObjectName n = new ObjectName("Unknown Item");
+
         internal static ItemDef Create()
         {
-            return new ItemDef("Unknown Item", () => new UnknownItem(), () => TMain.UnknownItemTexture)
+            return new ItemDef(n, () => new UnknownItem(), () => TMain.UnknownItemTexture)
             {
                 InternalName = "_UnknownItem", // this may never change, because otherwise the saved item data will get lost
                 Mod = PrismApi.VanillaInfo
@@ -22,28 +26,40 @@ namespace Prism.Mods
             var r = Create();
 
             // best way to store it ever
-            r.Description = new ItemDescription(modName, itemName);
+            r.Description = new ItemDescription(
+                    new[]{(ObjectName)modName, (ObjectName)itemName});
 
             return r;
         }
 
         public override void Save(BinBuffer bb)
         {
-            //bb.Write(Entity.toolTip  ?? String.Empty);
-            //bb.Write(Entity.toolTip2 ?? String.Empty);
+            var itt = Lang._itemTooltipCache[Entity.type];
+
+            if (itt._tooltipLines.Length != 2)
+            {
+                bb.Write(String.Empty);
+                bb.Write(String.Empty);
+            }
+            else
+            {
+                bb.Write(itt._tooltipLines[0]);
+                bb.Write(itt._tooltipLines[1]);
+            }
         }
         public override void Load(BinBuffer bb)
         {
-            /*Entity.toolTip  = bb.ReadString();
-            Entity.toolTip2 = bb.ReadString();
+            var modn = bb.ReadString();
+            var itmn = bb.ReadString();
 
-            if (ModData.modsFromInternalName.ContainsKey(Entity.toolTip))
-            {
-                var mod = ModData.modsFromInternalName[Entity.toolTip];
+            Lang._itemTooltipCache[Entity.type] =
+                new[]{(ObjectName)modn,(ObjectName)itmn}.ToTooltip();
 
-                if (mod.ItemDefs.ContainsKey(Entity.toolTip2))
-                    Entity.SetDefaults(ItemDef.Defs[Entity.toolTip2, Entity.toolTip].Type);
-            }*/
+            ModDef mod = null;
+            if (ModData.modsFromInternalName.TryGetValue(modn, out mod)
+                    && mod.ItemDefs.ContainsKey(itmn))
+                Entity.SetDefaults(ItemDef.Defs[itmn, modn].Type);
         }
     }
 }
+

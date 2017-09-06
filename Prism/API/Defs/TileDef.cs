@@ -101,7 +101,7 @@ namespace Prism.API.Defs
         }
 
         [Obsolete("Not implemented yet.")]
-        public string MapTooltip
+        public ObjectName MapTooltip
         {
             get;
             set;
@@ -126,7 +126,7 @@ namespace Prism.API.Defs
 
         //TODO: drop item
 
-        public TileDef(string displayName, Func<TileBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null, Func<TileBehaviour> newInstBehaviour = null)
+        public TileDef(ObjectName displayName, Func<TileBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null, Func<TileBehaviour> newInstBehaviour = null)
             : base(displayName, newBehaviour)
         {
             GetTexture = getTexture ?? Empty<Texture2D>.Func;
@@ -134,8 +134,8 @@ namespace Prism.API.Defs
             CreateInstanceBehaviour = newInstBehaviour ?? Empty<TileBehaviour>.Func;
 
 #pragma warning disable 618
-            MapTooltip = String.Empty;
-            MapColour = Color.Transparent;
+            MapTooltip = ObjectName.Empty;
+            MapColour  = Color.Transparent;
 #pragma warning restore 618
 
             SubtypeData    = new TileSubtypeData   ();

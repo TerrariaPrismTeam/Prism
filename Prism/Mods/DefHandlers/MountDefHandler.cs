@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Prism.API;
 using Prism.API.Defs;
 using Prism.Util;
 using Terraria;
@@ -274,7 +275,7 @@ namespace Prism.Mods.DefHandlers
                 if (index == -1)
                     continue;
 
-                def = new MountDef(IDNames[index], null);
+                def = new MountDef(new ObjectName(IDNames[index]), null);
 
                 DefsByType.Add(id, def);
                 VanillaDefsByName.Add(IDNames[index], def);

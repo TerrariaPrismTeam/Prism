@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Prism.API;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Prism.Util;
@@ -193,7 +194,7 @@ namespace Prism.Mods.DefHandlers
         }
         protected override TileDef NewDefFromVanilla(Tile tile)
         {
-            return new TileDef(String.Empty, getTexture: () => Main.tileTexture[tile.type])
+            return new TileDef(ObjectName.Empty, getTexture: () => Main.tileTexture[tile.type])
             {
                 Type  = tile.type,
                 NetID = tile.type

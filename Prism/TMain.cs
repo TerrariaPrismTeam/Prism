@@ -113,15 +113,15 @@ namespace Prism
 
         static void OnUpdateKeyboard(Main _, GameTime __)
         {
-            //HookManager.GameBehaviour.OnUpdateKeyboard();
+            HookManager.GameBehaviour.OnUpdateKeyboard();
         }
         static new void OnPreDraw(SpriteBatch sb)
         {
-            //HookManager.GameBehaviour.PreDraw(sb);
+            HookManager.GameBehaviour.PreDraw(sb);
         }
         static void OnPostScreenClear()
         {
-            //HookManager.GameBehaviour.PostScreenClear();
+            HookManager.GameBehaviour.PostScreenClear();
         }
         static void OnDrawBackground(Main m)
         {
@@ -134,13 +134,11 @@ namespace Prism
         }
         static bool IsChatAllowed()
         {
-            return false;
-            //return HookManager.GameBehaviour.IsChatAllowed();
+            return HookManager.GameBehaviour.IsChatAllowed();
         }
         static bool OnLocalChat()
         {
-            return false;
-            //return HookManager.GameBehaviour.OnLocalChat();
+            return HookManager.GameBehaviour.OnLocalChat();
         }
 
         static void HookWrappedMethods()
@@ -244,7 +242,7 @@ namespace Prism
 
             base.Initialize(); // terraria init and LoadContent happen here
 
-            //ModLoader.Load();
+            ModLoader.Load();
 
             Handler.DefaultColourLookupLength = MapHelper.colorLookup.Length;
 
@@ -267,7 +265,7 @@ namespace Prism
         }
         protected override void UnloadContent()
         {
-            //ModLoader.Unload();
+            ModLoader.Unload();
 
             UnknownItemTexture.Dispose();
             UnknownItemTexture = null;
@@ -309,18 +307,18 @@ namespace Prism
             {
                 ElapsedTime = (float)gt.ElapsedGameTime.TotalSeconds;
 
-                //HookManager.GameBehaviour.PreUpdate();
+                HookManager.GameBehaviour.PreUpdate();
 
                 ApplyHotfixes(); //The array is initialized every time new Player() is called. Until we have like InitPlayer or something we just have to ghettohack it like this.
 
                 base.Update(gt);
 
-                //HookManager.GameBehaviour.UpdateDebug(gt);
+                HookManager.GameBehaviour.UpdateDebug(gt);
 
                 if (!gameMenu && prevGameMenu)
                     Helpers.Main.RandColorText("Welcome to " + PrismApi.NiceVersionString + ".", true);
 
-                //HookManager.GameBehaviour.PostUpdate();
+                HookManager.GameBehaviour.PostUpdate();
 
                 PrismDebug.Update();
             }
@@ -335,11 +333,11 @@ namespace Prism
         {
             try
             {
-                //HookManager.GameBehaviour.PreScreenClear();
+                HookManager.GameBehaviour.PreScreenClear();
 
                 base.Draw(gt);
 
-                //HookManager.GameBehaviour.PostDraw(spriteBatch);
+                HookManager.GameBehaviour.PostDraw(spriteBatch);
 
 #if TRACE
                 TraceDrawer.DrawTrace(spriteBatch, PrismDebug.lines);
@@ -365,3 +363,4 @@ namespace Prism
         }
     }
 }
+

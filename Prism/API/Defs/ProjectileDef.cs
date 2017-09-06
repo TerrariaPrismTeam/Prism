@@ -186,7 +186,7 @@ namespace Prism.API.Defs
             set;
         }
 
-        public ProjectileDef(string displayName, Func<ProjectileBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null)
+        public ProjectileDef(ObjectName displayName, Func<ProjectileBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null)
             : base(displayName, newBehaviour)
         {
             Width = Height = 16;

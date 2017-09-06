@@ -786,9 +786,9 @@ namespace Prism.Injector.Patcher
                         stack.Pop();
                         break;
                     case Code.Tailcall: // prefix: perform a tail call (unavailable in C#)
-                        break;
                     case Code.Unaligned: // pointer access can be unaligned (GC etc. ensure good alignment for faster loading (probably))
                     case Code.Volatile: // next instruction is volatile
+                    case Code.Readonly: // another prefix for something
                         break;
                     case Code.Arglist: // load pointer to arglist (only available in *true* vararg methods
                                        // (as in, the C way, not the params T[] way)).

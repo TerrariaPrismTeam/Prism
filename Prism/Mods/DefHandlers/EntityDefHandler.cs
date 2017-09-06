@@ -24,6 +24,7 @@ namespace Prism.Mods.DefHandlers
         protected static bool FillingVanilla = false;
 
         public Dictionary<int   , TEntityDef> DefsByType        = new Dictionary<int   , TEntityDef>();
+        // NOTE: uses the *internal* name
         public Dictionary<string, TEntityDef> VanillaDefsByName = new Dictionary<string, TEntityDef>();
 
         int? minVanillaId = null, maxVanillaId = null;
@@ -155,7 +156,8 @@ namespace Prism.Mods.DefHandlers
                 VanillaDefsByName.Add(iname, def);
 
                 var n = GetNameVanillaMethod(entity);
-                if (!String.IsNullOrEmpty(n) && !byDisplayName.ContainsKey(n) && !VanillaDefsByName.ContainsKey(n))
+                if (!String.IsNullOrEmpty(n) && !byDisplayName.ContainsKey(n)
+                        && !VanillaDefsByName.ContainsKey(n))
                     byDisplayName.Add(n, def);
 
                 def.Mod = PrismApi.VanillaInfo;
@@ -249,3 +251,4 @@ namespace Prism.Mods.DefHandlers
         }
     }
 }
+

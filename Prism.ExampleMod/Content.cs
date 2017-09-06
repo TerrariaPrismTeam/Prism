@@ -23,18 +23,21 @@ namespace Prism.ExampleMod
             {
 
 #pragma warning disable 618
-                // Pizza done with JSON method using an external resource
-                { "Pizza", new ItemDef("Pizza", GetResource<JsonData>("Resources/Items/Pizza.json"),
+                /*// Pizza done with JSON method using an external resource
+                { "Pizza", new ItemDef((ObjectName)"Pizza", GetResource<JsonData>("Resources/Items/Pizza.json"),
                     () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
                 {
                     Mount = new MountRef("NyanCat")
                 } },
                 // Ant done with JSON method using an embedded resource
-                { "Ant", new ItemDef("Ant", GetEmbeddedResource<JsonData>("Resources/Items/Ant.json"),
-                    () => GetEmbeddedResource<Texture2D>("Resources/Textures/Items/Ant.png")) },
+                { "Ant", new ItemDef((ObjectName)"Ant", GetEmbeddedResource<JsonData>("Resources/Items/Ant.json"),
+                    () => GetEmbeddedResource<Texture2D>("Resources/Textures/Items/Ant.png"))
+                },*/
 #pragma warning restore 618
-                { "Pizzant", new ItemDef("Pizzant", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizzant.png"))
-                {   Description = new ItemDescription("The chaotic forces of italian spices and insects and bread.", expert: true),
+                { "Pizzant", new ItemDef((ObjectName)"Pizzant", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizzant.png"))
+                {   Description = new ItemDescription(
+                        new[]{(ObjectName)"The chaotic forces of italian spices and insects and bread."}
+                        , expert: true),
                     DamageType = ItemDamageType.Melee,
                     AutoReuse = true,
                     UseTime = 12,
@@ -53,8 +56,11 @@ namespace Prism.ExampleMod
                     Value = new CoinValue(1, 34, 1, 67),
                     Scale = 1.1f
                 } },
-                { "Pizzantzioli", new ItemDef("Pizzantzioli", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizzantzioli.png"))
-                {   Description = new ItemDescription("The forces of ants and pizza come together as one.", "The name is Italian for 'KICKING ASS'! YEAH! BROFISSSSST!!1!", expert: true),
+                { "Pizzantzioli", new ItemDef((ObjectName)"Pizzantzioli", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizzantzioli.png"))
+                {   Description = new ItemDescription(
+                        new[]{(ObjectName)"The forces of ants and pizza come together as one.",
+                              (ObjectName)"The name is Italian for 'KICKING ASS'! YEAH! BROFISSSSST!!1!"},
+                              expert: true),
                     DamageType = ItemDamageType.Melee,
                     AutoReuse = true,
                     UseTime = 20,
@@ -73,7 +79,7 @@ namespace Prism.ExampleMod
                     Value = new CoinValue(2, 51, 3, 9),
                     Scale = 1.1f
                 } },
-                { "TilePlacer", new ItemDef("ExampleMod tile placer", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                { "TilePlacer", new ItemDef((ObjectName)"ExampleMod tile placer", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
                 {
                     UseAnimation = 15,
                     AutoReuse = true,
@@ -84,7 +90,7 @@ namespace Prism.ExampleMod
                     Height = 16,
                     CreateTile = new TileRef("TestTile")
                 } },
-                { "WallPlacer", new ItemDef("ExampleMod wall placer", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                { "WallPlacer", new ItemDef((ObjectName)"ExampleMod wall placer", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
                 {
                     UseAnimation = 15,
                     UseTime = 15,
@@ -101,7 +107,7 @@ namespace Prism.ExampleMod
         {
             return new Dictionary<string, MountDef>
             {
-                { "NyanCat", new MountDef("Nyan Cat", front: new MountTextureData(() => GetEmbeddedResource<Texture2D>("Resources/Textures/Misc/Nyan Cat.png")))
+                { "NyanCat", new MountDef((ObjectName)"Nyan Cat", front: new MountTextureData(() => GetEmbeddedResource<Texture2D>("Resources/Textures/Misc/Nyan Cat.png")))
                 {
                     Buff = new BuffRef(BuffID.ObsidianSkin), // too lazy to create a separate buff (the player will dismount when the buff runs out - after 60 seconds)
                     // ExtraBuff is set to Buff if it is null
@@ -128,7 +134,7 @@ namespace Prism.ExampleMod
         {
             return new Dictionary<string, NpcDef>
             {
-                { "PizzaNPC", new NpcDef("Possessed Pizza", null, 80, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                { "PizzaNPC", new NpcDef((ObjectName)"Possessed Pizza", null, 80, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
                 {   FrameCount = 1,
                     Damage = 5,
                     Width = 64,
@@ -141,7 +147,7 @@ namespace Prism.ExampleMod
                     AiStyle = NpcAiStyle.FlyingWeapon,
                     IgnoreGravity = true
                 } },
-                { "PizzaBoss", new NpcDef("Pizza God", () => new PizzaGodBehaviour(), 66666, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"), () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                { "PizzaBoss", new NpcDef((ObjectName)"Pizza God", () => new PizzaGodBehaviour(), 66666, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"), () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
                 {   FrameCount = 1,
                     Damage = 166,
                     Defense = 66,
@@ -161,7 +167,7 @@ namespace Prism.ExampleMod
                     SoundOnHit = VanillaSfxes.NpcHit[13],
                     SoundOnDeath = VanillaSfxes.NpcKilled[11]
                 } },
-                { "PizzaGodJr", new NpcDef("Pizza God Jr.", () => new PizzaGodJrBehaviour(), 266, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                { "PizzaGodJr", new NpcDef((ObjectName)"Pizza God Jr.", () => new PizzaGodJrBehaviour(), 266, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
                 {   FrameCount = 1,
                     Damage = 137,
                     Defense = 66,
@@ -182,7 +188,7 @@ namespace Prism.ExampleMod
         {
             return new Dictionary<string, ProjectileDef>
             {
-                { "PizzaProjectile", new ProjectileDef("Flying Pizza!", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
+                { "PizzaProjectile", new ProjectileDef((ObjectName)"Flying Pizza!", null, () => GetResource<Texture2D>("Resources/Textures/Items/Pizza.png"))
                 }
             };
         }
@@ -190,7 +196,7 @@ namespace Prism.ExampleMod
         {
             return new Dictionary<string, TileDef>
             {
-                {"TestTile", new TileDef("Test tile", null, () => GetEmbeddedResource<Texture2D>("Resources/Textures/Misc/TestTile.png"))
+                {"TestTile", new TileDef((ObjectName)"Test tile", null, () => GetEmbeddedResource<Texture2D>("Resources/Textures/Misc/TestTile.png"))
                 {
                     SubtypeData = new TileSubtypeData()
                     {
@@ -214,7 +220,7 @@ namespace Prism.ExampleMod
         {
             return new Dictionary<string, WallDef>
             {
-                { "TestWall", new WallDef("Test wall", () => GetEmbeddedResource<Texture2D>("Resources/Textures/Misc/TestWall.png"))
+                { "TestWall", new WallDef((ObjectName)"Test wall", () => GetEmbeddedResource<Texture2D>("Resources/Textures/Misc/TestWall.png"))
                 {
                     IsSuitableForHousing = true,
                     IsTransparent = false,
@@ -229,7 +235,7 @@ namespace Prism.ExampleMod
             {
                 new ItemRef(ItemID.    Gel),
                 new ItemRef(ItemID.PinkGel)
-            }, "Any gel");
+            }, (ObjectName)"Any gel");
 
             return new[]
             {
@@ -291,3 +297,4 @@ namespace Prism.ExampleMod
         }
     }
 }
+

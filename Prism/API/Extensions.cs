@@ -4,6 +4,8 @@ using System.Linq;
 using Prism.API.Behaviours;
 using Prism.Mods.BHandlers;
 using Terraria;
+using Terraria.Localization;
+using Terraria.UI;
 
 namespace Prism.API
 {
@@ -92,6 +94,23 @@ namespace Prism.API
         public static bool IsDead(this Player p)
         {
             return p.IsEmpty() || p.dead || p.statLife <= 0 || p.ghost;
+        }
+
+        public static ItemTooltip ToTooltip(this ObjectName[] lines)
+        {
+            var r = new ItemTooltip();
+
+            r._tooltipLines = lines.Select(l => l.ToString()).ToArray();
+            r._text = new LocalizedText(String.Empty /* ... */,
+                    r._processedText = String.Join(Environment.NewLine, r._tooltipLines));
+
+            r._lastCulture = Language.ActiveCulture;
+
+            return r;
+        }
+        public static ObjectName[] ToLines(this ItemTooltip tooltip)
+        {
+            return tooltip._tooltipLines.Select(l => (ObjectName)l).ToArray();
         }
     }
 }

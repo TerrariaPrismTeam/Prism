@@ -17,8 +17,6 @@ namespace Prism.Injector.Patcher
         {
             typeDef_Item.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, new[] { typeSys.Int32 , typeSys.Boolean })
                 .Wrap(context, "Terraria.PrismInjections", "Item_SetDefaultsDel_Id"  , "P_OnSetDefaultsById"  );
-            //typeDef_Item.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, new[] { typeSys.String                  })
-            //    .Wrap(context, "Terraria.PrismInjections", "Item_SetDefaultsDel_Name", "P_OnSetDefaultsByName");
         }
 
         static void AddFieldForBHandler()

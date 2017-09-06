@@ -515,7 +515,7 @@ namespace Prism.API.Defs
             set;
         }
 
-        public ItemDef(string displayName, Func<ItemBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null)
+        public ItemDef(ObjectName displayName, Func<ItemBehaviour> newBehaviour = null, Func<Texture2D> getTexture = null)
             : base(displayName, newBehaviour)
         {
             GetTexture = getTexture ?? Empty<Texture2D>.Func;
@@ -535,112 +535,6 @@ namespace Prism.API.Defs
 
             // null when filling vanilla items
             //UseSound = new SfxRef("UseItem", variant: 1);
-        }
-
-        [Obsolete("JSON files aren't supported for now, please use the other constructor and/or a custom deserializer.")]
-        public ItemDef(string displayName, JsonData json,
-            Func<Texture2D> getTexture = null,
-            ItemArmourData armour = default(ItemArmourData),
-            ItemAccessoryData accessoryStuff = default(ItemAccessoryData),
-            Func<ItemBehaviour> newBehaviour = null)
-            : this(displayName, newBehaviour)
-        {
-            GetTexture = getTexture ?? Empty<Texture2D>.Func;
-            GetFlameTexture = Empty<Texture2D>.Func;
-            ArmourData = armour;
-            AccessoryData = accessoryStuff;
-
-            Damage = (int)json["damage"];
-            UseAnimation = (int)json["useAnimation"];
-            UseTime = (int)json["useTime"];
-            ReuseDelay = (int)json["reuseDelay"];
-            ManaConsumption = (int)json["mana"];
-            Width = json.Has("width") ? (int)json["width"] : 16;
-            Height = json.Has("height") ? (int)json["height"] : 16;
-            MaxStack = json.Has("maxStack") ? (int)json["maxStack"] : 1;
-            PlacementStyle = (int)json["placeStyle"];
-            Alpha = (int)json["alpha"];
-            Defense = (int)json["defense"];
-            CritChanceModifier = json.Has("crit") ? (int)json["crit"] : 4;
-            PickaxePower = (int)json["pick"];
-            AxePower = (int)json["axe"];
-            HammerPower = (int)json["hammer"];
-            ManaHeal = (int)json["healMana"];
-            LifeHeal = (int)json["healLife"];
-
-            ShootVelocity = (float)json["shootSpeed"];
-            Knockback = (float)json["knockback"];
-            Scale = json.Has("scale") ? (float)json["scale"] : 1f;
-
-            NoMelee = (bool)json["noMelee"];
-            IsConsumable = (bool)json["consumable"];
-            TurnPlayerOnUse = (bool)json["useTurn"];
-            AutoReuse = (bool)json["autoReuse"];
-            HideUseGraphic = (bool)json["noUseGraphic"];
-            IsAccessory = (bool)json["accessory"];
-            IsExpertModeOnly = (bool)json["expertOnly"];
-            IsChanneled = (bool)json["channel"];
-
-            IsSoul = (bool)json["soul"];
-            IsStrangePlant = (bool)json["strangePlant"];
-            ExtractinatorMode = json.Has("extractinatorMode") ? json["extractinatorMode"].ParseAsEnum<ItemExtractinatorMode>() : ItemExtractinatorMode.None;
-            IsBullet = (bool)json["bullet"];
-            Pulses = (bool)json["pulses"];
-            NoGravity = (bool)json["noGravity"];
-            IsNebulaPickup = (bool)json["nebulaPickup"];
-            NeverShiny = (bool)json["neverShiny"];
-            RequiredStaffMinionSlots = (int)json["staffMinionSlotsRequired"];
-
-            if (json.Has("colour"))
-            {
-                JsonData colour = json["colour"];
-                Colour = new Color((int)colour[0], (int)colour[1], (int)colour[2]);
-            }
-
-            if (json.Has("rare"))
-                Rarity = json["rare"].ParseAsEnum<ItemRarity>();
-            if (json.Has("useStyle"))
-                UseStyle = json["useStyle"].ParseAsEnum<ItemUseStyle>();
-            if (json.Has("holdStyle"))
-                HoldStyle = json["holdStyle"].ParseAsEnum<ItemHoldStyle>();
-            if (json.Has("damageType"))
-                DamageType = json["damageType"].ParseAsEnum<ItemDamageType>();
-
-            if (json.Has("value"))
-            {
-                JsonData value = json["value"];
-                Value = value.IsArray ? new CoinValue((int)value[0], (int)value[1], (int)value[2], (int)value[3]) : (CoinValue)(int)value;
-            }
-
-            if (json.Has("description"))
-            {
-                JsonData description = json["description"];
-                Description = new ItemDescription(
-                    (string)description["tooltip1"],
-                    (string)description["tooltip2"],
-                    (bool)description["vanity"],
-                    (bool)description["hideAmmo"]);
-            }
-
-            if (json.Has("buff"))
-            {
-                JsonData buff = json["buff"];
-                Buff = new AppliedBuff(buff["type"].ParseBuffRef(), (int)buff["duration"]);
-            }
-
-            if (json.Has("useAmmo"))
-                UsedAmmo = json["useAmmo"].ParseItemRef();
-            if (json.Has("shoot"))
-                ShootProjectile = json["shoot"].ParseProjectileRef();
-            if (json.Has("ammo"))
-                AmmoType = json["ammo"].ParseItemRef();
-            if (json.Has("createTile"))
-                CreateTile = json["createTile"].ParseTileRef();
-
-            UseSound = VanillaSfxes.NpcHit[json.Has("useSound") ? (int)json["useSound"] : 1];
-
-            if (json.Has("createWall"))
-                CreateWall = json["creatWall"].ParseWallRef();
         }
 
         public static implicit operator ItemRef(ItemDef  def)

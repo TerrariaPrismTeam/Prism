@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Prism.API;
 using Prism.API.Defs;
 using Prism.Util;
 using Terraria;
@@ -87,7 +88,7 @@ namespace Prism.Mods.DefHandlers
         }
         protected override WallDef NewDefFromVanilla(int id)
         {
-            return new WallDef(String.Empty, () => Main.wallTexture[id])
+            return new WallDef(ObjectName.Empty, () => Main.wallTexture[id])
             {
                 Type = id
             };
@@ -95,7 +96,8 @@ namespace Prism.Mods.DefHandlers
 
         protected override void CopyEntityToDef(int id, WallDef wall)
         {
-            wall.DisplayName = String.IsNullOrEmpty(wall.InternalName) ? (WALL + id) : wall.InternalName;
+            wall.DisplayName =
+                new ObjectName(String.IsNullOrEmpty(wall.InternalName) ? (WALL + id) : wall.InternalName);
 
             wall.ConversionData = new WallConversionData(
                 WallID.Sets.Conversion.Grass       [id],

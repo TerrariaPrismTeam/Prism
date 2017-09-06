@@ -9,6 +9,7 @@ using Prism.Mods.BHandlers;
 using Prism.Util;
 using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 
 namespace Prism.Mods.DefHandlers
 {
@@ -100,6 +101,7 @@ namespace Prism.Mods.DefHandlers
             if (!Main.dedServ)
                 Array.Resize(ref Main.projectileTexture, newLen);
 
+            Array.Resize(ref Lang._projectileNameCache              , newLen);
             Array.Resize(ref Main.projectileLoaded                  , newLen);
             Array.Resize(ref Main.projFrames                        , newLen);
             Array.Resize(ref Main.projHook                          , newLen);
@@ -123,12 +125,13 @@ namespace Prism.Mods.DefHandlers
         }
         protected override ProjectileDef NewDefFromVanilla(Projectile proj)
         {
-            return new ProjectileDef(proj.Name, getTexture: () => Main.projectileTexture[proj.type]);
+            return new ProjectileDef(new ObjectName(proj.Name),
+                    getTexture: () => Main.projectileTexture[proj.type]);
         }
 
         protected override void CopyEntityToDef(Projectile proj, ProjectileDef def)
         {
-            def.DisplayName  = proj.Name     ;
+            def.DisplayName  = new ObjectName(proj.Name);
             def.Type         = proj.type     ;
             def.Damage       = proj.damage   ;
             def.Knockback    = proj.knockBack;
@@ -166,7 +169,6 @@ namespace Prism.Mods.DefHandlers
         }
         protected override void CopyDefToEntity(ProjectileDef def, Projectile proj)
         {
-          //proj.name       = def.DisplayName;
             proj.type       = def.Type;
             proj.damage     = def.Damage;
             proj.knockBack  = def.Knockback;
@@ -219,6 +221,8 @@ namespace Prism.Mods.DefHandlers
 
         protected override void CopySetProperties(ProjectileDef def)
         {
+            Lang._projectileNameCache[def.Type] = (LocalizedText)def.DisplayName;
+
             Main.projFrames [def.Type] = def.TotalFrameCount;
             Main.projHook   [def.Type] = def.IsHook         ;
             Main.projHostile[def.Type] = def.IsHostile      ;
@@ -235,3 +239,4 @@ namespace Prism.Mods.DefHandlers
         }
     }
 }
+

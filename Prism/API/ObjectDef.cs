@@ -42,22 +42,22 @@ namespace Prism.API
         /// <para/>
         /// Note: Although there exists one way to see a Projectile's name (in player death messages), they don't have a display name property in the vanilla game
         /// </summary>
-        public string DisplayName
+        public ObjectName DisplayName
         {
             get;
             set;
         }
 
-        protected ObjectDef(string displayName)
+        protected ObjectDef(ObjectName displayName)
         {
             InternalName = String.Empty;
 
-            DisplayName = displayName;
+            DisplayName  = displayName;
         }
 
         public override string ToString()
         {
-            return "{" + (String.IsNullOrEmpty(InternalName) ? DisplayName : InternalName) + ", Mod=" + Mod + "}";
+            return "{" + (String.IsNullOrEmpty(InternalName) ? DisplayName.CultureInvariantString : InternalName) + ", Mod=" + Mod + "}";
         }
 
         public static implicit operator ObjectRef(ObjectDef d)
@@ -77,7 +77,7 @@ namespace Prism.API
             set;
         }
 
-        protected ObjectDef(string displayName, Func<TBehaviour> newBehaviour = null)
+        protected ObjectDef(ObjectName displayName, Func<TBehaviour> newBehaviour = null)
             : base(displayName)
         {
             CreateBehaviour = newBehaviour ?? Empty<TBehaviour>.Func;

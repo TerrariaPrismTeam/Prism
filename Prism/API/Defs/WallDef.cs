@@ -82,7 +82,7 @@ namespace Prism.API.Defs
 
         //TODO: drop item
 
-        public WallDef(string displayName, Func<Texture2D> getTexture = null)
+        public WallDef(ObjectName displayName, Func<Texture2D> getTexture = null)
             : base(displayName)
         {
             GetTexture = getTexture ?? Empty<Texture2D>.Func;
