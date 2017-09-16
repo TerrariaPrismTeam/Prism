@@ -18,7 +18,9 @@ namespace Prism
 
             try
             {
-                WfMsgBox.Show(message, "Prism: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Console.Error.WriteLine(message);
+                return;
+                //WfMsgBox.Show(message, "Prism: Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch // shouldn't throw on Windows
             {
@@ -26,7 +28,7 @@ namespace Prism
                 {
                     bool tryConsole = true;
 
-                    /*try
+                    try
                     {
                         if (Process.Start("xmessage \"" + message.Replace('"', '\'') + "\"") == null) // most distros have this
                             tryConsole = true;
@@ -34,12 +36,12 @@ namespace Prism
                     catch
                     {
                         tryConsole = true;
-                    }*/
+                    }
 
                     if (tryConsole)
                         try
                         {
-                            Console.WriteLine(message);
+                            Console.Error.WriteLine(message);
                         }
                         catch (IOException) { } // well fuck
                 }

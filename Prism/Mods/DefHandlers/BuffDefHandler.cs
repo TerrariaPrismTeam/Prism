@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Prism.API;
 using Prism.API.Defs;
+using Prism.Util;
 using Terraria;
 using Terraria.ID;
 using Terraria.Localization;
@@ -25,7 +26,21 @@ namespace Prism.Mods.DefHandlers
         FieldInfo[] idFields = null;
         int[] idValues = null;
         string[] idNames = null;
+        Dictionary<int, string> idLut = null;
 
+        internal Dictionary<int, string> IDLUT
+        {
+            get
+            {
+                if (idLut == null)
+                    idLut = IDFields.Select(fi => new KeyValuePair<int, string>(
+                        (int)Convert.ChangeType(fi.GetValue(null), typeof(int)),
+                        fi.Name
+                    )).ToDictionary();
+
+                return idLut;
+            }
+        }
         internal FieldInfo[] IDFields
         {
             get
@@ -62,7 +77,7 @@ namespace Prism.Mods.DefHandlers
             get
             {
                 if (minVanillaId == null)
-                    minVanillaId = IDFields.Select(f => (int)Convert.ChangeType(f.GetValue(null), typeof(int))).Min();
+                    minVanillaId = IDValues.Min();
 
                 return minVanillaId.Value;
             }
@@ -72,7 +87,7 @@ namespace Prism.Mods.DefHandlers
             get
             {
                 if (maxVanillaId == null)
-                    maxVanillaId = (int)Convert.ChangeType(typeof(BuffID).GetField("Count", BindingFlags.Public | BindingFlags.Static).GetValue(null), typeof(int));
+                    maxVanillaId = IDValues.Max();
 
                 return maxVanillaId.Value;
             }

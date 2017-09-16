@@ -4,9 +4,9 @@ command -v mono >/dev/null 2>&1 || { echo >&2 "You must install Mono to use Pris
 
 NLIBP=""
 
-if [ "$(uname)" == "Darwin" ]; then
+if [ "$(uname -s)" = "Darwin" ]; then
     NLIBP="osx"
-elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+elif [ "$(expr substr "$(uname -s)" 1 5)" = "Linux" ]; then
     case "$(uname -m)" in
         "x86_64")
             NLIBP="lib64";;
@@ -17,7 +17,7 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
             exit 1;;
     esac
 else
-    (>&2 echo "Your system ($(uname), $(uname -s)) isn't supported.")
+    (>&2 echo "Your system ($(uname)) isn't supported.")
 fi
 
 LD_LIBRARY_PATH="$(pwd)/${NLIBP}:$LD_LIBRARY_PATH" \

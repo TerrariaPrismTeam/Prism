@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Prism.API.Behaviours;
 using Prism.Mods.BHandlers;
+using Prism.Util;
 using Terraria;
 using Terraria.Localization;
 using Terraria.UI;
@@ -100,7 +101,9 @@ namespace Prism.API
         {
             var r = new ItemTooltip();
 
-            r._tooltipLines = lines.Select(l => l.ToString()).ToArray();
+            r._tooltipLines = lines == null
+                ? Empty<String>.Array
+                : lines.Select(l => l.ToString()).ToArray();
             r._text = new LocalizedText(String.Empty /* ... */,
                     r._processedText = String.Join(Environment.NewLine, r._tooltipLines));
 
@@ -110,6 +113,9 @@ namespace Prism.API
         }
         public static ObjectName[] ToLines(this ItemTooltip tooltip)
         {
+            if (tooltip._tooltipLines == null)
+                return Empty<ObjectName>.Array;
+
             return tooltip._tooltipLines.Select(l => (ObjectName)l).ToArray();
         }
     }

@@ -10,8 +10,21 @@ namespace Prism.API.Defs
 {
     public class NpcRef : EntityRefWithId<NpcDef>
     {
+        static string ToResName(int id)
+        {
+            NpcDef nd = null;
+            if (Handler.NpcDef.DefsByType.TryGetValue(id, out nd))
+                return nd.InternalName;
+
+            string r = null;
+            if (Handler.NpcDef.IDLUT.TryGetValue(id, out r))
+                return r;
+
+            throw new ArgumentException("id", "Unknown NPC ID '" + id + "'.");
+        }
+
         public NpcRef(int resourceId)
-            : base(resourceId, id => Handler.NpcDef.DefsByType.ContainsKey(id) ? Handler.NpcDef.DefsByType[id].InternalName : String.Empty)
+            : base(resourceId, ToResName)
         {
             if (resourceId >= NPCID.Count)
                 throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla NPC type or netID.");

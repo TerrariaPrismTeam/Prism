@@ -11,8 +11,21 @@ namespace Prism.API.Defs
 {
     public class ItemRef : EntityRefWithId<ItemDef>
     {
+        static string ToResName(int id)
+        {
+            ItemDef ii = null;
+            if (Handler.ItemDef.DefsByType.TryGetValue(id, out ii))
+                return ii.InternalName;
+
+            string r = null;
+            if (Handler.ItemDef.IDLUT.TryGetValue(id, out r))
+                return r;
+
+            throw new ArgumentException("id", "Unknown Item ID '" + id + "'.");
+        }
+
         public ItemRef(int resourceId)
-            : base(resourceId, id => Handler.ItemDef.DefsByType.ContainsKey(id) ? Handler.ItemDef.DefsByType[id].InternalName : String.Empty)
+            : base(resourceId, ToResName)
         {
             if (resourceId >= ItemID.Count)
                 throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla Item type or netID.");

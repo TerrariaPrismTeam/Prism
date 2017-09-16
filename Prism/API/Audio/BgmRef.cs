@@ -27,23 +27,26 @@ namespace Prism.API.Audio
 
         public override BgmEntry Resolve()
         {
-            if (String.IsNullOrEmpty(ModName) && Requesting != null && Requesting.BgmEntries.ContainsKey(ResourceName))
-                return Requesting.BgmEntries[ResourceName];
+            BgmEntry r = null;
+
+            if (String.IsNullOrEmpty(ModName) && Requesting != null && Requesting.BgmEntries.TryGetValue(ResourceName, out r))
+                return r;
 
             if (IsVanillaRef)
             {
-                if (!Bgm.VanillaDict.ContainsKey(ResourceName))
+                if (!Bgm.VanillaDict.TryGetValue(ResourceName, out r))
                     throw new InvalidOperationException("Vanilla BGM entry reference '" + ResourceName + "' is not found.");
 
-                return Bgm.VanillaDict[ResourceName];
+                return r;
             }
 
-            if (!ModData.ModsFromInternalName.ContainsKey(ModName))
+            ModDef m = null;
+            if (!ModData.ModsFromInternalName.TryGetValue(ModName, out m))
                 throw new InvalidOperationException("BGM entry reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the mod is not loaded.");
-            if (!ModData.ModsFromInternalName[ModName].BgmEntries.ContainsKey(ResourceName))
+            if (!m.BgmEntries.TryGetValue(ResourceName, out r))
                 throw new InvalidOperationException("BGM entry reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the BGM entry is not loaded.");
 
-            return ModData.ModsFromInternalName[ModName].BgmEntries[ResourceName];
+            return r;
         }
     }
 }

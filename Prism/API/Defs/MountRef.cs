@@ -9,11 +9,24 @@ namespace Prism.API.Defs
 {
     public class MountRef : EntityRefWithId<MountDef>
     {
+        static string ToResName(int id)
+        {
+            MountDef md = null;
+            if (Handler.MountDef.DefsByType.TryGetValue(id, out md))
+                return md.InternalName;
+
+            string r = null;
+            if (Handler.MountDef.IDLUT.TryGetValue(id, out r))
+                return r;
+
+            throw new ArgumentException("id", "Unknown Mount ID '" + id + "'.");
+        }
+
         public MountRef(int resourceId)
-            : base(resourceId, id => Handler.MountDef.DefsByType.ContainsKey(id) ? Handler.MountDef.DefsByType[id].InternalName : String.Empty)
+            : base(resourceId, ToResName)
         {
             if (resourceId >= MountID.Count)
-                throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla Mount type.");
+                throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla Mount type, but is " + resourceId + "/" + MountID.Count + ".");
         }
         public MountRef(ObjectRef objRef)
             : base(objRef, Assembly.GetCallingAssembly())

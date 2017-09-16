@@ -11,10 +11,23 @@ namespace Prism.API.Defs
 {
     public class TileRef : EntityRefWithId<TileDef>
     {
-        public TileRef(int resourceId)
-            : base(resourceId, id => Handler.TileDef.DefsByType.ContainsKey(id) ? Handler.TileDef.DefsByType[id].InternalName : String.Empty)
+        static string ToResName(int id)
         {
-            if (resourceId >= TileID.Count)
+            TileDef td = null;
+            if (Handler.TileDef.DefsByType.TryGetValue(id, out td))
+                return td.InternalName;
+
+            string r = null;
+            if (Handler.TileDef.IDLUT.TryGetValue(id, out r))
+                return r;
+
+            throw new ArgumentException("id", "Unknown Tile ID '" + id + "'.");
+        }
+
+        public TileRef(int resourceId)
+            : base(resourceId, ToResName)
+        {
+            if ((uint)resourceId >= unchecked((uint)TileID.Count))
                 throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla Tile type.");
         }
         public TileRef(ObjectRef objRef)

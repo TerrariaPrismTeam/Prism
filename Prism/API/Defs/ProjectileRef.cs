@@ -10,8 +10,21 @@ namespace Prism.API.Defs
 {
     public class ProjectileRef : EntityRefWithId<ProjectileDef>
     {
+        static string ToResName(int id)
+        {
+            ProjectileDef pd = null;
+            if (Handler.ProjDef.DefsByType.TryGetValue(id, out pd))
+                return pd.InternalName;
+
+            string r = null;
+            if (Handler.ProjDef.IDLUT.TryGetValue(id, out r))
+                return r;
+
+            throw new ArgumentException("id", "Unknown Projectile ID '" + id + "'.");
+        }
+
         public ProjectileRef(int resourceId)
-            : base(resourceId, id => Handler.ProjDef.DefsByType.ContainsKey(id) ? Handler.ProjDef.DefsByType[id].InternalName : String.Empty)
+            : base(resourceId, ToResName)
         {
             if (resourceId >= ProjectileID.Count)
                 throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla Projectile type.");

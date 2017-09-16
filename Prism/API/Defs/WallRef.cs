@@ -10,15 +10,32 @@ namespace Prism.API.Defs
 {
     public class WallRef : EntityRefWithId<WallDef>
     {
-        public WallRef(int resourceId)
-            : base(resourceId, id =>
-                    Handler.WallDef.DefsByType.ContainsKey(id)
-                        ? Handler.WallDef.DefsByType[id].InternalName
-                        : WallDefHandler.WALL + id)
+        static string ToResName(int id)
         {
-            // FIXME: this somehow borks with resourceId == 1 and WallID.Count == 231, WTF?
-            if (resourceId >= WallID.Count)
+            WallDef wd = null;
+            if (Handler.WallDef.DefsByType.TryGetValue(id, out wd))
+                return wd.InternalName;
+
+            string r = null;
+            if (Handler.WallDef.IDLUT.TryGetValue(id, out r))
+                return r;
+
+            throw new ArgumentException("id", "Unknown Wall ID '" + id + "'.");
+        }
+
+        public WallRef(int resourceId)
+            : base(resourceId, ToResName)
+        {
+            /*
+             * The C# compiler is drunk: WallID.Count is a byte of
+             * value 231, but (int)WallID.Count == -25, according to
+             * the compiler... >__>
+             */
+            if (resourceId < 0 || (uint)resourceId >= unchecked((uint)WallID.Count))
+            {
+                Console.Error.WriteLine("The resourceId must be a vanilla wall type, but is " + resourceId + "/" + WallID.Count + ".");
                 throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla wall type, but is " + resourceId + "/" + WallID.Count + ".");
+            }
         }
         public WallRef(ObjectRef objRef)
             : base(objRef, Assembly.GetCallingAssembly())

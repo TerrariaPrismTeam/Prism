@@ -33,23 +33,26 @@ namespace Prism.API.Audio
 
         public override SfxEntry Resolve()
         {
-            if (String.IsNullOrEmpty(ModName) && Requesting != null && Requesting.SfxEntries.ContainsKey(ResourceName))
-                return Requesting.SfxEntries[ResourceName];
+            SfxEntry r = null;
+
+            if (String.IsNullOrEmpty(ModName) && Requesting != null && Requesting.SfxEntries.TryGetValue(ResourceName, out r))
+                return r;
 
             if (IsVanillaRef)
             {
-                if (!Sfx.VanillaDict.ContainsKey(ResourceName))
+                if (!Sfx.VanillaDict.TryGetValue(ResourceName, out r))
                     throw new InvalidOperationException("Vanilla SFX entry reference '" + ResourceName + "' is not found.");
 
-                return Sfx.VanillaDict[ResourceName];
+                return r;
             }
 
-            if (!ModData.ModsFromInternalName.ContainsKey(ModName))
+            ModDef m = null;
+            if (!ModData.ModsFromInternalName.TryGetValue(ModName, out m))
                 throw new InvalidOperationException("SFX entry reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the mod is not loaded.");
-            if (!ModData.ModsFromInternalName[ModName].SfxEntries.ContainsKey(ResourceName))
-                throw new InvalidOperationException("SFX entry reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the BGM entry is not loaded.");
+            if (!m.SfxEntries.TryGetValue(ResourceName, out r))
+                throw new InvalidOperationException("SFX entry reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the SFX entry is not loaded.");
 
-            return ModData.ModsFromInternalName[ModName].SfxEntries[ResourceName];
+            return r;
         }
     }
 }

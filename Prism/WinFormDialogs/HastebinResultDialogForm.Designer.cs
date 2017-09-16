@@ -54,7 +54,7 @@
             this.textBoxURL.ReadOnly = true;
             this.textBoxURL.Size = new System.Drawing.Size(496, 27);
             this.textBoxURL.TabIndex = 1;
-            this.textBoxURL.Text = "http://hastebin.com/";
+            this.textBoxURL.Text = "https://hastebin.com/";
             this.textBoxURL.WordWrap = false;
             // 
             // button1

@@ -302,11 +302,11 @@ namespace Prism.Mods.DefHandlers
         // it would be shown as eg. "GoblinTinkerer" instead of "Goblin Tinkerer"
         protected override string GetNameVanillaMethod(NPC npc)
         {
-            return npc.GivenOrTypeName;
+            return Lang.GetNPCNameValue(npc.netID); //npc.GivenOrTypeName;
         }
-        protected override string InternalName(NPC npc)
+        /*protected override string InternalName(NPC npc)
         {
-            return npc.TypeName;
-        }
+            return Lang.GetNPCName(npc.netID).Key;
+        }*/
     }
 }

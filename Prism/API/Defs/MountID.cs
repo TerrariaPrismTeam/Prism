@@ -36,6 +36,16 @@ namespace Prism.API.Defs
             MinecartMech = 11,
             CuteFishron  = 12,
             MinecartWood = 13,
-            Count        = 14;
+            Basilisk     = 14,
+            Count        = 15;
+
+#if DEBUG
+        static MountID()
+        {
+            if (Count != Terraria.ID.MountID.Count)
+                throw new Exception("UPDATE Prism.API.Defs.MountID.Count!");
+        }
+#endif
     }
 }
+

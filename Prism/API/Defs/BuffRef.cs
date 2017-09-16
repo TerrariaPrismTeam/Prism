@@ -4,14 +4,28 @@ using System.Linq;
 using System.Reflection;
 using Prism.Mods;
 using Prism.Mods.DefHandlers;
+using Terraria;
 using Terraria.ID;
 
 namespace Prism.API.Defs
 {
     public class BuffRef : EntityRefWithId<BuffDef>
     {
+        static string ToResName(int id)
+        {
+            BuffDef bd = null;
+            if (Handler.BuffDef.DefsByType.TryGetValue(id, out bd))
+                return bd.InternalName;
+
+            string r = null;
+            if (Handler.BuffDef.IDLUT.TryGetValue(id, out r))
+                return r;
+
+            throw new ArgumentException("id", "Unknown Buff ID '" + id + "'.");
+        }
+
         public BuffRef(int resourceId)
-            : base(resourceId, id => Handler.BuffDef.DefsByType.ContainsKey(id) ? Handler.BuffDef.DefsByType[id].InternalName : String.Empty)
+            : base(resourceId, ToResName)
         {
             if (resourceId >= BuffID.Count)
                 throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla Buff type.");
