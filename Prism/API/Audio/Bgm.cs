@@ -12,8 +12,8 @@ namespace Prism.API.Audio
     [Flags]
     enum BossBgms
     {
-        Custom = 65536,
-        None   =     0,
+        Custom = 0x10000,
+        None   =       0,
 
         Boss1          =   0x1,
         Boss2          =   0x2,
@@ -25,7 +25,8 @@ namespace Prism.API.Audio
         Pirates        =  0x80,
         MartianMadness = 0x100,
         LunarPillar    = 0x200,
-        GoblinArmy     = 0x400
+        GoblinArmy     = 0x400,
+        OldOnesArmy    = 0x800
     }
 
     public static partial class Bgm
@@ -36,7 +37,7 @@ namespace Prism.API.Audio
         internal static Dictionary<string, BgmEntry> VanillaDict = new Dictionary<string, BgmEntry>();
 
         internal static BossBgms bossMusicId = BossBgms.None;
-        internal static BgmRef bossMusic_custom;
+        internal static List<BgmRef> bossMusic_custom = new List<BgmRef>();
         internal static bool justScanned = false; // if NPCs might be updated, scan using AnyNPCsForMusic.
                                                   // using the bossMusicId will only use 1 main.npc iteration per tick, instead of {Defs.Values.Where(e => e.Priority == BgmPriority.Boss).Count()}
 
@@ -72,18 +73,18 @@ namespace Prism.API.Audio
             if (!Main.instance.IsActive)
             {
                 foreach (var e in allEntries)
-                {
                     if (e.fade > 0f && e.Music.State == SoundState.Playing)
                         e.Music.Pause();
-                }
+
+                foreach (var s in Main.soundInstanceLiquid)
+                    s.Stop();
 
                 return true;
             }
             // resume otherwise
-            else
-                foreach (var e in allEntries)
-                    if (e.fade > 0f && e.Music.State == SoundState.Paused)
-                        e.Music.Play();
+            else foreach (var e in allEntries)
+                if (e.fade > 0f && e.Music.State == SoundState.Paused)
+                    e.Music.Play();
 
             return false;
         }
@@ -156,7 +157,7 @@ namespace Prism.API.Audio
         static void ScanForVanillaBossMusics()
         {
             bossMusicId = BossBgms.None;
-            bossMusic_custom = null;
+            bossMusic_custom.Clear();
 
             var screen = new Rectangle((int)Main.screenPosition.X, (int)Main.screenPosition.Y, Main.screenWidth, Main.screenHeight);
 
@@ -248,16 +249,15 @@ namespace Prism.API.Audio
                         break;
 
                     default:
-                        if (musicSelector == BossBgms.None)
+                        if (NPCID.Sets.BelongsToInvasionOldOnesArmy[Main.npc[i].type])
+                            musicSelector |= BossBgms.OldOnesArmy;
+                        else if (musicSelector == BossBgms.None)
                             if (Main.npc[i].P_Music != null && Main.npc[i].P_Music is BgmRef)
                             {
                                 var r = (BgmRef)Main.npc[i].P_Music;
 
-                                if (r != null)
-                                {
-                                    musicSelector = BossBgms.Custom;
-                                    bossMusic_custom = r;
-                                }
+                                musicSelector = BossBgms.Custom;
+                                bossMusic_custom.Add(r);
                             }
                             else if (Main.npc[i].boss)
                                 musicSelector = BossBgms.Boss1;
@@ -277,7 +277,15 @@ namespace Prism.API.Audio
 
         internal static void Update(Main _)
         {
-            if (Main.musicVolume <= 0f || Main.dedServ)
+            if (Main.dedServ)
+                return;
+
+            Sfx.UpdateInstances();
+
+            if (Main.engine != null)
+                Main.engine.Update();
+
+            if (Main.musicVolume <= 0f)
                 return;
 
             if (current != null)
@@ -298,8 +306,6 @@ namespace Prism.API.Audio
             if (newEntry.Priority < BgmPriority.Boss && bossMusicId != BossBgms.None)
                 if (bossMusicId == BossBgms.Custom)
                     newEntry = bossMusic_custom.Resolve();
-
-            Main.engine.Update();
 
             HookManager.GameBehaviour.UpdateMusic(ref newEntry);
 

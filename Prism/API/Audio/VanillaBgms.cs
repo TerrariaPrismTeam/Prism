@@ -58,10 +58,11 @@ namespace Prism.API.Audio
         public static BgmEntry[] MusicBoxes;
         public static BgmEntry
             Title, FrostMoon, PumpkinMoon,
-            MoonLord, MartianMadness, LunarPillar, Plantera, Boss2, Boss1, Boss3, Golem, QueenBee, Pirates, GoblinArmy,
-            Underworld, Eclipse, Space, Lihzahrd, Mushrooms, UgCorruption, Corruption, UgCrimson, Crimson, Dungeon, Meteor, Jungle, Snow, Ice,
+            MoonLord, OldOnesArmy, MartianMadness, LunarPillar, Plantera, Boss2, Boss1, Boss3, Golem, QueenBee, Pirates, GoblinArmy,
+            Sandstorm, Underworld, Eclipse, Space, Lihzahrd, Mushrooms, UgCorruption, Corruption, UgCrimson, Crimson, Dungeon, Meteor, Jungle, Snow, Ice,
             UgHallow, UgDesert, Underground, BloodMoon, Rain, Night, Hallow, Ocean, Desert, Day,
-            Ambient;
+            Ambient,
+            Sandstorm, OldOnesArmy;
 
         static int MusicBoxIdToCueId(int boxId)
         {
@@ -132,8 +133,8 @@ namespace Prism.API.Audio
         internal static void Reset()
         {
             Title = FrostMoon = PumpkinMoon
-                = MoonLord = MartianMadness = LunarPillar = Plantera = Boss2 = Boss1 = Boss3 = Golem = QueenBee = Pirates = GoblinArmy
-                = Underworld = Eclipse = Space = Lihzahrd = Mushrooms = UgCorruption = Corruption = UgCrimson = Crimson = Dungeon = Meteor = Jungle = Snow = Ice
+                = MoonLord = OldOnesArmy = MartianMadness = LunarPillar = Plantera = Boss2 = Boss1 = Boss3 = Golem = QueenBee = Pirates = GoblinArmy
+                = Sandstorm = Underworld = Eclipse = Space = Lihzahrd = Mushrooms = UgCorruption = Corruption = UgCrimson = Crimson = Dungeon = Meteor = Jungle = Snow = Ice
                 = UgHallow = UgDesert = Underground = BloodMoon = Rain = Night = Hallow = Ocean = Desert = Day
                 = Ambient = null;
         }
@@ -148,6 +149,7 @@ namespace Prism.API.Audio
             PumpkinMoon = new BgmEntry(Bgm.VanillaBgmOf(30), BgmPriority.Event, () => Main.pumpkinMoon);
 
             MoonLord       = new BgmEntry(Bgm.VanillaBgmOf(38), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.MoonLord      ) != 0 : Bgm.AnyNPCsForMusic(MoonLordNPCs      ));
+            OldOnesArmy    = new BgmEntry(Bgm.VanillaBgmOf(41), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.OldOnesArmy   ) != 0 : Bgm.AnyNPCsForMusic(n => NPCID.Sets.BelongsToInvasionOldOnesArmy[n.type]));
             MartianMadness = new BgmEntry(Bgm.VanillaBgmOf(37), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.MartianMadness) != 0 : Bgm.AnyNPCsForMusic(MartianMadnessNPCs));
             LunarPillar    = new BgmEntry(Bgm.VanillaBgmOf(34), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.LunarPillar   ) != 0 : Bgm.AnyNPCsForMusic(LunarPillarNPCs   ));
             Plantera       = new BgmEntry(Bgm.VanillaBgmOf(24), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Plantera      ) != 0 : Bgm.AnyNPCsForMusic(PlanteraNPCs      ));
@@ -159,6 +161,7 @@ namespace Prism.API.Audio
             Pirates        = new BgmEntry(Bgm.VanillaBgmOf(35), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.Pirates       ) != 0 : Bgm.AnyNPCsForMusic(PiratesNPCs       ));
             GoblinArmy     = new BgmEntry(Bgm.VanillaBgmOf(39), BgmPriority.Boss, () => Bgm.justScanned ? (Bgm.bossMusicId & BossBgms.GoblinArmy    ) != 0 : Bgm.AnyNPCsForMusic(GoblinArmyNPCs    ));
 
+            Sandstorm    = new BgmEntry(Bgm.VanillaBgmOf(40), BgmPriority.Biome, () => Main.player[Main.myPlayer].ZoneSandstorm);
             Underworld   = new BgmEntry(Bgm.VanillaBgmOf(36), BgmPriority.Biome, () => Main.player[Main.myPlayer].position.Y > (Main.maxTilesY - 200) * 16);
             Eclipse      = new BgmEntry(Bgm.VanillaBgmOf(27), BgmPriority.Biome, () => Main.eclipse && Main.player[Main.myPlayer].position.Y < Main.worldSurface * 16 + Main.screenHeight / 2);
             Space        = new BgmEntry(Bgm.VanillaBgmOf(15), BgmPriority.Biome, IsInSpace);
@@ -190,94 +193,100 @@ namespace Prism.API.Audio
             PopulateDict();
         }
 
-        public static ObjectRef RefOfId(int id)
+        public static BgmRef RefOfId(int id)
         {
             switch (id)
             {
                 case 1:
-                    return new ObjectRef("Day");
+                    return new BgmRef("Day");
                 case 2:
-                    return new ObjectRef("BloodMoon");
+                    return new BgmRef("BloodMoon");
                 case 3:
-                    return new ObjectRef("Night");
+                    return new BgmRef("Night");
                 case 4:
-                    return new ObjectRef("Underground");
+                    return new BgmRef("Underground");
                 case 5:
-                    return new ObjectRef("Boss1");
+                    return new BgmRef("Boss1");
                 case 6:
-                    return new ObjectRef("Title");
+                    return new BgmRef("Title");
                 case 7:
-                    return new ObjectRef("Jungle");
+                    return new BgmRef("Jungle");
                 case 8:
-                    return new ObjectRef("Corruption");
+                    return new BgmRef("Corruption");
 
                 case 9:
-                    return new ObjectRef("Hallow");
+                    return new BgmRef("Hallow");
                 case 10:
-                    return new ObjectRef("UgCorruption");
+                    return new BgmRef("UgCorruption");
                 case 11:
-                    return new ObjectRef("UgHallow");
+                    return new BgmRef("UgHallow");
                 case 12:
-                    return new ObjectRef("Boss2");
+                    return new BgmRef("Boss2");
                 case 13:
-                    return new ObjectRef("Boss3");
+                    return new BgmRef("Boss3");
 
                 case 14:
-                    return new ObjectRef("Ice");
+                    return new BgmRef("Ice");
                 case 15:
-                    return new ObjectRef("Space");
+                    return new BgmRef("Space");
                 case 16:
-                    return new ObjectRef("Crimson");
+                    return new BgmRef("Crimson");
                 case 17:
-                    return new ObjectRef("Golem");
+                    return new BgmRef("Golem");
                 case 18:
-                    return new ObjectRef("Day");
+                    return new BgmRef("Day");
                 case 19:
-                    return new ObjectRef("Rain");
+                    return new BgmRef("Rain");
                 case 20:
-                    return new ObjectRef("Snow");
+                    return new BgmRef("Snow");
                 case 21:
-                    return new ObjectRef("Desert");
+                    return new BgmRef("Desert");
                 case 22:
-                    return new ObjectRef("Ocean");
+                    return new BgmRef("Ocean");
                 case 23:
-                    return new ObjectRef("Dungeon");
+                    return new BgmRef("Dungeon");
                 case 24:
-                    return new ObjectRef("Plantera");
+                    return new BgmRef("Plantera");
                 case 25:
-                    return new ObjectRef("QueenBee");
+                    return new BgmRef("QueenBee");
                 case 26:
-                    return new ObjectRef("Lihzahrd");
+                    return new BgmRef("Lihzahrd");
                 case 27:
-                    return new ObjectRef("Eclipse");
+                    return new BgmRef("Eclipse");
                 case 28:
-                    return new ObjectRef("Ambient");
+                    return new BgmRef("Ambient");
                 case 29:
-                    return new ObjectRef("Mushrooms");
+                    return new BgmRef("Mushrooms");
                 case 30:
-                    return new ObjectRef("PumpkinMoon");
+                    return new BgmRef("PumpkinMoon");
                 case 31:
-                    return new ObjectRef("Underground");
+                    return new BgmRef("Underground");
                 case 32:
-                    return new ObjectRef("FrostMoon");
+                    return new BgmRef("FrostMoon");
 
                 case 33:
-                    return new ObjectRef("UgCrimson");
+                    return new BgmRef("UgCrimson");
                 case 34:
-                    return new ObjectRef("LunarPillar");
+                    return new BgmRef("LunarPillar");
                 case 35:
-                    return new ObjectRef("Pirates");
+                    return new BgmRef("Pirates");
                 case 36:
-                    return new ObjectRef("Underworld");
+                    return new BgmRef("Underworld");
                 case 37:
-                    return new ObjectRef("MartianMadness");
+                    return new BgmRef("MartianMadness");
                 case 38:
-                    return new ObjectRef("MoonLord");
+                    return new BgmRef("MoonLord");
                 case 39:
-                    return new ObjectRef("GoblinArmy");
+                    return new BgmRef("GoblinArmy");
+
+                case 40:
+                    return new BgmRef("Sandstorm");
+                case 41:
+                    return new BgmRef("OldOnesArmy");
             }
 
             throw new ArgumentOutOfRangeException("id");
         }
     }
 }
+

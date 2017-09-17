@@ -16,8 +16,32 @@ namespace Prism.API.Audio
         internal static Dictionary<string, SfxEntry> VanillaDict = new Dictionary<string, SfxEntry>();
 
         static Dictionary<KeyValuePair<SfxEntry, int>, SoundEffectInstance> instanceMap = new Dictionary<KeyValuePair<SfxEntry, int>, SoundEffectInstance>();
-        static List<SoundEffectInstance> instancePool = new List<SoundEffectInstance>();
         static List<KeyValuePair<SfxEntry, int>> toR = new List<KeyValuePair<SfxEntry, int>>();
+
+        internal static void UpdateInstances()
+        {
+            if ((!Main.hasFocus || Main.gamePaused) && Main.netMode == 0)
+            {
+                foreach (var i in Main._trackedSounds)
+                    i.Value.Pause();
+
+                Main._areSoundsPaused = true;
+            }
+            else if (Main._areSoundsPaused)
+            {
+                foreach (var i in Main._trackedSounds)
+                    i.Value.Play();
+
+                Main._areSoundsPaused = false;
+            }
+            else
+            {
+                foreach (var i in Main._trackedSounds)
+                    i.Value.Update();
+
+                CleanupLingeringInstances();
+            }
+        }
 
         static Tuple<int, float, float, float> CalcParams(SfxEntry e, Vector2 pos, int v, PlaySoundEvent onPlay)
         {
@@ -76,16 +100,16 @@ namespace Prism.API.Audio
         {
             SoundEffectInstance inst;
 
-            for (int i = 0; i < instancePool.Count; i++)
+            for (int i = 0; i < Main.ActiveSoundInstances.Count; i++)
             {
-                inst = instancePool[i];
+                inst = Main.ActiveSoundInstances[i];
 
-                if (inst == null || inst.IsDisposed || inst.State != SoundState.Playing)
+                if (inst == null || inst.IsDisposed || inst.State == SoundState.Stopped)
                 {
                     if (inst != null && !inst.IsDisposed)
                         inst.Dispose();
 
-                    instancePool.RemoveAt(i--);
+                    Main.ActiveSoundInstances.RemoveAt(i--);
                 }
             }
 
@@ -95,7 +119,7 @@ namespace Prism.API.Audio
             {
                 inst = kvp.Value;
 
-                if (inst == null || inst.IsDisposed || inst.State != SoundState.Playing)
+                if (inst == null || inst.IsDisposed || inst.State != SoundState.Stopped)
                 {
                     if (inst != null && !inst.IsDisposed)
                         inst.Dispose();
@@ -108,6 +132,10 @@ namespace Prism.API.Audio
                 instanceMap.Remove(toR[i]);
 
             toR.Clear();
+
+            foreach (var i in Main._trackedSounds)
+                if (!i.Value.IsPlaying)
+                    Main._trackedSounds.Remove(i.Id);
         }
 
         public static SoundEffectInstance Play(SfxEntry entry, Vector2 position, int variant, PlaySoundEvent onPlay)
@@ -132,7 +160,7 @@ namespace Prism.API.Audio
                     if (inst == null)
                         return null;
 
-                    instancePool.Add(inst); // don't GC
+                    Main.ActiveSoundInstances.Add(inst); // don't GC
                     break;
                 case SfxPlayBehaviour.PlayIfStopped:
                 case SfxPlayBehaviour.PlayIfStoppedUpdateParams:

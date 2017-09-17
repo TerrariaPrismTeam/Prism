@@ -16,7 +16,7 @@ namespace Prism.Injector.Patcher
 
         static void WrapMethods()
         {
-            //typeDef_Main.GetMethod("UpdateAudio").Wrap(context);
+            typeDef_Main.GetMethod("UpdateAudio").Wrap(context);
             //typeDef_Main.GetMethod("PlaySound"     , MethodFlags.Static   | MethodFlags.Public, new[] { typeSys.Int32, typeSys.Int32, typeSys.Int32, typeSys.Int32,
             //        typeSys.Single, typeSys.Single }).Wrap(context, "Terraria.PrismInjections", "Main_PlaySoundDel", "P_OnPlaySound");
             typeDef_Main.GetMethod("DrawNPC"       , MethodFlags.Instance | MethodFlags.Public, new[] { typeSys.Int32, typeSys.Boolean                             }).Wrap(context);

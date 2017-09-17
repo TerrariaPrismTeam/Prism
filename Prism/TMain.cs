@@ -143,7 +143,7 @@ namespace Prism
 
         static void HookWrappedMethods()
         {
-          //P_OnUpdateMusic += Bgm.Update;
+            P_OnUpdateAudio += Bgm.Update;
             P_OnUpdateKeyboard += OnUpdateKeyboard;
 
             P_OnPreDraw        += OnPreDraw        ;
