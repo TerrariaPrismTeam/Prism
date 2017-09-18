@@ -8,6 +8,7 @@ using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Prism.Util;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.Localization;
 
@@ -160,7 +161,7 @@ namespace Prism.Mods.DefHandlers
             def.CreateWall          = item.createWall <=  0 ? null : new WallRef      (item.createWall);
             def.GetTexture          = () => Main.itemTexture[item.type];
             def.GetFlameTexture     = () => Main.itemFlameTexture[item.type];
-          //def.UseSound = item.P_UseSound as SfxRef != null ? (SfxRef)item.P_UseSound : item.useSound == 0 ? null : new SfxRef("UseItem", variant: item.useSound);
+            def.UseSound            = item.P_UseSound as SfxRef ?? (item.UseSound == null ? null : new SfxRef("UseItem", variant: item.UseSound.Style));
 
             #region ArmourData
             def.ArmourData = new ItemArmourData(() =>
@@ -379,11 +380,11 @@ namespace Prism.Mods.DefHandlers
             item.shoot        = def.ShootProjectile == null ?  0 : def.ShootProjectile.Resolve().Type ;
             item.ammo         = def.AmmoType        == null ?  0 : def.AmmoType       .Resolve().NetID;
             item.createTile   = def.CreateTile      == null ? -1 : def.CreateTile     .Resolve().Type ;
-            item.createWall   = def.CreateWall      == null ?  0 : def.CreateWall     .Resolve().Type ;
+            item.createWall   = def.CreateWall      == null ? -1 : def.CreateWall     .Resolve().Type ;
             item.useAmmo      = def.UsedAmmo        == null ?  0 : def.UsedAmmo       .Resolve().Type ;
 
             item.P_UseSound = def.UseSound;
-          //item.useSound = def.UseSound == null ? 0 : def.UseSound.VariantID;
+            item.UseSound   = def.UseSound == null ? null : new LegacySoundStyle(SoundID.Item, def.UseSound.VariantID);
 
             if (def.ArmourData != null)
             {

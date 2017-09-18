@@ -7,6 +7,7 @@ using Prism.API.Audio;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 
 namespace Prism.Mods.DefHandlers
@@ -100,8 +101,8 @@ namespace Prism.Mods.DefHandlers
             def.MaxLife             = npc.lifeMax;
             def.GetTexture          = () => Main.npcTexture[npc.type];
             def.IsImmortal          = npc.immortal;
-          //def.SoundOnHit          = npc.P_SoundOnHit   as SfxRef != null ? (SfxRef)npc.P_SoundOnHit : new SfxRef("NpcHit", variant: npc.soundHit);
-          //def.SoundOnDeath        = npc.P_SoundOnDeath as SfxRef != null ? (SfxRef)npc.P_SoundOnDeath : new SfxRef("NpcKilled", variant: npc.soundKilled);
+            def.SoundOnHit          = npc.P_SoundOnHit   as SfxRef ?? (npc.  HitSound == null ? null : new SfxRef("NpcHit"   , variant: npc.  HitSound.Style));
+            def.SoundOnDeath        = npc.P_SoundOnDeath as SfxRef ?? (npc.DeathSound == null ? null : new SfxRef("NpcKilled", variant: npc.DeathSound.Style));
             def.TimeLeft            = npc.timeLeft;
             def.AlwaysUpdateInMP    = npc.netAlways;
             def.ImmuneToLava        = npc.lavaImmune;
@@ -178,8 +179,8 @@ namespace Prism.Mods.DefHandlers
 
             npc.P_SoundOnHit   = def.SoundOnHit  ;
             npc.P_SoundOnDeath = def.SoundOnDeath;
-          //npc.soundHit       = def.SoundOnHit   == null ? 0 : def.SoundOnHit  .VariantID;
-          //npc.soundKilled    = def.SoundOnDeath == null ? 0 : def.SoundOnDeath.VariantID;
+            npc.HitSound       = def.SoundOnHit   == null ? null : new LegacySoundStyle(SoundID.NPCHit   , def.SoundOnHit  .VariantID);
+            npc.DeathSound     = def.SoundOnDeath == null ? null : new LegacySoundStyle(SoundID.NPCKilled, def.SoundOnDeath.VariantID);
 
             for (int i = 0; i < def.BuffImmunities.Count; i++)
                 npc.buffImmune[i] = true;
