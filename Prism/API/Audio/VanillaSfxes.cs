@@ -17,7 +17,8 @@ namespace Prism.API.Audio
             ZombieIdle, NpcAttackSound, DoubleJump, Run, Buy, Splash, FemaleHit,
             DigOre, Unlock, Drown, Chat, MaxMana, MummyIdle, PixieIdle,
             MechBuzz, NpcIdleSound, DuckIdle, FrogIdle, NpcIdleSoundQuiet, BeetleIdle, AmbientWater,
-            AmbientLava, NpcAttackSoundExpert, Meowmere, CoinPickup, AmbientDrip, Camera, MoonLordCry;
+            AmbientLava, NpcAttackSoundExpert, Meowmere, CoinPickup, AmbientDrip, Camera, MoonLordCry,
+            DD2Sound;
 
         static SfxEntry GetVanilla(SoundEffect   e , SfxPlayBehaviour b = SfxPlayBehaviour.Singleton, bool ambient = false)
         {
@@ -63,7 +64,7 @@ namespace Prism.API.Audio
                 = DigOre = Unlock = Drown = Chat = MaxMana = MummyIdle = PixieIdle
                 = MechBuzz = NpcIdleSound = DuckIdle = FrogIdle = NpcIdleSoundQuiet = BeetleIdle = AmbientWater
                 = AmbientLava = NpcAttackSoundExpert = Meowmere = CoinPickup = AmbientDrip = Camera = MoonLordCry
-                = null;
+                = DD2Sound = null;
         }
         internal static void FillVanilla()
         {
@@ -155,8 +156,10 @@ namespace Prism.API.Audio
             Camera = GetVanilla(Main.soundCamera);
 
             MoonLordCry = GetVanilla(Main.soundNPCKilled[10], SfxPlayBehaviour.MultipleInstances);
+            DD2Sound    = GetVanilla(Main.trackableSounds, SfxPlayBehaviour.MultipleInstances);
 
             PopulateDict();
         }
     }
 }
+

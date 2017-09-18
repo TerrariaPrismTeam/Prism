@@ -19,6 +19,7 @@ namespace Prism.Injector.Patcher
             typeDef_Main.GetMethod("UpdateAudio").Wrap(context);
             //typeDef_Main.GetMethod("PlaySound"     , MethodFlags.Static   | MethodFlags.Public, new[] { typeSys.Int32, typeSys.Int32, typeSys.Int32, typeSys.Int32,
             //        typeSys.Single, typeSys.Single }).Wrap(context, "Terraria.PrismInjections", "Main_PlaySoundDel", "P_OnPlaySound");
+
             typeDef_Main.GetMethod("DrawNPC"       , MethodFlags.Instance | MethodFlags.Public, new[] { typeSys.Int32, typeSys.Boolean                             }).Wrap(context);
             typeDef_Main.GetMethod("DrawProj"      , MethodFlags.Instance | MethodFlags.Public, new[] { typeSys.Int32                                              }).Wrap(context);
             typeDef_Main.GetMethod("DrawPlayer"    , MethodFlags.Instance | MethodFlags.Public).Wrap(context);
@@ -50,12 +51,12 @@ namespace Prism.Injector.Patcher
 
             var drawNpcs = typeDef_Main.GetMethod("DrawNPCs", MethodFlags.Instance | MethodFlags.Public, new[] { typeSys.Boolean });
 
-            /*var firstInstr = drawNpcs.Body.FindInstrSeqStart(seqToRemove);
+            var firstInstr = drawNpcs.Body.FindInstrSeqStart(seqToRemove);
 
             using (var p = drawNpcs.Body.GetILProcessor())
             {
                 p.RemoveInstructions(firstInstr, seqToRemove.Length);
-            }*/
+            }
         }
         static void AddIsChatAllowedHook()
         {
@@ -114,7 +115,7 @@ namespace Prism.Injector.Patcher
 
             // ---
 
-            /*proc = mainUpdate.GetILProcessor();
+            proc = mainUpdate.GetILProcessor();
             var mainInstrs = mainUpdate.FindInstrSeq(proc, searchSeq);
 
             if (mainInstrs[0] == null)
@@ -123,13 +124,13 @@ namespace Prism.Injector.Patcher
                 return;
             }
 
-            var skipToOffset = ((Instruction)(mainInstrs[2]/ *bne.un* /.Operand));
+            var skipToOffset = ((Instruction)(mainInstrs[2]/*bne.un*/.Operand));
 
             proc.ReplaceInstructions(mainInstrs.Take(3), new Instruction[]
             {
                 Instruction.Create(OpCodes.Call, chatCheckHook),
                 Instruction.Create(OpCodes.Brfalse, skipToOffset)
-            });*/
+            });
         }
         static void AddLocalChatHook(Action<string> log)
         {
@@ -311,7 +312,7 @@ namespace Prism.Injector.Patcher
             {
                 var drawPlayerHead = typeDef_Main.GetMethod("DrawPlayerHead", MethodFlags.Public | MethodFlags.Instance);
 
-                /*while (true)
+                while (true)
                 {
                     OpCode[] toRem =
                     {
@@ -330,15 +331,15 @@ namespace Prism.Injector.Patcher
                     {
                         p.RemoveInstructions(i, toRem.Length);
                     }
-                }*/
+                }
             }
             #endregion
 
             #region DrawPlayer
             {
-                var drawPlayer = typeDef_Main.GetMethod("RealDrawPlayer", MethodFlags.Public | MethodFlags.Instance);
+                var drawPlayer = typeDef_Main.GetMethod(/*FIXME Real*/"DrawPlayer", MethodFlags.Public | MethodFlags.Instance);
 
-                /*while (true)
+                while (true)
                 {
                     OpCode[] toRem =
                     {
@@ -357,77 +358,9 @@ namespace Prism.Injector.Patcher
                     {
                         p.RemoveInstructions(i, toRem.Length);
                     }
-                }*/
+                }
             }
             #endregion
-        }
-        static void AddPreDrawHook()
-        {
-            OpCode[] toFind =
-            {
-                /*
-                    spriteBatch.Draw(...);
-
-                    IL_29AF: ldsfld    class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SpriteBatch Terraria.Main::spriteBatch
-                    IL_29B4: ldc.i4.0
-                    IL_29B5: ldsfld    class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.BlendState [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.BlendState::AlphaBlend
-                    IL_29BA: ldsfld    class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SamplerState [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SamplerState::LinearClamp
-                    IL_29BF: ldsfld    class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.DepthStencilState [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.DepthStencilState::None
-                    IL_29C4: ldarg.0
-                    IL_29C5: ldfld     class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.RasterizerState Terraria.Main::Rasterizer
-                    IL_29CA: ldnull
-                    IL_29CB: ldarg.0
-                    IL_29CC: ldfld     valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Matrix Terraria.Main::Transform
-                    IL_29D1: callvirt  instance void [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SpriteBatch::Begin(valuetype [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SpriteSortMode, class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.BlendState, class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SamplerState, class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.DepthStencilState, class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.RasterizerState, class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.Effect, valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Matrix)
-                */
-
-                OpCodes.Ldsfld,
-                OpCodes.Ldc_I4_0,
-                OpCodes.Ldsfld,
-                OpCodes.Ldsfld,
-                OpCodes.Ldsfld,
-                OpCodes.Ldarg_0,
-                OpCodes.Ldfld,
-                OpCodes.Ldnull,
-                OpCodes.Ldarg_0,
-                OpCodes.Ldfld,
-                OpCodes.Callvirt
-            };
-
-            var draw = typeDef_Main.GetMethod("Draw");
-
-            var spriteBatch = typeDef_Main.GetField("spriteBatch");
-
-            MethodDef invokePreDraw;
-            var onPreDrawDel = context.CreateDelegate("Terraria.PrismInjections", "Main_OnPreDrawDel", typeSys.Void, out invokePreDraw, spriteBatch.FieldType);
-
-            var onPreDraw = new FieldDefUser("P_OnPreDraw", new FieldSig(onPreDrawDel.ToTypeSig()), FieldAttributes.Public | FieldAttributes.Static);
-            typeDef_Main.Fields.Add(onPreDraw);
-
-            var drb = draw.Body;
-            /*using (var drbproc = drb.GetILProcessor())
-            {
-                Instruction[] toInj =
-                {
-                    Instruction.Create(OpCodes.Ldsfld  , onPreDraw    ),
-                    Instruction.Create(OpCodes.Ldsfld  , spriteBatch  ),
-                    Instruction.Create(OpCodes.Callvirt, invokePreDraw)
-                };
-
-                var first = drb.FindInstrSeqStart(toFind);
-                for (int i = 0; i < toFind.Length; i++)
-                    first = first.Next(drbproc);
-
-                foreach (var i in toInj.Reverse())
-                    drbproc.InsertAfter(first, i);
-
-                // rewire the if before it to end at the injected instructions instead of the code we looked for
-                //foreach (var i in drb.Instructions)
-                //    if (i.Operand == first)
-                //        i.Operand = toInj[0];
-
-                // not rewiring the if will lead to invalid IL, because the target instruction won't exist (because we're removing it here)
-            }*/
         }
         static void AddOnUpdateKeyboardHook(Action<string> log)
         {
@@ -482,8 +415,8 @@ namespace Prism.Injector.Patcher
             var onUpdateKeyboardDelField = new FieldDefUser("P_OnUpdateKeyboard", new FieldSig(onUpdateKeyboardDelType.ToTypeSig()), FieldAttributes.Public | FieldAttributes.Static);
             typeDef_Main.Fields.Add(onUpdateKeyboardDelField);
 
-            /*mainUpdateProc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, onUpdateKeyboardDelField));
-            mainUpdateProc.EmitWrapperCall(invokeOnUpdateKeyboardHook, first);*/
+            mainUpdateProc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, onUpdateKeyboardDelField));
+            mainUpdateProc.EmitWrapperCall(invokeOnUpdateKeyboardHook, first);
             //mainUpdateProc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeOnUpdateKeyboardHook));
         }
         static void AddPostScreenClearHook()
@@ -495,7 +428,7 @@ namespace Prism.Injector.Patcher
                 OpCodes.Callvirt
             };
 
-            var draw = typeDef_Main.GetMethod("Draw");
+            var draw = typeDef_Main.GetMethod("DoDraw");
 
             var spriteBatch = typeDef_Main.GetField("spriteBatch");
 
@@ -505,7 +438,7 @@ namespace Prism.Injector.Patcher
             var onPostScrClDraw = new FieldDefUser("P_OnPostScrClDraw", new FieldSig(onPostScrClDel.ToTypeSig()), FieldAttributes.Public | FieldAttributes.Static);
             typeDef_Main.Fields.Add(onPostScrClDraw);
 
-            /*var drb = draw.Body;
+            var drb = draw.Body;
             using (var drbproc = drb.GetILProcessor())
             {
                 Instruction[] toInj =
@@ -514,11 +447,11 @@ namespace Prism.Injector.Patcher
                     Instruction.Create(OpCodes.Callvirt, invokePostScrCl)
                 };
 
-                var first = drb.FindInstrSeqStart(toFind).Next(drbproc) / * call 2 * /.Next(drbproc) / * callvirt * /.Next(drbproc); // ldsfld (spriteBatch)
+                var first = drb.FindInstrSeqStart(toFind).Next(drbproc) /* call 2 */.Next(drbproc) /* callvirt */.Next(drbproc); // ldsfld (spriteBatch)
 
                 foreach (var i in toInj)
                     drbproc.InsertBefore(first, i);
-            }*/
+            }
         }
 
         static void RemoveResolutionChangedMessage()
@@ -552,19 +485,20 @@ namespace Prism.Injector.Patcher
             typeSys      = context.PrimaryAssembly.ManifestModule.CorLibTypes;
             typeDef_Main = memRes.GetType("Terraria.Main");
 
+            typeDef_Main.GetField("OnPreDraw").Name = new UTF8String("OnPreDrawF");
+
             WrapMethods();
             RemoveVanillaNpcDrawLimitation();
             FixOnEngineLoadField();
             RemoveArmourDrawLimitations();
-            AddPreDrawHook();
-            AddOnUpdateKeyboardHook(log);
+            //AddOnUpdateKeyboardHook(log); // FIXME
             AddPostScreenClearHook();
             RemoveResolutionChangedMessage();
 
-            AddIsChatAllowedHook();
-            typeDef_Main.GetMethod("P_IsChatAllowed", MethodFlags.Public | MethodFlags.Static).Wrap(context);
-            AddLocalChatHook(log);
-            typeDef_Main.GetMethod("P_LocalChat", MethodFlags.Public | MethodFlags.Static).Wrap(context);
+            //AddIsChatAllowedHook(); // FIXME
+            //typeDef_Main.GetMethod("P_IsChatAllowed", MethodFlags.Public | MethodFlags.Static).Wrap(context);
+            //AddLocalChatHook(log); // FIXME
+            //typeDef_Main.GetMethod("P_LocalChat", MethodFlags.Public | MethodFlags.Static).Wrap(context);
         }
     }
 }

@@ -369,6 +369,30 @@ namespace Prism.Injector.Patcher
                 StackItem pop0 = new StackItem(),
                           pop1 = new StackItem();
 
+                TypeSig exnType = null;
+                foreach (var eh in body.ExceptionHandlers)
+                    if (eh.HandlerType == ExceptionHandlerType.Filter)
+                    {
+                        if (eh.FilterStart == n)
+                        {
+                            exnType = eh.CatchType.ToTypeSig() ?? ts.Object;
+                            goto PUSH;
+                        }
+                    }
+                    else if (eh.HandlerType == ExceptionHandlerType.Catch)
+                    {
+                        if (eh.HandlerStart == n)
+                        {
+                            exnType = eh.CatchType.ToTypeSig();
+                            goto PUSH;
+                        }
+                    }
+
+                goto NO_PUSH;
+            PUSH:
+                push(exnType, Empty<StackItem>.Array);
+            NO_PUSH:
+
                 #region huge switch
                 switch (c)
                 {

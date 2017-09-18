@@ -44,8 +44,8 @@ namespace Prism.Injector.Patcher
                 new[] { typeSys.Int32, typeSys.Int32, typeSys.Int32, typeSys.Int32,
                 typeSys.Single, typeSys.Single, typeSys.Single, typeSys.Single,
                 typeSys.Int32 }).Wrap(context);
-            /*
-            MethodDefinition invokeOnNewNPC;
+
+            /*MethodDefinition invokeOnNewNPC;
             var onNewNPCDel = context.CreateDelegate("Terraria.PrismInjections", "NPC_OnNewNPCDelegate", typeSys.Int32, out invokeOnNewNPC,
                 typeSys.Int32, typeSys.Int32, typeSys.Int32, typeSys.Int32,
                 typeSys.Single, typeSys.Single, typeSys.Single, typeSys.Single,
@@ -127,7 +127,7 @@ namespace Prism.Injector.Patcher
             }
             #endregion
 
-            /*#region StrikeNPC
+            #region StrikeNPC
             {
                 var strikeNpc = typeDef_NPC.GetMethod("StrikeNPC");
 
@@ -167,11 +167,11 @@ namespace Prism.Injector.Patcher
                             snb.Instructions[i].Operand = newF;
                 }
             }
-            #endregion*/
+            #endregion
         }
         static void ReplaceSoundKilledCalls()
         {
-            /*#region checkDead
+            #region checkDead
             {
                 var checkDead = typeDef_NPC.GetMethod("checkDead");
 
@@ -210,9 +210,9 @@ namespace Prism.Injector.Patcher
                             cdb.Instructions[i].Operand = newF;
                 }
             }
-            #endregion*/
+            #endregion
 
-            /*#region RealAI
+            #region RealAI
             {
                 // this happens AFTER AI has been wrapped, thus RealAI has to be used instead of AI
                 var realAI = typeDef_NPC.GetMethod("RealAI");
@@ -253,11 +253,13 @@ namespace Prism.Injector.Patcher
                     raproc.EmitWrapperCall(invokeSoundKilled, first);
                 }
             }
-            #endregion*/
+            #endregion
         }
         static void InjectBuffEffectsCall()
         {
-            var updateNpc = typeDef_NPC.GetMethod("RealUpdateNPC");
+            // TODO: inject at start of UpdateNPC_SoulDrainDebuff
+
+            var upSoulDrain = typeDef_NPC.GetMethod("UpdateNPC_SoulDrainDebuff");
 
             MethodDef invokeEffects;
             var onBuffEffects = context.CreateDelegate("Terraria.PrismInjections", "NPC_BuffEffectsDel", typeSys.Void, out invokeEffects, typeDef_NPC.ToTypeSig());
@@ -265,33 +267,14 @@ namespace Prism.Injector.Patcher
             var buffEffects = new FieldDefUser("P_OnBuffEffects", new FieldSig(onBuffEffects.ToTypeSig()), FieldAttributes.Public | FieldAttributes.Static);
             typeDef_NPC.Fields.Add(buffEffects);
 
-            OpCode[] toRem =
-            {
-                OpCodes.Ldarg_0,
-                OpCodes.Ldfld,
-                OpCodes.Brfalse
-            };
-
-            /*var unb = updateNpc.Body;
+            var unb = upSoulDrain.Body;
             using (var unproc = unb.GetILProcessor())
             {
-                Instruction instr;
-                var soulDrain = typeDef_NPC.GetField("soulDrain");
+                var first = unb.Instructions[0];
 
-                int start = 0;
-                while (true)
-                {
-                    instr = unb.FindInstrSeqStart(toRem, start);
-
-                    if (context.SigComparer.Equals((FieldDef)instr.Next(unproc).Operand, soulDrain))
-                        break;
-                    else
-                        start = unb.Instructions.IndexOf(instr) + 1;
-                }
-
-                unproc.InsertBefore(instr, Instruction.Create(OpCodes.Ldsfld, buffEffects));
-                unproc.EmitWrapperCall(invokeEffects, instr);
-            }*/
+                unproc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, buffEffects));
+                unproc.EmitWrapperCall(invokeEffects, first);
+            }
         }
         static void InitBuffBHandlerArray(Action<string> log)
         {
@@ -323,8 +306,8 @@ namespace Prism.Injector.Patcher
             AddFieldsForAudio();
 
             InsertInitialize();
-            ReplaceSoundHitCalls();
-            ReplaceSoundKilledCalls();
+            //ReplaceSoundHitCalls();
+            //ReplaceSoundKilledCalls();
             InjectBuffEffectsCall();
             InitBuffBHandlerArray(log);
         }

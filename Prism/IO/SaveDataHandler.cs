@@ -514,8 +514,8 @@ namespace Prism.IO
 
             Write2DArray(bb, map, Main.maxTilesX, Main.maxTilesY,
                 (x, y) => Main.tile[x, y] == null || Main.tile[x, y].wall <= 0,
-                (x, y) => Main.tile[x, y].wall >= WallID.Count ? 0 : Main.tile[x, y].wall,
-                (x, y) => Main.tile[x, y].wall <  WallID.Count ||
+                (x, y) => Main.tile[x, y].wall >= unchecked((ushort)WallID.Count) ? 0 : Main.tile[x, y].wall,
+                (x, y) => Main.tile[x, y].wall <  unchecked((ushort)WallID.Count) ||
                     !Handler.WallDef.DefsByType.ContainsKey(Main.tile[x, y].wall) ? ObjectRef.Null : Handler.WallDef.DefsByType[Main.tile[x, y].wall]);
         }
         static void SaveTileData  (BinBuffer bb)

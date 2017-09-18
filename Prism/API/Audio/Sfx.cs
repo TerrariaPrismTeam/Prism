@@ -143,7 +143,12 @@ namespace Prism.API.Audio
             if (Main.dedServ || WorldGen.gen || Main.netMode == 2)
                 return null;
 
-            var kvp = new KeyValuePair<SfxEntry, int>(entry, entry.Variants == 1 ? 0 : variant);
+            if (entry.Variants < 2)
+                variant = 0;
+            else if (variant == -1)
+                variant = entry.Variants < 2 ? 0 : Main.rand.Next(entry.Variants);
+
+            var kvp = new KeyValuePair<SfxEntry, int>(entry, variant);
 
             var t = CalcParams(entry, position, variant, onPlay);
 
@@ -214,8 +219,9 @@ namespace Prism.API.Audio
             ApplyParams(inst, t);
 
             inst.Play(); // !
+            //Main.ActiveSoundInstances.Add(inst);
 
-            CleanupLingeringInstances();
+            //CleanupLingeringInstances();
 
             return inst;
         }
@@ -414,6 +420,9 @@ namespace Prism.API.Audio
                         // (dist sound-player + 1)^-1
                         vol = 1f / (1f + (p - Main.player[Main.myPlayer].position).Length());
                         pitch = Main.rand.Next(-10, 11) * 0.01f;
+                        break;
+                    case 42:
+                        // nothing special
                         break;
                 }
 

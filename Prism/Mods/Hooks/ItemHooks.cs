@@ -119,11 +119,8 @@ namespace Prism.Mods.Hooks
             }
         }
 
-        internal static int PreShoot(float x, float y, float vx, float vy, int t, int d, float kb, int pid, float ai0, float ai1)
+        internal static int PreShoot(Vector2 pos, Vector2 vel, int t, int d, float kb, int pid, float ai0, float ai1)
         {
-            var pos = new Vector2( x,  y);
-            var vel = new Vector2(vx, vy);
-
             if (pid == 0xFF)
                 goto NORMAL;
 

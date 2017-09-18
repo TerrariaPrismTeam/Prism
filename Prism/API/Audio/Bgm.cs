@@ -37,7 +37,7 @@ namespace Prism.API.Audio
         internal static Dictionary<string, BgmEntry> VanillaDict = new Dictionary<string, BgmEntry>();
 
         internal static BossBgms bossMusicId = BossBgms.None;
-        internal static List<BgmRef> bossMusic_custom = new List<BgmRef>();
+        internal static List<BgmEntry> bossMusic_custom = new List<BgmEntry>();
         internal static bool justScanned = false; // if NPCs might be updated, scan using AnyNPCsForMusic.
                                                   // using the bossMusicId will only use 1 main.npc iteration per tick, instead of {Defs.Values.Where(e => e.Priority == BgmPriority.Boss).Count()}
 
@@ -257,7 +257,7 @@ namespace Prism.API.Audio
                                 var r = (BgmRef)Main.npc[i].P_Music;
 
                                 musicSelector = BossBgms.Custom;
-                                bossMusic_custom.Add(r);
+                                bossMusic_custom.Add(r.Resolve());
                             }
                             else if (Main.npc[i].boss)
                                 musicSelector = BossBgms.Boss1;
@@ -299,13 +299,18 @@ namespace Prism.API.Audio
                     e.Priority == BgmPriority.Title == Main.gameMenu &&
                     e.Priority != BgmPriority.Ambient &&
                     e.ShouldPlay() // do not call ShouldPlay for ambient BGMs, those are managed in UpdateAmbientEntry
-                ).OrderByDescending(e =>
-                    e.Priority
+                ).OrderBy(e => e.SubPriority
+                ).OrderByDescending(e => e.Priority
                 ).FirstOrDefault();
 
             if (newEntry.Priority < BgmPriority.Boss && bossMusicId != BossBgms.None)
                 if (bossMusicId == BossBgms.Custom)
-                    newEntry = bossMusic_custom.Resolve();
+                {
+                    newEntry = bossMusic_custom
+                        .OrderBy(bgm => bgm.Priority)
+                        .OrderByDescending(bgm => bgm.Priority)
+                        .FirstOrDefault() ?? VanillaBgms.Boss1;
+                }
 
             HookManager.GameBehaviour.UpdateMusic(ref newEntry);
 

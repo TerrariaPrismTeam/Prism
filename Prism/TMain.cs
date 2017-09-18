@@ -115,10 +115,11 @@ namespace Prism
         {
             HookManager.GameBehaviour.OnUpdateKeyboard();
         }
-        static new void OnPreDraw(SpriteBatch sb)
+        static void OnPreDrawM(GameTime _)
         {
-            HookManager.GameBehaviour.PreDraw(sb);
+            HookManager.GameBehaviour.PreDraw(spriteBatch);
         }
+        // TODO: postdraw?
         static void OnPostScreenClear()
         {
             HookManager.GameBehaviour.PostScreenClear();
@@ -144,31 +145,29 @@ namespace Prism
         static void HookWrappedMethods()
         {
             P_OnUpdateAudio += Bgm.Update;
-            P_OnUpdateKeyboard += OnUpdateKeyboard;
+          //P_OnUpdateKeyboard += OnUpdateKeyboard;
 
-            P_OnPreDraw        += OnPreDraw        ;
+            OnPreDraw += OnPreDrawM;
             P_OnDrawBackground += OnDrawBackground ;
             P_OnPostScrClDraw  += OnPostScreenClear;
 
-            P_OnP_IsChatAllowed  += IsChatAllowed; //Prismception
+          //P_OnP_IsChatAllowed  += IsChatAllowed; //Prismception
 
-            P_OnP_LocalChat += OnLocalChat;
+          //P_OnP_LocalChat += OnLocalChat;
 
 #pragma warning disable 618
           //P_OnPlaySound += (t, x, y, s) => Sfx.Play(t, new Vector2(x, y), s);
 #pragma warning restore 618
 
             Item      .P_OnSetDefaultsById   += ItemDefHandler.OnSetDefaults      ;
-          //Item      .P_OnSetDefaultsByName += ItemDefHandler.OnSetDefaultsByName;
             NPC       .P_OnSetDefaultsById   += NpcDefHandler .OnSetDefaults      ;
-          //NPC       .P_OnSetDefaultsByName += NpcDefHandler .OnSetDefaultsByName;
             Projectile.P_OnSetDefaults       += ProjDefHandler.OnSetDefaults      ;
 
             Player.P_OnUpdateEquips    += ItemHooks.OnUpdateEquips    ;
             Player.P_OnUpdateArmorSets += ItemHooks.OnUpdateArmourSets;
             Player.P_OnWingMovement    += ItemHooks.WingMovement      ;
-          //Player.P_OnPlaceThing      += TileHooks.OnPlaceThing      ;
-          //Player.P_OnPreShoot        += ItemHooks.PreShoot          ;
+            Player.P_OnPlaceThing      += TileHooks.OnPlaceThing      ;
+            Player.P_OnPreShoot        += ItemHooks.PreShoot          ;
 
             NPC.P_OnNewNPC    += NpcHooks.OnNewNPC   ;
             NPC.P_OnUpdateNPC += NpcHooks.OnUpdateNPC;
@@ -178,7 +177,7 @@ namespace Prism
 
             P_OnDrawNPC += NpcHooks.OnDrawNPC;
 
-            NPC.P_ReflectProjectile_PlaySoundHit += (n, _) => PlayHitSound(n);
+          //NPC.P_ReflectProjectile_PlaySoundHit += (n, _) => PlayHitSound(n);
           //NPC.P_StrikeNPC_PlaySoundHit         += (n, _d, _kb, _hd, _c, _ne, _fn) => PlayHitSound(n);
           //NPC.P_checkDead_PlaySoundKilled      += PlayKilledSound;
           //NPC.P_RealAI_PlaySoundKilled         += PlayKilledSound;
@@ -188,7 +187,7 @@ namespace Prism
 
             Player.P_OnGetFileData += PlayerHooks.OnGetFiledata;
             Player.P_OnItemCheck   += PlayerHooks.OnItemCheck  ;
-          //Player.P_OnKillMe      += PlayerHooks.OnKillMe     ;
+            Player.P_OnKillMe      += PlayerHooks.OnKillMe     ;
             Player.P_OnUpdate      += PlayerHooks.OnUpdate     ;
             Player.P_OnMidUpdate   += PlayerHooks.OnMidUpdate  ;
             Player.P_OnUpdateBuffs += PlayerHooks.OnUpdateBuffs;
@@ -199,15 +198,15 @@ namespace Prism
 
             P_OnDrawPlayer += PlayerHooks.OnDrawPlayer;
 
-            Player.P_ItemCheck_PlayUseSound0     += PlayUseSound;
+          //Player.P_ItemCheck_PlayUseSound0     += PlayUseSound;
           //Player.P_ItemCheck_PlayUseSound1     += PlayUseSound;
-            Player.P_QuickBuff_PlayUseSound      += PlayUseSound;
-            Player.P_QuickGrapple_PlayUseSound   += PlayUseSound;
-            Player.P_QuickHeal_PlayUseSound      += PlayUseSound;
-            Player.P_QuickMana_PlayUseSound      += PlayUseSound;
-            Player.P_QuickMount_PlayUseSound     += PlayUseSound;
-            Player.P_UpdatePet_PlayUseSound      += PlayUseSound;
-            Player.P_UpdatePetLight_PlayUseSound += PlayUseSound;
+          //Player.P_QuickBuff_PlayUseSound      += PlayUseSound;
+          //Player.P_QuickGrapple_PlayUseSound   += PlayUseSound;
+          //Player.P_QuickHeal_PlayUseSound      += PlayUseSound;
+          //Player.P_QuickMana_PlayUseSound      += PlayUseSound;
+          //Player.P_QuickMount_PlayUseSound     += PlayUseSound;
+          //Player.P_UpdatePet_PlayUseSound      += PlayUseSound;
+          //Player.P_UpdatePetLight_PlayUseSound += PlayUseSound;
 
             Projectile.P_OnAI            += ProjHooks.OnAI           ;
             Projectile.P_OnKill          += ProjHooks.OnKill         ;
@@ -232,8 +231,8 @@ namespace Prism
             WorldFile.P_OnSaveWorld += SaveDataHandler.SaveWorld;
             WorldFile.P_OnLoadWorld += SaveDataHandler.LoadWorld;
 
-            //Recipe.P_OnFindRecipes += RecipeHooks.FindRecipes;
-            //Recipe.P_OnCreate      += RecipeHooks.Create     ;
+          //Recipe.P_OnFindRecipes += RecipeHooks.FindRecipes;
+          //Recipe.P_OnCreate      += RecipeHooks.Create     ;
         }
 
         protected override void Initialize()

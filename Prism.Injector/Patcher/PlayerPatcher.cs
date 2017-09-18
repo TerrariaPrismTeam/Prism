@@ -76,7 +76,7 @@ namespace Prism.Injector.Patcher
                 OpCodes.Stloc_S
             };
 
-            /*var placeThing = typeDef_Player.GetMethod("PlaceThing");
+            var placeThing = typeDef_Player.GetMethod("PlaceThing");
 
             MethodDef invokePlaceThing;
             var onPlaceThingDel = context.CreateDelegate("Terraria.PrismInjections", "Player_OnPlaceThingDel", typeSys.Void, out invokePlaceThing, typeSys.Boolean);
@@ -100,7 +100,7 @@ namespace Prism.Injector.Patcher
 
                 foreach (var i in toInj.Reverse())
                     ptbproc.InsertAfter(first, i);
-            }*/
+            }
         }
         static void InsertSaveLoadHooks()
         {
@@ -167,7 +167,7 @@ namespace Prism.Injector.Patcher
                         OpCodes.Stfld    // ^^.skinVariant = ^
                     };
 
-                    /*Instruction[] toInject =
+                    Instruction[] toInject =
                     {
                         Instruction.Create(OpCodes.Ldsfld, onLoadPlayer),
                         Instruction.Create(OpCodes.Ldloc_1),
@@ -186,7 +186,7 @@ namespace Prism.Injector.Patcher
                             i.Operand = toInject[0];
 
                     // not rewiring the if will lead to invalid IL, because the target instruction won't exist (because we're removing it here)
-                    lpproc.RemoveInstructions(first, toFind.Length); // remove the limitation while we're at it*/
+                    lpproc.RemoveInstructions(first, toFind.Length); // remove the limitation while we're at it
                 }
             }
             #endregion
@@ -196,7 +196,7 @@ namespace Prism.Injector.Patcher
         /// If an item's id is >= Main.maxItems (i.e. a mod item), it is defaulted to 0.
         /// This method removes that limitation.
         /// </summary>
-        static void RemoveItemTypeLimitation()
+        static void RemoveItemTypeLimitation(Action<string> log)
         {
             /*
              *     ldloc.s <item netid>
@@ -217,7 +217,7 @@ namespace Prism.Injector.Patcher
             };
 
             var loadPlayerBody = typeDef_Player.GetMethod("LoadPlayer", MethodFlags.Public | MethodFlags.Static, typeSys.String.ToTypeDefOrRef(), typeSys.Boolean.ToTypeDefOrRef()).Body;
-            /*using (var processor = loadPlayerBody.GetILProcessor())
+            using (var processor = loadPlayerBody.GetILProcessor())
             {
 
                 for (int count = 0, firstInd = 0; ;)
@@ -229,8 +229,10 @@ namespace Prism.Injector.Patcher
                     {
                         var ldc_i4 = firstInstr.Next(processor);
 
-                        if (!(ldc_i4.Operand is int) || (int)ldc_i4.Operand != 3770)
+                        if (!(ldc_i4.Operand is int) || (int)ldc_i4.Operand != 3930)
                             continue;
+                        if (ldc_i4.Operand is int && (int)ldc_i4.Operand > 3930)
+                            log("NOTE: PlayerPatcher.RemoveItemTypeLimitation found a ldc.i4 with operand '" + ldc_i4.Operand + "', this might be the new ItemID.Count! Update the patcher code!");
 
                         var blt_s = ldc_i4.Next(processor);
                         var target = (Instruction)blt_s.Operand;
@@ -249,20 +251,16 @@ namespace Prism.Injector.Patcher
                     else
                     {
                         if (count == 0)
-                        {
-                            Console.WriteLine("Warning: PlayerPatcher.RemoveItemTypeLimitation() could not find the target instruction sequence; Terraria.Player.LoadPlayer() may have been fixed, and this hack can be removed.");
-                        }
+                            log("Warning: PlayerPatcher.RemoveItemTypeLimitation() could not find the target instruction sequence; Terraria.Player.LoadPlayer() may have been fixed, and this hack can be removed.");
                         else if (count != 6)
-                        {
-                            Console.WriteLine("Warning: PlayerPatcher.RemoveItemTypeLimitation() removed " + count.ToString() + " instances of the target instruction sequence instead of 6; Terraria.Player.LoadPlayer() logic may have changed, and this hack may be superflous/harmful!");
-                        }
+                            log("Warning: PlayerPatcher.RemoveItemTypeLimitation() removed " + count.ToString() + " instances of the target instruction sequence instead of 6; Terraria.Player.LoadPlayer() logic may have changed, and this hack may be superflous/harmful!");
 
                         break;
                     }
                 }
-            }*/
+            }
         }
-        static void RemoveStatCaps()
+        static void RemoveStatCaps(Action<string> log)
         {
             var lpb = typeDef_Player.GetMethod("LoadPlayer", MethodFlags.Public | MethodFlags.Static, typeSys.String.ToTypeDefOrRef(), typeSys.Boolean.ToTypeDefOrRef()).Body;
             using (var lpproc = lpb.GetILProcessor())
@@ -296,7 +294,7 @@ namespace Prism.Injector.Patcher
                     OpCodes.Stfld
                 };
 
-                /*for (int count = 0; ;)
+                for (int count = 0; ;)
                 {
                     var firstI = lpb.FindInstrSeqStart(toRem);
 
@@ -309,17 +307,13 @@ namespace Prism.Injector.Patcher
                     else
                     {
                         if (count == 0)
-                        {
-                            Console.WriteLine("PlayerPatcher.RemoveStatCaps() could not find the target instruction sequence; Terraria.Player.LoadPlayer() may have been fixed, and this hack can be removed.");
-                        }
+                            log("PlayerPatcher.RemoveStatCaps() could not find the target instruction sequence; Terraria.Player.LoadPlayer() may have been fixed, and this hack can be removed.");
                         else if (count != 3)
-                        {
-                            Console.WriteLine("PlayerPatcher.RemoveStatCaps() removed " + count.ToString() + " instances of the target instruction sequence instead of 3; Terraria.Player.LoadPlayer() logic may have changed, and this hack may be superflous/harmful!");
-                        }
+                            log("PlayerPatcher.RemoveStatCaps() removed " + count.ToString() + " instances of the target instruction sequence instead of 3; Terraria.Player.LoadPlayer() logic may have changed, and this hack may be superflous/harmful!");
 
                         break;
                     }
-                }*/
+                }
             }
         }
         static void ReplaceUseSoundCalls()
@@ -357,7 +351,7 @@ namespace Prism.Injector.Patcher
                     OpCodes.Call // Main.PlaySound(int, int, int, int)
                 };
 
-                /*using (var icproc = itemCheck.Body.GetILProcessor())
+                using (var icproc = itemCheck.Body.GetILProcessor())
                 {
                     var first = itemCheck.Body.FindInstrSeqStart(toRem);
                     first = icproc.RemoveInstructions(first, toRem.Length);
@@ -400,7 +394,7 @@ namespace Prism.Injector.Patcher
                     icproc.InsertBefore(first, Instruction.Create(OpCodes.Ldloc_2));
                     icproc.InsertBefore(first, Instruction.Create(OpCodes.Ldarg_0));
                     icproc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeUseSound));
-                }*/
+                }
             }
             #endregion
 
@@ -415,7 +409,7 @@ namespace Prism.Injector.Patcher
                 typeDef_Player.Fields.Add(quickBuff_PlayUseSound);
 
                 var qbb = quickBuff.Body;
-                /*using (var qbproc = qbb.GetILProcessor())
+                using (var qbproc = qbb.GetILProcessor())
                 {
                     // change local 0 to an item (instead of item.useSound int)
                     qbb.Variables[0].Type = typeDef_Item.ToTypeSig();
@@ -459,7 +453,7 @@ namespace Prism.Injector.Patcher
                     qbproc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeUseSound));
 
                     first = qbproc.RemoveInstructions(first, toRem.Length);
-                }*/
+                }
             }
             #endregion
 
@@ -489,7 +483,7 @@ namespace Prism.Injector.Patcher
                     OpCodes.Call // Main.PlaySound(int, int, int, int)
                 };
 
-                /*using (var qgproc = quickGrapple.Body.GetILProcessor())
+                using (var qgproc = quickGrapple.Body.GetILProcessor())
                 {
                     var first = quickGrapple.Body.FindInstrSeqStart(toRem);
                     first = qgproc.RemoveInstructions(first, toRem.Length);
@@ -498,7 +492,7 @@ namespace Prism.Injector.Patcher
                     qgproc.InsertBefore(first, Instruction.Create(TerrariaPatcher.Platform == Platform.Windows ? OpCodes.Ldloc_3 : OpCodes.Ldloc_0)); // load item instance ons stack
                     qgproc.InsertBefore(first, Instruction.Create(OpCodes.Ldarg_0));
                     qgproc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeUseSound));
-                }*/
+                }
             }
             #endregion
 
@@ -528,7 +522,7 @@ namespace Prism.Injector.Patcher
                     OpCodes.Call // Main.PlaySound(int, int, int, int)
                 };
 
-                /*using (var qhproc = quickHeal.Body.GetILProcessor())
+                using (var qhproc = quickHeal.Body.GetILProcessor())
                 {
                     var first = quickHeal.Body.FindInstrSeqStart(toRem);
                     var first_ = qhproc.RemoveInstructions(first, toRem.Length);
@@ -542,7 +536,7 @@ namespace Prism.Injector.Patcher
                     for (int i = 0; i < quickHeal.Body.Instructions.Count; i++)
                         if (quickHeal.Body.Instructions[i].Operand == first)
                             quickHeal.Body.Instructions[i].Operand = newF;
-                }*/
+                }
             }
             #endregion
 
@@ -575,7 +569,7 @@ namespace Prism.Injector.Patcher
                     OpCodes.Call // Main.PlaySound(int, int, int, int)
                 };
 
-                /*using (var qmproc = quickMana.Body.GetILProcessor())
+                using (var qmproc = quickMana.Body.GetILProcessor())
                 {
                     var first = quickMana.Body.FindInstrSeqStart(toRem);
                     var first_ = qmproc.RemoveInstructions(first, toRem.Length);
@@ -592,7 +586,7 @@ namespace Prism.Injector.Patcher
                     for (int i = 0; i < quickMana.Body.Instructions.Count; i++)
                         if (quickMana.Body.Instructions[i].Operand == first)
                             quickMana.Body.Instructions[i].Operand = newF;
-                }*/
+                }
             }
             #endregion
 
@@ -652,7 +646,7 @@ namespace Prism.Injector.Patcher
                         OpCodes.Call // Main.PlaySound(int, int, int, int)
                     };
 
-                /*using (var qmproc = quickMount.Body.GetILProcessor())
+                using (var qmproc = quickMount.Body.GetILProcessor())
                 {
                     var first = quickMount.Body.FindInstrSeqStart(toRem);
                     var index = quickMount.Body.Instructions.IndexOf(first);
@@ -664,7 +658,7 @@ namespace Prism.Injector.Patcher
                     qmproc.InsertBefore(next, Instruction.Create(OpCodes.Ldloc_0));
                     qmproc.InsertBefore(next, Instruction.Create(OpCodes.Ldarg_0));
                     qmproc.InsertBefore(next, Instruction.Create(OpCodes.Call, invokeUseSound));
-                }*/
+                }
             }
             #endregion
 
@@ -697,7 +691,7 @@ namespace Prism.Injector.Patcher
                     OpCodes.Call // Main.PlaySound(int, int, int, int)
                 };
 
-                /*using (var upproc = updatePet.Body.GetILProcessor())
+                using (var upproc = updatePet.Body.GetILProcessor())
                 {
                     var first = updatePet.Body.FindInstrSeqStart(toRem);
                     first = upproc.RemoveInstructions(first, toRem.Length);
@@ -709,7 +703,7 @@ namespace Prism.Injector.Patcher
                     upproc.InsertBefore(first, Instruction.Create(OpCodes.Ldelem_Ref));
                     upproc.InsertBefore(first, Instruction.Create(OpCodes.Ldarg_0));
                     upproc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeUseSound));
-                }*/
+                }
             }
             #endregion
 
@@ -742,7 +736,7 @@ namespace Prism.Injector.Patcher
                     OpCodes.Call // Main.PlaySound(int, int, int, int)
                 };
 
-                /*using (var uplproc = updatePetLight.Body.GetILProcessor())
+                using (var uplproc = updatePetLight.Body.GetILProcessor())
                 {
                     var first = updatePetLight.Body.FindInstrSeqStart(toRem);
                     first = uplproc.RemoveInstructions(first, toRem.Length);
@@ -754,7 +748,7 @@ namespace Prism.Injector.Patcher
                     uplproc.InsertBefore(first, Instruction.Create(OpCodes.Ldelem_Ref));
                     uplproc.InsertBefore(first, Instruction.Create(OpCodes.Ldarg_0));
                     uplproc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeUseSound));
-                }*/
+                }
             }
             #endregion
         }
@@ -778,7 +772,7 @@ namespace Prism.Injector.Patcher
             typeDef_Player.Fields.Add(onMidUpdate);
 
             var ub = update.Body;
-            /*using (var uproc = ub.GetILProcessor())
+            using (var uproc = ub.GetILProcessor())
             {
                 OpCode[] callGrabItems =
                 {
@@ -786,8 +780,12 @@ namespace Prism.Injector.Patcher
                     OpCodes.Ldarg_1, // id
                     OpCodes.Call, // Player.GrabItems
 
-                    OpCodes.Ldsfld, // Main.mapFullScreen
-                    OpCodes.Brtrue
+                    OpCodes.Ldarg_0, // this
+                    OpCodes.Call, // this.LookForTileInteractions
+
+                    OpCodes.Ldarg_0,
+                    OpCodes.Ldfld, // this.tongued
+                    OpCodes.Brfalse
                 };
 
                 Instruction instrs;
@@ -816,7 +814,7 @@ namespace Prism.Injector.Patcher
 
                 uproc.InsertBefore(instrs, Instruction.Create(OpCodes.Ldsfld, onMidUpdate));
                 uproc.EmitWrapperCall(invokeMidUpdate, instrs);
-            }*/
+            }
         }
         static void InitBuffBHandlerArray()
         {
@@ -920,9 +918,9 @@ namespace Prism.Injector.Patcher
             AddFieldForBHandler();
             AddPlaceThingHook();
             InsertSaveLoadHooks();
-            RemoveItemTypeLimitation();
-            RemoveStatCaps();
-            ReplaceUseSoundCalls();
+            RemoveItemTypeLimitation(log);
+            RemoveStatCaps(log);
+            //ReplaceUseSoundCalls();
             FixOnEnterWorldBackingFieldName();
             InjectMidUpdate();
             InitBuffBHandlerArray();

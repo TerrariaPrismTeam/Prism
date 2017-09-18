@@ -130,7 +130,7 @@
     <PostBuildEvent Condition="'$(OS)' == 'Unix'">
       # first, merge the patcher, injector and mono.cecil assemblies into one, useful for distribution
       # fyi, sometimes, xbuild variables can get borked in the postbuild
-      mkdir "$(ProjectDir)../../Bin/$(Configuration)/$(OSEnum)/"
+      mkdir -p "$(ProjectDir)../../Bin/$(Configuration)/$(OSEnum)/"
       mono "$(ProjectDir)..\ILRepack\ILRepack.exe" --union --target:exe "--out:$(ProjectDir)../../Bin/$(Configuration)/$(OSEnum)/Prism.TerrariaPatcher-merged.exe" "$(ProjectDir)bin/$(Configuration)/Prism.TerrariaPatcher.exe" "$(ProjectDir)bin/$(Configuration)/Prism.Injector.dll" "$(ProjectDir)bin/$(Configuration)/dnlib.dll"
 
       # this patches the Terraria assembly

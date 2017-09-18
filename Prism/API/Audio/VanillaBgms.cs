@@ -61,8 +61,7 @@ namespace Prism.API.Audio
             MoonLord, OldOnesArmy, MartianMadness, LunarPillar, Plantera, Boss2, Boss1, Boss3, Golem, QueenBee, Pirates, GoblinArmy,
             Sandstorm, Underworld, Eclipse, Space, Lihzahrd, Mushrooms, UgCorruption, Corruption, UgCrimson, Crimson, Dungeon, Meteor, Jungle, Snow, Ice,
             UgHallow, UgDesert, Underground, BloodMoon, Rain, Night, Hallow, Ocean, Desert, Day,
-            Ambient,
-            Sandstorm, OldOnesArmy;
+            Ambient;
 
         static int MusicBoxIdToCueId(int boxId)
         {

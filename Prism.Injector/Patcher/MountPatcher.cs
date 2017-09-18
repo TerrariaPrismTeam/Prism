@@ -61,7 +61,7 @@ namespace Prism.Injector.Patcher
                 var setMount = typeDef_Mount.GetMethod("RealSetMount");
 
                 var smb = setMount.Body;
-                /*using (var smproc = smb.GetILProcessor())
+                using (var smproc = smb.GetILProcessor())
                 {
                     // if (type == m || type <= -1 || type > 14) return;
                     // but the first part should be kept for obvious reasons
@@ -88,7 +88,7 @@ namespace Prism.Injector.Patcher
                     var ret = smb.FindInstrSeqStart(toRem);
 
                     smproc.InsertBefore(ret, Instruction.Create(OpCodes.Br_S, ret.Next(smproc)));
-                }*/
+                }
             }
             #endregion
         }

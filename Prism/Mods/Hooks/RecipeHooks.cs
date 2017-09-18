@@ -110,7 +110,7 @@ namespace Prism.Mods.Hooks
         {
             var mp = Main.player[Main.myPlayer];
             var items = MergeInventory();
-            
+
             for (int i = 0; i < Recipe.maxRecipes && !Main.recipe[i].createItem.IsEmpty(); i++)
             {
                 var r = Main.recipe[i];

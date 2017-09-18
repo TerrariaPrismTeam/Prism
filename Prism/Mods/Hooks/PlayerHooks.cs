@@ -7,6 +7,7 @@ using Prism.Mods.BHandlers;
 using Prism.Mods.DefHandlers;
 using Prism.Util;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.GameContent.UI.States;
 using Terraria.ID;
 using Terraria.IO;
@@ -244,18 +245,18 @@ namespace Prism.Mods.Hooks
             if (bh != null)
                 bh.OnInit();
         }
-        /*internal static void OnKillMe(Player p, double dmg, int hd, bool pvp, string dt)
+        internal static void OnKillMe(Player p, PlayerDeathReason reason, double dmg, int hd, bool pvp)
         {
             var bh = p.P_BHandler as PlayerBHandler;
 
             if (bh != null)
                 bh.PreDestroyed();
 
-            p.RealKillMe(dmg, hd, pvp, dt);
+            p.RealKillMe(reason, dmg, hd, pvp);
 
             if (bh != null)
                 bh.OnDestroyed();
-        }*/
+        }
 
         internal static void OnDrawPlayer(Main m, Player p, Vector2 pos, float r, Vector2 o, float shadow)
         {
