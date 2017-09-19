@@ -18,8 +18,6 @@ namespace Prism.Injector.Patcher
         static ICorLibTypes typeSys;
         static TypeDef typeDef_Tile;
 
-        readonly static Code[] Stlocs = { Code.Stloc, Code.Stloc_0, Code.Stloc_1, Code.Stloc_2, Code.Stloc_3, Code.Stloc_S };
-
         static void ChangeFieldType ()
         {
             typeDef_Tile.GetField("wall").FieldType = typeSys.UInt16;
@@ -39,6 +37,16 @@ namespace Prism.Injector.Patcher
                     if (!body.InitLocals) // no local vars
                         continue;
 
+                    // if there are no byte variables, we don't have to change antyhing
+                    // either, speeding up things a lot (it's probably provable that
+                    // body.Variables.Length < body.Instructions.Length)
+                    for (int i = 0; i < body.Variables.Count; i++)
+                        if (context.SigComparer.Equals(body.Variables[i].Type, typeSys.Byte))
+                            goto DO_ENUMERATE;
+
+                    continue;
+                DO_ENUMERATE:
+
                     md.EnumerateWithStackAnalysis((ind, i, s) =>
                     {
                         if (s.Count == 0)
@@ -55,31 +63,13 @@ namespace Prism.Injector.Patcher
                             if (!context.SigComparer.Equals((IField)c.Operand, wall))
                                 return ind;
 
-                            if (Array.IndexOf(Stlocs, i.OpCode.Code) == -1)
+                            if (i.OpCode.Code.Simplify() != Code.Stloc)
                                 return ind;
 
-                            var li = 0;
+                            var loc = i.GetLocal(body);
 
-                            switch (i.OpCode.Code)
-                            {
-                                case Code.Stloc:
-                                case Code.Stloc_S:
-                                    li = i.Operand is int ? (int)i.Operand : ((Local)i.Operand).Index;
-                                    break;
-                                // 0 not needed (default)
-                                case Code.Stloc_1:
-                                    li = 1;
-                                    break;
-                                case Code.Stloc_2:
-                                    li = 2;
-                                    break;
-                                case Code.Stloc_3:
-                                    li = 3;
-                                    break;
-                            }
-
-                            if (context.SigComparer.Equals(body.Variables[li].Type, typeSys.Byte))
-                                body.Variables[li].Type = typeSys.UInt16;
+                            if (context.SigComparer.Equals(loc.Type, typeSys.Byte))
+                                loc.Type = typeSys.UInt16;
                         }
 
                         return ind;

@@ -48,6 +48,11 @@ namespace Prism.Injector.Patcher
         {
             return !a.Equals(b);
         }
+
+        public static string OriginChain(StackItem si)
+        {
+            return "{" + String.Join(";", (si.Origin ?? Empty<StackItem>.Array).Select(ii => ii.Instr.ToString() + " -> " + OriginChain(ii))) + "}";
+        }
     }
 
     public static class DNHelperExtensions
@@ -78,6 +83,84 @@ namespace Prism.Injector.Patcher
                         return Instruction.Create(OpCodes.Ldarg_S, @params[index - offset]);
                     //Y U NO HAVE USHORT
                     return Instruction.Create(OpCodes.Ldarg, @params[index - offset]);
+            }
+        }
+
+        internal static Local GetLocal(this Instruction ldloc, CilBody body)
+        {
+            switch (ldloc.OpCode.Code)
+            {
+                case Code.Ldloc_0: case Code.Stloc_0: return body.Variables[0];
+                case Code.Ldloc_1: case Code.Stloc_1: return body.Variables[1];
+                case Code.Ldloc_2: case Code.Stloc_2: return body.Variables[2];
+                case Code.Ldloc_3: case Code.Stloc_3: return body.Variables[3];
+                case Code.Ldloc_S: case Code.Stloc_S: return ldloc.Operand is Local ? (Local)ldloc.Operand : body.Variables[(int)ldloc.Operand];
+                case Code.Ldloc  : case Code.Stloc  : return ldloc.Operand is Local ? (Local)ldloc.Operand : body.Variables[(int)ldloc.Operand];
+            }
+
+            throw new ArgumentException("wrong instruction: " + ldloc);
+        }
+        internal static Parameter GetArg(this Instruction ldarg, MethodDef md)
+        {
+            switch (ldarg.OpCode.Code)
+            {
+                case Code.Ldarg_0: return md.Parameters[0];
+                case Code.Ldarg_1: return md.Parameters[1];
+                case Code.Ldarg_2: return md.Parameters[2];
+                case Code.Ldarg_3: return md.Parameters[3];
+                case Code.Ldarg_S: case Code.Starg_S: return ldarg.Operand is Parameter ? (Parameter)ldarg.Operand : md.Parameters[(int)ldarg.Operand];
+                case Code.Ldarg  : case Code.Starg  : return ldarg.Operand is Parameter ? (Parameter)ldarg.Operand : md.Parameters[(int)ldarg.Operand];
+            }
+
+            throw new ArgumentException("wrong instruction: " + ldarg);
+        }
+
+        internal static Code Simplify(this Code a)
+        {
+            switch (a)
+            {
+                case Code.Beq_S: return Code.Beq;
+                case Code.Bge_S: case Code.Bge_Un: case Code.Bge_Un_S: return Code.Bge;
+                case Code.Ble_S: case Code.Ble_Un: case Code.Ble_Un_S: return Code.Ble;
+                case Code.Bgt_S: case Code.Bgt_Un: case Code.Bgt_Un_S: return Code.Bgt;
+                case Code.Blt_S: case Code.Blt_Un: case Code.Blt_Un_S: return Code.Blt;
+                case Code.Bne_Un_S: return Code.Bne_Un;
+                case Code.Brfalse_S: return Code.Brfalse;
+                case Code.Brtrue_S: return Code.Brtrue;
+                case Code.Br_S: return Code.Br;
+                case Code.Ldarga_S: return Code.Ldarga;
+                case Code.Ldc_I4_0: case Code.Ldc_I4_1: case Code.Ldc_I4_2: case Code.Ldc_I4_3: case Code.Ldc_I4_4: case Code.Ldc_I4_5: case Code.Ldc_I4_6: case Code.Ldc_I4_7: case Code.Ldc_I4_8: case Code.Ldc_I4_M1: case Code.Ldc_I4_S:
+                    return Code.Ldc_I4;
+                case Code.Ldloc_0: case Code.Ldloc_1: case Code.Ldloc_2: case Code.Ldloc_3: case Code.Ldloc_S: return Code.Ldloc;
+                case Code.Ldloca_S: return Code.Ldloca;
+                case Code.Leave_S: return Code.Leave;
+                case Code.Starg_S: return Code.Starg;
+                case Code.Stloc_0: case Code.Stloc_1: case Code.Stloc_2: case Code.Stloc_3: case Code.Stloc_S: return Code.Stloc;
+                case Code.Ldind_I1: case Code.Ldind_I2: case Code.Ldind_I4: case Code.Ldind_I8:
+                case Code.Ldind_U1: case Code.Ldind_U2: case Code.Ldind_U4: return Code.Ldind_I;
+                case Code.Ldind_R4: return Code.Ldind_R8;
+                case Code.Stind_I1: case Code.Stind_I2: case Code.Stind_I4: case Code.Stind_I8: return Code.Stind_I;
+                case Code.Stind_R4: return Code.Stind_R8;
+                case Code.Unbox_Any: return Code.Unbox;
+                case Code.Add_Ovf: case Code.Add_Ovf_Un: return Code.Add;
+                case Code.Div_Un: return Code.Div;
+                case Code.Mul_Ovf: case Code.Mul_Ovf_Un: return Code.Mul;
+                case Code.Shr_Un: return Code.Shr;
+                case Code.Rem_Un: return Code.Rem;
+                case Code.Sub_Ovf: case Code.Sub_Ovf_Un: return Code.Sub;
+                case Code.Callvirt: return Code.Call;
+                case Code.Cgt_Un: return Code.Cgt;
+                case Code.Clt_Un: return Code.Clt;
+                case Code.Conv_I1: case Code.Conv_I2: case Code.Conv_I4: case Code.Conv_I8:
+                case Code.Conv_Ovf_I1: case Code.Conv_Ovf_I2: case Code.Conv_Ovf_I4: case Code.Conv_Ovf_I8:
+                case Code.Conv_Ovf_I1_Un: case Code.Conv_Ovf_I2_Un: case Code.Conv_Ovf_I4_Un: case Code.Conv_Ovf_I8_Un:
+                    return Code.Conv_I;
+                case Code.Conv_U1: case Code.Conv_U2: case Code.Conv_U4: case Code.Conv_U8:
+                case Code.Conv_Ovf_U1: case Code.Conv_Ovf_U2: case Code.Conv_Ovf_U4: case Code.Conv_Ovf_U8:
+                case Code.Conv_Ovf_U1_Un: case Code.Conv_Ovf_U2_Un: case Code.Conv_Ovf_U4_Un: case Code.Conv_Ovf_U8_Un:
+                    return Code.Conv_U;
+                case Code.Conv_R4: case Code.Conv_R_Un: return Code.Conv_R8;
+                default: return a;
             }
         }
 
@@ -151,7 +234,7 @@ namespace Prism.Injector.Patcher
                 case Code.Stloc:
                 case Code.Stloc_S:
                     return b == Code.Stloc || b == Code.Stloc_S;
-            }
+        }
 
             return a == b;
         }
@@ -340,7 +423,6 @@ namespace Prism.Injector.Patcher
         }
         // NOTE: stack may contain an int/uint when the actual C# type is a byte/..., because most structural primitives are all (u)ints in IL
         // NOTE: not sure if it would work correctly with branching for hand-written IL
-        // NOTE: neither when popping an exn in an exn handler (i.e. a "catch { }")
         public static void EnumerateWithStackAnalysis(this MethodDef method, Func<int, Instruction, StackInfo, int> cb)
         {
             if (cb == null)
@@ -361,10 +443,12 @@ namespace Prism.Injector.Patcher
                 {
                     Type   = tr,
                     Instr  = n ,
-                    Origin = o
+                    Origin = o ?? Empty<StackItem>.Array
                 });
 
                 i = cb(i, n, stack);
+                if (i < 0)
+                    return;
 
                 StackItem pop0 = new StackItem(),
                           pop1 = new StackItem();
@@ -379,13 +463,10 @@ namespace Prism.Injector.Patcher
                             goto PUSH;
                         }
                     }
-                    else if (eh.HandlerType == ExceptionHandlerType.Catch)
+                    else if (eh.HandlerType == ExceptionHandlerType.Catch && eh.HandlerStart == n)
                     {
-                        if (eh.HandlerStart == n)
-                        {
-                            exnType = eh.CatchType.ToTypeSig();
-                            goto PUSH;
-                        }
+                        exnType = eh.CatchType.ToTypeSig();
+                        goto PUSH;
                     }
 
                 goto NO_PUSH;
@@ -444,12 +525,18 @@ namespace Prism.Injector.Patcher
                                 pops.Add(stack.Pop()); // address to call
 
                             // args
-                            int start = n.OpCode.Code == Code.Newobj ? 1 : 0,
-                                count = m.MethodSig.Params.Count;
+                            int start = n.OpCode.Code == Code.Newobj ? 1 : 0, // the object itself isn't popped
+                            /* In MSIL, creating an obj works like this:
+                             *     .locals init ([0] class Foo)
+                             *     ldloc.0
+                             *     newobj instance void Foo::.ctor()
+                             *     // now the constructed object is at the top of the stack
+                             */ count = m.MethodSig.Params.Count + (m.MethodSig.HasThis /* instance call */ ? 1 : 0);
                             for (int j = start; j < count; j++)
                                 pops.Add(stack.Pop());
 
-                            push(c == Code.Newobj ? m.DeclaringType.ToTypeSig() : m.MethodSig.RetType, pops.ToArray());
+                            if (c == Code.Newobj || !comp.Equals(m.MethodSig.RetType, ts.Void))
+                                push(c == Code.Newobj ? m.DeclaringType.ToTypeSig() : m.MethodSig.RetType, pops.ToArray());
                         }
                         break;
                     case Code.Castclass: // cast class instance to another
@@ -544,39 +631,7 @@ namespace Prism.Injector.Patcher
                     case Code.Ldarg_2:
                     case Code.Ldarg_3:
                     case Code.Ldarg_S:
-                        {
-                            var pi = 0;
-
-                            if (c == Code.Ldarg || c == Code.Ldarg_S)
-                                pi = n.Operand is int ? (int)n.Operand : ((Parameter)n.Operand).Index;
-                            else
-                                switch (c)
-                                {
-                                    // ldarg.0: default val is 0
-                                    case Code.Ldarg_1:
-                                        pi = 1;
-                                        break;
-                                    case Code.Ldarg_2:
-                                        pi = 2;
-                                        break;
-                                    case Code.Ldarg_3:
-                                        pi = 3;
-                                        break;
-                                }
-
-                            /*if (!method.IsStatic)
-                            {
-                                if (pi == 0)
-                                {
-                                    push(method.DeclaringType, null);
-                                    break;
-                                }
-
-                                pi--;
-                            }*/
-
-                            push(method.Parameters[pi].Type, null);
-                        }
+                        push(n.GetArg(method).Type, null);
                         break;
                     case Code.Beq:
                     case Code.Beq_S:
@@ -684,28 +739,7 @@ namespace Prism.Injector.Patcher
                     case Code.Ldloc_1:
                     case Code.Ldloc_2:
                     case Code.Ldloc_3:
-                         {
-                            var li = 0;
-
-                            if (c == Code.Ldloc || c == Code.Ldloc_S)
-                                li = n.Operand is int ? (int)n.Operand : ((Local)n.Operand).Index;
-                            else
-                                switch (c)
-                                {
-                                    // ldloc.0: default val is 0
-                                    case Code.Ldloc_1:
-                                        li = 1;
-                                        break;
-                                    case Code.Ldloc_2:
-                                        li = 2;
-                                        break;
-                                    case Code.Ldloc_3:
-                                        li = 3;
-                                        break;
-                                }
-
-                            push(body.Variables[li].Type, null);
-                        }
+                        push(n.GetLocal(body).Type, null);
                         break;
                     case Code.Ldind_I: // load indirectly (i.e. from address), eg *(foo + bar)
                         push(ts.IntPtr, new[] { stack.Pop() });
@@ -751,10 +785,10 @@ namespace Prism.Injector.Patcher
                     case Code.Nop:
                         break;
                     case Code.Pop:
-                        /*stack.Pop();
-                        break;*/
+                        stack.Pop();
+                        break;
                     case Code.Ret:
-                        if (stack.Count > 0) // can return void
+                        if (!comp.Equals(method.ReturnType, ts.Void))
                             stack.Pop();
                         break;
                     case Code.Rethrow: // rethrows the exn, keeps stack trace (unlike throwing an already-existing exn, which makes it loose its stack trace)
@@ -817,8 +851,8 @@ namespace Prism.Injector.Patcher
                     case Code.Arglist: // load pointer to arglist (only available in *true* vararg methods
                                        // (as in, the C way, not the params T[] way)).
                                        // if one defines eg.
-                                       //     [DllImport(...)]
-                                       //     export void printf(string format, __arglist);
+                                       //     [DllImport("libc.so")]
+                                       //     extern void printf(string format, __arglist);
                                        // and then calls it with:
                                        //     printf("foo %i %s\n", __arglist(42), __arglist("bar"))
                                        // , 'true' vararg stuff is used (the resulting IL code will use some arglist hackery).
@@ -830,6 +864,8 @@ namespace Prism.Injector.Patcher
                                        //     }
                                        // the '__arglist' keyword here simply emits the 'arglist' instruction, which pushes
                                        // a pointer to the argument list which can be interpreted by the runtime and ArgIterator
+                                       // it works like C va_args, va_start and va_end (but cleaner, as it doesn't need
+                                       // the last non-varargs arg)
                         push(ts.IntPtr, null); // actually a RuntimeArgumentHandle
                         break;
                     case Code.Break: // tells the debugger a breakpoint is reached
@@ -846,7 +882,7 @@ namespace Prism.Injector.Patcher
                         push(ts.IntPtr, new[] { stack.Pop() });
                         break;
                     case Code.Endfilter:
-                        stack.Pop();
+                        //stack.Pop();
                         break;
                     case Code.Endfinally:
                         break;
@@ -862,3 +898,4 @@ namespace Prism.Injector.Patcher
         }
     }
 }
+

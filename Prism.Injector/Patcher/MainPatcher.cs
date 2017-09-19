@@ -8,6 +8,11 @@ namespace Prism.Injector.Patcher
 {
     static class MainPatcher
     {
+        readonly static UTF8String[] playSoundNames =
+        {
+            (UTF8String)"PlaySound"//, (UTF8String)"PlaySoundInstance", (UTF8String)"PlayTrackedSound"
+        };
+
         static DNContext context;
         static MemberResolver memRes;
 
@@ -17,13 +22,15 @@ namespace Prism.Injector.Patcher
         static void WrapMethods()
         {
             typeDef_Main.GetMethod("UpdateAudio").Wrap(context);
-            //typeDef_Main.GetMethod("PlaySound"     , MethodFlags.Static   | MethodFlags.Public, new[] { typeSys.Int32, typeSys.Int32, typeSys.Int32, typeSys.Int32,
-            //        typeSys.Single, typeSys.Single }).Wrap(context, "Terraria.PrismInjections", "Main_PlaySoundDel", "P_OnPlaySound");
 
-            typeDef_Main.GetMethod("DrawNPC"       , MethodFlags.Instance | MethodFlags.Public, new[] { typeSys.Int32, typeSys.Boolean                             }).Wrap(context);
-            typeDef_Main.GetMethod("DrawProj"      , MethodFlags.Instance | MethodFlags.Public, new[] { typeSys.Int32                                              }).Wrap(context);
+            typeDef_Main.GetMethod("DrawNPC"       , MethodFlags.Instance | MethodFlags.Public,
+                    new[] { typeSys.Int32, typeSys.Boolean}).Wrap(context);
+            typeDef_Main.GetMethod("DrawProj"      , MethodFlags.Instance | MethodFlags.Public,
+                    new[] { typeSys.Int32                 }).Wrap(context);
             typeDef_Main.GetMethod("DrawPlayer"    , MethodFlags.Instance | MethodFlags.Public).Wrap(context);
             typeDef_Main.GetMethod("DrawBackground", MethodFlags.Instance | MethodFlags.Public).Wrap(context);
+
+            // NOTE: see also DoAllAudioStuff() for more wrapping!
         }
 
         static void RemoveVanillaNpcDrawLimitation()
@@ -477,6 +484,177 @@ namespace Prism.Injector.Patcher
             }
         }
 
+        static void AnalyseSource(Action<string> log, MethodDef md, int ind, StackItem snd)
+        {
+            // now we know which variable is used to determine the sound type/style,
+            // so now we can inject code accordingly
+            //
+            // things we want to mess with:
+            // * Item.UseSound: ldfld Terraria.Item::UseSound
+            // * NPC.HitSound : ldfld Terraria.NPC::HitSound
+            // * NPC.KillSound: ldfld Terraria.NPC::KillSound
+
+            if (snd.Type.IsValueType) // not a LegacySoundStyle
+                return;
+
+            switch (snd.Instr.OpCode.Code.Simplify())
+            {
+                case Code.Ldfld: // the arg is directly retrieved from a field - great,
+                                 // because we can easily know which object it is from
+                    {
+                        var fi = snd.Instr.Operand as FieldDef;
+                        if (fi == null) return;
+
+                        FieldDef
+                            itemUse  = memRes.GetType("Terraria.Item").GetField(  "UseSound"),
+                            npcHit   = memRes.GetType("Terraria.NPC" ).GetField(  "HitSound"),
+                            npcDeath = memRes.GetType("Terraria.NPC" ).GetField("DeathSound");
+
+                        if (context.SigComparer.Equals(fi, itemUse))
+                        {
+                            log("Item UseSound " + snd + " at " + md.FullName);
+                            // TODO: inject
+                        }
+                        else if (context.SigComparer.Equals(fi, npcHit))
+                        {
+                            log("NPC HitSound " + snd + " at " + md.FullName);
+                            // TODO: inject
+                        }
+                        else if (context.SigComparer.Equals(fi, npcDeath))
+                        {
+                            log("NPC DeathSound " + snd + " at " + md.FullName);
+                            // TODO: inject
+                        }
+                        else log("Unexpected field '" + fi + "' used as arg to PlaySound");
+                    }
+                    break;
+                case Code.Ldloc:
+                    /*
+                     * Now we have a problem - the LegacySoundStyle was stored in a local,
+                     * so getting to the source of that value will be harder. The current
+                     * solution is to rewind the instructions until we meet a corresponding
+                     * stloc where the source can be found from.
+                     */
+                    {
+                        log(snd.ToString() + " at " + md.FullName);
+                        var bd = md.Body;
+                        var insa = bd.Instructions;
+
+                        bool metTheLoad = false;
+                        for (int ii = ind; ii >= 0; ii--)
+                        {
+                            if (insa[ii] == snd.Instr)
+                            {
+                                metTheLoad = true;
+                                continue;
+                            }
+                            if (!metTheLoad)
+                                continue;
+
+                            if (insa[ii].OpCode.Code.Simplify() != Code.Stloc)
+                                continue;
+
+                            // found it :D
+
+                            // now we build an expression tree derived from the previous
+                            // instructions, so the source of the LSS can be recovered
+                            //
+                            // variables in that expr tree aren't guaranteed to be in scope,
+                            // though, so we need to add another variable that stores the
+                            // entity object.
+
+                            /* TODO
+                            var et = buildExprTree();
+                            if (et.head == ldfld <fields>)
+                            {
+                                AnalyseSource(log, md, insa[ii], ii, et.head);
+                            }*/
+
+                            break;
+                        }
+                    }
+                    break;
+                case Code.Ldsfld: // probably a ldsfld from SoundID
+                    break;
+                default: // haven't seen anything else
+                    log("Unexpected " + snd.Instr + " in method " + md + ".");
+                    break;
+            }
+        }
+        static void DoAllAudioStuff(Action<string> log)
+        {
+            /*
+             * Main\.PlaySound.* overloads:
+             * * SoundEffectInstance PlaySound(LegacySoundStyle type, Vector2 pos)
+             *   -> calls SoundEffectInstance PlaySound(LegacySoundStyle, int, int)
+             * * void PlaySound(int type, Vector2 pos, int style = -1)
+             *   -> calls void PlaySound(int, int, int, int, float, float)
+             * * SoundEffectInstance PlaySound(LegacySoundStyle style, int x = -1, int y = -1)
+             *   -> calls void PlaySound(int, int, int, int, float, float)
+             * * SoundEffectInstance PlaySound(int type, int x = -1, int y = -1, int style = -1, float vol = 1, float pitch = 0)
+             *   -> calls void PlaySoundInstance(SoundEffectInstance)
+             * * void PlaySoundInstance(SoundEffectInstance sound)
+             * * SlotId PlayTrackedSound(SoundStyle style)
+             *   -> calls ActiveSound::.ctor(SoundStyle)
+             * * SlotId PlayTrackedSound(SoundStyle style, Vector2 position)
+             *   -> calls ActiveSound::.ctor(SoundStyle, Vector2)
+             */
+
+            /*
+             * Looking at the call graph, only PlaySound(int, int, int, int, float, float) needs to be wrapped,
+             * unless the PlayTrackedSound methods are used for anything important. But, the other PlaySound
+             * overloads are used as well, and finding all occurrences of these calls with Item.UseSound or
+             * NPC.(Hit|Death)Sound is a bit annoying. Thus, the whole assembly will be analysed for
+             * PlaySound(LegacySoundStyle, *) calls using EnumerateWithStackAnalysis, and depending on the
+             * contents of the stack, changes will be made.
+             */
+
+            // wrapping will be done AFTER the method analysis, to keep naming simple
+
+            FieldDef
+                itemUse  = memRes.GetType("Terraria.Item").GetField(  "UseSound"),
+                npcHit   = memRes.GetType("Terraria.NPC" ).GetField(  "HitSound"),
+                npcDeath = memRes.GetType("Terraria.NPC" ).GetField("DeathSound");
+
+            foreach (var td in context.PrimaryAssembly.ManifestModule.Types)
+                foreach (var md in td.Methods)
+                {
+                    if (!md.HasBody || md.Name.Equals(playSoundNames[0])) // don't do stupid stuff
+                        continue;
+
+                    var body = md.Body;
+
+                    md.EnumerateWithStackAnalysis((ind, i, s) =>
+                    {
+                        // all PlaySound methods are nonvirtual
+                        if (i.OpCode.Code != Code.Call)
+                            return ind;
+
+                        var imd = (IMethod)i.Operand;
+                        if (!imd.Name.Equals(playSoundNames[0])) // unroll this
+                            return ind;
+                        /*bool found = false;
+                        for (int ii = 0; ii < playSoundNames.Length; ii++)
+                            if (playSoundNames[ii].Equals(imd.Name))
+                            {
+                                found = true;
+                                break;
+                            }
+                        if (!found)
+                            return ind;*/
+
+                        var snd = s.Take(imd.MethodSig.Params.Count).LastOrDefault();
+                        AnalyseSource(log, md, ind, snd);
+
+                        return ind;
+                    });
+                }
+
+            typeDef_Main.GetMethod("PlaySound", MethodFlags.Static | MethodFlags.Public,
+                    new[] { typeSys.Int32, typeSys.Int32, typeSys.Int32,
+                            typeSys.Int32, typeSys.Single, typeSys.Single }).Wrap(context);
+        }
+
         internal static void Patch(Action<string> log)
         {
             context = TerrariaPatcher.context;
@@ -485,7 +663,7 @@ namespace Prism.Injector.Patcher
             typeSys      = context.PrimaryAssembly.ManifestModule.CorLibTypes;
             typeDef_Main = memRes.GetType("Terraria.Main");
 
-            typeDef_Main.GetField("OnPreDraw").Name = new UTF8String("OnPreDrawF");
+            typeDef_Main.GetField("OnPreDraw").Name = new UTF8String("_onPreDraw_backingField");
 
             WrapMethods();
             RemoveVanillaNpcDrawLimitation();
@@ -494,6 +672,7 @@ namespace Prism.Injector.Patcher
             //AddOnUpdateKeyboardHook(log); // FIXME
             AddPostScreenClearHook();
             RemoveResolutionChangedMessage();
+            DoAllAudioStuff(log);
 
             //AddIsChatAllowedHook(); // FIXME
             //typeDef_Main.GetMethod("P_IsChatAllowed", MethodFlags.Public | MethodFlags.Static).Wrap(context);
@@ -502,3 +681,4 @@ namespace Prism.Injector.Patcher
         }
     }
 }
+
