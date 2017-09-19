@@ -70,49 +70,16 @@ namespace Prism.Injector.Patcher
 
             switch (index)
             {
-                case 0:
-                    return Instruction.Create(OpCodes.Ldarg_0);
-                case 1:
-                    return Instruction.Create(OpCodes.Ldarg_1);
-                case 2:
-                    return Instruction.Create(OpCodes.Ldarg_2);
-                case 3:
-                    return Instruction.Create(OpCodes.Ldarg_3);
+                case 0: return Instruction.Create(OpCodes.Ldarg_0);
+                case 1: return Instruction.Create(OpCodes.Ldarg_1);
+                case 2: return Instruction.Create(OpCodes.Ldarg_2);
+                case 3: return Instruction.Create(OpCodes.Ldarg_3);
                 default:
                     if (index <= Byte.MaxValue)
                         return Instruction.Create(OpCodes.Ldarg_S, @params[index - offset]);
                     //Y U NO HAVE USHORT
                     return Instruction.Create(OpCodes.Ldarg, @params[index - offset]);
             }
-        }
-
-        internal static Local GetLocal(this Instruction ldloc, CilBody body)
-        {
-            switch (ldloc.OpCode.Code)
-            {
-                case Code.Ldloc_0: case Code.Stloc_0: return body.Variables[0];
-                case Code.Ldloc_1: case Code.Stloc_1: return body.Variables[1];
-                case Code.Ldloc_2: case Code.Stloc_2: return body.Variables[2];
-                case Code.Ldloc_3: case Code.Stloc_3: return body.Variables[3];
-                case Code.Ldloc_S: case Code.Stloc_S: return ldloc.Operand is Local ? (Local)ldloc.Operand : body.Variables[(int)ldloc.Operand];
-                case Code.Ldloc  : case Code.Stloc  : return ldloc.Operand is Local ? (Local)ldloc.Operand : body.Variables[(int)ldloc.Operand];
-            }
-
-            throw new ArgumentException("wrong instruction: " + ldloc);
-        }
-        internal static Parameter GetArg(this Instruction ldarg, MethodDef md)
-        {
-            switch (ldarg.OpCode.Code)
-            {
-                case Code.Ldarg_0: return md.Parameters[0];
-                case Code.Ldarg_1: return md.Parameters[1];
-                case Code.Ldarg_2: return md.Parameters[2];
-                case Code.Ldarg_3: return md.Parameters[3];
-                case Code.Ldarg_S: case Code.Starg_S: return ldarg.Operand is Parameter ? (Parameter)ldarg.Operand : md.Parameters[(int)ldarg.Operand];
-                case Code.Ldarg  : case Code.Starg  : return ldarg.Operand is Parameter ? (Parameter)ldarg.Operand : md.Parameters[(int)ldarg.Operand];
-            }
-
-            throw new ArgumentException("wrong instruction: " + ldarg);
         }
 
         internal static Code Simplify(this Code a)
@@ -166,75 +133,32 @@ namespace Prism.Injector.Patcher
 
         static bool CodeEqIgnoreS(Code a, Code b)
         {
-            if (a == b)
-                return true;
+            if (a == b) return true;
 
             switch (a)
             {
-                case Code.Beq:
-                case Code.Beq_S:
-                    return b == Code.Beq || b == Code.Beq_S;
-                case Code.Bge:
-                case Code.Bge_S:
-                    return b == Code.Bge || b == Code.Bge_S;
-                case Code.Ble:
-                case Code.Ble_S:
-                    return b == Code.Ble || b == Code.Ble_S;
-                case Code.Bgt:
-                case Code.Bgt_S:
-                    return b == Code.Bgt || b == Code.Bgt_S;
-                case Code.Blt:
-                case Code.Blt_S:
-                    return b == Code.Blt || b == Code.Blt_S;
-                case Code.Bge_Un:
-                case Code.Bge_Un_S:
-                    return b == Code.Bge_Un || b == Code.Bge_Un_S;
-                case Code.Ble_Un:
-                case Code.Ble_Un_S:
-                    return b == Code.Ble_Un || b == Code.Ble_Un_S;
-                case Code.Bgt_Un:
-                case Code.Bgt_Un_S:
-                    return b == Code.Bgt_Un || b == Code.Bgt_Un_S;
-                case Code.Blt_Un:
-                case Code.Blt_Un_S:
-                    return b == Code.Blt_Un || b == Code.Blt_Un_S;
-                case Code.Bne_Un:
-                case Code.Bne_Un_S:
-                    return b == Code.Bne_Un || b == Code.Bne_Un_S;
-                case Code.Brfalse:
-                case Code.Brfalse_S:
-                    return b == Code.Brfalse || b == Code.Brfalse_S;
-                case Code.Brtrue:
-                case Code.Brtrue_S:
-                    return b == Code.Brtrue || b == Code.Brtrue_S;
-                case Code.Br:
-                case Code.Br_S:
-                    return b == Code.Br || b == Code.Br_S;
-                case Code.Ldarg:
-                case Code.Ldarg_S:
-                    return b == Code.Ldarg || b == Code.Ldarg_S;
-                case Code.Ldarga:
-                case Code.Ldarga_S:
-                    return b == Code.Ldarga || b == Code.Ldarga_S;
-                case Code.Ldc_I4:
-                case Code.Ldc_I4_S:
-                    return b == Code.Ldc_I4 || b == Code.Ldc_I4_S;
-                case Code.Ldloc:
-                case Code.Ldloc_S:
-                    return b == Code.Ldloc || b == Code.Ldloc_S;
-                case Code.Ldloca:
-                case Code.Ldloca_S:
-                    return b == Code.Ldloca || b == Code.Ldloca_S;
-                case Code.Leave:
-                case Code.Leave_S:
-                    return b == Code.Leave || b == Code.Leave_S;
-                case Code.Starg:
-                case Code.Starg_S:
-                    return b == Code.Starg || b == Code.Starg_S;
-                case Code.Stloc:
-                case Code.Stloc_S:
-                    return b == Code.Stloc || b == Code.Stloc_S;
-        }
+                case Code.Beq: case Code.Beq_S: return b == Code.Beq || b == Code.Beq_S;
+                case Code.Bge: case Code.Bge_S: return b == Code.Bge || b == Code.Bge_S;
+                case Code.Ble: case Code.Ble_S: return b == Code.Ble || b == Code.Ble_S;
+                case Code.Bgt: case Code.Bgt_S: return b == Code.Bgt || b == Code.Bgt_S;
+                case Code.Blt: case Code.Blt_S: return b == Code.Blt || b == Code.Blt_S;
+                case Code.Bge_Un: case Code.Bge_Un_S: return b == Code.Bge_Un || b == Code.Bge_Un_S;
+                case Code.Ble_Un: case Code.Ble_Un_S: return b == Code.Ble_Un || b == Code.Ble_Un_S;
+                case Code.Bgt_Un: case Code.Bgt_Un_S: return b == Code.Bgt_Un || b == Code.Bgt_Un_S;
+                case Code.Blt_Un: case Code.Blt_Un_S: return b == Code.Blt_Un || b == Code.Blt_Un_S;
+                case Code.Bne_Un: case Code.Bne_Un_S: return b == Code.Bne_Un || b == Code.Bne_Un_S;
+                case Code.Brfalse: case Code.Brfalse_S: return b == Code.Brfalse || b == Code.Brfalse_S;
+                case Code.Brtrue: case Code.Brtrue_S: return b == Code.Brtrue || b == Code.Brtrue_S;
+                case Code.Br: case Code.Br_S: return b == Code.Br || b == Code.Br_S;
+                case Code.Ldarg: case Code.Ldarg_S: return b == Code.Ldarg || b == Code.Ldarg_S;
+                case Code.Ldarga: case Code.Ldarga_S: return b == Code.Ldarga || b == Code.Ldarga_S;
+                case Code.Ldc_I4: case Code.Ldc_I4_S: return b == Code.Ldc_I4 || b == Code.Ldc_I4_S;
+                case Code.Ldloc: case Code.Ldloc_S: return b == Code.Ldloc || b == Code.Ldloc_S;
+                case Code.Ldloca: case Code.Ldloca_S: return b == Code.Ldloca || b == Code.Ldloca_S;
+                case Code.Leave: case Code.Leave_S: return b == Code.Leave || b == Code.Leave_S;
+                case Code.Starg: case Code.Starg_S: return b == Code.Starg || b == Code.Starg_S;
+                case Code.Stloc: case Code.Stloc_S: return b == Code.Stloc || b == Code.Stloc_S;
+            }
 
             return a == b;
         }
@@ -384,33 +308,39 @@ namespace Prism.Injector.Patcher
                 proc.InsertBefore(before, Instruction.Create(c, toCall));
         }
 
+        public static void RewireBranches(this CilBody body, Instruction old, Instruction nw)
+        {
+            // instructions
+            if (body.HasInstructions) foreach (var i in body.Instructions)
+                // don't even bother checking the opcode
+                if (i.Operand == old) i.Operand = nw;
+
+            // handlers
+            if (body.HasExceptionHandlers) foreach (var h in body.ExceptionHandlers)
+            {
+                if (h.TryStart == old) h.TryStart = nw;
+                if (h.TryEnd   == old) h.TryEnd   = nw;
+                if (h. FilterStart == old) h. FilterStart = nw;
+                if (h.HandlerStart == old) h.HandlerStart = nw;
+                if (h.HandlerEnd   == old) h.HandlerEnd   = nw;
+            }
+        }
+
         static TypeSig ICast/* needs a better name */(TypeSig a, TypeSig b, ICorLibTypes ts)
         {
-            if (comp.Equals(a, b))
-                return a;
-            if (comp.Equals(a, ts.String))
-                return a;
-            if (comp.Equals(b, ts.String))
-                return b;
-            if (comp.Equals(a, ts.IntPtr) || comp.Equals(a, ts.UIntPtr))
-                return a;
-            if (comp.Equals(b, ts.IntPtr) || comp.Equals(b, ts.UIntPtr))
-                return b;
-            if (comp.Equals(a, ts.Double))
-                return a;
-            if (comp.Equals(b, ts.Double))
-                return b;
-            if (comp.Equals(a, ts.Single))
-                return a;
-            if (comp.Equals(b, ts.Single))
-                return b;
-            if (comp.Equals(a, ts.Int64) || comp.Equals(a, ts.UInt64))
-                return a;
-            if (comp.Equals(b, ts.Int64) || comp.Equals(b, ts.UInt64))
-                return b;
+            if (comp.Equals(a, b)) return a;
+            if (comp.Equals(a, ts.String)) return a;
+            if (comp.Equals(b, ts.String)) return b;
+            if (comp.Equals(a, ts.IntPtr) || comp.Equals(a, ts.UIntPtr)) return a;
+            if (comp.Equals(b, ts.IntPtr) || comp.Equals(b, ts.UIntPtr)) return b;
+            if (comp.Equals(a, ts.Double)) return a;
+            if (comp.Equals(b, ts.Double)) return b;
+            if (comp.Equals(a, ts.Single)) return a;
+            if (comp.Equals(b, ts.Single)) return b;
+            if (comp.Equals(a, ts.Int64) || comp.Equals(a, ts.UInt64)) return a;
+            if (comp.Equals(b, ts.Int64) || comp.Equals(b, ts.UInt64)) return b;
 
-            if (!a.IsByRef || !b.IsByRef)
-                return ts.Object;
+            if (!a.IsByRef || !b.IsByRef) return ts.Object;
 
             var ad = a.ToTypeDefOrRef().ResolveTypeDefThrow();
             var bd = b.ToTypeDefOrRef().ResolveTypeDefThrow();
@@ -421,6 +351,150 @@ namespace Prism.Injector.Patcher
             // close enough
             return ad.PackingSize > bd.PackingSize ? a : b;
         }
+
+        static TypeSig TypeOfExpr(MethodDef md, Instruction ins, StackItem[] args)
+        {
+            var ts = md.Module.CorLibTypes;
+            var c = ins.OpCode.Code;
+
+            switch (c)
+            {
+                case Code.Add: case Code.Add_Ovf:
+                case Code.And: case Code.Or: case Code.Xor:
+                case Code.Div: case Code.Div_Un:
+                case Code.Mul: case Code.Mul_Ovf: case Code.Mul_Ovf_Un:
+                case Code.Rem: case Code.Rem_Un:
+                case Code.Shl: case Code.Shr: case Code.Shr_Un:
+                case Code.Sub: case Code.Sub_Ovf: case Code.Sub_Ovf_Un:
+                    return ICast(args[0].Type, args[1].Type, ts);
+                case Code.Not: case Code.Neg: case Code.Dup: return args[0].Type;
+                case Code.Castclass: case Code.Constrained: case Code.Newarr:
+                case Code.Ldobj: case Code.Unbox: case Code.Ldelem_Ref:
+                    return ins.Operand == null ? ts.IntPtr : ((ITypeDefOrRef)ins.Operand).ToTypeSig();
+                case Code.Box: case Code.Ldnull: case Code.Ldtoken: case Code.Refanytype:
+                    return ts.Object;
+                case Code.Call: case Code.Calli: case Code.Callvirt:
+                    {   var m = (IMethod)ins.Operand;
+                        return c == Code.Newobj ? m.DeclaringType.ToTypeSig() : m.MethodSig.RetType; }
+                case Code.Ceq: case Code.Cgt: case Code.Cgt_Un: case Code.Clt: case Code.Clt_Un:
+                case Code.Ckfinite: case Code.Isinst: return ts.Boolean;
+                case Code.Conv_I: case Code.Conv_Ovf_I: case Code.Conv_Ovf_I_Un:
+                case Code.Ldarga: case Code.Ldarga_S: case Code.Ldlen: case Code.Ldelema:
+                case Code.Ldelem_I: case Code.Ldflda: case Code.Ldsflda: case Code.Ldloca:
+                case Code.Ldloca_S: case Code.Ldind_I: case Code.Ldftn: case Code.Ldvirtftn:
+                case Code.Sizeof: case Code.Arglist: case Code.Refanyval: case Code.Localloc:
+                    return ts.IntPtr;
+                case Code.Conv_I1: case Code.Conv_Ovf_I1: case Code.Conv_Ovf_I1_Un:
+                case Code.Ldelem_I1: case Code.Ldind_I1: return ts.SByte;
+                case Code.Conv_I2: case Code.Conv_Ovf_I2: case Code.Conv_Ovf_I2_Un:
+                case Code.Ldelem_I2: case Code.Ldind_I2: return ts.Int16;
+                case Code.Ldc_I4: case Code.Ldc_I4_0: case Code.Ldc_I4_1: case Code.Ldc_I4_2:
+                case Code.Ldc_I4_3: case Code.Ldc_I4_4: case Code.Ldc_I4_5: case Code.Ldc_I4_6:
+                case Code.Ldc_I4_7: case Code.Ldc_I4_8: case Code.Ldc_I4_M1: case Code.Ldc_I4_S:
+                case Code.Conv_I4: case Code.Conv_Ovf_I4: case Code.Conv_Ovf_I4_Un:
+                case Code.Ldelem_I4: case Code.Ldind_I4: return ts.Int32;
+                case Code.Conv_I8: case Code.Conv_Ovf_I8: case Code.Conv_Ovf_I8_Un:
+                case Code.Ldc_I8: case Code.Ldelem_I8: case Code.Ldind_I8: return ts.Int64;
+                case Code.Conv_U1: case Code.Conv_Ovf_U1: case Code.Conv_Ovf_U1_Un:
+                case Code.Ldelem_U1: case Code.Ldind_U1: return ts.Byte;
+                case Code.Conv_U: case Code.Conv_Ovf_U: case Code.Conv_Ovf_U_Un: return ts.UIntPtr;
+                case Code.Conv_U2: case Code.Conv_Ovf_U2: case Code.Conv_Ovf_U2_Un:
+                case Code.Ldelem_U2: case Code.Ldind_U2: return ts.UInt16;
+                case Code.Conv_U4: case Code.Conv_Ovf_U4: case Code.Conv_Ovf_U4_Un:
+                case Code.Ldelem_U4: case Code.Ldind_U4: return ts.UInt32;
+                case Code.Conv_U8: case Code.Conv_Ovf_U8: case Code.Conv_Ovf_U8_Un: return ts.UInt64;
+                case Code.Ldc_R4: case Code.Conv_R4: case Code.Ldelem_R4: return ts.Single;
+                case Code.Conv_R8: case Code.Conv_R_Un: case Code.Ldc_R8: case Code.Ldelem_R8:
+                    return ts.Double;
+                case Code.Ldarg_0: case Code.Ldarg_1: case Code.Ldarg_2: case Code.Ldarg_3:
+                case Code.Ldarg: case Code.Ldarg_S: return ins.GetParameter(md.Parameters).Type;
+                case Code.Ldfld: case Code.Ldsfld: return ((IField)ins.Operand).FieldSig.Type;
+                case Code.Ldloc_0: case Code.Ldloc_1: case Code.Ldloc_2: case Code.Ldloc_3:
+                case Code.Ldloc: case Code.Ldloc_S: return ins.GetLocal(md.Body.Variables).Type;
+                case Code.Ldstr: return ts.String;
+                case Code.Ret: return md.ReturnType;
+                case Code.Mkrefany: return ts.TypedReference;
+            }
+
+            return ts.Void;
+        }
+        static void RecreateStack(this MethodDef def, List<StackItem> stack, ref int ind)
+        {
+            var body = def.Body;
+            var ins = body.Instructions[ind];
+
+            int pushes, pops;
+
+            var isv = def.ReturnType.RemovePinnedAndModifiers().ElementType == ElementType.Void;
+            ins.CalculateStackUsage(!isv, out pushes, out pops);
+
+            if (pops   < 0) // clear the stack
+                throw new NotImplementedException("stack clearing isn't implemented (" + ins + ").");
+
+            if (pushes == 0)
+            {
+                // nothing, just fall through...
+                if (pops == 0)
+                {
+                    ind--;
+                    RecreateStack(def, stack, ref ind);
+                    return;
+                }
+                // well shit
+                else throw new NotImplementedException("Consuming-only instructions (" + ins + ") aren't implemented.");
+            }
+
+            int oldTop = stack.Count;
+            for (int i = 0; i < pops; i++)
+            {
+                ind--;
+                RecreateStack(def, stack, ref ind);
+            }
+
+            if (oldTop > stack.Count)
+                throw new InvalidOperationException("Bogus stack");
+
+            if (pushes > 1) // only opcode that pushes more than 1 thing is dup
+            {
+                if (ins.OpCode.Code != Code.Dup)
+                    throw new NotImplementedException("Unexpected opcode " + ins);
+                // input.Length == 1
+
+                var toDup = stack[stack.Count - 1];
+                stack.RemoveAt(stack.Count - 1);
+
+                var dup = new StackItem { Type = toDup.Type, Instr = ins, Origin = new[] { toDup } };
+                stack.Add(dup);
+                stack.Add(dup);
+
+                return;
+            }
+
+            StackItem[] popv = new StackItem[pops];
+            for (int i = 0; i < pops; i++)
+            {
+                popv[pops - i - 1 /* reverse */] = stack[oldTop];
+                stack.RemoveAt(oldTop);
+            }
+
+            var ty = TypeOfExpr(def, ins, popv);
+            if (ty.RemovePinnedAndModifiers().ElementType == ElementType.Void)
+                throw new InvalidOperationException("Using a void method in an expression tree " + ins);
+
+            stack.Add(new StackItem { Type = ty, Instr = ins, Origin = popv });
+        }
+        public static StackItem RecreateStack(MethodDef md, Instruction ins)
+        {
+            var body = md.Body;
+
+            var stack = new List<StackItem>(body.MaxStack);
+
+            int ind = body.Instructions.IndexOf(ins) - 1;
+            RecreateStack(md, stack, ref ind);
+
+            return stack[0]; // it should boil down to a single expr
+        }
+
         // NOTE: stack may contain an int/uint when the actual C# type is a byte/..., because most structural primitives are all (u)ints in IL
         // NOTE: not sure if it would work correctly with branching for hand-written IL
         public static void EnumerateWithStackAnalysis(this MethodDef method, Func<int, Instruction, StackInfo, int> cb)
@@ -446,13 +520,6 @@ namespace Prism.Injector.Patcher
                     Origin = o ?? Empty<StackItem>.Array
                 });
 
-                i = cb(i, n, stack);
-                if (i < 0)
-                    return;
-
-                StackItem pop0 = new StackItem(),
-                          pop1 = new StackItem();
-
                 TypeSig exnType = null;
                 foreach (var eh in body.ExceptionHandlers)
                     if (eh.HandlerType == ExceptionHandlerType.Filter)
@@ -474,426 +541,31 @@ namespace Prism.Injector.Patcher
                 push(exnType, Empty<StackItem>.Array);
             NO_PUSH:
 
-                #region huge switch
-                switch (c)
+                i = cb(i, n, stack);
+                if (i < 0)
+                    return;
+
+                if (n.OpCode.Code == Code.Dup)
                 {
-                    case Code.Add:
-                    case Code.Add_Ovf:
-                    case Code.And:
-                    case Code.Div:
-                    case Code.Div_Un:
-                    case Code.Mul:
-                    case Code.Mul_Ovf:
-                    case Code.Mul_Ovf_Un:
-                    case Code.Or:
-                    case Code.Rem:
-                    case Code.Rem_Un:
-                    case Code.Shl:
-                    case Code.Shr:
-                    case Code.Shr_Un:
-                    case Code.Sub:
-                    case Code.Sub_Ovf:
-                    case Code.Sub_Ovf_Un:
-                    case Code.Xor:
-                        pop0 = stack.Pop();
-                        pop1 = stack.Pop();
-                        push(ICast(pop0.Type, pop1.Type, ts), new[] { pop0, pop1 });
-                        break;
-                    case Code.Neg:
-                    case Code.Not:
-                        pop0 = stack.Pop();
-                        push(pop0.Type, new[] { pop0 });
-                        break;
-                    case Code.Newarr:
-                        push(((ITypeDefOrRef)n.Operand).ToTypeSig(), new[] { stack.Peek() });
-                        break;
-                    case Code.Box:
-                        // struct/value type ('bittable type') -> object ref
-                        // eg. int x = 5; Foo((object /* here */)5);
-                        push(ts.Object, new[] { stack.Pop() });
-                        break;
-                    case Code.Call:
-                    case Code.Calli: // indirect call (native or managed), pops address and args
-                    case Code.Callvirt: // virtual call (*always* an instance call)
-                    case Code.Newobj: // said to return void, but actually pushes the class type
-                        {
-                            var m = (IMethod)n.Operand;
+                    var tod = stack.Peek();
+                    push(tod.Type, new[] { tod });
 
-                            List<StackItem> pops = new List<StackItem>();
-
-                            if (c == Code.Calli)
-                                pops.Add(stack.Pop()); // address to call
-
-                            // args
-                            int start = n.OpCode.Code == Code.Newobj ? 1 : 0, // the object itself isn't popped
-                            /* In MSIL, creating an obj works like this:
-                             *     .locals init ([0] class Foo)
-                             *     ldloc.0
-                             *     newobj instance void Foo::.ctor()
-                             *     // now the constructed object is at the top of the stack
-                             */ count = m.MethodSig.Params.Count + (m.MethodSig.HasThis /* instance call */ ? 1 : 0);
-                            for (int j = start; j < count; j++)
-                                pops.Add(stack.Pop());
-
-                            if (c == Code.Newobj || !comp.Equals(m.MethodSig.RetType, ts.Void))
-                                push(c == Code.Newobj ? m.DeclaringType.ToTypeSig() : m.MethodSig.RetType, pops.ToArray());
-                        }
-                        break;
-                    case Code.Castclass: // cast class instance to another
-                    case Code.Constrained: // ensure that something is of type foo (see eg. the disassembly of (5).ToString())
-                        push(((ITypeDefOrRef)n.Operand).ToTypeSig(), new[] { stack.Pop() });
-                        break;
-                    case Code.Ceq:
-                    case Code.Cgt:
-                    case Code.Cgt_Un:
-                    case Code.Clt:
-                    case Code.Clt_Un:
-                        push(ts.Boolean, new[] { stack.Pop(), stack.Pop() });
-                        break;
-                    case Code.Ckfinite: // throw if infinite or nan
-                        break;
-                    case Code.Isinst: // is obj ref of the given class?
-                        push(ts.Boolean, new[] { stack.Pop() });
-                        break;
-                    case Code.Conv_I:
-                    case Code.Conv_Ovf_I:
-                    case Code.Conv_Ovf_I_Un:
-                        push(ts.IntPtr, new[] { stack.Pop() });
-                        break;
-                    case Code.Conv_I1:
-                    case Code.Conv_Ovf_I1:
-                    case Code.Conv_Ovf_I1_Un:
-                        push(ts.SByte, new[] { stack.Pop() });
-                        break;
-                    case Code.Conv_I2:
-                    case Code.Conv_Ovf_I2:
-                    case Code.Conv_Ovf_I2_Un:
-                        push(ts.Int16, new[] { stack.Pop() });
-                        break;
-                    case Code.Conv_I4:
-                    case Code.Conv_Ovf_I4:
-                    case Code.Conv_Ovf_I4_Un:
-                        push(ts.Int32, new[] { stack.Pop() });
-                        break;
-                    case Code.Conv_I8:
-                    case Code.Conv_Ovf_I8:
-                    case Code.Conv_Ovf_I8_Un:
-                        push(ts.Int64, new[] { stack.Pop() });
-                        break;
-                    case Code.Conv_U:
-                    case Code.Conv_Ovf_U:
-                    case Code.Conv_Ovf_U_Un:
-                        push(ts.UIntPtr, new[] { stack.Pop() });
-                        break;
-                    case Code.Conv_U1:
-                    case Code.Conv_Ovf_U1:
-                    case Code.Conv_Ovf_U1_Un:
-                        push(ts.Byte, new[] { stack.Pop() });
-                        break;
-                    case Code.Conv_U2:
-                    case Code.Conv_Ovf_U2:
-                    case Code.Conv_Ovf_U2_Un:
-                        push(ts.UInt16, new[] { stack.Pop() });
-                        break;
-                    case Code.Conv_U4:
-                    case Code.Conv_Ovf_U4:
-                    case Code.Conv_Ovf_U4_Un:
-                        push(ts.UInt32, new[] { stack.Pop() });
-                        break;
-                    case Code.Conv_U8:
-                    case Code.Conv_Ovf_U8:
-                    case Code.Conv_Ovf_U8_Un:
-                        push(ts.UInt64, new[] { stack.Pop() });
-                        break;
-                    case Code.Conv_R4:
-                        push(ts.Single, new[] { stack.Pop() });
-                        break;
-                    case Code.Conv_R8:
-                    case Code.Conv_R_Un:
-                        push(ts.Double, new[] { stack.Pop() });
-                        break;
-                    case Code.Dup:
-                        push(stack.Peek().Type, new[] { stack.Peek() });
-                        break;
-                    case Code.Ldarga: // push address of arg #n
-                    case Code.Ldarga_S:
-                        push(ts.IntPtr, null);
-                        break;
-                    case Code.Ldlen: // push length of arr (as native int)
-                        push(ts.IntPtr, new[] { stack.Pop() });
-                        break;
-                    case Code.Ldelema: // load array element address (requires array & index)
-                        push(ts.IntPtr, new[] { stack.Pop(), stack.Pop() });
-                        break;
-                    case Code.Ldarg: // load array element (requires array & index)
-                    case Code.Ldarg_0:
-                    case Code.Ldarg_1:
-                    case Code.Ldarg_2:
-                    case Code.Ldarg_3:
-                    case Code.Ldarg_S:
-                        push(n.GetArg(method).Type, null);
-                        break;
-                    case Code.Beq:
-                    case Code.Beq_S:
-                    case Code.Bge:
-                    case Code.Bge_S:
-                    case Code.Bge_Un:
-                    case Code.Bge_Un_S:
-                    case Code.Bgt:
-                    case Code.Bgt_S:
-                    case Code.Bgt_Un:
-                    case Code.Bgt_Un_S:
-                    case Code.Ble:
-                    case Code.Ble_S:
-                    case Code.Ble_Un:
-                    case Code.Ble_Un_S:
-                    case Code.Blt:
-                    case Code.Blt_S:
-                    case Code.Blt_Un:
-                    case Code.Blt_Un_S:
-                    case Code.Bne_Un:
-                    case Code.Bne_Un_S:
-                        stack.Pop();
-                        stack.Pop();
-                        break;
-                    case Code.Brfalse:
-                    case Code.Brfalse_S:
-                    case Code.Brtrue:
-                    case Code.Brtrue_S:
-                        stack.Pop();
-                        break;
-                    case Code.Ldc_I4:
-                    case Code.Ldc_I4_0:
-                    case Code.Ldc_I4_1:
-                    case Code.Ldc_I4_2:
-                    case Code.Ldc_I4_3:
-                    case Code.Ldc_I4_4:
-                    case Code.Ldc_I4_5:
-                    case Code.Ldc_I4_6:
-                    case Code.Ldc_I4_7:
-                    case Code.Ldc_I4_8:
-                    case Code.Ldc_I4_M1:
-                    case Code.Ldc_I4_S:
-                        push(ts.Int32, null);
-                        break;
-                    case Code.Ldc_I8:
-                        push(ts.Int64, null);
-                        break;
-                    case Code.Ldc_R4:
-                        push(ts.Single, null);
-                        break;
-                    case Code.Ldc_R8:
-                        push(ts.Double, null);
-                        break;
-                    case Code.Ldelem_I: // load element of array
-                        push(ts.IntPtr, new[] { stack.Pop(), stack.Pop() });
-                        break;
-                    case Code.Ldelem_I1:
-                        push(ts.Byte, new[] { stack.Pop(), stack.Pop() });
-                        break;
-                    case Code.Ldelem_I2:
-                        push(ts.Int16, new[] { stack.Pop(), stack.Pop() });
-                        break;
-                    case Code.Ldelem_I4:
-                        push(ts.Int32, new[] { stack.Pop(), stack.Pop() });
-                        break;
-                    case Code.Ldelem_I8:
-                        push(ts.Int64, new[] { stack.Pop(), stack.Pop() });
-                        break;
-                    case Code.Ldelem_U1:
-                        push(ts.Byte, new[] { stack.Pop(), stack.Pop() });
-                        break;
-                    case Code.Ldelem_U2:
-                        push(ts.UInt16, new[] { stack.Pop(), stack.Pop() });
-                        break;
-                    case Code.Ldelem_U4:
-                        push(ts.UInt32, new[] { stack.Pop(), stack.Pop() });
-                        break;
-                    case Code.Ldelem_R4:
-                        push(ts.Single, new[] { stack.Pop(), stack.Pop() });
-                        break;
-                    case Code.Ldelem_R8:
-                        push(ts.Double, new[] { stack.Pop(), stack.Pop() });
-                        break;
-                    case Code.Ldelem_Ref: // load element of array (obj ref)
-                        push(n.Operand == null ? ts.IntPtr : ((ITypeDefOrRef)n.Operand).ToTypeSig(),
-                                new[] { stack.Pop(), stack.Pop() });
-                        break;
-                    case Code.Ldfld:
-                        push(((IField)n.Operand).FieldSig.Type, new[] { stack.Pop() });
-                        break;
-                    case Code.Ldsfld:
-                        push(((IField)n.Operand).FieldSig.Type, null);
-                        break;
-                    case Code.Ldflda: // load address of field
-                        push(ts.IntPtr, new[] { stack.Pop() });
-                        break;
-                    case Code.Ldsflda:
-                    case Code.Ldloca:
-                    case Code.Ldloca_S:
-                        push (ts.IntPtr, null);
-                        break;
-                    case Code.Ldloc:
-                    case Code.Ldloc_S:
-                    case Code.Ldloc_0:
-                    case Code.Ldloc_1:
-                    case Code.Ldloc_2:
-                    case Code.Ldloc_3:
-                        push(n.GetLocal(body).Type, null);
-                        break;
-                    case Code.Ldind_I: // load indirectly (i.e. from address), eg *(foo + bar)
-                        push(ts.IntPtr, new[] { stack.Pop() });
-                        break;
-                    case Code.Ldind_I1:
-                        push(ts.SByte, new[] { stack.Pop() });
-                        break;
-                    case Code.Ldind_I2:
-                        push(ts.Int16, new[] { stack.Pop() });
-                        break;
-                    case Code.Ldind_I4:
-                        push(ts.Int32, new[] { stack.Pop() });
-                        break;
-                    case Code.Ldind_I8:
-                        push(ts.Int64, new[] { stack.Pop() });
-                        break;
-                    case Code.Ldind_U1:
-                        push(ts.Byte, new[] { stack.Pop() });
-                        break;
-                    case Code.Ldind_U2:
-                        push(ts.UInt16, new[] { stack.Pop() });
-                        break;
-                    case Code.Ldind_U4:
-                        push(ts.UInt32, new[] { stack.Pop() });
-                        break;
-                    // apparently doesn't exist (according to M$ docs)
-                    /*case Code.Ldind_U8:
-                        push(ts.UInt64, new[] { stack.Pop() });
-                        break;*/
-                    case Code.Ldnull: // push null
-                        push(ts.Object, null);
-                        break;
-                    case Code.Ldobj: // load bittable type from pointer
-                        push(((ITypeDefOrRef)n.Operand).ToTypeSig(), new[] { stack.Pop() });
-                        break;
-                    case Code.Ldstr:
-                        push(ts.String, null);
-                        break;
-                    case Code.Ldftn: // metadata token -> function pointer
-                    case Code.Ldvirtftn: // or ^ -> vtable entry
-                        push(ts.IntPtr, null);
-                        break;
-                    case Code.Nop:
-                        break;
-                    case Code.Pop:
-                        stack.Pop();
-                        break;
-                    case Code.Ret:
-                        if (!comp.Equals(method.ReturnType, ts.Void))
-                            stack.Pop();
-                        break;
-                    case Code.Rethrow: // rethrows the exn, keeps stack trace (unlike throwing an already-existing exn, which makes it loose its stack trace)
-                    case Code.Throw:
-                        return;
-                    case Code.Sizeof: // works with generic types and everything, much better than the C# keyword
-                        push(ts.IntPtr, null);
-                        break;
-                    case Code.Stfld:
-                    case Code.Stind_I:
-                    case Code.Stind_I1:
-                    case Code.Stind_I2:
-                    case Code.Stind_I4:
-                    case Code.Stind_I8:
-                    case Code.Stind_R4:
-                    case Code.Stind_R8:
-                    case Code.Stind_Ref:
-                    case Code.Stobj:
-                        stack.Pop();
-                        stack.Pop();
-                        break;
-                    case Code.Stelem_I: // store array element (requires array, index & value)
-                    case Code.Stelem_I1:
-                    case Code.Stelem_I2:
-                    case Code.Stelem_I4:
-                    case Code.Stelem_I8:
-                    case Code.Stelem_R4:
-                    case Code.Stelem_R8:
-                    case Code.Stelem_Ref:
-                        stack.Pop();
-                        stack.Pop();
-                        stack.Pop();
-                        break;
-                    case Code.Starg:
-                    case Code.Starg_S:
-                    case Code.Stloc:
-                    case Code.Stloc_0:
-                    case Code.Stloc_1:
-                    case Code.Stloc_2:
-                    case Code.Stloc_3:
-                    case Code.Stloc_S:
-                    case Code.Stsfld:
-                        stack.Pop();
-                        break;
-                    case Code.Unbox: // unbox obj ref to blittable type
-                    case Code.Unbox_Any:
-                        push(((ITypeDefOrRef)n.Operand).ToTypeSig(), new[] { stack.Pop() });
-                        break;
-                    case Code.Ldtoken: // load metadata token
-                        push(ts.Object /* a System.Type (does this work with /any/ type of token?) */, null);
-                        break;
-                    case Code.Switch: // jump to the offset on the stack
-                        stack.Pop();
-                        break;
-                    case Code.Tailcall: // prefix: perform a tail call (unavailable in C#)
-                    case Code.Unaligned: // pointer access can be unaligned (GC etc. ensure good alignment for faster loading (probably))
-                    case Code.Volatile: // next instruction is volatile
-                    case Code.Readonly: // another prefix for something
-                        break;
-                    case Code.Arglist: // load pointer to arglist (only available in *true* vararg methods
-                                       // (as in, the C way, not the params T[] way)).
-                                       // if one defines eg.
-                                       //     [DllImport("libc.so")]
-                                       //     extern void printf(string format, __arglist);
-                                       // and then calls it with:
-                                       //     printf("foo %i %s\n", __arglist(42), __arglist("bar"))
-                                       // , 'true' vararg stuff is used (the resulting IL code will use some arglist hackery).
-                                       // If one would implement such a function, one would do:
-                                       //     void Foo(__arglist)
-                                       //     {
-                                       //         var aitor = new ArgIterator(__arglist);
-                                       //         // do stuff with aitor
-                                       //     }
-                                       // the '__arglist' keyword here simply emits the 'arglist' instruction, which pushes
-                                       // a pointer to the argument list which can be interpreted by the runtime and ArgIterator
-                                       // it works like C va_args, va_start and va_end (but cleaner, as it doesn't need
-                                       // the last non-varargs arg)
-                        push(ts.IntPtr, null); // actually a RuntimeArgumentHandle
-                        break;
-                    case Code.Break: // tells the debugger a breakpoint is reached
-                        break;
-                    case Code.Mkrefany: // address -> typed reference (strongly-typed pointerish type to a bittable type,
-                                        // has some restrictions in usage compared to normal pointer types, but can be used to
-                                        // implement generic pointers in pure C#)
-                        push(ts.TypedReference, new[] { stack.Pop() });
-                        break;
-                    case Code.Refanytype: // typed reference -> type (of the pointer)
-                        push(ts.Object /* a System.Type */, new[] { stack.Pop() });
-                        break;
-                    case Code.Refanyval: // typed reference -> address (of the pointee)
-                        push(ts.IntPtr, new[] { stack.Pop() });
-                        break;
-                    case Code.Endfilter:
-                        //stack.Pop();
-                        break;
-                    case Code.Endfinally:
-                        break;
-                    case Code.Leave:
-                    case Code.Leave_S:
-                        break;
-                    case Code.Localloc: // like malloc, but on the stack
-                        push(ts.IntPtr, new [] { stack.Pop() });
-                        break;
+                    continue;
                 }
-                #endregion
+
+                int pushes, pops;
+                var isv = method.ReturnType.RemovePinnedAndModifiers().ElementType == ElementType.Void;
+                n.CalculateStackUsage(!isv, out pushes, out pops);
+
+                // pushes should be <= 1
+
+                int len = pops < 0 ? stack.Count : pops;
+                StackItem[] popv = new StackItem[len];
+                for (int ii = 0; ii < len; ++ii)
+                    popv[ii] = stack.Pop();
+
+                if (pushes > 0)
+                    push(TypeOfExpr(method, n, popv), popv);
             }
         }
     }

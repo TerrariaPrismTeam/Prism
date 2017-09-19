@@ -34,7 +34,7 @@ namespace Prism.Injector.Patcher
 
                     var body = md.Body;
 
-                    if (!body.InitLocals) // no local vars
+                    if (!body.HasVariables) // no local vars
                         continue;
 
                     // if there are no byte variables, we don't have to change antyhing
@@ -66,7 +66,7 @@ namespace Prism.Injector.Patcher
                             if (i.OpCode.Code.Simplify() != Code.Stloc)
                                 return ind;
 
-                            var loc = i.GetLocal(body);
+                            var loc = i.GetLocal(body.Variables);
 
                             if (context.SigComparer.Equals(loc.Type, typeSys.Byte))
                                 loc.Type = typeSys.UInt16;

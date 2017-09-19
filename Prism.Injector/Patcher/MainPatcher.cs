@@ -539,6 +539,7 @@ namespace Prism.Injector.Patcher
                         log(snd.ToString() + " at " + md.FullName);
                         var bd = md.Body;
                         var insa = bd.Instructions;
+                        var sndl = snd.Instr.GetLocal(bd.Variables);
 
                         bool metTheLoad = false;
                         for (int ii = ind; ii >= 0; ii--)
@@ -554,6 +555,9 @@ namespace Prism.Injector.Patcher
                             if (insa[ii].OpCode.Code.Simplify() != Code.Stloc)
                                 continue;
 
+                            if (insa[ii].GetLocal(bd.Variables) != sndl)
+                                continue;
+
                             // found it :D
 
                             // now we build an expression tree derived from the previous
@@ -563,6 +567,8 @@ namespace Prism.Injector.Patcher
                             // though, so we need to add another variable that stores the
                             // entity object.
 
+                            var st = DNHelperExtensions.RecreateStack(md, insa[ii]);
+                            log(st.ToString() + " -> " + StackItem.OriginChain(st));
                             /* TODO
                             var et = buildExprTree();
                             if (et.head == ldfld <fields>)
@@ -611,11 +617,6 @@ namespace Prism.Injector.Patcher
 
             // wrapping will be done AFTER the method analysis, to keep naming simple
 
-            FieldDef
-                itemUse  = memRes.GetType("Terraria.Item").GetField(  "UseSound"),
-                npcHit   = memRes.GetType("Terraria.NPC" ).GetField(  "HitSound"),
-                npcDeath = memRes.GetType("Terraria.NPC" ).GetField("DeathSound");
-
             foreach (var td in context.PrimaryAssembly.ManifestModule.Types)
                 foreach (var md in td.Methods)
                 {
@@ -633,15 +634,12 @@ namespace Prism.Injector.Patcher
                         var imd = (IMethod)i.Operand;
                         if (!imd.Name.Equals(playSoundNames[0])) // unroll this
                             return ind;
-                        /*bool found = false;
-                        for (int ii = 0; ii < playSoundNames.Length; ii++)
+                        /*for (int ii = 0; ii < playSoundNames.Length; ii++)
                             if (playSoundNames[ii].Equals(imd.Name))
-                            {
-                                found = true;
-                                break;
-                            }
-                        if (!found)
-                            return ind;*/
+                                goto DO_ANALYSIS;
+
+                        return ind;
+                    DO_ANALYSIS:*/
 
                         var snd = s.Take(imd.MethodSig.Params.Count).LastOrDefault();
                         AnalyseSource(log, md, ind, snd);

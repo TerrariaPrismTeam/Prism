@@ -90,10 +90,7 @@ namespace Prism.Injector.Patcher
             var newMethod = origMethod.ReplaceAndHook(invokeDelegate, origMethod, fieldName);
 
             // you're not special anymore!
-            if ((origMethod.Attributes & MethodAttributes.SpecialName) != 0)
-                origMethod.Attributes ^= MethodAttributes.SpecialName;
-            if ((origMethod.Attributes & MethodAttributes.RTSpecialName) != 0)
-                origMethod.Attributes ^= MethodAttributes.RTSpecialName;
+            origMethod.Attributes &= ~(MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
 
             origMethod.ReplaceAllMethodRefs(newMethod, context);
         }
