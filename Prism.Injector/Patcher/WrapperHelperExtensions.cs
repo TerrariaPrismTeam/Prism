@@ -58,7 +58,7 @@ namespace Prism.Injector.Patcher
 
             return String.Join("_", types.Select(r => r.TypeName));//r => r.IsPrimitive ? r.Name : r.FullName.Replace('.', '_').Replace("+", String.Empty)));
         }
-        static string GetOverloadedName(MethodDef method)
+        public static string GetOverloadedName(MethodDef method)
         {
             var mtds = method.DeclaringType.GetMethods(method.Name);
             var safeName = GetSafeMethodName(method.Name);

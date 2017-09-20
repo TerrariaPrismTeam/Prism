@@ -484,7 +484,69 @@ namespace Prism.Injector.Patcher
             }
         }
 
-        static void AnalyseSource(Action<string> log, MethodDef md, int ind, StackItem snd)
+        static void InjectMeBeautiful(Action<string> log, MethodDef md,
+                Instruction playSoundCall, StackItem orig)
+        {
+            /*
+             * the code we have now:
+             *     ...
+             *     ldfld class Terraria.Audio.LegacySoundStyle Terraria.TEntity::Sound
+             *     ...
+             *     call TRet Terraria.Main::PlaySound(class Terraria.Audio.LegacySoundStyle, TArgs...)
+             * this will be transformed into the following, after adding
+             * a local for the entity:
+             *     ...
+             *     dup
+             *     stloc loce
+             *     // if another stloc follows here, we don't really have to care,
+             *     // as it simply passes around a pointer :)
+             *     ...
+             *     ldsfld THook Terraria.TEntity::OurHook
+             *     call TRet THook::Invoke(TEntity, TArgs...)
+             */
+
+            var body = md.Body;
+            var fi = (IField)orig.Instr/* ldfld */.Operand;
+            var te = fi.DeclaringType;
+
+            var lss = memRes.GetType("Terraria.Audio.LegacySoundStyle");
+            var loce = new Local(te.ToTypeSig());
+            body.Variables.Add(loce);
+
+            string baseName = "P_" + md.DeclaringType.Name.ToString() +
+                "_OnPlaySound_" + WrapperHelperExtensions.GetOverloadedName(md);
+
+            MethodDef invokeHook;
+            var delt = context.CreateDelegate("Terraria.PrismInjections", baseName + "_Del", md.ReturnType, out invokeHook,
+                    new[] { lss.ToTypeSig() }.Concat(md.MethodSig.Params.Skip(1)).ToArray());
+
+            var hFi = new FieldDefUser(baseName + "_Hook", new FieldSig(delt.ToTypeSig()), FieldAttributes.Public | FieldAttributes.Static);
+            md.DeclaringType.Fields.Add(hFi);
+
+            using (var ilp = body.GetILProcessor())
+            {
+                // inject the instructions when the entity is on the stack
+                Instruction theDup;
+                ilp.InsertBefore(orig.Instr, theDup = Instruction.Create(OpCodes.Dup));
+                ilp.InsertBefore(orig.Instr, Instruction.Create(OpCodes.Stloc, loce));
+
+                body.UpdateInstructionOffsets();
+                body.RewireBranches(orig.Instr, theDup);
+                ilp.Remove(orig.Instr);
+
+                // inject the instructions when calling PlaySound
+                ilp.InsertBefore(playSoundCall, theDup = Instruction.Create(OpCodes.Ldsfld, hFi));
+                ilp.InsertBefore(playSoundCall, Instruction.Create(OpCodes.Callvirt, invokeHook));
+
+                body.UpdateInstructionOffsets();
+                body.RewireBranches(playSoundCall, theDup /* not a dup anymore, I know */);
+                ilp.Remove(playSoundCall);
+
+                // *whew*
+            }
+        }
+        static void AnalyseSource(Action<string> log, MethodDef md, int ind,
+            StackItem snd, Instruction cur)
         {
             // now we know which variable is used to determine the sound type/style,
             // so now we can inject code accordingly
@@ -512,18 +574,18 @@ namespace Prism.Injector.Patcher
 
                         if (context.SigComparer.Equals(fi, itemUse))
                         {
-                            log("Item UseSound " + snd + " at " + md.FullName);
-                            // TODO: inject
+                            //log("Item UseSound " + snd + " at " + md.FullName);
+                            InjectMeBeautiful(log, md, cur, snd);
                         }
                         else if (context.SigComparer.Equals(fi, npcHit))
                         {
-                            log("NPC HitSound " + snd + " at " + md.FullName);
-                            // TODO: inject
+                            //log("NPC HitSound " + snd + " at " + md.FullName);
+                            InjectMeBeautiful(log, md, cur, snd);
                         }
                         else if (context.SigComparer.Equals(fi, npcDeath))
                         {
-                            log("NPC DeathSound " + snd + " at " + md.FullName);
-                            // TODO: inject
+                            //log("NPC DeathSound " + snd + " at " + md.FullName);
+                            InjectMeBeautiful(log, md, cur, snd);
                         }
                         else log("Unexpected field '" + fi + "' used as arg to PlaySound");
                     }
@@ -536,7 +598,6 @@ namespace Prism.Injector.Patcher
                      * stloc where the source can be found from.
                      */
                     {
-                        log(snd.ToString() + " at " + md.FullName);
                         var bd = md.Body;
                         var insa = bd.Instructions;
                         var sndl = snd.Instr.GetLocal(bd.Variables);
@@ -549,13 +610,9 @@ namespace Prism.Injector.Patcher
                                 metTheLoad = true;
                                 continue;
                             }
-                            if (!metTheLoad)
-                                continue;
-
-                            if (insa[ii].OpCode.Code.Simplify() != Code.Stloc)
-                                continue;
-
-                            if (insa[ii].GetLocal(bd.Variables) != sndl)
+                            if (!metTheLoad
+                                    || insa[ii].OpCode.Code.Simplify() != Code.Stloc
+                                    || insa[ii].GetLocal(bd.Variables) != sndl)
                                 continue;
 
                             // found it :D
@@ -568,13 +625,7 @@ namespace Prism.Injector.Patcher
                             // entity object.
 
                             var st = DNHelperExtensions.RecreateStack(md, insa[ii]);
-                            log(st.ToString() + " -> " + StackItem.OriginChain(st));
-                            /* TODO
-                            var et = buildExprTree();
-                            if (et.head == ldfld <fields>)
-                            {
-                                AnalyseSource(log, md, insa[ii], ii, et.head);
-                            }*/
+                            AnalyseSource(log, md, ii, st, cur);
 
                             break;
                         }
@@ -617,7 +668,7 @@ namespace Prism.Injector.Patcher
 
             // wrapping will be done AFTER the method analysis, to keep naming simple
 
-            foreach (var td in context.PrimaryAssembly.ManifestModule.Types)
+            foreach (var td in context.PrimaryAssembly.ManifestModule.Types.ToArray() /* clone to avoid exns */)
                 foreach (var md in td.Methods)
                 {
                     if (!md.HasBody || md.Name.Equals(playSoundNames[0])) // don't do stupid stuff
@@ -642,9 +693,9 @@ namespace Prism.Injector.Patcher
                     DO_ANALYSIS:*/
 
                         var snd = s.Take(imd.MethodSig.Params.Count).LastOrDefault();
-                        AnalyseSource(log, md, ind, snd);
+                        AnalyseSource(log, md, ind, snd, i);
 
-                        return ind;
+                        return -1;
                     });
                 }
 

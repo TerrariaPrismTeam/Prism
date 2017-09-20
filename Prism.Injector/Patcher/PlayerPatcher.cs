@@ -180,10 +180,9 @@ namespace Prism.Injector.Patcher
                     foreach (var i in toInject)
                         lpproc.InsertBefore(first, i);
 
+                    lpb.UpdateInstructionOffsets();
                     // rewire the if before it to end at the injected instructions instead of the code we looked for
-                    foreach (var i in lpb.Instructions)
-                        if (i.Operand == first)
-                            i.Operand = toInject[0];
+                    lpb.RewireBranches(first, toInject[0]);
 
                     // not rewiring the if will lead to invalid IL, because the target instruction won't exist (because we're removing it here)
                     lpproc.RemoveInstructions(first, toFind.Length); // remove the limitation while we're at it
