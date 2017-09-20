@@ -195,10 +195,12 @@ namespace Prism.Injector.Patcher
             log("Optimising MSIL...");
             OptimizeAll(log);
 
-            log("Done!");
+            log("Writing file...");
 
             // Newtonsoft.Json.dll, Steamworks.NET.dll and Ionic.Zip.CF.dll are required to write the assembly (and FNA and WindowsBase on mono, too)
             TerrariaPatcher.context.PrimaryAssembly.Write(outputPath);
+
+            log("Done!");
 
             memRes = null;
             TerrariaPatcher.context = null;

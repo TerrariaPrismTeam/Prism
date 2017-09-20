@@ -483,13 +483,13 @@ namespace Prism.Injector.Patcher
 
             stack.Add(new StackItem { Type = ty, Instr = ins, Origin = popv });
         }
-        public static StackItem RecreateStack(MethodDef md, Instruction ins)
+        public static StackItem RecreateStack(this MethodDef md, Instruction ins, bool sub1 = true)
         {
             var body = md.Body;
 
             var stack = new List<StackItem>(body.MaxStack);
 
-            int ind = body.Instructions.IndexOf(ins) - 1;
+            int ind = body.Instructions.IndexOf(ins) - (sub1 ? 1 : 0);
             RecreateStack(md, stack, ref ind);
 
             return stack[0]; // it should boil down to a single expr

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.API.Audio;
 using Prism.Debugging;
@@ -76,39 +77,45 @@ namespace Prism
                 graphics.GraphicsProfile = GraphicsProfile.HiDef;
         }
 
-        static void PlayUseSound(Item i, Player p)
+        static SoundEffectInstance PlayUseSound(Item i, Vector2 pos)
         {
             if (i.P_UseSound as SfxRef != null)
             {
                 var r = (SfxRef)i.P_UseSound;
 
-                Sfx.Play(r.Resolve(), p.position, r.VariantID);
+                return Sfx.Play(r.Resolve(), pos, r.VariantID);
             }
-            /*else if (i.useSound > 0)
-                Sfx.Play(VanillaSfxes.UseItem, p.position, i.useSound);*/
+            else if (i.UseSound != null)
+                return Sfx.Play(VanillaSfxes.UseItem, pos, i.UseSound.Style);
+
+            return null;
         }
 
-        static void PlayHitSound   (NPC n)
+        static SoundEffectInstance PlayHitSound   (NPC n, Vector2 p)
         {
             if (n.P_SoundOnHit as SfxRef != null)
             {
                 var r = (SfxRef)n.P_SoundOnHit;
 
-                Sfx.Play(r.Resolve(), n.position, r.VariantID);
+                return Sfx.Play(r.Resolve(), p, r.VariantID);
             }
-            /*else if (n.soundHit > 0)
-                Sfx.Play(VanillaSfxes.NpcHit, n.position, n.soundHit);*/
+            else if (n.HitSound != null)
+                return Sfx.Play(VanillaSfxes.NpcHit, p, n.HitSound.Style);
+
+            return null;
         }
-        static void PlayKilledSound(NPC n)
+        static SoundEffectInstance PlayKilledSound(NPC n, Vector2 p)
         {
             if (n.P_SoundOnDeath as SfxRef != null)
             {
                 var r = (SfxRef)n.P_SoundOnDeath;
 
-                Sfx.Play(r.Resolve(), n.position, r.VariantID);
+                return Sfx.Play(r.Resolve(), p, r.VariantID);
             }
-            /*else if (n.soundKilled > 0)
-                Sfx.Play(VanillaSfxes.NpcKilled, n.position, n.soundKilled);*/
+            else if (n.DeathSound != null)
+                return Sfx.Play(VanillaSfxes.NpcKilled, p, n.DeathSound.Style);
+
+            return null;
         }
 
         static void OnUpdateKeyboard(Main _, GameTime __)
@@ -156,7 +163,7 @@ namespace Prism
           //P_OnP_LocalChat += OnLocalChat;
 
 #pragma warning disable 618
-          //P_OnPlaySound += (t, x, y, s) => Sfx.Play(t, new Vector2(x, y), s);
+            P_OnPlaySound_Int32_Int32_Int32_Int32_Single_Single += (t, x, y, s, v, p) => Sfx.Play(t, x, y, s, v, p);
 #pragma warning restore 618
 
             Item      .P_OnSetDefaultsById   += ItemDefHandler.OnSetDefaults      ;
@@ -177,10 +184,10 @@ namespace Prism
 
             P_OnDrawNPC += NpcHooks.OnDrawNPC;
 
-          //NPC.P_ReflectProjectile_PlaySoundHit += (n, _) => PlayHitSound(n);
-          //NPC.P_StrikeNPC_PlaySoundHit         += (n, _d, _kb, _hd, _c, _ne, _fn) => PlayHitSound(n);
-          //NPC.P_checkDead_PlaySoundKilled      += PlayKilledSound;
-          //NPC.P_RealAI_PlaySoundKilled         += PlayKilledSound;
+            NPC.P_Snd_ReflectProjectile0_Hook += PlayHitSound   ;
+            NPC.P_Snd_StrikeNPC0_Hook         += PlayHitSound   ;
+            NPC.P_Snd_checkDead0_Hook         += PlayKilledSound;
+            NPC.P_Snd_RealAI0_Hook            += PlayKilledSound;
 
             NPC.P_OnAddBuff     += NpcHooks.OnAddBuff    ;
             NPC.P_OnBuffEffects += NpcHooks.OnBuffEffects;
@@ -198,15 +205,15 @@ namespace Prism
 
             P_OnDrawPlayer += PlayerHooks.OnDrawPlayer;
 
-          //Player.P_ItemCheck_PlayUseSound0     += PlayUseSound;
-          //Player.P_ItemCheck_PlayUseSound1     += PlayUseSound;
-          //Player.P_QuickBuff_PlayUseSound      += PlayUseSound;
-          //Player.P_QuickGrapple_PlayUseSound   += PlayUseSound;
-          //Player.P_QuickHeal_PlayUseSound      += PlayUseSound;
-          //Player.P_QuickMana_PlayUseSound      += PlayUseSound;
-          //Player.P_QuickMount_PlayUseSound     += PlayUseSound;
-          //Player.P_UpdatePet_PlayUseSound      += PlayUseSound;
-          //Player.P_UpdatePetLight_PlayUseSound += PlayUseSound;
+            Player.P_Snd_QuickBuff0_Hook      += PlayUseSound;
+            Player.P_Snd_QuickGrapple0_Hook   += PlayUseSound;
+            Player.P_Snd_QuickHeal0_Hook      += PlayUseSound;
+            Player.P_Snd_QuickMana0_Hook      += PlayUseSound;
+            Player.P_Snd_QuickMount0_Hook     += PlayUseSound;
+            Player.P_Snd_RealItemCheck0_Hook  += PlayUseSound;
+            Player.P_Snd_RealItemCheck1_Hook  += PlayUseSound;
+            Player.P_Snd_UpdatePet0_Hook      += PlayUseSound;
+            Player.P_Snd_UpdatePetLight0_Hook += PlayUseSound;
 
             Projectile.P_OnAI            += ProjHooks.OnAI           ;
             Projectile.P_OnKill          += ProjHooks.OnKill         ;

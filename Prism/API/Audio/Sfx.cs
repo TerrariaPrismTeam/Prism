@@ -119,7 +119,7 @@ namespace Prism.API.Audio
             {
                 inst = kvp.Value;
 
-                if (inst == null || inst.IsDisposed || inst.State != SoundState.Stopped)
+                if (inst == null || inst.IsDisposed || inst.State == SoundState.Stopped)
                 {
                     if (inst != null && !inst.IsDisposed)
                         inst.Dispose();
@@ -219,7 +219,7 @@ namespace Prism.API.Audio
             ApplyParams(inst, t);
 
             inst.Play(); // !
-            //Main.ActiveSoundInstances.Add(inst);
+            Main.ActiveSoundInstances.Add(inst);
 
             //CleanupLingeringInstances();
 
@@ -268,10 +268,13 @@ namespace Prism.API.Audio
         }
 
         [Obsolete(OBS_REASON)]
-        public static SoundEffectInstance Play(int type, Vector2 position, int style = -1)
+        public static SoundEffectInstance Play(int type, Vector2 position, int style = -1, float vol_ = 1, float pitch_ = 0)
         {
             return Play(ById(type), position, style, (SfxEntry e, Vector2 p, ref int v, ref float vol, ref float pitch, ref float pan) =>
             {
+                vol   *= vol_  ;
+                pitch += pitch_;
+
                 switch (type)
                 {
                     case 0: // DigBlock
@@ -430,14 +433,14 @@ namespace Prism.API.Audio
             });
         }
         [Obsolete(OBS_REASON)]
-        public static SoundEffectInstance Play(int type, Point tilePos, int style = -1)
+        public static SoundEffectInstance Play(int type, Point tilePos, int style = -1, float vol = 1, float pitch = 0)
         {
-            return Play(type, tilePos.ToVector2() * 16f, style);
+            return Play(type, tilePos.ToVector2() * 16f, style, vol, pitch);
         }
         [Obsolete(OBS_REASON)]
-        public static SoundEffectInstance Play(int type, int x = -1, int y = -1, int style = -1)
+        public static SoundEffectInstance Play(int type, int x = -1, int y = -1, int style = -1, float vol = 1, float pitch = 0)
         {
-            return Play(type, new Vector2(x, y), style);
+            return Play(type, new Vector2(x, y), style, vol, pitch);
         }
     }
 }

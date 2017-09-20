@@ -10,7 +10,7 @@ namespace Prism.Injector.Patcher
     {
         readonly static UTF8String[] playSoundNames =
         {
-            (UTF8String)"PlaySound"//, (UTF8String)"PlaySoundInstance", (UTF8String)"PlayTrackedSound"
+            "PlaySound"//, "PlaySoundInstance", "PlayTrackedSound"
         };
 
         static DNContext context;
@@ -308,10 +308,11 @@ namespace Prism.Injector.Patcher
                 mainUpdate.Body.OptimizeBranches();
             }
         }
-        static void FixOnEngineLoadField()
+        static void FixHookBackingFields()
         {
             // wtf?
             typeDef_Main.GetField("OnEngineLoad").Name = "_onEngineLoad_backingField";
+            typeDef_Main.GetField("OnPreDraw").Name = "_onPreDraw_backingField";
         }
         static void RemoveArmourDrawLimitations()
         {
@@ -484,6 +485,7 @@ namespace Prism.Injector.Patcher
             }
         }
 
+        static int nmtd = 0;
         static void InjectMeBeautiful(Action<string> log, MethodDef md,
                 Instruction playSoundCall, StackItem orig)
         {
@@ -496,12 +498,10 @@ namespace Prism.Injector.Patcher
              * this will be transformed into the following, after adding
              * a local for the entity:
              *     ...
-             *     dup
-             *     stloc loce
-             *     // if another stloc follows here, we don't really have to care,
-             *     // as it simply passes around a pointer :)
+             *     // just remove the ldfld
              *     ...
              *     ldsfld THook Terraria.TEntity::OurHook
+             *     ... // load args
              *     call TRet THook::Invoke(TEntity, TArgs...)
              */
 
@@ -509,41 +509,53 @@ namespace Prism.Injector.Patcher
             var fi = (IField)orig.Instr/* ldfld */.Operand;
             var te = fi.DeclaringType;
 
+            var playSound = (IMethodDefOrRef)playSoundCall.Operand;
+
             var lss = memRes.GetType("Terraria.Audio.LegacySoundStyle");
             var loce = new Local(te.ToTypeSig());
             body.Variables.Add(loce);
 
-            string baseName = "P_" + md.DeclaringType.Name.ToString() +
-                "_OnPlaySound_" + WrapperHelperExtensions.GetOverloadedName(md);
+            string baseName = "_Snd_" + WrapperHelperExtensions.GetOverloadedName(md) + nmtd;
 
             MethodDef invokeHook;
-            var delt = context.CreateDelegate("Terraria.PrismInjections", baseName + "_Del", md.ReturnType, out invokeHook,
-                    new[] { lss.ToTypeSig() }.Concat(md.MethodSig.Params.Skip(1)).ToArray());
+            var delt = context.CreateDelegate("Terraria.PrismInjections", md.DeclaringType.Name + baseName + "_Del", playSound.MethodSig.RetType, out invokeHook,
+                    new[] { te.ToTypeSig() }.Concat(playSound.MethodSig.Params.Skip(1)).ToArray());
 
-            var hFi = new FieldDefUser(baseName + "_Hook", new FieldSig(delt.ToTypeSig()), FieldAttributes.Public | FieldAttributes.Static);
+            var hFi = new FieldDefUser("P" + baseName + "_Hook", new FieldSig(delt.ToTypeSig()), FieldAttributes.Public | FieldAttributes.Static);
             md.DeclaringType.Fields.Add(hFi);
+
+            //log(hFi.FullName);
 
             using (var ilp = body.GetILProcessor())
             {
-                // inject the instructions when the entity is on the stack
-                Instruction theDup;
-                ilp.InsertBefore(orig.Instr, theDup = Instruction.Create(OpCodes.Dup));
-                ilp.InsertBefore(orig.Instr, Instruction.Create(OpCodes.Stloc, loce));
+                StackItem beginOfArgs = md.RecreateStack(playSoundCall, false);
+                while (beginOfArgs.Origin != null && beginOfArgs.Origin.Length > 0)
+                    beginOfArgs = beginOfArgs.Origin[0];
+                //log("b = " + beginOfArgs.Instr + " of " + md.FullName);
 
-                body.UpdateInstructionOffsets();
-                body.RewireBranches(orig.Instr, theDup);
-                ilp.Remove(orig.Instr);
+                Instruction newtar;
 
                 // inject the instructions when calling PlaySound
-                ilp.InsertBefore(playSoundCall, theDup = Instruction.Create(OpCodes.Ldsfld, hFi));
+                ilp.InsertBefore(beginOfArgs.Instr, newtar = Instruction.Create(OpCodes.Ldsfld, hFi));
                 ilp.InsertBefore(playSoundCall, Instruction.Create(OpCodes.Callvirt, invokeHook));
 
                 body.UpdateInstructionOffsets();
-                body.RewireBranches(playSoundCall, theDup /* not a dup anymore, I know */);
+                body.RewireBranches(beginOfArgs.Instr, newtar);
+
+                // remove ldfld
+                body.RewireBranches(orig.Instr, newtar = orig.Instr.Next(ilp));
+                ilp.Remove(orig.Instr);
+
                 ilp.Remove(playSoundCall);
 
                 // *whew*
             }
+
+            /*if (md.Name == "QuickBuff")
+            {
+                foreach (var i in md.Body.Instructions)
+                    log(i.ToString());
+            }*/
         }
         static void AnalyseSource(Action<string> log, MethodDef md, int ind,
             StackItem snd, Instruction cur)
@@ -572,20 +584,12 @@ namespace Prism.Injector.Patcher
                             npcHit   = memRes.GetType("Terraria.NPC" ).GetField(  "HitSound"),
                             npcDeath = memRes.GetType("Terraria.NPC" ).GetField("DeathSound");
 
-                        if (context.SigComparer.Equals(fi, itemUse))
+                        if (       context.SigComparer.Equals(fi, itemUse )
+                                || context.SigComparer.Equals(fi, npcHit  )
+                                || context.SigComparer.Equals(fi, npcDeath))
                         {
-                            //log("Item UseSound " + snd + " at " + md.FullName);
                             InjectMeBeautiful(log, md, cur, snd);
-                        }
-                        else if (context.SigComparer.Equals(fi, npcHit))
-                        {
-                            //log("NPC HitSound " + snd + " at " + md.FullName);
-                            InjectMeBeautiful(log, md, cur, snd);
-                        }
-                        else if (context.SigComparer.Equals(fi, npcDeath))
-                        {
-                            //log("NPC DeathSound " + snd + " at " + md.FullName);
-                            InjectMeBeautiful(log, md, cur, snd);
+                            ++nmtd;
                         }
                         else log("Unexpected field '" + fi + "' used as arg to PlaySound");
                     }
@@ -676,6 +680,8 @@ namespace Prism.Injector.Patcher
 
                     var body = md.Body;
 
+                    nmtd ^= nmtd;
+
                     md.EnumerateWithStackAnalysis((ind, i, s) =>
                     {
                         // all PlaySound methods are nonvirtual
@@ -695,7 +701,7 @@ namespace Prism.Injector.Patcher
                         var snd = s.Take(imd.MethodSig.Params.Count).LastOrDefault();
                         AnalyseSource(log, md, ind, snd, i);
 
-                        return -1;
+                        return ind;
                     });
                 }
 
@@ -712,11 +718,9 @@ namespace Prism.Injector.Patcher
             typeSys      = context.PrimaryAssembly.ManifestModule.CorLibTypes;
             typeDef_Main = memRes.GetType("Terraria.Main");
 
-            typeDef_Main.GetField("OnPreDraw").Name = new UTF8String("_onPreDraw_backingField");
-
             WrapMethods();
             RemoveVanillaNpcDrawLimitation();
-            FixOnEngineLoadField();
+            FixHookBackingFields();
             RemoveArmourDrawLimitations();
             //AddOnUpdateKeyboardHook(log); // FIXME
             AddPostScreenClearHook();

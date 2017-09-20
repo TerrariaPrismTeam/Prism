@@ -16,6 +16,8 @@ namespace Prism.Mods.DefHandlers
 {
     sealed partial class ItemDefHandler : EEntityDefHandler<ItemDef, ItemBehaviour, Item>
     {
+        readonly static LegacySoundStyle defLss = new LegacySoundStyle(SoundID.Item, -1);
+
         internal static int UnknownItemID = 0;
 
         protected override Type IDContainerType
@@ -384,7 +386,7 @@ namespace Prism.Mods.DefHandlers
             item.useAmmo      = def.UsedAmmo        == null ?  0 : def.UsedAmmo       .Resolve().Type ;
 
             item.P_UseSound = def.UseSound;
-            item.UseSound   = def.UseSound == null ? null : new LegacySoundStyle(SoundID.Item, def.UseSound.VariantID);
+            item.UseSound   = def.UseSound == null ? defLss : new LegacySoundStyle(SoundID.Item, def.UseSound.VariantID);
 
             if (def.ArmourData != null)
             {
