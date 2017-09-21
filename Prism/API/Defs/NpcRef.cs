@@ -40,7 +40,7 @@ namespace Prism.API.Defs
 
         }
         public NpcRef(string resourceName, string modName = null)
-            : base(new ObjectRef(resourceName, modName), Assembly.GetCallingAssembly())
+            : base(new ObjectRef(resourceName, modName, Assembly.GetCallingAssembly()), Assembly.GetCallingAssembly())
         {
 
         }
@@ -58,26 +58,29 @@ namespace Prism.API.Defs
 
         public override NpcDef Resolve()
         {
-            if (ResourceID.HasValue && Handler.NpcDef.DefsByType.ContainsKey(ResourceID.Value))
-                return Handler.NpcDef.DefsByType[ResourceID.Value];
+            NpcDef r;
 
-            if (String.IsNullOrEmpty(ModName) && Requesting != null && Requesting.NpcDefs.ContainsKey(ResourceName))
-                return Requesting.NpcDefs[ResourceName];
+            if (ResourceID.HasValue && Handler.NpcDef.DefsByType.TryGetValue(ResourceID.Value, out r))
+                return r;
+
+            if (String.IsNullOrEmpty(ModName) && Requesting != null && Requesting.NpcDefs.TryGetValue(ResourceName, out r))
+                return r;
 
             if (IsVanillaRef)
             {
-                if (!Handler.NpcDef.VanillaDefsByName.ContainsKey(ResourceName))
+                if (!Handler.NpcDef.VanillaDefsByName.TryGetValue(ResourceName, out r))
                     throw new InvalidOperationException("Vanilla NPC reference '" + ResourceName + "' is not found.");
 
-                return Handler.NpcDef.VanillaDefsByName[ResourceName];
+                return r;
             }
 
-            if (!ModData.ModsFromInternalName.ContainsKey(ModName))
+            ModDef m;
+            if (!ModData.ModsFromInternalName.TryGetValue(ModName, out m))
                 throw new InvalidOperationException("NPC reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the mod is not loaded.");
-            if (!ModData.ModsFromInternalName[ModName].NpcDefs.ContainsKey(ResourceName))
+            if (!m.NpcDefs.TryGetValue(ResourceName, out r))
                 throw new InvalidOperationException("NPC reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the NPC is not loaded.");
 
-            return ModData.ModsFromInternalName[ModName].NpcDefs[ResourceName];
+            return r;
         }
     }
 }

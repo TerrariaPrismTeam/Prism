@@ -48,7 +48,7 @@ namespace Prism.API.Defs
 
         }
         public WallRef(string resourceName, string modName = null)
-            : base(new ObjectRef(resourceName, modName), Assembly.GetCallingAssembly())
+            : base(new ObjectRef(resourceName, modName, Assembly.GetCallingAssembly()), Assembly.GetCallingAssembly())
         {
 
         }
@@ -66,26 +66,29 @@ namespace Prism.API.Defs
 
         public override WallDef Resolve()
         {
-            if (ResourceID.HasValue && Handler.WallDef.DefsByType.ContainsKey(ResourceID.Value))
-                return Handler.WallDef.DefsByType[ResourceID.Value];
+            WallDef r;
 
-            if (String.IsNullOrEmpty(ModName) && Requesting != null && Requesting.WallDefs.ContainsKey(ResourceName))
-                return Requesting.WallDefs[ResourceName];
+            if (ResourceID.HasValue && Handler.WallDef.DefsByType.TryGetValue(ResourceID.Value, out r))
+                return r;
+
+            if (String.IsNullOrEmpty(ModName) && Requesting != null && Requesting.WallDefs.TryGetValue(ResourceName, out r))
+                return r;
 
             if (IsVanillaRef)
             {
-                if (!Handler.WallDef.VanillaDefsByName.ContainsKey(ResourceName))
+                if (!Handler.WallDef.VanillaDefsByName.TryGetValue(ResourceName, out r))
                     throw new InvalidOperationException("Vanilla wall reference '" + ResourceName + "' is not found.");
 
-                return Handler.WallDef.VanillaDefsByName[ResourceName];
+                return r;
             }
 
-            if (!ModData.ModsFromInternalName.ContainsKey(ModName))
+            ModDef m;
+            if (!ModData.ModsFromInternalName.TryGetValue(ModName, out m))
                 throw new InvalidOperationException("Wall reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the mod is not loaded.");
-            if (!ModData.ModsFromInternalName[ModName].WallDefs.ContainsKey(ResourceName))
+            if (!m.WallDefs.TryGetValue(ResourceName, out r))
                 throw new InvalidOperationException("Wall reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the wall is not loaded.");
 
-            return ModData.ModsFromInternalName[ModName].WallDefs[ResourceName];
+            return r;
         }
     }
 }

@@ -41,7 +41,7 @@ namespace Prism.API.Defs
 
         }
         public TileRef(string resourceName, string modName = null)
-            : base(new ObjectRef(resourceName, modName), Assembly.GetCallingAssembly())
+            : base(new ObjectRef(resourceName, modName, Assembly.GetCallingAssembly()), Assembly.GetCallingAssembly())
         {
 
         }
@@ -59,26 +59,29 @@ namespace Prism.API.Defs
 
         public override TileDef Resolve()
         {
-            if (ResourceID.HasValue && Handler.TileDef.DefsByType.ContainsKey(ResourceID.Value))
-                return Handler.TileDef.DefsByType[ResourceID.Value];
+            TileDef r;
 
-            if (String.IsNullOrEmpty(ModName) && Requesting != null && Requesting.TileDefs.ContainsKey(ResourceName))
-                return Requesting.TileDefs[ResourceName];
+            if (ResourceID.HasValue && Handler.TileDef.DefsByType.TryGetValue(ResourceID.Value, out r))
+                return r;
+
+            if (String.IsNullOrEmpty(ModName) && Requesting != null && Requesting.TileDefs.TryGetValue(ResourceName, out r))
+                return r;
 
             if (IsVanillaRef)
             {
-                if (!Handler.TileDef.VanillaDefsByName.ContainsKey(ResourceName))
+                if (!Handler.TileDef.VanillaDefsByName.TryGetValue(ResourceName, out r))
                     throw new InvalidOperationException("Vanilla tile reference '" + ResourceName + "' is not found.");
 
-                return Handler.TileDef.VanillaDefsByName[ResourceName];
+                return r;
             }
 
-            if (!ModData.ModsFromInternalName.ContainsKey(ModName))
+            ModDef m;
+            if (!ModData.ModsFromInternalName.TryGetValue(ModName, out m))
                 throw new InvalidOperationException("Tile reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the mod is not loaded.");
-            if (!ModData.ModsFromInternalName[ModName].TileDefs.ContainsKey(ResourceName))
+            if (!m.TileDefs.TryGetValue(ResourceName, out r))
                 throw new InvalidOperationException("Tile reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the tile is not loaded.");
 
-            return ModData.ModsFromInternalName[ModName].TileDefs[ResourceName];
+            return r;
         }
 
         public static implicit operator Either<TileRef, CraftGroup<TileDef, TileRef>>(TileRef r)

@@ -154,7 +154,7 @@ namespace Prism.Mods.DefHandlers
             for (int i = 0; i < Recipe.numRecipes; i++)
             {
                 var r = Main.recipe[i];
-                
+
                 recipes.Add(new RecipeDef(
                     new ItemRef(r.createItem.netID),
                     r.createItem.stack,

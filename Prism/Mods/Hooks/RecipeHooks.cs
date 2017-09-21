@@ -19,7 +19,7 @@ namespace Prism.Mods.Hooks
     {
         static Func<ItemRef, bool> RefEq(int netID)
         {
-            return r => r.Resolve().NetID == netID;
+            return r => r.ResourceID.HasValue ? netID == r.ResourceID.Value : r.Resolve().NetID == netID;
         }
         static KeyValuePair<ItemUnion, int>? UsesItem(Recipe r, int netID)
         {
@@ -64,6 +64,14 @@ namespace Prism.Mods.Hooks
                 }
         }
 
+        static void Merge(Dictionary<int, int> dict, Item item)
+        {
+            int stack;
+            if (dict.TryGetValue(item.netID, out stack))
+                dict[item.netID] = stack + item.stack;
+            else
+                dict.Add(item.netID, item.stack);
+        }
         static Dictionary<int, int> MergeInventory()
         {
             var dict = new Dictionary<int, int>();
@@ -77,18 +85,17 @@ namespace Prism.Mods.Hooks
                 item = inv[k];
 
                 if (!item.IsEmpty())
-                    if (dict.ContainsKey(item.netID))
-                        dict[item.netID] += item.stack;
-                    else
-                        dict.Add(item.netID, item.stack);
+                    Merge(dict, item);
             }
 
-            if (mp.chest != -1 && mp.chest > -4)
+            if (mp.chest != -1 && mp.chest > -5)
             {
                 if (mp.chest == -2)
                     inv = mp.bank.item;
                 else if (mp.chest == -3)
                     inv = mp.bank2.item;
+                else if (mp.chest == -4)
+                    inv = mp.bank3.item;
                 else
                     inv = Main.chest[mp.chest].item;
 
@@ -97,10 +104,7 @@ namespace Prism.Mods.Hooks
                     item = inv[l];
 
                     if (!item.IsEmpty())
-                        if (dict.ContainsKey(item.netID))
-                            dict[item.netID] += item.stack;
-                        else
-                            dict.Add(item.netID, item.stack);
+                        Merge(dict, item);
                 }
             }
 
@@ -223,7 +227,7 @@ namespace Prism.Mods.Hooks
                     break;
                 }
 
-            Main.focusRecipe = Math.Min(Math.Max(0, Main.focusRecipe), Main.numAvailableRecipes - 1);
+            Main.focusRecipe = Math.Max(0, Math.Min(Main.focusRecipe, Main.numAvailableRecipes - 1));
 
             float yDiff = Main.availableRecipeY[Main.focusRecipe] - scrollUiYPos;
             for (int i = 0; i < Recipe.maxRecipes; i++)
@@ -278,12 +282,14 @@ namespace Prism.Mods.Hooks
                 }
             }
 
-            if (mp.chest != -1)
+            if (mp.chest != -1 && mp.chest > -5)
             {
                 if (mp.chest == -2)
                     inv = mp.bank.item;
                 else if (mp.chest == -3)
                     inv = mp.bank2.item;
+                else if (mp.chest == -4)
+                    inv = mp.bank3.item;
                 else
                     inv = Main.chest[mp.chest].item;
 
@@ -365,12 +371,14 @@ namespace Prism.Mods.Hooks
                             invItem.stack = 0;
                         }
                 }
-                if (mp.chest != -1)
+                if (mp.chest != -1 && mp.chest > -5)
                 {
                     if (mp.chest == -2)
                         inv = mp.bank.item;
                     else if (mp.chest == -3)
                         inv = mp.bank2.item;
+                    else if (mp.chest == -4)
+                        inv = mp.bank3.item;
                     else
                         inv = Main.chest[mp.chest].item;
 

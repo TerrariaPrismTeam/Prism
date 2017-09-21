@@ -90,8 +90,13 @@ namespace Prism.Debugging
               .Append('[').Append(severity).Append(']')
               .Append(' ').Append(text);
 
-            sw.WriteLine(sb.ToString());
+            string s = sb.ToString();
+            sw.WriteLine(s);
             sw.Flush();
+#if DEV_BUILD || DEBUG
+            Console.Error.WriteLine(s);
+            Console.Error.Flush();
+#endif
         }
 
         internal static void LogInfo(string message)
@@ -136,3 +141,4 @@ namespace Prism.Debugging
         }
     }
 }
+

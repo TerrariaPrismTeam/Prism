@@ -39,7 +39,7 @@ namespace Prism.API.Defs
 
         }
         public MountRef(string resourceName, string modName = null)
-            : base(new ObjectRef(resourceName, modName), Assembly.GetCallingAssembly())
+            : base(new ObjectRef(resourceName, modName, Assembly.GetCallingAssembly()), Assembly.GetCallingAssembly())
         {
 
         }
@@ -57,26 +57,29 @@ namespace Prism.API.Defs
 
         public override MountDef Resolve()
         {
-            if (ResourceID.HasValue && Handler.MountDef.DefsByType.ContainsKey(ResourceID.Value))
-                return Handler.MountDef.DefsByType[ResourceID.Value];
+            MountDef r;
 
-            if (String.IsNullOrEmpty(ModName) && Requesting != null && Requesting.MountDefs.ContainsKey(ResourceName))
-                return Requesting.MountDefs[ResourceName];
+            if (ResourceID.HasValue && Handler.MountDef.DefsByType.TryGetValue(ResourceID.Value, out r))
+                return r;
+
+            if (String.IsNullOrEmpty(ModName) && Requesting != null && Requesting.MountDefs.TryGetValue(ResourceName, out r))
+                return r;
 
             if (IsVanillaRef)
             {
-                if (!Handler.MountDef.VanillaDefsByName.ContainsKey(ResourceName))
+                if (!Handler.MountDef.VanillaDefsByName.TryGetValue(ResourceName, out r))
                     throw new InvalidOperationException("Vanilla mount reference '" + ResourceName + "' is not found.");
 
-                return Handler.MountDef.VanillaDefsByName[ResourceName];
+                return r;
             }
 
-            if (!ModData.ModsFromInternalName.ContainsKey(ModName))
+            ModDef m;
+            if (!ModData.ModsFromInternalName.TryGetValue(ModName, out m))
                 throw new InvalidOperationException("Mount reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the mod is not loaded.");
-            if (!ModData.ModsFromInternalName[ModName].MountDefs.ContainsKey(ResourceName))
+            if (!m.MountDefs.TryGetValue(ResourceName, out r))
                 throw new InvalidOperationException("Mount reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the mount is not loaded.");
 
-            return ModData.ModsFromInternalName[ModName].MountDefs[ResourceName];
+            return r;
         }
     }
 }

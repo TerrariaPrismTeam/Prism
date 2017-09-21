@@ -212,6 +212,11 @@ namespace Prism.Mods
                 var p = path + Path.DirectorySeparatorChar + info.AssemblyFileName;
                 var rasm = Assembly.ReflectionOnlyLoadFrom(p);
                 var refs = rasm.GetReferencedAssemblies();
+
+                /*Logging.LogInfo("prism='" + curn.Name + "', #refs=" + refs.Length);
+                foreach (var r in refs)
+                    Logging.LogInfo(r.Name);*/
+
                 var refn = refs.FirstOrDefault(an => an.Name == curn.Name);
                 var reft = refs.FirstOrDefault(an => an.Name == terAsm.GetName().Name);
 
@@ -221,6 +226,7 @@ namespace Prism.Mods
                 {
                     errors.Add(new LoaderError(info, "Mod does not reference Prism."));
                     loadAssembly = false;
+                    return null;
                 }
 
                 var refVer = refn.Version;
@@ -228,7 +234,7 @@ namespace Prism.Mods
                 var curVer = curn.Version;
               //var curVers = curVer.ToString();
                 var terVer = reft == null ? null : reft.Version;
-                
+
                 if (terVer != null && terVer != terAsm.GetName().Version) // null -> version-agnostic (e.g. only using prism internals)
                 {
                     errors.Add(new LoaderError(info, "Mod was built for a different version of Terraria."));
@@ -322,14 +328,17 @@ namespace Prism.Mods
                         {
                             errors.Add(new LoaderError(d.Info, "An exception occured in ModDef.OnLoad()", e));
 
-                            // Temporary until we have a proper way to see loader errors
-                            if (ExceptionHandler.DetailedExceptions)
-                                MessageBox.ShowError("An exception has occured:\n" + e);
+                            //// Temporary until we have a proper way to see loader errors
+                            //if (ExceptionHandler.DetailedExceptions)
+                            //    MessageBox.ShowError("An exception has occured:\n" + e);
                         }
                     }
                 }
                 else
-                    errors.Add(new LoaderError(s, String.Format("New entry was not added to ModData.mods while loading mod from path '{0}', see previous errors. Mods loaded" /* once again, : added automatically */, s), ModData.mods));
+                {
+                    errors.Add(new LoaderError(s, String.Format("New entry was not added to ModData.mods while loading mod from path '{0}', see previous errors.", s)));
+                    errors.Add(new LoaderError(s, "Mods loaded", ModData.mods));
+                }
             }
 
             HookManager.Create();
@@ -345,7 +354,14 @@ namespace Prism.Mods
             HookManager.ModDef.OnAllModsLoaded();
 
             for (int i = 0; i < errors.Count; i++)
-                Logging.LogWarning(errors[i].ToString());
+            {
+                var s = errors[i].ToString();
+                Logging.LogWarning(s);
+
+#if DEV_BUILD
+                Trace.WriteLine(s);
+#endif
+            }
 
             if (errors.Count > 0)
             {
@@ -373,14 +389,14 @@ namespace Prism.Mods
 
             HookManager.Clear();
 
-            EntityDefLoader.ResetEntityHandlers();
-            ResourceLoader .Unload();
-            ContentLoader  .Reset ();
-
             foreach (var v in ModData.mods.Values)
                 v.Unload();
 
             ModData.mods.Clear();
+
+            EntityDefLoader.ResetEntityHandlers();
+            ResourceLoader .Unload();
+            ContentLoader  .Reset ();
 
             errors.Clear();
 

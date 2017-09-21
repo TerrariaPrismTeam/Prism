@@ -155,7 +155,7 @@ namespace Prism.Mods
             return "An error occured when trying to load mod '"
                 + (Mod.HasValue ? Mod.Value.InternalName : Path.GetFileName(ModPath)) + "'"
                 + (Message == null ? String.Empty : ": " + Message)
-                + (Data    == null ? String.Empty : ": " + PrettyPrintObject(Data)) + ".";
+                + (Data    == null ? String.Empty : ": " + PrettyPrintObject(Data));
         }
     }
 }

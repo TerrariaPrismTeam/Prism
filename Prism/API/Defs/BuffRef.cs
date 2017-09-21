@@ -41,7 +41,7 @@ namespace Prism.API.Defs
 
         }
         public BuffRef(string resourceName, string modName = null)
-            : base(new ObjectRef(resourceName, modName), Assembly.GetCallingAssembly())
+            : base(new ObjectRef(resourceName, modName, Assembly.GetCallingAssembly()), Assembly.GetCallingAssembly())
         {
 
         }
@@ -59,26 +59,29 @@ namespace Prism.API.Defs
 
         public override BuffDef Resolve()
         {
-            if (ResourceID.HasValue && Handler.BuffDef.DefsByType.ContainsKey(ResourceID.Value))
-                return Handler.BuffDef.DefsByType[ResourceID.Value];
+            BuffDef r;
 
-            if (String.IsNullOrEmpty(ModName) && Requesting != null && Requesting.BuffDefs.ContainsKey(ResourceName))
-                return Requesting.BuffDefs[ResourceName];
+            if (ResourceID.HasValue && Handler.BuffDef.DefsByType.TryGetValue(ResourceID.Value, out r))
+                return r;
+
+            if (String.IsNullOrEmpty(ModName) && Requesting != null && Requesting.BuffDefs.TryGetValue(ResourceName, out r))
+                return r;
 
             if (IsVanillaRef)
             {
-                if (!Handler.BuffDef.VanillaDefsByName.ContainsKey(ResourceName))
+                if (!Handler.BuffDef.VanillaDefsByName.TryGetValue(ResourceName, out r))
                     throw new InvalidOperationException("Vanilla buff reference '" + ResourceName + "' is not found.");
 
-                return Handler.BuffDef.VanillaDefsByName[ResourceName];
+                return r;
             }
 
-            if (!ModData.ModsFromInternalName.ContainsKey(ModName))
+            ModDef m;
+            if (!ModData.ModsFromInternalName.TryGetValue(ModName, out m))
                 throw new InvalidOperationException("Buff reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the mod is not loaded.");
-            if (!ModData.ModsFromInternalName[ModName].BuffDefs.ContainsKey(ResourceName))
+            if (!m.BuffDefs.TryGetValue(ResourceName, out r))
                 throw new InvalidOperationException("Buff reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the buff is not loaded.");
 
-            return ModData.ModsFromInternalName[ModName].BuffDefs[ResourceName];
+            return r;
         }
     }
 }

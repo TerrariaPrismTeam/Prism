@@ -23,12 +23,15 @@ namespace Prism.Mods.DefHandlers
             item.P_BHandler = null;
             item.P_UseSound = null;
 
-            if ((ModLoader.Loading && !RecipeDefHandler.SettingUpRecipes) || ModLoader.Unloading)
+            if (ModLoader.Reloading)
             {
                 item.RealSetDefaults(type, noMatCheck);
 
-                if (!FillingVanilla)
+                if (!FillingVanilla && !RecipeDefHandler.SettingUpRecipes)
+                {
                     Logging.LogWarning("Tried to call SetDefaults on an Item while [re|un]?loading mods.");
+                    throw new Exception();
+                }
 
                 return;
             }

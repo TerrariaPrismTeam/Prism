@@ -55,7 +55,7 @@ namespace Prism.API
             }
         }
 
-        public ObjectRef(string name, string modName = null)
+        internal ObjectRef(string name, string modName, Assembly requesting)
         {
             if (String.IsNullOrEmpty(name))
                 throw new ArgumentNullException("name");
@@ -63,7 +63,12 @@ namespace Prism.API
             this.name = name;
             this.modName = modName ?? String.Empty;
 
-            requesting = ModData.ModFromAssembly(Assembly.GetCallingAssembly());
+            this.requesting = ModData.ModFromAssembly(requesting);
+        }
+        public ObjectRef(string name, string modName = null)
+            : this(name, modName, Assembly.GetCallingAssembly())
+        {
+
         }
         public ObjectRef(string name, ModInfo mod)
             : this(name, mod.InternalName)

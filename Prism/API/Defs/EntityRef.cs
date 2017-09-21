@@ -53,8 +53,6 @@ namespace Prism.API.Defs
         protected EntityRef(ObjectRef objRef, Assembly calling)
             : this(() => objRef.Name)
         {
-            resName = new Lazy<string>(() => objRef.Name);
-
             ModName = objRef.ModName;
 
             Requesting = ModData.ModFromAssembly(calling);

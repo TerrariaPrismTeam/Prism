@@ -40,7 +40,7 @@ namespace Prism.API.Defs
 
         }
         public ProjectileRef(string resourceName, string modName = null)
-            : base(new ObjectRef(resourceName, modName), Assembly.GetCallingAssembly())
+            : base(new ObjectRef(resourceName, modName, Assembly.GetCallingAssembly()), Assembly.GetCallingAssembly())
         {
 
         }
@@ -58,26 +58,29 @@ namespace Prism.API.Defs
 
         public override ProjectileDef Resolve()
         {
-            if (ResourceID.HasValue && Handler.ProjDef.DefsByType.ContainsKey(ResourceID.Value))
-                return Handler.ProjDef.DefsByType[ResourceID.Value];
+            ProjectileDef r;
 
-            if (String.IsNullOrEmpty(ModName) && Requesting != null && Requesting.ProjectileDefs.ContainsKey(ResourceName))
-                return Requesting.ProjectileDefs[ResourceName];
+            if (ResourceID.HasValue && Handler.ProjDef.DefsByType.TryGetValue(ResourceID.Value, out r))
+                return r;
+
+            if (String.IsNullOrEmpty(ModName) && Requesting != null && Requesting.ProjectileDefs.TryGetValue(ResourceName, out r))
+                return r;
 
             if (IsVanillaRef)
             {
-                if (!Handler.ProjDef.VanillaDefsByName.ContainsKey(ResourceName))
+                if (!Handler.ProjDef.VanillaDefsByName.TryGetValue(ResourceName, out r))
                     throw new InvalidOperationException("Vanilla NPC reference '" + ResourceName + "' is not found.");
 
-                return Handler.ProjDef.VanillaDefsByName[ResourceName];
+                return r;
             }
 
-            if (!ModData.ModsFromInternalName.ContainsKey(ModName))
+            ModDef m;
+            if (!ModData.ModsFromInternalName.TryGetValue(ModName, out m))
                 throw new InvalidOperationException("Projectile reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the mod is not loaded.");
-            if (!ModData.ModsFromInternalName[ModName].ProjectileDefs.ContainsKey(ResourceName))
+            if (!m.ProjectileDefs.TryGetValue(ResourceName, out r))
                 throw new InvalidOperationException("Projectile reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the Projectile is not loaded.");
 
-            return ModData.ModsFromInternalName[ModName].ProjectileDefs[ResourceName];
+            return r;
         }
     }
 }

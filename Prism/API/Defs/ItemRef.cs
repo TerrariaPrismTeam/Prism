@@ -41,7 +41,7 @@ namespace Prism.API.Defs
 
         }
         public ItemRef(string resourceName, string modName = null)
-            : base(new ObjectRef(resourceName, modName), Assembly.GetCallingAssembly())
+            : base(new ObjectRef(resourceName, modName, Assembly.GetCallingAssembly()), Assembly.GetCallingAssembly())
         {
 
         }
@@ -59,26 +59,29 @@ namespace Prism.API.Defs
 
         public override ItemDef Resolve()
         {
-            if (ResourceID.HasValue && Handler.ItemDef.DefsByType.ContainsKey(ResourceID.Value))
-                return Handler.ItemDef.DefsByType[ResourceID.Value];
+            ItemDef r;
 
-            if (String.IsNullOrEmpty(ModName) && Requesting != null && Requesting.ItemDefs.ContainsKey(ResourceName))
-                return Requesting.ItemDefs[ResourceName];
+            if (ResourceID.HasValue && Handler.ItemDef.DefsByType.TryGetValue(ResourceID.Value, out r))
+                return r;
+
+            if (String.IsNullOrEmpty(ModName) && Requesting != null && Requesting.ItemDefs.TryGetValue(ResourceName, out r))
+                return r;
 
             if (IsVanillaRef)
             {
-                if (!Handler.ItemDef.VanillaDefsByName.ContainsKey(ResourceName))
-                    throw new InvalidOperationException("Vanilla item reference '" + ResourceName + "' is not found.");
+                if (!Handler.ItemDef.VanillaDefsByName.TryGetValue(ResourceName, out r))
+                    throw new InvalidOperationException("Vanilla item reference '" + ResourceName + "' not found.");
 
-                return Handler.ItemDef.VanillaDefsByName[ResourceName];
+                return r;
             }
 
-            if (!ModData.ModsFromInternalName.ContainsKey(ModName))
+            ModDef m;
+            if (!ModData.ModsFromInternalName.TryGetValue(ModName, out m))
                 throw new InvalidOperationException("Item reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the mod is not loaded.");
-            if (!ModData.ModsFromInternalName[ModName].ItemDefs.ContainsKey(ResourceName))
+            if (!m.ItemDefs.TryGetValue(ResourceName, out r))
                 throw new InvalidOperationException("Item reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the item is not loaded.");
 
-            return ModData.ModsFromInternalName[ModName].ItemDefs[ResourceName];
+            return r;
         }
 
         public static implicit operator Either<ItemRef, CraftGroup<ItemDef, ItemRef>>(ItemRef r)
