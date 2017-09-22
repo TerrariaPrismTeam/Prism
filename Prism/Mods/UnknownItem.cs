@@ -34,9 +34,11 @@ namespace Prism.Mods
 
         public override void Save(BinBuffer bb)
         {
-            var itt = Lang._itemTooltipCache[Entity.type];
+            if (Entity.ToolTip == null)
+                Entity.RebuildTooltip();
+            var itt = Entity.ToolTip;
 
-            if (itt._tooltipLines.Length != 2)
+            if (itt._tooltipLines.Length < 2)
             {
                 bb.Write(String.Empty);
                 bb.Write(String.Empty);
@@ -52,13 +54,14 @@ namespace Prism.Mods
             var modn = bb.ReadString();
             var itmn = bb.ReadString();
 
-            Lang._itemTooltipCache[Entity.type] =
+            Entity.ToolTip =
                 new[]{(ObjectName)modn,(ObjectName)itmn}.ToTooltip();
 
             ModDef mod = null;
+            ItemDef id;
             if (ModData.modsFromInternalName.TryGetValue(modn, out mod)
-                    && mod.ItemDefs.ContainsKey(itmn))
-                Entity.SetDefaults(ItemDef.Defs[itmn, modn].Type);
+                    && mod.ItemDefs.TryGetValue(itmn, out id))
+                Entity.SetDefaults(id.Type);
         }
     }
 }

@@ -251,8 +251,14 @@ namespace Prism
             HookWrappedMethods();
 
             IsInInit = true;
-            try{base.Initialize(); // terraria init and LoadContent happen here
-            }finally{IsInInit = false;}
+            try
+            {
+                base.Initialize(); // terraria init and LoadContent happen here
+            }
+            finally
+            {
+                IsInInit = false;
+            }
 
             ModLoader.Load();
 

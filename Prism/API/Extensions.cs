@@ -117,6 +117,7 @@ namespace Prism.API
         }
         public static ObjectName[] ToLines(this ItemTooltip tooltip)
         {
+            tooltip.ValidateTooltip();
             if (tooltip._tooltipLines == null)
                 return Empty<ObjectName>.Array;
 

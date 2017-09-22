@@ -144,15 +144,16 @@ namespace Prism.IO
                 {
                     string item = bb.ReadString();
 
-                    if (!ModData.modsFromInternalName.ContainsKey(mod) || !ModData.modsFromInternalName[mod].ItemDefs.ContainsKey(item))
+                    ModDef md;
+                    ItemDef id;
+                    if (!ModData.modsFromInternalName.TryGetValue(mod, out md) || !md.ItemDefs.TryGetValue(item, out id))
                     {
                         inventory[i].SetDefaults(ItemDefHandler.UnknownItemID);
 
-                        //inventory[i].toolTip = mod;
-                        //inventory[i].toolTip2 = item;
+                        inventory[i].ToolTip = new[] { (ObjectName)mod, (ObjectName)item }.ToTooltip();
                     }
                     else
-                        inventory[i].SetDefaults(ModData.modsFromInternalName[mod].ItemDefs[item].Type);
+                        inventory[i].SetDefaults(id.Type);
 
                     if (stack)
                         inventory[i].stack = bb.ReadInt32();
@@ -179,8 +180,6 @@ namespace Prism.IO
         /// <param name="playerFile">The player being saved</param>
         internal static void SavePlayer(PlayerFileData playerFile)
         {
-            //return;
-
             string path = playerFile.Path;
             Player player = playerFile.Player;
 
@@ -254,8 +253,6 @@ namespace Prism.IO
         /// <param name="playerPath">The path to the vanilla .plr file</param>
         internal static void LoadPlayer(Player player, string playerPath)
         {
-            //return;
-
             playerPath += ".prism";
 
             // If mod data doesn't exist, don't try to load it
@@ -337,7 +334,6 @@ namespace Prism.IO
             }
         }
 
-        //TODO: make these faster (especially read)
         static void Write2DArray(BinBuffer bb, ModIdMap map, int xLen, int yLen, Func  <int, int, bool> isEmpty , Func  <int, int, int      > getElemV, Func<int, int, ObjectRef> getElemM)
         {
             var ov = 0;
@@ -578,8 +574,6 @@ namespace Prism.IO
 
         internal static void SaveWorld(bool toCloud)
         {
-            //return;
-
             var path = Main.worldPathName + ".prism";
 
             if (File.Exists(path))
@@ -595,11 +589,17 @@ namespace Prism.IO
                 //TODO: mannequins are probably broken
 
                 SavePrismData (bb);
+                Main.statusText = "Saving Prism data: global data";
                 SaveGlobalData(bb);
+                Main.statusText = "Saving Prism data: chests";
                 SaveChestItems(bb);
+                Main.statusText = "Saving Prism data: NPCs";
                 SaveNpcData   (bb);
+                Main.statusText = "Saving Prism data: walls";
                 SaveWallTypes (bb);
+                Main.statusText = "Saving Prism data: tile IDs";
                 SaveTileTypes (bb);
+                Main.statusText = "Saving Prism data: tile data";
                 SaveTileData  (bb);
             }
         }
@@ -628,6 +628,7 @@ namespace Prism.IO
 
             Read2DArray(bb, map, Main.maxTilesX, Main.maxTilesY, (x, y, id) => Main.tile[x, y].type = (ushort)id, (x, y, or) => Main.tile[x, y].type = (ushort)TileDef.Defs[or].Type);
         }
+        // TODO: make this faster (it's the slowest part of Load)
         static void LoadChestItems(BinBuffer bb, int v)
         {
             int chestAmt = bb.ReadInt16();
@@ -729,14 +730,11 @@ namespace Prism.IO
 
         internal static void LoadWorld(bool fromCloud)
         {
-            //return;
-
             var path = Main.worldPathName + ".prism";
 
             if (!File.Exists(path))
                 return;
 
-            // TODO: elaborate on the subparts
             Main.statusText = "Loading Prism data...";
 
             using (FileStream fs = File.OpenRead(path))
@@ -744,16 +742,23 @@ namespace Prism.IO
             {
                 var v = LoadPrismData(bb);
 
+                Main.statusText = "Loading Prism data: global data";
                 LoadGlobalData(bb, v);
+                Main.statusText = "Loading Prism data: chests";
                 LoadChestItems(bb, v);
+                Main.statusText = "Loading Prism data: NPCs";
                 LoadNpcData   (bb, v);
+                Main.statusText = "Loading Prism data: walls";
                 LoadWallTypes (bb, v);
+                Main.statusText = "Loading Prism data: tile IDs";
                 LoadTileTypes (bb, v);
 #pragma warning disable 612
                 // TileHooks.CreateBHandlers(); // after all tiles have their correct type
 
+                Main.statusText = "Loading Prism data: tile code";
                 LoadBehaviours(bb, v); // after the bhandlers are created (i.e. can load)
 #pragma warning restore 612
+                Main.statusText = "Loading Prism data: tile data";
                 LoadTileData  (bb, v);
             }
         }
