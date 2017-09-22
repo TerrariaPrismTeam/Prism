@@ -111,16 +111,6 @@ namespace Prism
                 try
                 {
                     T.Main.OnEngineLoad += T.Program.StartForceLoad;
-                    /*T.Main.OnEngineLoad += () =>
-                    {
-                        T.Program.StartForceLoad();
-
-                        ////TODO: move this to another thread (in StartForceLoad)
-                        // not really needed, prism is quite small, compared to terraria (and it doesn't have any HUGE methods ;) )
-#if !DEV_BUILD
-                        //T.Program.ForceLoadAssembly(Assembly.GetExecutingAssembly() / * Prism * /, true);
-#endif
-                    };*/
 
                     m.Run();
                 }

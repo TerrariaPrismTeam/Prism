@@ -48,8 +48,6 @@ namespace Prism.Injector.Patcher
 
         static void InjectBuffEffectsCall()
         {
-            // TODO: inject at start of UpdateNPC_SoulDrainDebuff
-
             var upSoulDrain = typeDef_NPC.GetMethod("UpdateNPC_SoulDrainDebuff");
 
             MethodDef invokeEffects;

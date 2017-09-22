@@ -13,11 +13,6 @@ namespace Prism.Mods.DefHandlers
     using ItemUnion = Either<ItemRef, CraftGroup<ItemDef, ItemRef>>;
     using TileUnion = Either<TileRef, CraftGroup<TileDef, TileRef>>;
 
-    ////TODO: we might need to rethink this
-    // seems to be OK now?
-    ////TODO: switch to RecipeGroups
-    // vanilla RecipeGroups are pretty much an ugly hack to work around the limitations in
-    // Recipe.FindRecipes and Recipe.Create, and they aren't typesafe etc.
     sealed class RecipeDefHandler
     {
         internal static bool SettingUpRecipes = false;

@@ -18,6 +18,7 @@
     <PlatformTarget Condition="'$(OS)' == 'Unix'">x64</PlatformTarget>
     <WarningLevel>4</WarningLevel>
     <UseMSBuildEngine Condition=" '$(OS)' == 'Unix'">False</UseMSBuildEngine>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow> <!-- implicit unchecked everywhere -->
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DevBuild|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>

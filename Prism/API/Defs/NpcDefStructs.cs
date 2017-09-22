@@ -147,7 +147,7 @@ namespace Prism.API.Defs
 
     //TODO: OVERRIDE THE HARDCODED VALUE RANGES AND USE MAX FIELD.
     /// <summary>
-    /// A structure for NPC values. Used for coin drops and overall NPC worth detection (biome keys, etc).
+    /// A structure for NPC values. Used for coin drops and overall NPC value detection (biome keys, etc).
     /// </summary>
     public struct NpcValue : IEquatable<NpcValue>
     {
@@ -202,6 +202,7 @@ namespace Prism.API.Defs
         }
     }
 
+    // TODO: complete
     /// <summary>
     /// Vanilla NPC AI Styles
     /// </summary>
@@ -713,6 +714,7 @@ namespace Prism.API.Defs
         NebulaFloater = 97,
     }
 
+    // TODO: complete
     public enum ChatBubbleIconIndex
     {
         None                          = -1,

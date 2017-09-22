@@ -27,6 +27,9 @@ namespace Prism.IO
         BiDictionary<ModName, ModID> Mods = new BiDictionary<ModName, ModID>();
         Dictionary<ModID, BiDictionary<ObjName, ObjID>> ModObjects = new Dictionary<ModID, BiDictionary<ModName, ObjID>>();
 
+        ModName[] mnames = null;
+        BiDictionary<ObjName, ObjID>[] mobjs = null;
+
         public ModIdMap(int maxVanilla, Func<ObjectRef, int> vanillaId, Func<int, ObjectRef> vanillaRef)
         {
             if (vanillaId  == null)
@@ -69,9 +72,7 @@ namespace Prism.IO
 
             var mod = ModObjects[mid];
 
-            if (mod.ContainsKey(on))
-                oid = mod[on];
-            else
+            if (!mod.TryGetValue(on, out oid))
             {
                 oid = (ObjID)mod.Count;
                 mod.Add(on, oid);
@@ -103,8 +104,8 @@ namespace Prism.IO
                 mid = (ModID)(id & (Byte.MaxValue << 8 * sizeof(ObjID)) >> 8 * sizeof(ObjID));
             }
 
-            var mn = Mods.Reverse[mid];
-            var on = ModObjects[mid].Reverse[oid];
+            var mn = mnames[mid];
+            var on = mobjs [mid].Reverse[oid];
 
             cMod(new ObjectRef(on, mn));
         }
@@ -141,9 +142,17 @@ namespace Prism.IO
         {
             int modAmt = bb.ReadByte();
 
+            mnames = new ModName[(int)ModID.MaxValue + 1];
             for (int i = 0; i < modAmt; i++)
-                Mods.Add(bb.ReadString(), bb.ReadByte());
+            {
+                byte ind;
+                string mn;
+                Mods.Add(mn = bb.ReadString(), ind = bb.ReadByte());
 
+                mnames[ind] = mn;
+            }
+
+            mobjs = new BiDictionary<ObjName, ObjID>[mnames.Length];
             for (int i = 0; i < modAmt; i++)
             {
                 ModID mid = bb.ReadByte();
@@ -154,6 +163,8 @@ namespace Prism.IO
 
                 for (int j = 0; j < objAmt; j++)
                     modObjs.Add(bb.ReadString(), bb.ReadUInt16());
+
+                mobjs[mid] = modObjs;
 
                 ModObjects.Add(mid, modObjs);
             }

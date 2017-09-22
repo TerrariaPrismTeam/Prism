@@ -126,19 +126,18 @@ namespace Prism
         {
             HookManager.GameBehaviour.PreDraw(spriteBatch);
         }
-        // TODO: postdraw?
         static void OnPostScreenClear()
         {
             HookManager.GameBehaviour.PostScreenClear();
         }
         static void OnDrawBackground(Main m)
         {
-            /*if (HookManager.GameBehaviour.PreDrawBackground(spriteBatch))
+            if (HookManager.GameBehaviour.PreDrawBackground(spriteBatch))
             {
                 m.RealDrawBackground();
 
                 HookManager.GameBehaviour.PostDrawBackground(spriteBatch);
-            }*/
+            }
         }
         static bool IsChatAllowed()
         {

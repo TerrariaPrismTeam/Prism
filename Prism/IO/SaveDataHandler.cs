@@ -19,6 +19,8 @@ using Terraria.IO;
 
 namespace Prism.IO
 {
+    // TODO: ditch the ModIdMap, and simply LZMA/DEFLATE the data
+
     /// <summary>
     /// Class containing the hooks used by Prism when saving and/or loading Players and Worlds.
     /// </summary>
@@ -322,14 +324,14 @@ namespace Prism.IO
             catch (Exception e)
             {
                 // Character could not be properly loaded, report and prevent playing
-                //TODO: report
+                //TODO: report in UI
                 Logging.LogError("Could not load player " + player.name + ": " + e);
                 Trace.WriteLine ("Could not load player " + player.name + ": " + e.Message);
                 player.loadStatus = 1;
             }
         }
 
-        //TODO: make these faster (especially write)
+        //TODO: make these faster (especially read)
         static void Write2DArray(BinBuffer bb, ModIdMap map, int xLen, int yLen, Func  <int, int, bool> isEmpty , Func  <int, int, int      > getElemV, Func<int, int, ObjectRef> getElemM)
         {
             var ov = 0;
@@ -456,8 +458,11 @@ namespace Prism.IO
             Write2DArray(bb, map, Main.maxTilesX, Main.maxTilesY,
                 (x, y) => Main.tile[x, y] == null || Main.tile[x, y].type <= 0, // 0 -> dirt wall, but this works here, too
                 (x, y) => Main.tile[x, y].type >= TileID.Count ? 0 : Main.tile[x, y].type,
-                (x, y) => Main.tile[x, y].type <  TileID.Count ||
-                    !Handler.TileDef.DefsByType.ContainsKey(Main.tile[x, y].type) ? ObjectRef.Null : Handler.TileDef.DefsByType[Main.tile[x, y].type]);
+                (x, y) =>
+                {
+                    TileDef d;
+                    return Main.tile[x, y].type < TileID.Count || !Handler.TileDef.DefsByType.TryGetValue(Main.tile[x, y].type, out d) ? ObjectRef.Null : d;
+                });
         }
         static void SaveChestItems(BinBuffer bb)
         {
@@ -515,8 +520,13 @@ namespace Prism.IO
             Write2DArray(bb, map, Main.maxTilesX, Main.maxTilesY,
                 (x, y) => Main.tile[x, y] == null || Main.tile[x, y].wall <= 0,
                 (x, y) => Main.tile[x, y].wall >= unchecked((ushort)WallID.Count) ? 0 : Main.tile[x, y].wall,
-                (x, y) => Main.tile[x, y].wall <  unchecked((ushort)WallID.Count) ||
-                    !Handler.WallDef.DefsByType.ContainsKey(Main.tile[x, y].wall) ? ObjectRef.Null : Handler.WallDef.DefsByType[Main.tile[x, y].wall]);
+                (x, y) =>
+                {
+                    WallDef d;
+                    return Main.tile[x, y].wall <  unchecked((ushort)WallID.Count)
+                                || !Handler.WallDef.DefsByType.TryGetValue(Main.tile[x, y].wall, out d)
+                            ? ObjectRef.Null : d;
+                });
         }
         static void SaveTileData  (BinBuffer bb)
         {
@@ -567,6 +577,7 @@ namespace Prism.IO
             if (File.Exists(path))
                 File.Copy(path, Main.worldPathName + ".bak.prism", true);
 
+            // TODO: elaborate on the subparts
             Main.statusText = "Saving Prism data...";
 
             using (FileStream fs = File.OpenWrite(path))
@@ -649,7 +660,9 @@ namespace Prism.IO
 
             var map = new ModIdMap(WallID.Count, or => WallDef.Defs[or].Type, id => Handler.WallDef.DefsByType[id]);
 
-            Read2DArray(bb, map, Main.maxTilesX, Main.maxTilesY, (x, y, id) => Main.tile[x, y].wall = (byte/*ushort*/)id, (x, y, or) => Main.tile[x, y].wall = (byte/*ushort*/)WallDef.Defs[or].Type);
+            Read2DArray(bb, map, Main.maxTilesX, Main.maxTilesY,
+                    (x, y, id) => Main.tile[x, y].wall = (ushort)id,
+                    (x, y, or) => Main.tile[x, y].wall = (ushort)WallDef.Defs[or].Type);
         }
         static void LoadTileData  (BinBuffer bb, int v)
         {
@@ -713,6 +726,7 @@ namespace Prism.IO
             if (!File.Exists(path))
                 return;
 
+            // TODO: elaborate on the subparts
             Main.statusText = "Loading Prism data...";
 
             using (FileStream fs = File.OpenRead(path))

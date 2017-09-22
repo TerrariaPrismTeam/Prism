@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace Prism.API.Defs
 {
+    // TODO: complete
     /// <summary>
     /// Vanilla Projectile AI Styles
     /// </summary>
