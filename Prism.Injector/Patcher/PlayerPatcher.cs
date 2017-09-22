@@ -129,12 +129,7 @@ namespace Prism.Injector.Patcher
                     spproc.Emit(OpCodes.Callvirt, invokeSavePlayer);
                     spproc.Emit(OpCodes.Ret);
 
-                    for (int i = 0; i < spb.Instructions.Count; i++)
-                        if (spb.Instructions[i].Operand == last)
-                            spb.Instructions[i].Operand = newF;
-                    for (int i = 0; i < spb.ExceptionHandlers.Count; i++)
-                        if (spb.ExceptionHandlers[i].HandlerEnd == last)
-                            spb.ExceptionHandlers[i].HandlerEnd = newF;
+                    spb.RewireBranches(last, newF);
                 }
             }
             #endregion

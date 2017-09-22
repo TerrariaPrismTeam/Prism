@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Prism.API;
@@ -15,6 +16,7 @@ namespace Prism.Mods.DefHandlers
 {
     partial class NpcDefHandler
     {
+        static bool InSetDef = false;
         internal static void OnSetDefaults(NPC n, int type, float scaleOverride)
         {
             n.P_BHandler     = null;
@@ -23,11 +25,18 @@ namespace Prism.Mods.DefHandlers
             n.P_SoundOnHit   = null;
             n.P_SoundOnDeath = null;
 
-            if (ModLoader.Reloading)
-            {
-                n.RealSetDefaults(type);
+            if (InSetDef)
+                return;
 
-                if (!FillingVanilla)
+            InSetDef = true;
+
+            try
+            {
+            if (ModLoader.Reloading || FillingVanilla || TMain.IsInInit)
+            {
+                n.RealSetDefaults(type, scaleOverride);
+
+                if (!FillingVanilla && !TMain.IsInInit)
                     Logging.LogWarning("Tried to call SetDefaults on an NPC while [re|un]?loading mods.");
 
                 return;
@@ -35,9 +44,9 @@ namespace Prism.Mods.DefHandlers
 
             NpcBHandler h = null; // will be set to <non-null> only if a behaviour handler will be attached
 
-            if (type < NPCID.Count && !ModLoader.Reloading && !FillingVanilla && type != 0 && Handler.NpcDef.DefsByType.Count > 0)
-                n.RealSetDefaults(type < 0 ? Handler.NpcDef.DefsByType[type].Type : type, scaleOverride);
-            else
+            //if (type < NPCID.Count && Handler.NpcDef.DefsByType.Count > 0)
+            //    n.RealSetDefaults(type, scaleOverride);
+            //else
                 n.RealSetDefaults(0, scaleOverride);
 
             NpcDef d;
@@ -48,15 +57,24 @@ namespace Prism.Mods.DefHandlers
 
                 Handler.NpcDef.CopyDefToEntity(d, n);
 
-                if (Main.expertMode)
-                    n.scaleStats();
-
                 n.life = n.lifeMax; //! BEEP BOOP
                 n.defDamage = n.damage;
                 n.defDefense = n.defense;
 
                 if (scaleOverride > -1f)
-                    n.scale = scaleOverride;
+                {
+                    n.scale  = scaleOverride;
+                    n.width  = (int)(n.width  * scaleOverride);
+                    n.height = (int)(n.height * scaleOverride);
+
+                    if (n.height == 16 || n.width == 32) // wtf?
+                        n.height++;
+
+                    n.position += new Vector2(n.width, n.height) * 0.5f;
+                }
+
+                if (Main.expertMode)
+                    n.scaleStats();
 
                 if (d.CreateBehaviour != null)
                 {
@@ -73,7 +91,10 @@ namespace Prism.Mods.DefHandlers
                 }
             }
             else
-                n.RealSetDefaults(type, scaleOverride);
+            {
+                //n.RealSetDefaults(type, scaleOverride);
+                Logging.LogWarning("There is no NpcDef of type " + type + "!");
+            }
 
             var bs = ModLoader.Reloading ? Empty<NpcBehaviour>.Array : ModData.mods.Values
                 .Select(m => new KeyValuePair<ModDef, NpcBehaviour>(m, m.ContentHandler.CreateGlobalNpcBInternally()))
@@ -98,6 +119,11 @@ namespace Prism.Mods.DefHandlers
                     b.Entity = n;
 
                 //h.OnInit();
+            }
+            }
+            finally
+            {
+                InSetDef = false;
             }
         }
     }

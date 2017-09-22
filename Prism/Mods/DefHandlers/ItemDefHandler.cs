@@ -151,8 +151,8 @@ namespace Prism.Mods.DefHandlers
                                     : item.thrown ? ItemDamageType.Thrown
                                          : ItemDamageType.None;
             def.Value               = new CoinValue(item.value);
-            def.Description         = new ItemDescription(
-                                        Lang._itemTooltipCache[item.type].ToLines(),
+            if (item.ToolTip == null) item.RebuildTooltip();
+            def.Description         = new ItemDescription(item.ToolTip.ToLines(),
                                         item.vanity, item.expert, item.questItem, item.notAmmo, !item.material);
             def.Buff                = new AppliedBuff(new BuffRef(item.buffType), item.buffTime);
 
@@ -309,9 +309,6 @@ namespace Prism.Mods.DefHandlers
 
             def.material = item.material;
 
-            def.Description = new ItemDescription(Lang._itemTooltipCache[item.type].ToLines(),
-                                item.vanity, item.expert, item.questItem, item.notAmmo, !item.material);
-
             def.IsSoul                   = ItemID.Sets.AnimatesAsSoul           [def.Type];
             def.IsStrangePlant           = ItemID.Sets.ExoticPlantsForDyeTrade  [def.Type];
             def.IsBullet                 = ItemID.Sets.gunProj                  [def.Type];
@@ -426,6 +423,8 @@ namespace Prism.Mods.DefHandlers
             item.fishingPole = def.FishingPole;
 
             item.potion = def.LifeHeal > 0;
+
+            item.ToolTip = def.Description.Description.ToTooltip();
         }
 
         static int CheckAndPush<T>(Func<T> getter, ref T[] array, ref bool[] loadedArray)

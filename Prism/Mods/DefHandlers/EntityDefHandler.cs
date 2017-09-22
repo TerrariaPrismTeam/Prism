@@ -5,6 +5,7 @@ using System.Reflection;
 using Prism.API;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
+using Prism.Debugging;
 using Prism.Util;
 using Terraria;
 
@@ -61,7 +62,7 @@ namespace Prism.Mods.DefHandlers
             get
             {
                 if (idValues == null)
-                    idValues = IDFields.Select(f => (int)Convert.ChangeType(f.GetValue(null), typeof(int))).ToArray();
+                    idValues = IDLUT.Keys.ToArray();
 
                 return idValues;
             }
@@ -71,7 +72,7 @@ namespace Prism.Mods.DefHandlers
             get
             {
                 if (idNames == null)
-                    idNames = IDFields.Select(f => f.Name).ToArray();
+                    idNames = IDLUT.Values.ToArray();
 
                 return idNames;
             }
@@ -149,7 +150,7 @@ namespace Prism.Mods.DefHandlers
 
             var byDisplayName = new Dictionary<string, TEntityDef>();
 
-            for (id = MinVanillaID; id < MaxVanillaID; id++)
+            for (id = MinVanillaID; id <= MaxVanillaID; id++)
             {
                 if (id == 0)
                     continue;
@@ -194,7 +195,7 @@ namespace Prism.Mods.DefHandlers
         {
             ExtendVanillaArrays(-1);
 
-            NextTypeIndex = MaxVanillaID;
+            NextTypeIndex = MaxVanillaID + 1;
 
             DefsByType.Clear();
         }

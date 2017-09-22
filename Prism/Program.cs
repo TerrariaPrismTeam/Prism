@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Xna.Framework;
 using Prism.Debugging;
 
 namespace Prism
@@ -17,6 +19,12 @@ namespace Prism
                 Environment.SetEnvironmentVariable("FNA_WORKAROUND_WINDOW_RESIZABLE", "1");
 
             AssemblyResolver.Init();
+
+#if !WINDOWS
+            FNALoggerEXT.LogInfo  = msg => Logging.LogInfo   (msg);
+            FNALoggerEXT.LogWarn  = msg => Logging.LogWarning(msg);
+            FNALoggerEXT.LogError = msg => Logging.LogError  (msg);
+#endif
 
             Logging.Init();
         }

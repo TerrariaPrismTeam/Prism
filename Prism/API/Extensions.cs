@@ -70,13 +70,17 @@ namespace Prism.API
             return GetBehaviour<PlayerBehaviour, TBehaviour>(p.P_BHandler as PlayerBHandler);
         }
 
+        public static bool IsEmpty(this Entity e)
+        {
+            return e == null || !e.active;
+        }
         public static bool IsEmpty(this Item i)
         {
-            return i == null || i.type == 0 || i.stack <= 0;
+            return i == null || i.type == 0 || i.stack <= 0 || !i.active;
         }
         public static bool IsDead(this NPC n)
         {
-            return n == null || n.type == 0 || n.life == 0;
+            return n == null || n.type == 0 || n.life == 0 || !n.active;
         }
         /// <summary>
         /// Is not a valid instance (<see cref="Player.statLifeMax" /> &lt;= 0)
@@ -85,7 +89,7 @@ namespace Prism.API
         /// <returns></returns>
         public static bool IsEmpty(this Player p)
         {
-            return p == null || p.statLifeMax <= 0;
+            return p == null || p.statLifeMax <= 0 || !p.active;
         }
         /// <summary>
         /// Is dead (<see cref="Player.statLife" /> &lt;= 0, <see cref="Player.dead" />, <see cref="Player.ghost" />)

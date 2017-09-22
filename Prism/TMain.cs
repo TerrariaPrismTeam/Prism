@@ -5,6 +5,8 @@ using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Prism.API;
 using Prism.API.Audio;
 using Prism.Debugging;
 using Prism.IO;
@@ -14,6 +16,7 @@ using Prism.Mods.Hooks;
 using Prism.Util;
 using Terraria;
 using Terraria.GameContent.UI.States;
+using Terraria.ID;
 using Terraria.IO;
 using Terraria.Map;
 
@@ -22,10 +25,12 @@ namespace Prism
     public sealed class TMain : Main
     {
         internal static Texture2D WhitePixel, UnknownItemTexture;
+        internal static bool IsInInit = false;
 
         static bool justDrawCrashed = false;
         static Exception lastDrawExn = null;
 
+        int gid = -1;
         static bool prevGameMenu = true;
 
         /// <summary>
@@ -245,7 +250,9 @@ namespace Prism
         {
             HookWrappedMethods();
 
-            base.Initialize(); // terraria init and LoadContent happen here
+            IsInInit = true;
+            try{base.Initialize(); // terraria init and LoadContent happen here
+            }finally{IsInInit = false;}
 
             ModLoader.Load();
 
@@ -315,6 +322,17 @@ namespace Prism
                 HookManager.GameBehaviour.PreUpdate();
 
                 ApplyHotfixes(); //The array is initialized every time new Player() is called. Until we have like InitPlayer or something we just have to ghettohack it like this.
+
+                if (keyState.IsKeyDown(Keys.P) && !oldKeyState.IsKeyDown(Keys.P))
+                    NPC.NewNPC((int)Main.player[Main.myPlayer].position.X,
+                               (int)Main.player[Main.myPlayer].position.Y - 128,
+                               NPCID.Pinky);
+                if (keyState.IsKeyDown(Keys.O) && !oldKeyState.IsKeyDown(Keys.O))
+                {
+                    gid = NPC.NewNPC((int)Main.player[Main.myPlayer].position.X,
+                               (int)Main.player[Main.myPlayer].position.Y - 128,
+                               NPCID.Guide);
+                }
 
                 base.Update(gt);
 

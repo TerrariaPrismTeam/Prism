@@ -179,6 +179,8 @@ namespace Prism.IO
         /// <param name="playerFile">The player being saved</param>
         internal static void SavePlayer(PlayerFileData playerFile)
         {
+            //return;
+
             string path = playerFile.Path;
             Player player = playerFile.Player;
 
@@ -216,6 +218,7 @@ namespace Prism.IO
                     SaveItemSlots(bb, player.miscEquips, player.miscEquips.Length, false, false);
                     SaveItemSlots(bb, player.bank.item, Chest.maxItems, true, false);
                     SaveItemSlots(bb, player.bank2.item, Chest.maxItems, true, false);
+                    SaveItemSlots(bb, player.bank3.item, Chest.maxItems, true, false);
                     #endregion Item Data
 
                     #region Buff Data
@@ -251,6 +254,8 @@ namespace Prism.IO
         /// <param name="playerPath">The path to the vanilla .plr file</param>
         internal static void LoadPlayer(Player player, string playerPath)
         {
+            //return;
+
             playerPath += ".prism";
 
             // If mod data doesn't exist, don't try to load it
@@ -288,6 +293,7 @@ namespace Prism.IO
                         LoadItemSlots(bb, player.miscEquips, player.miscEquips.Length, false, false);
                         LoadItemSlots(bb, player.bank.item, Chest.maxItems, true, false);
                         LoadItemSlots(bb, player.bank2.item, Chest.maxItems, true, false);
+                        LoadItemSlots(bb, player.bank3.item, Chest.maxItems, true, false);
                         #endregion Item Data
 
                         #region Buff Data
@@ -572,6 +578,8 @@ namespace Prism.IO
 
         internal static void SaveWorld(bool toCloud)
         {
+            //return;
+
             var path = Main.worldPathName + ".prism";
 
             if (File.Exists(path))
@@ -721,6 +729,8 @@ namespace Prism.IO
 
         internal static void LoadWorld(bool fromCloud)
         {
+            //return;
+
             var path = Main.worldPathName + ".prism";
 
             if (!File.Exists(path))

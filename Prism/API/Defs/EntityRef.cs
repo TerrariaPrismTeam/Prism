@@ -66,6 +66,8 @@ namespace Prism.API.Defs
 
         public virtual bool Equals(EntityRef<TDef> other)
         {
+            if (ReferenceEquals(other,  null)) return false;
+
             return ResourceName == other.ResourceName && Mod == other.Mod;
         }
 
@@ -91,6 +93,15 @@ namespace Prism.API.Defs
         public static implicit operator ObjectRef(EntityRef<TDef> e)
         {
             return e.oref;
+        }
+
+        public static bool operator ==(EntityRef<TDef> a, EntityRef<TDef> b)
+        {
+            return ReferenceEquals(a, null) ?  ReferenceEquals(b, null) :  a.Equals(b);
+        }
+        public static bool operator !=(EntityRef<TDef> a, EntityRef<TDef> b)
+        {
+            return ReferenceEquals(a, null) ? !ReferenceEquals(b, null) : !a.Equals(b);
         }
     }
     public abstract class EntityRefWithId<TDef> : EntityRef<TDef>

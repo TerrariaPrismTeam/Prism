@@ -30,6 +30,10 @@ namespace Prism.Debugging
             if (sw != null)
                 return;
 
+            var fi = new FileInfo(LogFile);
+            if (fi.Length > 0x400 * 0x400)
+                File.Delete(LogFile);
+
             sw = new StreamWriter(LogFile, true);
 
             LogInfo(PrismApi.NiceVersionString + " launched, logger started.");
@@ -86,7 +90,7 @@ namespace Prism.Debugging
             var sb = new StringBuilder();
 
             var utc = DateTime.UtcNow;
-            sb.Append('[').Append(UTC).Append(utc.ToShortDateString()).Append(' ').Append(utc.ToLongTimeString()).Append(']')
+            sb.Append('[').Append(UTC).Append(utc.Hour).Append(':').Append(utc.Minute).Append(':').Append(utc.Second).Append(']')
               .Append('[').Append(severity).Append(']')
               .Append(' ').Append(text);
 

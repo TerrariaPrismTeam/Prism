@@ -24,11 +24,11 @@ namespace Prism.Mods.DefHandlers
             item.P_BHandler = null;
             item.P_UseSound = null;
 
-            if (ModLoader.Unloading || (ModLoader.Loading && !RecipeDefHandler.SettingUpRecipes))
+            if (ModLoader.Unloading || (ModLoader.Loading && !RecipeDefHandler.SettingUpRecipes) || TMain.IsInInit)
             {
                 item.RealSetDefaults(type, noMatCheck);
 
-                if (!FillingVanilla && !RecipeDefHandler.SettingUpRecipes)
+                if (!FillingVanilla && !RecipeDefHandler.SettingUpRecipes && !TMain.IsInInit)
                 {
                     Logging.LogWarning("Tried to call SetDefaults on an Item while [re|un]?loading mods.");
                     throw new Exception();
@@ -39,7 +39,10 @@ namespace Prism.Mods.DefHandlers
 
             ItemBHandler h = null; // will be set to <non-null> only if a behaviour handler will be attached
 
-            item.RealSetDefaults(0, noMatCheck);
+            //if (type < ItemID.Count && Handler.ItemDef.DefsByType.Count > 0)
+            //    item.RealSetDefaults(type, noMatCheck);
+            //else
+                item.RealSetDefaults(0   , noMatCheck);
 
             ItemDef d;
             if (Handler.ItemDef.DefsByType.TryGetValue(type, out d))
@@ -68,7 +71,10 @@ namespace Prism.Mods.DefHandlers
                 }
             }
             else
-                item.RealSetDefaults(type, noMatCheck);
+            {
+                //item.RealSetDefaults(type, noMatCheck);
+                Logging.LogWarning("There is no ItemDef of type " + type + "!");
+            }
 
             if (RecipeDefHandler.SettingUpRecipes)
                 return;
