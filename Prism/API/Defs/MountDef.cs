@@ -261,5 +261,14 @@ namespace Prism.API.Defs
 
             MinecartDust = Empty<Vector2>.Action;
         }
+
+        public static implicit operator MountRef(MountDef  def)
+        {
+            return new MountRef(def.InternalName, def.Mod.InternalName);
+        }
+        public static explicit operator MountDef(MountRef @ref)
+        {
+            return @ref.Resolve();
+        }
     }
 }

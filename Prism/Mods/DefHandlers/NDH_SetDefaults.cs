@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Prism.API;
 using Prism.API.Behaviours;
+using Prism.API.Defs;
 using Prism.Debugging;
 using Prism.Mods.BHandlers;
 using Prism.Util;
@@ -39,10 +40,9 @@ namespace Prism.Mods.DefHandlers
             else
                 n.RealSetDefaults(0, scaleOverride);
 
-            if (Handler.NpcDef.DefsByType.ContainsKey(type))
+            NpcDef d;
+            if (Handler.NpcDef.DefsByType.TryGetValue(type, out d))
             {
-                var d = Handler.NpcDef.DefsByType[type];
-
                 n.type = n.netID = type;
                 n.width = n.height = 16;
 

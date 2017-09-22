@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Prism.API;
 using Prism.API.Defs;
+using Prism.Debugging;
 using Prism.Util;
 using Terraria;
 using Terraria.ID;
@@ -46,34 +47,39 @@ namespace Prism.Mods.DefHandlers
             var or = SettingUpRecipes;
             SettingUpRecipes = true;
 
-            r.createItem.netDefaults(def.CreateItem.Resolve().NetID);
+            var netid = def.CreateItem.Resolve().NetID;
+            r.createItem.netDefaults(netid);
             r.createItem.stack = def.CreateStack;
 
-            //if (def.RequiredItems.Keys.Any(e => (e.Kind & EitherKind.Left) != 0) ||
-            //        def.RequiredTiles .Any(e => (e.Kind & EitherKind.Left) != 0))
-            //    r.P_GroupDef = def; // handled by RecipeHooks.FindRecipes
+            r.P_GroupDef = def;
 
             // for groups: display first the first, it's handled by RecipeHooks.FindRecipes
             int i = 0;
-            foreach (var kvp in def.RequiredItems)
+            foreach (var t in def.RequiredTiles)
             {
                 if (i >= Recipe.maxRequirements)
+                {
+                    Logging.LogWarning("Recipe '" + def + "' requires more tiles than vanilla can handle.");
                     break;
+                }
 
-                r.requiredItem[i] = new Item();
-                r.requiredItem[i].netDefaults(kvp.Key.Match(MiscExtensions.Identity, g => g[0]).Resolve().NetID);
-                r.requiredItem[i].stack = kvp.Value;
+                r.requiredTile[i] = t.Match(MiscExtensions.Identity, g => g[0]).Resolve().Type;
 
                 i++;
             }
 
             i = 0;
-            foreach (var t in def.RequiredTiles)
+            foreach (var kvp in def.RequiredItems)
             {
                 if (i >= Recipe.maxRequirements)
+                {
+                    Logging.LogWarning("Recipe '" + def + "' requires more items than vanilla can handle.");
                     break;
+                }
 
-                r.requiredTile[i] = t.Match(MiscExtensions.Identity, g => g[0]).Resolve().Type;
+                r.requiredItem[i] = new Item();
+                r.requiredItem[i].netDefaults(kvp.Key.Match(MiscExtensions.Identity, g => g[0]).Resolve().NetID);
+                r.requiredItem[i].stack = kvp.Value;
 
                 i++;
             }
@@ -84,10 +90,145 @@ namespace Prism.Mods.DefHandlers
             r.needLava  = (def.RequiredLiquids & RecipeLiquids.Lava ) != 0;
             r.needHoney = (def.RequiredLiquids & RecipeLiquids.Honey) != 0;
 
-            ////TODO: set any* to true when TileGroups are defined & implemented
-            // RecipeHooks.FindRecipes handles this
+            r.needSnowBiome = def.RequiresSnowBiome;
+
+            foreach (var kvp in def.RequiredItems)
+            {
+                if (!kvp.Key.IsLeft)
+                    continue;
+
+                if (kvp.Key.Left == ItemGroup.Fragment)
+                {
+                    r.anyFragment = true;
+                    r.requiredItem[i] = new Item();
+                    r.requiredItem[i].netDefaults(ItemID.FragmentVortex);
+                    r.requiredItem[i].stack = kvp.Value;
+                    i++;
+                }
+                else if (kvp.Key.Left == ItemGroup.Tier2Bar)
+                {
+                    r.anyIronBar = true;
+                    r.requiredItem[i] = new Item();
+                    r.requiredItem[i].netDefaults(ItemID.IronBar);
+                    r.requiredItem[i].stack = kvp.Value;
+                    i++;
+                }
+                else if (kvp.Key.Left == ItemGroup.PressurePlate)
+                {
+                    r.anySand = true;
+                    r.requiredItem[i] = new Item();
+                    r.requiredItem[i].netDefaults(ItemID.GrayPressurePlate);
+                    r.requiredItem[i].stack = kvp.Value;
+                    i++;
+                }
+                else if (kvp.Key.Left == ItemGroup.Sand)
+                {
+                    r.anySand = true;
+                    r.requiredItem[i] = new Item();
+                    r.requiredItem[i].netDefaults(ItemID.SandBlock);
+                    r.requiredItem[i].stack = kvp.Value;
+                    i++;
+                }
+                else if (kvp.Key.Left == ItemGroup.Wood)
+                {
+                    r.anyWood = true;
+                    r.requiredItem[i] = new Item();
+                    r.requiredItem[i].netDefaults(ItemID.Wood);
+                    r.requiredItem[i].stack = kvp.Value;
+                    i++;
+                }
+            }
 
             SettingUpRecipes = or;
+        }
+        static void CopyVanillaToDef(Recipe r, RecipeDef def)
+        {
+            def.CreateItem  = new ItemRef(r.createItem.netID);
+            def.CreateStack = r.createItem.stack;
+
+            var items = new Dictionary<ItemUnion, int>();
+            var tiles = new List<TileUnion>();
+
+            // * craftgroups are added from the vanilla recipegroups
+            // * all items that aren't recipegroup "iconic item"s are added to the item list
+            foreach (var it in r.requiredItem)
+            {
+                if (it.IsEmpty())
+                    break;
+
+                foreach (var gi in r.acceptedGroups)
+                {
+                    var g = RecipeGroup.recipeGroups[gi];
+
+                    if (g.ValidItems[g.IconicItemIndex] == it.netID)
+                        goto CONTINUE_OUTER;
+                }
+
+                items.Add(new ItemRef(it.netID), it.stack);
+            CONTINUE_OUTER:;
+            }
+
+            foreach (var gi in r.acceptedGroups)
+            {
+                var g = RecipeGroup.recipeGroups[gi];
+
+                var icon = r.requiredItem.First(it => it.netID == g.ValidItems[g.IconicItemIndex]);
+
+                items.Add(ItemGroupFromVanilla(g), icon.stack);
+            }
+
+            foreach (var ti in r.requiredTile)
+            {
+                if (ti < 0)
+                    break;
+
+                tiles.Add(new TileRef(ti));
+            }
+
+            if (r.needWater) { def.RequiredLiquids |= RecipeLiquids.Water; }
+            if (r.needLava ) { def.RequiredLiquids |= RecipeLiquids.Lava ; }
+            if (r.needHoney) { def.RequiredLiquids |= RecipeLiquids.Honey; }
+
+            def.RequiresSnowBiome = r.needSnowBiome;
+
+            if (r.anyFragment     )
+                foreach (var it in r.requiredItem)
+                    if (ItemGroup.Fragment.List.Any(fi => fi.Resolve().NetID == it.netID))
+                    {
+                        items.Add(ItemGroup.Fragment     , it.stack);
+                        break;
+                    }
+            if (r.anyIronBar      )
+                foreach (var it in r.requiredItem)
+                    if (ItemGroup.Fragment.List.Any(fi => fi.Resolve().NetID == it.netID))
+                    {
+                        items.Add(ItemGroup.Tier2Bar     , it.stack);
+                        break;
+                    }
+            if (r.anyPressurePlate)
+                foreach (var it in r.requiredItem)
+                    if (ItemGroup.Fragment.List.Any(fi => fi.Resolve().NetID == it.netID))
+                    {
+                        items.Add(ItemGroup.PressurePlate, it.stack);
+                        break;
+                    }
+            if (r.anySand         )
+                foreach (var it in r.requiredItem)
+                    if (ItemGroup.Fragment.List.Any(fi => fi.Resolve().NetID == it.netID))
+                    {
+                        items.Add(ItemGroup.Sand         , it.stack);
+                        break;
+                    }
+            if (r.anyWood         )
+                foreach (var it in r.requiredItem)
+                    if (ItemGroup.Fragment.List.Any(fi => fi.Resolve().NetID == it.netID))
+                    {
+                        items.Add(ItemGroup.Wood         , it.stack);
+                        break;
+                    }
+
+            def.RequiredItems = items;
+            def.RequiredTiles = tiles;
         }
 
         static void ExtendVanillaArrays(int amt = 1)
@@ -142,7 +283,7 @@ namespace Prism.Mods.DefHandlers
             Recipe.numRecipes = 0;
 
             SettingUpRecipes = true ;
-            Recipe.SetupRecipes();
+            Recipe.SetupRecipes(); // calls SetupRecipeGroups
             CheckRecipes();
             SettingUpRecipes = false;
 
@@ -154,41 +295,15 @@ namespace Prism.Mods.DefHandlers
             for (int i = 0; i < Recipe.numRecipes; i++)
             {
                 var r = Main.recipe[i];
+                var d = new RecipeDef(
+                        new ItemRef(r.createItem.netID), r.createItem.stack,
+                        Empty<ItemUnion, int>.Dictionary, Empty<TileUnion>.Array);
 
-                recipes.Add(new RecipeDef(
-                    new ItemRef(r.createItem.netID),
-                    r.createItem.stack,
-                    r.requiredItem.TakeWhile(it => it.type != 0)
-                        // do not include RecipeGroup items
-                        .Where (it => r.acceptedGroups.Any(gid =>
-                        {
-                            var g = RecipeGroup.recipeGroups[gid];
+                CopyVanillaToDef(r, d);
 
-                            return g.ValidItems[g.IconicItemIndex] != it.netID;
-                        }))
-                        // add regular items
-                        .Select(it => new KeyValuePair<ItemUnion, int>(new ItemRef(it.netID), it.stack))
-                        // add craft groups
-                        .Concat(r.acceptedGroups.Select(it =>
-                        {
-                            var g = RecipeGroup.recipeGroups[it];
-                            var sind = Array.FindIndex(r.requiredItem,
-                                        item => item.netID == g.ValidItems[g.IconicItemIndex]);
+                recipes.Add(d);
 
-                            return new KeyValuePair<ItemUnion, int>(
-                                ItemGroupFromVanilla(g),
-                                r.requiredItem[sind].stack);
-                        }))
-                        .ToDictionary(),
-                    r.requiredTile.TakeWhile( t =>  t      >= 0)
-                        .Select( t => new TileRef(t)),
-                    (r.needWater ? RecipeLiquids.Water : 0) |
-                    (r.needLava  ? RecipeLiquids.Lava  : 0) |
-                    (r.needHoney ? RecipeLiquids.Honey : 0)  )
-                {
-                    Mod              = PrismApi.VanillaInfo,
-                    AlchemyReduction = r.alchemy
-                });
+                r.P_GroupDef = d;
             }
 
             DefNumRecipes = Recipe.numRecipes;
@@ -224,8 +339,6 @@ namespace Prism.Mods.DefHandlers
 
                 Recipe.AddRecipe();
             }
-
-            Recipe.numRecipes += c;
 
             return ret;
         }

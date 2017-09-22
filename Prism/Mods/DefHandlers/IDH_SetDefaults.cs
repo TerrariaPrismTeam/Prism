@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Prism.API;
 using Prism.API.Behaviours;
+using Prism.API.Defs;
 using Prism.Debugging;
 using Prism.IO;
 using Prism.Mods.BHandlers;
@@ -23,7 +24,7 @@ namespace Prism.Mods.DefHandlers
             item.P_BHandler = null;
             item.P_UseSound = null;
 
-            if (ModLoader.Reloading)
+            if (ModLoader.Unloading || (ModLoader.Loading && !RecipeDefHandler.SettingUpRecipes))
             {
                 item.RealSetDefaults(type, noMatCheck);
 
@@ -40,11 +41,10 @@ namespace Prism.Mods.DefHandlers
 
             item.RealSetDefaults(0, noMatCheck);
 
-            if (Handler.ItemDef.DefsByType.ContainsKey(type))
+            ItemDef d;
+            if (Handler.ItemDef.DefsByType.TryGetValue(type, out d))
             {
-                var d = Handler.ItemDef.DefsByType[type];
-
-                item.type = item.netID = type;
+                item.type  = item.netID = type;
                 item.width = item.height = 16;
                 item.stack = item.maxStack = 1;
 

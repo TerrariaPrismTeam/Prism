@@ -27,6 +27,21 @@ namespace Prism.Util
         public readonly EitherKind Kind;
         readonly object v;
 
+        public bool IsLeft
+        {
+            get
+            {
+                return Kind == EitherKind.Left;
+            }
+        }
+        public bool IsRight
+        {
+            get
+            {
+                return Kind == EitherKind.Right;
+            }
+        }
+
         public T1 Right
         {
             get

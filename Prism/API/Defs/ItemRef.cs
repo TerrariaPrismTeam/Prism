@@ -5,6 +5,7 @@ using System.Reflection;
 using Prism.Mods;
 using Prism.Mods.DefHandlers;
 using Prism.Util;
+using Terraria;
 using Terraria.ID;
 
 namespace Prism.API.Defs
@@ -91,6 +92,18 @@ namespace Prism.API.Defs
         public static implicit operator Either<ItemRef, ItemGroup>(ItemRef r)
         {
             return Either<ItemRef, ItemGroup>.NewRight(r);
+        }
+
+        public static implicit operator ItemRef(Item it)
+        {
+            if (it.netID < ItemID.Count)
+                return new ItemRef(it.netID);
+
+            ItemDef d;
+            if (Handler.ItemDef.DefsByType.TryGetValue(it.netID, out d))
+                return d;
+
+            throw new InvalidOperationException("Item '" + it + "' (" + it.netID + ") is not in the def database.");
         }
     }
 }

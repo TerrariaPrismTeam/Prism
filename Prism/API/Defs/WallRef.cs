@@ -32,10 +32,7 @@ namespace Prism.API.Defs
              * the compiler... >__>
              */
             if (resourceId < 0 || (uint)resourceId >= unchecked((uint)WallID.Count))
-            {
-                Console.Error.WriteLine("The resourceId must be a vanilla wall type, but is " + resourceId + "/" + WallID.Count + ".");
                 throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla wall type, but is " + resourceId + "/" + WallID.Count + ".");
-            }
         }
         public WallRef(ObjectRef objRef)
             : base(objRef, Assembly.GetCallingAssembly())
@@ -89,6 +86,18 @@ namespace Prism.API.Defs
                 throw new InvalidOperationException("Wall reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the wall is not loaded.");
 
             return r;
+        }
+
+        public static implicit operator WallRef(int w)
+        {
+            if (w < WallID.Count)
+                return new WallRef(w);
+
+            WallDef d;
+            if (Handler.WallDef.DefsByType.TryGetValue(w, out d))
+                return d;
+
+            throw new InvalidOperationException("Wall " + w + " is not in the def database.");
         }
     }
 }

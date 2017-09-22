@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Prism.API;
 using Prism.API.Defs;
+using Prism.Debugging;
 using Prism.Util;
 using Terraria;
 using Terraria.GameContent.Achievements;
@@ -14,196 +15,112 @@ namespace Prism.Mods.Hooks
     using ItemUnion = Either<ItemRef, CraftGroup<ItemDef, ItemRef>>;
     using TileUnion = Either<TileRef, CraftGroup<TileDef, TileRef>>;
 
-    [Obsolete]
+    using ItemSlot = Item; // clearer difference between 'abstract' item type & item in inv
+
+    using MergedInv = Dictionary<ItemRef, List<Item>>;
+
     static class RecipeHooks
     {
-        static Func<ItemRef, bool> RefEq(int netID)
+        // create a collection with all item slots currently available
+        static IEnumerable<ItemSlot> GetInv(Player p)
         {
-            return r => r.ResourceID.HasValue ? netID == r.ResourceID.Value : r.Resolve().NetID == netID;
-        }
-        static KeyValuePair<ItemUnion, int>? UsesItem(Recipe r, int netID)
-        {
-            if (netID == 0)
-                return null;
+            foreach (var it in p.inventory) yield return it;
 
-            if (r.P_GroupDef as RecipeDef != null)
+            switch (p.chest)
             {
-                var rd = (RecipeDef)r.P_GroupDef;
+                case -1: break;
+                case -4:
+                    foreach (var it in p.bank3.item) yield return it;
+                    break;
+                case -3:
+                    foreach (var it in p.bank2.item) yield return it;
+                    break;
+                case -2:
+                    foreach (var it in p.bank .item) yield return it;
+                    break;
+                default:
+                    if (p.chest < -4) break;
 
-                foreach (var id in rd.RequiredItems)
-                {
-                    var e = RefEq(netID);
-
-                    if (id.Key.Match(e, ig => ig.Any(e)))
-                        return id;
-                }
-            }
-            else
-                for (int i = 0; i < r.requiredItem.Length && !r.requiredItem[i].IsEmpty(); i++)
-                {
-                    var it = r.requiredItem[i];
-
-                    if (it.netID == netID ||
-                            r.useWood         (netID, it.type) ||
-                            r.useSand         (netID, it.type) ||
-                            r.useIronBar      (netID, it.type) ||
-                            r.useFragment     (netID, it.type) ||
-                            r.usePressurePlate(netID, it.type))
-                        return new KeyValuePair<ItemUnion, int>(ItemUnion.NewRight(ItemDef.Defs[it.netID]), it.stack);
-                }
-
-            return null;
-        }
-        static void FindGuideRecipes()
-        {
-            for (int i = 0; i < Recipe.maxRecipes && !Main.recipe[i].createItem.IsEmpty(); i++)
-                if (UsesItem(Main.recipe[i], Main.guideItem.netID).HasValue)
-                {
-                    Main.availableRecipe[Main.numAvailableRecipes] = i;
-                    Main.numAvailableRecipes++;
-                }
-        }
-
-        static void Merge(Dictionary<int, int> dict, Item item)
-        {
-            int stack;
-            if (dict.TryGetValue(item.netID, out stack))
-                dict[item.netID] = stack + item.stack;
-            else
-                dict.Add(item.netID, item.stack);
-        }
-        static Dictionary<int, int> MergeInventory()
-        {
-            var dict = new Dictionary<int, int>();
-
-            var mp = Main.player[Main.myPlayer];
-            Item item = null;
-            var inv = mp.inventory;
-
-            for (int k = 0; k < Main.maxInventory; k++)
-            {
-                item = inv[k];
-
-                if (!item.IsEmpty())
-                    Merge(dict, item);
+                    foreach (var it in Main.chest[p.chest].item) yield return it;
+                    break;
             }
 
-            if (mp.chest != -1 && mp.chest > -5)
-            {
-                if (mp.chest == -2)
-                    inv = mp.bank.item;
-                else if (mp.chest == -3)
-                    inv = mp.bank2.item;
-                else if (mp.chest == -4)
-                    inv = mp.bank3.item;
-                else
-                    inv = Main.chest[mp.chest].item;
-
-                for (int l = 0; l < Chest.maxItems; l++)
-                {
-                    item = inv[l];
-
-                    if (!item.IsEmpty())
-                        Merge(dict, item);
-                }
-            }
-
-            return dict;
+            yield break;
         }
-        static void FindRecipesInner()
+
+        // transform the above into something more useful
+        static MergedInv MergeInv(this IEnumerable<ItemSlot> inv)
         {
-            var mp = Main.player[Main.myPlayer];
-            var items = MergeInventory();
+            var ret = new MergedInv();
 
-            for (int i = 0; i < Recipe.maxRecipes && !Main.recipe[i].createItem.IsEmpty(); i++)
+            foreach (var it in inv)
             {
-                var r = Main.recipe[i];
-
-                bool isA = true;
-
-                // check proximity of tiles
-                if (r.P_GroupDef as RecipeDef != null)
-                    foreach (var e in ((RecipeDef)r.P_GroupDef).RequiredTiles)
-                    {
-                        if (!e.Match(tr => mp.adjTile[tr.Resolve().Type], g => g.Any(tr => mp.adjTile[tr.Resolve().Type])))
-                        {
-                            isA = false;
-                            break;
-                        }
-                    }
-                else
-                    for (int j = 0; j < Recipe.maxRequirements && r.requiredTile[j] != -1; j++)
-                        if (!mp.adjTile[r.requiredTile[j]])
-                        {
-                            isA = false;
-                            break;
-                        }
-
-                if (!isA)
+                if (it.IsEmpty())
                     continue;
 
-                // check items
-                if (r.P_GroupDef as RecipeDef != null)
-                    foreach (var e in ((RecipeDef)r.P_GroupDef).RequiredItems)
-                    {
-                        int stack = e.Value;
-
-                        foreach (var current in items)
-                        {
-                            var eq = RefEq(current.Key);
-                            if (e.Key.Match(eq, g => g.Any(eq)))
-                                stack -= current.Value;
-                        }
-
-                        if (stack > 0)
-                        {
-                            isA = false;
-                            break;
-                        }
-                    }
+                List<ItemSlot> r;
+                if (ret.TryGetValue(it, out r))
+                    r.Add(it);
                 else
-                    for (int m = 0; m < Recipe.maxRequirements && !r.requiredItem[m].IsEmpty(); m++)
-                    {
-                        var it = r.requiredItem[m];
-
-                        bool found = false;
-                        int stack = it.stack;
-
-                        foreach (int current in items.Keys)
-                            if (r.useWood         (current, it.type) ||
-                                r.useSand         (current, it.type) ||
-                                r.useIronBar      (current, it.type) ||
-                                r.useFragment     (current, it.type) ||
-                                r.usePressurePlate(current, it.type))
-                            {
-                                stack -= items[current];
-                                found = true;
-                            }
-
-                        if (!found && items.ContainsKey(it.netID))
-                            stack -= items[it.netID];
-
-                        if (stack > 0)
-                        {
-                            isA = false;
-                            break;
-                        }
-                    }
-
-                if (!isA)
-                    continue;
-
-                // check liquids
-                bool water = !r.needWater || mp.adjWater || mp.adjTile[172];
-                bool honey = !r.needHoney || r.needHoney == mp.adjHoney;
-                bool lava  = !r.needLava  || r.needLava  == mp.adjLava ;
-
-                if (!water || !honey || !lava)
-                    continue;
-
-                Main.availableRecipe[Main.numAvailableRecipes] = i;
-                Main.numAvailableRecipes++;
+                {
+                    r = new List<ItemSlot>();
+                    r.Add(it);
+                    ret.Add(it, r);
+                }
             }
+
+            return ret;
+        }
+        static IEnumerable<ItemSlot> GetUsedSlots(MergedInv inv, ItemUnion ri)
+        {
+            List<ItemSlot> sl = null;
+
+            return ri.IsLeft
+                // if it's a craft group, we return the slots of all items that belong to it
+                ? ri.Left.SelectMany(ir => !inv.TryGetValue(ir, out sl)
+                    ? Empty<ItemSlot>.List : sl)
+                // otherwise, just return the slot of the single item
+                : !inv.TryGetValue(ri.Right, out sl) ? Empty<ItemSlot>.List : sl;
+        }
+
+        static bool HasItems(MergedInv inv, RecipeDef r)
+        {
+            return r.RequiredItems.All(kvp => GetUsedSlots(inv, kvp.Key).Sum(it => it.stack) >= kvp.Value);
+        }
+        static bool HasTiles(Player p, RecipeDef r)
+        {
+            return r.RequiredTiles.All(tr =>
+                tr.IsLeft
+                    ? tr.Left.Any(t => p.adjTile[t.Resolve().Type])
+                    : p.adjTile[tr.Right.Resolve().Type]
+            );
+        }
+        static bool HasMisc(Player p, RecipeDef rd)
+        {
+            // TODO: turn this into 1 big expr as well?
+            // ( if (foo) r &= p; -> r = p || !foo; /*etc*/ )
+            bool r = true;
+
+            if ((rd.RequiredLiquids & RecipeLiquids.Water) != 0)
+                r &= p.adjWater || p.adjTile[TileID.Sinks];
+            if ((rd.RequiredLiquids & RecipeLiquids.Lava ) != 0)
+                r &= p.adjLava ;
+            if ((rd.RequiredLiquids & RecipeLiquids.Honey) != 0)
+                r &= p.adjHoney;
+
+            if (rd.RequiresSnowBiome) r &= p.ZoneSnow;
+
+            return r;
+        }
+
+        static bool IsAvailable(Player p, MergedInv inv, RecipeDef r)
+        {
+            // TODO: add a hook here?
+            return HasItems(inv, r) && HasTiles(p, r) && HasMisc(p, r);
+        }
+        static bool IsGuideAvailable(ItemRef it, RecipeDef rd)
+        {
+            return rd.RequiredItems.Keys.Any(iu => iu.IsLeft ? iu.Left.Any(ri => ri == it) : iu.Right == it);
         }
 
         internal static void FindRecipes()
@@ -211,234 +128,90 @@ namespace Prism.Mods.Hooks
             int oldFocusRecipe = Main.availableRecipe [Main.focusRecipe];
             float scrollUiYPos = Main.availableRecipeY[Main.focusRecipe];
 
-            for (int i = 0; i < Recipe.maxRecipes; i++)
-                Main.availableRecipe[i] = 0;
+            Array.Clear(Main.availableRecipe, 0, Main.availableRecipe.Length);
             Main.numAvailableRecipes = 0;
 
-            if (Main.guideItem.type > 0 && Main.guideItem.stack > 0 && !String.IsNullOrEmpty(Main.guideItem.Name)) // in guide UI
-                FindGuideRecipes();
-            else
-                FindRecipesInner();
+            var p = Main.player[Main.myPlayer];
+            var guide = !Main.guideItem.IsEmpty();
+            var minv = guide ? EmptyClass<MergedInv>.Default : GetInv(p).MergeInv();
+            var ig = guide ? (ItemRef)Main.guideItem : null;
 
-            for (int n = 0; n < Main.numAvailableRecipes; n++)
-                if (oldFocusRecipe == Main.availableRecipe[n])
+            for (int i = 0; i < Main.recipe.Length; i++)
+            {
+                if (Main.recipe[i].createItem.IsEmpty())
+                    continue;
+
+                var r = Main.recipe[i];
+
+                if (r.P_GroupDef as RecipeDef == null)
                 {
-                    Main.focusRecipe = n;
+                    Logging.LogWarning("FindRecipes(): Recipe " + i + " doesn't have a RecipeDef attached!");
+                    continue;
+                }
+
+                var rd = (RecipeDef)r.P_GroupDef;
+
+                if ((guide && IsGuideAvailable(ig, rd)) || (!guide && IsAvailable(p, minv, rd)))
+                    Main.availableRecipe[Main.numAvailableRecipes++] = i;
+            }
+
+            for (int i = 0; i < Main.numAvailableRecipes; i++)
+                if (oldFocusRecipe == Main.availableRecipe[i])
+                {
+                    Main.focusRecipe = i;
                     break;
                 }
 
             Main.focusRecipe = Math.Max(0, Math.Min(Main.focusRecipe, Main.numAvailableRecipes - 1));
 
             float yDiff = Main.availableRecipeY[Main.focusRecipe] - scrollUiYPos;
-            for (int i = 0; i < Recipe.maxRecipes; i++)
+            for (int i = 0; i < Main.availableRecipeY.Length; i++)
                 Main.availableRecipeY[i] -= yDiff;
         }
 
-        static int AlchReduction(Recipe r, int stack)
+        // assumes HasItems returned true
+        static void Consume(IEnumerable<ItemSlot> slots, int stack)
         {
-            if (r.alchemy && Main.player[Main.myPlayer].alchemyTable)
+            foreach (var slot in slots)
             {
-                if (stack > 1)
+                // we have enough to craft the whole bunch
+                if (slot.stack > stack)
                 {
-                    int reduction = 0;
-                    for (int i = 0; i < stack; i++)
-                        if (Main.rand.Next(3) == 0)
-                            reduction++;
-
-                    stack -= reduction;
+                    slot.stack -= stack;
+                    return;
                 }
-                else if (Main.rand.Next(3) == 0)
-                    stack = 0;
-            }
 
-            return stack;
-        }
-
-        static int ConsumeItem(ItemDef id, int stack)
-        {
-            var mp = Main.player[Main.myPlayer];
-
-            var inv = mp.inventory;
-            Item item = null;
-
-            for (int i = 0; i < Main.maxInventory && stack > 0; i++)
-            {
-                item = inv[i];
-
-                if (item.netID != id.NetID)
-                    continue;
-
-                if (item.stack > stack)
-                {
-                    item.stack -= stack;
-                    stack = 0;
-                }
-                else
-                {
-                    stack -= item.stack;
-
-                    item.SetDefaults(0);
-                    item.stack = 0;
-                }
-            }
-
-            if (mp.chest != -1 && mp.chest > -5)
-            {
-                if (mp.chest == -2)
-                    inv = mp.bank.item;
-                else if (mp.chest == -3)
-                    inv = mp.bank2.item;
-                else if (mp.chest == -4)
-                    inv = mp.bank3.item;
-                else
-                    inv = Main.chest[mp.chest].item;
-
-                for (int i = 0; i < Chest.maxItems && stack > 0; i++)
-                {
-                    item = inv[i];
-
-                    if (item.netID != id.NetID)
-                        continue;
-
-                    if (item.stack > stack)
-                    {
-                        item.stack -= stack;
-
-                        if (Main.netMode == 1 && mp.chest >= 0)
-                            NetMessage.SendData(MessageID.SyncChestItem, -1, -1, NetworkText.Empty, mp.chest, i, 0f, 0f, 0, 0, 0);
-
-                        stack = 0;
-                    }
-                    else
-                    {
-                        stack -= item.stack;
-
-                        item.SetDefaults(0);
-                        item.stack = 0;
-
-                        if (Main.netMode == 1 && mp.chest >= 0)
-                            NetMessage.SendData(MessageID.SyncChestItem, -1, -1, NetworkText.Empty, mp.chest, i, 0f, 0f, 0, 0, 0);
-                    }
-                }
-            }
-
-            return stack;
-        }
-        static int ConsumeGroup(CraftGroup<ItemDef, ItemRef> g, int stack)
-        {
-            for (var i = 0; i < g.Count && stack > 0; i++)
-                stack = ConsumeItem(g[i].Resolve(), stack);
-
-            return stack;
-        }
-
-        static void CreateBasic(this Recipe r)
-        {
-            for (int i = 0; i < Recipe.maxRequirements && !r.requiredItem[i].IsEmpty(); i++)
-            {
-                Item item = r.requiredItem[i];
-
-                int stack = AlchReduction(r, item.stack);
-
-                if (stack <= 0)
-                    continue;
-
-                var mp = Main.player[Main.myPlayer];
-
-                var inv = mp.inventory;
-                Item invItem = null;
-
-                for (int j = 0; j < Main.maxInventory && stack > 0; j++)
-                {
-                    invItem = inv[j];
-
-                    if (invItem.IsTheSameAs(item) ||
-                            r.useWood(invItem.type, item.type) ||
-                            r.useSand(invItem.type, item.type) ||
-                            r.useFragment(invItem.type, item.type) ||
-                            r.useIronBar(invItem.type, item.type) ||
-                            r.usePressurePlate(invItem.type, item.type))
-                        if (invItem.stack > stack)
-                        {
-                            invItem.stack -= stack;
-                            stack = 0;
-                        }
-                        else
-                        {
-                            stack -= invItem.stack;
-
-                            invItem.SetDefaults(0);
-                            invItem.stack = 0;
-                        }
-                }
-                if (mp.chest != -1 && mp.chest > -5)
-                {
-                    if (mp.chest == -2)
-                        inv = mp.bank.item;
-                    else if (mp.chest == -3)
-                        inv = mp.bank2.item;
-                    else if (mp.chest == -4)
-                        inv = mp.bank3.item;
-                    else
-                        inv = Main.chest[mp.chest].item;
-
-                    for (int k = 0; k < Chest.maxItems && stack > 0; k++)
-                    {
-                        invItem = inv[k];
-
-                        if (invItem.IsTheSameAs(item) ||
-                                r.useWood(invItem.type, item.type) ||
-                                r.useSand(invItem.type, item.type) ||
-                                r.useIronBar(invItem.type, item.type) ||
-                                r.usePressurePlate(invItem.type, item.type) ||
-                                r.useFragment(invItem.type, item.type))
-                            if (invItem.stack > stack)
-                            {
-                                invItem.stack -= stack;
-
-                                if (Main.netMode == 1 && mp.chest >= 0)
-                                    NetMessage.SendData(MessageID.SyncChestItem, -1, -1, NetworkText.Empty, mp.chest, k, 0f, 0f, 0, 0, 0);
-
-                                stack = 0;
-                            }
-                            else
-                            {
-                                stack -= invItem.stack;
-
-                                invItem.SetDefaults(0);
-                                invItem.stack = 0;
-
-                                if (Main.netMode == 1 && mp.chest >= 0)
-                                    NetMessage.SendData(MessageID.SyncChestItem, -1, -1, NetworkText.Empty, mp.chest, k, 0f, 0f, 0, 0, 0);
-                            }
-                    }
-                }
+                // deplete this slot
+                stack -= slot.stack;
+                slot.TurnToAir();
             }
         }
-        static void CreateUnion(this Recipe r)
-        {
-            var rd = (RecipeDef)r.P_GroupDef;
 
-            foreach (var iu in rd.RequiredItems)
-            {
-                int stack = AlchReduction(r, iu.Value);
-
-                if (stack <= 0)
-                    continue;
-
-                iu.Key.Match(ir => ConsumeItem(ir.Resolve(), stack), g => ConsumeGroup(g, stack));
-            }
-        }
         internal static void Create(Recipe r)
         {
+            var p = Main.player[Main.myPlayer];
+
             if (r.P_GroupDef as RecipeDef == null)
-                r.CreateBasic();
-            else
-                r.CreateUnion();
+            {
+                Logging.LogWarning("Create(): Recipe.P_GroupDef was null!");
+                r.RealCreate();
+                return;
+            }
+
+            var rd = (RecipeDef)r.P_GroupDef;
+
+            var minv = GetInv(p).MergeInv();
+
+            foreach (var kvp in rd.RequiredItems)
+            {
+                var slots = GetUsedSlots(minv, kvp.Key);
+                Consume(slots, kvp.Value);
+            }
 
             AchievementsHelper.NotifyItemCraft(r);
-            AchievementsHelper.NotifyItemPickup(Main.player[Main.myPlayer], r.createItem);
+            AchievementsHelper.NotifyItemPickup(p, r.createItem);
             Recipe.FindRecipes();
         }
     }
 }
+

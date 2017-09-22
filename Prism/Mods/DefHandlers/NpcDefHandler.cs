@@ -182,10 +182,10 @@ namespace Prism.Mods.DefHandlers
             npc.P_SoundOnHit   = def.SoundOnHit  ;
             npc.P_SoundOnDeath = def.SoundOnDeath;
             npc.HitSound       = def.SoundOnHit   == null
-                ? defLss // may not be null, see src of StrikeNPC
+                ? null
                 : new LegacySoundStyle(SoundID.NPCHit   , def.SoundOnHit  .VariantID);
             npc.DeathSound     = def.SoundOnDeath == null
-                ? defLss : new LegacySoundStyle(SoundID.NPCKilled, def.SoundOnDeath.VariantID);
+                ? null : new LegacySoundStyle(SoundID.NPCKilled, def.SoundOnDeath.VariantID);
 
             for (int i = 0; i < def.BuffImmunities.Count; i++)
                 npc.buffImmune[i] = true;

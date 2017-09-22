@@ -256,6 +256,10 @@ namespace Prism.API
                         return VanillaBgms.MoonLord;
                     case 39:
                         return VanillaBgms.GoblinArmy;
+                    case 40:
+                        return VanillaBgms.Sandstorm;
+                    case 41:
+                        return VanillaBgms.OldOnesArmy;
                 }
 
                 throw new ArgumentOutOfRangeException("id", "The id must be a vanilla BGM ID.");
@@ -372,6 +376,8 @@ namespace Prism.API
                         return VanillaSfxes.Camera;
                     case 41:
                         return VanillaSfxes.MoonLordCry;
+                    case 42:
+                        return VanillaSfxes.DD2Sound;
                 }
 
                 throw new ArgumentOutOfRangeException("id", "The id must be a vanilla SFX ID.");

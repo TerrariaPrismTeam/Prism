@@ -131,10 +131,11 @@ namespace Prism.API
         }
         public T ById(int id)
         {
-            if (id >= maxIdValue || !VanillaDefsById.ContainsKey(id))
+            T r;
+            if (id >= maxIdValue || !VanillaDefsById.TryGetValue(id, out r))
                 throw new ArgumentOutOfRangeException("id", "The id must be a vanilla " + objName + " id.");
 
-            return VanillaDefsById[id];
+            return r;
         }
         public T ByIdUnsafe(int id)
         {
@@ -160,6 +161,16 @@ namespace Prism.API
             var modDefs = ModData.mods.Select(GetModDefsInUsefulFormat).Flatten();
 
             return vanillaDefs.Concat(modDefs);
+
+            /*
+             * let vanillaDefs = map toRefDefPair VanillaDefsByName
+             * let modDefs     = mods ModData >>= GetModDefsInUsefulFormat
+             * in vanillaDefs ++ modDefs
+             *   where toRefDefPair id = ObjectRef $ InternalName id, id
+             *         toModRDPair inf (n, v) = ObjectRef n inf, v
+             *         GetModDefsInUsefulFormat (inf, def) =
+             *             map (toModRDPair inf) $ getModDefs def
+             */
         }
         IEnumerable<KeyValuePair<ObjectRef, TEntityDef>> GetModDefsInUsefulFormat(KeyValuePair<ModInfo, ModDef> kvp)
         {

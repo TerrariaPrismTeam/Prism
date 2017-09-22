@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Audio;
 
 namespace Prism.Mods.Resources
 {
+    // TODO: write a proper wav reader
     // reads a wave file in chuncks and puts it in a DynamicSoundEffectInstance
     // uses less memory, because it's streamed
     class DSEIResourceReader : ResourceReader<DynamicSoundEffectInstance>

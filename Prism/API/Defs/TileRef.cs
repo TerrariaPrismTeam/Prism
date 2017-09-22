@@ -5,6 +5,7 @@ using System.Reflection;
 using Prism.Mods;
 using Prism.Mods.DefHandlers;
 using Prism.Util;
+using Terraria;
 using Terraria.ID;
 
 namespace Prism.API.Defs
@@ -27,8 +28,8 @@ namespace Prism.API.Defs
         public TileRef(int resourceId)
             : base(resourceId, ToResName)
         {
-            if ((uint)resourceId >= unchecked((uint)TileID.Count))
-                throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla Tile type.");
+            if (unchecked((uint)resourceId) >= unchecked((uint)TileID.Count))
+                throw new ArgumentOutOfRangeException("resourceId", "The resourceId must be a vanilla Tile type (" + resourceId + "/" + TileID.Count + ").");
         }
         public TileRef(ObjectRef objRef)
             : base(objRef, Assembly.GetCallingAssembly())
@@ -91,6 +92,18 @@ namespace Prism.API.Defs
         public static implicit operator Either<TileRef, TileGroup>(TileRef r)
         {
             return Either<TileRef, TileGroup>.NewRight(r);
+        }
+
+        public static implicit operator TileRef(Tile t)
+        {
+            if (t.type < TileID.Count)
+                return new TileRef(t.type);
+
+            TileDef d;
+            if (Handler.TileDef.DefsByType.TryGetValue(t.type, out d))
+                return d;
+
+            throw new InvalidOperationException("Tile '" + t + "' (" + t.type + ") is not in the def database.");
         }
     }
 }

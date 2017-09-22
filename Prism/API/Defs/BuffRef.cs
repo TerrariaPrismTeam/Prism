@@ -83,5 +83,17 @@ namespace Prism.API.Defs
 
             return r;
         }
+
+        public static implicit operator BuffRef(int b)
+        {
+            if (b < BuffID.Count)
+                return new BuffRef(b);
+
+            BuffDef d;
+            if (Handler.BuffDef.DefsByType.TryGetValue(b, out d))
+                return d;
+
+            throw new InvalidOperationException("Buff " + b + " is not in the def database.");
+        }
     }
 }

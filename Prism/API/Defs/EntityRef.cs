@@ -9,6 +9,7 @@ namespace Prism.API.Defs
 {
     public abstract class EntityRef<TDef> : IEquatable<EntityRef<TDef>>
     {
+        ObjectRef oref;
         Lazy<string> resName;
 
         public string ResourceName
@@ -20,21 +21,25 @@ namespace Prism.API.Defs
         }
         public string ModName
         {
-            get;
-            private set;
+            get
+            {
+                return oref.ModName;
+            }
         }
 
         protected ModDef Requesting
         {
-            get;
-            private set;
+            get
+            {
+                return oref.requesting;
+            }
         }
 
         public bool IsVanillaRef
         {
             get
             {
-                return String.IsNullOrEmpty(ModName) || ModName == PrismApi.VanillaString || ModName == PrismApi.TerrariaString;
+                return oref.IsVanillaRef;
             }
         }
 
@@ -42,7 +47,7 @@ namespace Prism.API.Defs
         {
             get
             {
-                return String.IsNullOrEmpty(ModName) ? ModInfo.Empty : (IsVanillaRef ? PrismApi.VanillaInfo : ModData.mods.Keys.FirstOrDefault(mi => mi.InternalName == ModName));
+                return oref.Mod;
             }
         }
 
@@ -53,9 +58,8 @@ namespace Prism.API.Defs
         protected EntityRef(ObjectRef objRef, Assembly calling)
             : this(() => objRef.Name)
         {
-            ModName = objRef.ModName;
-
-            Requesting = ModData.ModFromAssembly(calling);
+            oref = objRef;
+            oref.requesting = ModData.ModFromAssembly(calling);
         }
 
         public abstract TDef Resolve();
@@ -86,10 +90,7 @@ namespace Prism.API.Defs
 
         public static implicit operator ObjectRef(EntityRef<TDef> e)
         {
-            return new ObjectRef(e.ResourceName, e.ModName)
-            {
-                requesting = e.Requesting
-            };
+            return e.oref;
         }
     }
     public abstract class EntityRefWithId<TDef> : EntityRef<TDef>

@@ -15,7 +15,7 @@ namespace Prism.API
         {
             name       = String.Empty,
             modName    = String.Empty,
-            requesting = ModData.ModFromAssembly(Assembly.GetExecutingAssembly())
+            requesting = null
         };
 
         public string Name
@@ -37,11 +37,14 @@ namespace Prism.API
         {
             get
             {
+                if (requesting != null)
+                    return requesting.Info;
+
                 if (String.IsNullOrEmpty(modName) || modName == PrismApi.TerrariaString || modName == PrismApi.VanillaString)
                     return PrismApi.VanillaInfo;
 
-                if (ModData.ModsFromInternalName.ContainsKey(modName))
-                    return ModData.ModsFromInternalName[modName].Info;
+                if (ModData.ModsFromInternalName.TryGetValue(modName, out requesting))
+                    return requesting.Info;
 
                 throw new InvalidOperationException("Mod  " + modName + " not loaded.");
             }
@@ -52,6 +55,14 @@ namespace Prism.API
             get
             {
                 return String.IsNullOrEmpty(name);
+            }
+        }
+
+        public bool IsVanillaRef
+        {
+            get
+            {
+                return (String.IsNullOrEmpty(ModName) || ModName == PrismApi.VanillaString || ModName == PrismApi.TerrariaString) && requesting == null;
             }
         }
 
@@ -71,9 +82,9 @@ namespace Prism.API
 
         }
         public ObjectRef(string name, ModInfo mod)
-            : this(name, mod.InternalName)
+            : this(name, mod.InternalName, Assembly.GetCallingAssembly())
         {
-            requesting = null;
+
         }
 
         public bool Equals(ObjectRef other)

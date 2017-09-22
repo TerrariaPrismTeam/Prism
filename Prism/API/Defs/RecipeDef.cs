@@ -72,6 +72,12 @@ namespace Prism.API.Defs
             get;
             set;
         }
+        // TODO: remove this once standard tile sets are added
+        public bool RequiresSnowBiome
+        {
+            get;
+            set;
+        }
 
         public RecipeDef(ItemRef createItem, int stack, IDictionary<ItemUnion, int> reqItems,
                          IEnumerable<TileUnion> reqTiles = null, RecipeLiquids reqLiquids = RecipeLiquids.None)
@@ -98,3 +104,4 @@ namespace Prism.API.Defs
         }
     }
 }
+

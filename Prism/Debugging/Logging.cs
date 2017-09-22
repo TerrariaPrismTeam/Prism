@@ -94,8 +94,11 @@ namespace Prism.Debugging
             sw.WriteLine(s);
             sw.Flush();
 #if DEV_BUILD || DEBUG
-            Console.Error.WriteLine(s);
-            Console.Error.Flush();
+            if (Console.OpenStandardError() != Stream.Null)
+            {
+                Console.Error.WriteLine(s);
+                Console.Error.Flush();
+            }
 #endif
         }
 
@@ -122,9 +125,6 @@ namespace Prism.Debugging
             PrismTraceListener.RanLogger = true ;
             Trace.Fail(readable, text);
             PrismTraceListener.RanLogger = false;
-
-            if (Console.OpenStandardError() != Stream.Null)
-                Console.Error.WriteLine(text);
 
             Log(Error, text);
 

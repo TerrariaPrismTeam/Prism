@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Prism.Mods;
 using Prism.Mods.DefHandlers;
+using Terraria;
 using Terraria.ID;
 
 namespace Prism.API.Defs
@@ -81,6 +82,18 @@ namespace Prism.API.Defs
                 throw new InvalidOperationException("NPC reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the NPC is not loaded.");
 
             return r;
+        }
+
+        public static implicit operator NpcRef(NPC n)
+        {
+            if (n.netID < NPCID.Count)
+                return new NpcRef(n.netID);
+
+            NpcDef d;
+            if (Handler.NpcDef.DefsByType.TryGetValue(n.netID, out d))
+                return d;
+
+            throw new InvalidOperationException("NPC '" + n + "' (" + n.netID + ") is not in the def database.");
         }
     }
 }

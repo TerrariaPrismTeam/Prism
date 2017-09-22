@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Prism.Mods;
 using Prism.Mods.DefHandlers;
+using Terraria;
 
 namespace Prism.API.Defs
 {
@@ -80,6 +81,18 @@ namespace Prism.API.Defs
                 throw new InvalidOperationException("Mount reference '" + ResourceName + "' in mod '" + ModName + "' could not be resolved because the mount is not loaded.");
 
             return r;
+        }
+
+        public static implicit operator MountRef(Mount m)
+        {
+            if (m.Type < MountID.Count)
+                return new MountRef(m.Type);
+
+            MountDef d;
+            if (Handler.MountDef.DefsByType.TryGetValue(m.Type, out d))
+                return d;
+
+            throw new InvalidOperationException("Mount '" + m + "' (" + m.Type + ") is not in the def database.");
         }
     }
 }

@@ -65,7 +65,7 @@ namespace Prism.Injector.Patcher
                 p.RemoveInstructions(firstInstr, seqToRemove.Length);
             }
         }
-        static void AddIsChatAllowedHook()
+        static void AddIsChatAllowedHook(Action<string> log)
         {
             OpCode[] searchSeq =
             {
@@ -127,7 +127,7 @@ namespace Prism.Injector.Patcher
 
             if (mainInstrs[0] == null)
             {
-                Console.Error.WriteLine("MainPatcher.AddIsChatAllowedHook() could not find opcodes for checking Main.netMode to open chat. Update the opcode search array pls thx.");
+                log("MainPatcher.AddIsChatAllowedHook() could not find opcodes for checking Main.netMode to open chat. Update the opcode search array pls thx.");
                 return;
             }
 
@@ -727,7 +727,7 @@ namespace Prism.Injector.Patcher
             RemoveResolutionChangedMessage();
             DoAllAudioStuff(log);
 
-            //AddIsChatAllowedHook(); // FIXME
+            //AddIsChatAllowedHook(log); // FIXME
             //typeDef_Main.GetMethod("P_IsChatAllowed", MethodFlags.Public | MethodFlags.Static).Wrap(context);
             //AddLocalChatHook(log); // FIXME
             //typeDef_Main.GetMethod("P_LocalChat", MethodFlags.Public | MethodFlags.Static).Wrap(context);
