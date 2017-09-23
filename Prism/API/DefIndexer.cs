@@ -10,11 +10,14 @@ using Prism.Util;
 
 namespace Prism.API
 {
+    public delegate bool DefIndTryGet<T>(ObjectRef or, ModDef requesting, out T ret);
+
     public struct DefIndexer<T> : IEnumerable<KeyValuePair<ObjectRef, T>>
     {
         Func<ObjectRef, ModDef, T> byObjRef;
         Func<int, T> byId;
         Func<int, T> byIdUnsf;
+        DefIndTryGet<T> tryGet;
 
         IEnumerable<KeyValuePair<ObjectRef, T>> allDefs;
 
@@ -52,6 +55,16 @@ namespace Prism.API
             return byIdUnsf(id);
         }
 
+        public bool Has(ObjectRef rd)
+        {
+            T _;
+            return tryGet(rd, ModData.ModFromAssembly(Assembly.GetCallingAssembly()), out _);
+        }
+        public bool TryGet(ObjectRef rd, out T ret)
+        {
+            return tryGet(rd, ModData.ModFromAssembly(Assembly.GetCallingAssembly()), out ret);
+        }
+
         public IEnumerable<ObjectRef> Keys
         {
             get
@@ -67,12 +80,15 @@ namespace Prism.API
             }
         }
 
-        public DefIndexer(IEnumerable<KeyValuePair<ObjectRef, T>> allDefs, Func<ObjectRef, ModDef, T> byObjRef, Func<int, T> byId, Func<int, T> byIdUnsafe)
+        public DefIndexer(IEnumerable<KeyValuePair<ObjectRef, T>> allDefs,
+                Func<ObjectRef, ModDef, T> byObjRef, Func<int, T> byId,
+                Func<int, T> byIdUnsafe, DefIndTryGet<T> tryGet)
         {
             this.allDefs  = allDefs   ;
             this.byObjRef = byObjRef  ;
             this.byId     = byId      ;
             this.byIdUnsf = byIdUnsafe;
+            this.tryGet   = tryGet    ;
         }
 
         public IEnumerator<KeyValuePair<ObjectRef, T>> GetEnumerator()
@@ -140,6 +156,25 @@ namespace Prism.API
         public T ByIdUnsafe(int id)
         {
             return VanillaDefsById[id];
+        }
+
+        public bool TryGet(ObjectRef or, ModDef requesting, out T ret)
+        {
+            ret = default(T);
+
+            var req = requesting ?? or.requesting;
+
+            if (String.IsNullOrEmpty(or.ModName) && req != null && GetModDefs(req).TryGetValue(or.Name, out ret))
+                return true;
+
+            if (or.Mod == PrismApi.VanillaInfo)
+                return VanillaDefsByName.TryGetValue(or.Name, out ret);
+
+            ModDef md;
+            if (!ModData.ModsFromInternalName.TryGetValue(or.ModName, out md))
+               return false;
+
+            return GetModDefs(md).TryGetValue(or.Name, out ret);
         }
     }
     public sealed class EntityDIH<TEntity, TBehaviour, TEntityDef> : DIHelper<TEntityDef>

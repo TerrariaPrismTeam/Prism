@@ -82,10 +82,10 @@ namespace Prism.IO
 
         public override void Write(Union v, int s)
         {
-            if (pos > buffer.Length - s)
-                ResizeBuffer(buffer.Length + s);
-            if (pos > size - s)
-                size++;
+            if (pos + s > buffer.Length)
+                ResizeBuffer(pos + s);
+            if (pos + s > size)
+                size = pos + s;
 
             for (int i = 0; i < s; i++)
                 buffer[pos + i] = v[i];
@@ -154,7 +154,7 @@ namespace Prism.IO
         }
 
         // assuming n > 0
-        static int FastLog2(int n)
+        internal static int FastLog2(int n)
         {
             int bits = 0;
 
@@ -189,9 +189,9 @@ namespace Prism.IO
             if (requiredLength <= buffer.Length)
                 return;
 
-            var pow = requiredLength == 0 ? 1024 : FastLog2(requiredLength) - 1;
+            var pow = Math.Max(10, FastLog2(requiredLength) + 1);
 
-            Array.Resize(ref buffer, 2 << Math.Max(pow, 0));
+            Array.Resize(ref buffer, 1 << pow);
         }
 
         protected override void Dispose(bool disposing)

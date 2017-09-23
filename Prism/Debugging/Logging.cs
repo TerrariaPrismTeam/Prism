@@ -19,7 +19,6 @@ namespace Prism.Debugging
         readonly static string
             Fatal   = "FATAL ERROR: ",
             Warn    = "Warning: "    ,
-            UTC     = "UTC "         ,
 
             LogFile = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/prism.log";
 

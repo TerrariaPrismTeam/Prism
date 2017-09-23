@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Ionic.Zlib;
 using Prism.API;
 using Prism.API.Defs;
 using Prism.Debugging;
@@ -39,9 +40,10 @@ namespace Prism.IO
         /// </summary>
         /// <remarks>
         /// VERSION 0: created
-        /// VERSION 1: small header changes
+        /// VERSION 1: [breaking] small header changes
+        /// VERSION 2: [breaking] removed encryption, removed redundant data, added compression, reorder stuff so it compresses better
         /// </remarks>
-        const byte PLAYER_VERSION = 1;
+        const byte PLAYER_VERSION = 2;
         /// <summary>
         /// Save file version for .wld.prism files. Change whenever the format changes, and make checks in the loading code for backwards compatibility. Please add a changelog entry when changing.
         /// </summary>
@@ -51,38 +53,13 @@ namespace Prism.IO
         /// VERSION 2: added tile type support
         /// VERSION 3: added TileBehaviour support
         /// VERSION 4: rewritten TileBehaviour support, so it's not a dirty hack anymore.
+        /// VERSION 5: [breaking] removed encryption, removed redundant data, added compression, reorder stuff so it compresses better
         /// </remarks>
-        const byte WORLD_VERSION  = 4;
+        const byte WORLD_VERSION  = 5;
 
         const byte
-            MIN_PLAYER_SUPPORT_VER = 1,
-            MIN_WORLD_SUPPORT_VER  = 0;
-
-        /// <summary>
-        /// Base key used for file saving/loading.
-        /// </summary>
-        static byte[] ENCRYPTION_KEY = Encoding.Unicode.GetBytes("wH4t5_uP"); // Not inspired by vanilla at all ;D
-
-        /// <summary>
-        /// Generate encryption key using a string <paramref name="s" />.
-        /// </summary>
-        /// <param name="s">String to be used for generating the key</param>
-        /// <returns></returns>
-        static byte[] GenerateKey(string s)
-        {
-            if (s.Length > 8)
-                s = s.Substring(0, 8);
-            else //if (s.Length < 8)
-                s = s.PadLeft(8);
-
-            byte[] key = Encoding.Unicode.GetBytes(s);
-
-            // dat encryption
-            for (int i = 0; i < key.Length; i++)
-                key[i] += ENCRYPTION_KEY[i];
-
-            return key;
-        }
+            MIN_PLAYER_SUPPORT_VER = 2,
+            MIN_WORLD_SUPPORT_VER  = 5;
 
         /// <summary>
         /// Save <paramref name="slots" /> items from <paramref name="inventory" /> to the <paramref name="bb" />.
@@ -90,12 +67,11 @@ namespace Prism.IO
         /// <param name="bb">The writer for storing data</param>
         /// <param name="inventory">The array of items</param>
         /// <param name="slots">The amount of items in the inventory to save</param>
-        /// <param name="stack">Whether or not the stack size should be saved</param>
-        /// <param name="favourited">Whether or not the favourited state should be saved</param>
-        static void SaveItemSlots(BinBuffer bb, Item[] inventory, int slots, bool stack, bool favourited)
+        static void SaveItemSlots(BinBuffer bb, Item[] inventory, int slots = 0)
         {
+            if (slots <= 0) slots = iventory.Length;
+
             for (int i = 0; i < slots; i++)
-            {
                 if (inventory[i].type < ItemID.Count)
                     bb.Write(String.Empty); // write an empty string instead of 'Vanilla'
                 else
@@ -105,25 +81,20 @@ namespace Prism.IO
 
                     bb.Write(item.Mod.InternalName);
                     bb.Write(item.InternalName);
-
-                    // why, vanilla writes these already?
-                    // only type + mod data is needed imo (and prefix type (+ data?) later on)
-                    if (stack)
-                        bb.Write(inventory[i].stack);
-                    bb.WriteByte(inventory[i].prefix);
-                    if (favourited)
-                        bb.Write(inventory[i].favorited);
                 }
 
-                // Save Mod Data
+            // Save Mod Data
+            // this is done in a separate loop to decrease shannon entropy,
+            // and thus to make the file compress better
+            for (int i = 0; i < slots; i++)
+            {
                 if (inventory[i].P_BHandler != null)
                 {
                     ItemBHandler handler = (ItemBHandler)inventory[i].P_BHandler;
 
                     handler.Save(bb);
                 }
-                else
-                    bb.Write(0);
+                else bb.Write(0);
             }
         }
         /// <summary>
@@ -152,16 +123,12 @@ namespace Prism.IO
 
                         inventory[i].ToolTip = new[] { (ObjectName)mod, (ObjectName)item }.ToTooltip();
                     }
-                    else
-                        inventory[i].SetDefaults(id.Type);
-
-                    if (stack)
-                        inventory[i].stack = bb.ReadInt32();
-                    inventory[i].prefix = bb.ReadByte();
-                    if (favourited)
-                        inventory[i].favorited = bb.ReadBoolean();
+                    else inventory[i].SetDefaults(id.Type);
                 }
+            }
 
+            for (int i = 0; i < slots; i++)
+            {
                 // Load Mod Data
                 if (inventory[i].P_BHandler == null)
                 {
@@ -195,9 +162,8 @@ namespace Prism.IO
             {
                 fileStream.WriteByte(PLAYER_VERSION); // write this before doing the crypto stuff, so we can change it between versions
 
-                // can't we just get rid of this?
-                using (CryptoStream cryptoStream = new CryptoStream(fileStream, new RijndaelManaged() /*{ Padding = PaddingMode.None }*/.CreateEncryptor(GenerateKey(player.name), ENCRYPTION_KEY), CryptoStreamMode.Write))
-                using (BinBuffer bb = new BinBuffer(cryptoStream))
+                using (GZipStream zs = new GZipStream(fileStream, CompressionMode.Compress, CompressionLevel.Level9, false))
+                using (BinBuffer bb = new BinBuffer(zs))
                 {
                     #region Player Data
                     if (player.P_BHandler != null)
@@ -206,18 +172,17 @@ namespace Prism.IO
 
                         bh.Save(bb);
                     }
-                    else
-                        bb.Write(0);
+                    else bb.Write(0);
                     #endregion Player Data
 
                     #region Item Data
-                    SaveItemSlots(bb, player.armor, player.armor.Length, false, false);
-                    SaveItemSlots(bb, player.dye, player.dye.Length, false, false);
-                    SaveItemSlots(bb, player.inventory, Main.maxInventory, true, true);
-                    SaveItemSlots(bb, player.miscEquips, player.miscEquips.Length, false, false);
-                    SaveItemSlots(bb, player.bank.item, Chest.maxItems, true, false);
-                    SaveItemSlots(bb, player.bank2.item, Chest.maxItems, true, false);
-                    SaveItemSlots(bb, player.bank3.item, Chest.maxItems, true, false);
+                    SaveItemSlots(bb, player.armor, player.armor.Length);
+                    SaveItemSlots(bb, player.dye, player.dye.Length);
+                    SaveItemSlots(bb, player.inventory, Main.maxInventory);
+                    SaveItemSlots(bb, player.miscEquips, player.miscEquips.Length);
+                    SaveItemSlots(bb, player.bank.item, Chest.maxItems);
+                    SaveItemSlots(bb, player.bank2.item, Chest.maxItems);
+                    SaveItemSlots(bb, player.bank3.item, Chest.maxItems);
                     #endregion Item Data
 
                     #region Buff Data
@@ -231,7 +196,6 @@ namespace Prism.IO
 
                             bb.Write(buff.Mod.InternalName);
                             bb.Write(buff.InternalName);
-                            bb.Write(player.buffTime[i]);
                         }
 
                         if (player.P_BuffBHandler[i] != null)
@@ -240,8 +204,7 @@ namespace Prism.IO
 
                             bh.Save(bb);
                         }
-                        else
-                            bb.Write(0);
+                        else bb.Write(0);
                     }
                     #endregion Buff Data
                 }
@@ -269,8 +232,8 @@ namespace Prism.IO
                     if (version < MIN_PLAYER_SUPPORT_VER)
                         throw new FileFormatException("This player is saved in a format that is too old and unsupported.");
 
-                    using (CryptoStream cryptoStream = new CryptoStream(fileStream, new RijndaelManaged() { Padding = PaddingMode.None }.CreateDecryptor(GenerateKey(player.name), ENCRYPTION_KEY), CryptoStreamMode.Read))
-                    using (BinBuffer bb = new BinBuffer(cryptoStream))
+                    using (GZipStream zs = new GZipStream(fileStream, CompressionMode.Decompress, CompressionLevel.Level9, false))
+                    using (BinBuffer bb = new BinBuffer(zs))
                     {
                         #region Player Data
                         if (player.P_BHandler == null)
@@ -284,13 +247,13 @@ namespace Prism.IO
                         #endregion Player Data
 
                         #region Item Data
-                        LoadItemSlots(bb, player.armor, player.armor.Length, false, false);
-                        LoadItemSlots(bb, player.dye, player.dye.Length, false, false);
-                        LoadItemSlots(bb, player.inventory, Main.maxInventory, true, true);
-                        LoadItemSlots(bb, player.miscEquips, player.miscEquips.Length, false, false);
-                        LoadItemSlots(bb, player.bank.item, Chest.maxItems, true, false);
-                        LoadItemSlots(bb, player.bank2.item, Chest.maxItems, true, false);
-                        LoadItemSlots(bb, player.bank3.item, Chest.maxItems, true, false);
+                        LoadItemSlots(bb, player.armor, player.armor.Length);
+                        LoadItemSlots(bb, player.dye, player.dye.Length);
+                        LoadItemSlots(bb, player.inventory, Main.maxInventory);
+                        LoadItemSlots(bb, player.miscEquips, player.miscEquips.Length);
+                        LoadItemSlots(bb, player.bank.item, Chest.maxItems);
+                        LoadItemSlots(bb, player.bank2.item, Chest.maxItems);
+                        LoadItemSlots(bb, player.bank3.item, Chest.maxItems);
                         #endregion Item Data
 
                         #region Buff Data
@@ -480,7 +443,7 @@ namespace Prism.IO
             for (int i = 0; i < Main.npc.Length; i++)
             {
                 var n = Main.npc[i];
-                if (n == null || !n.active || !n.townNPC || n.type == NPCID.TravellingMerchant)
+                if (n == null || !n.active || !n.townNPC || n.type == NPCID.TravellingMerchant || n.type == NPCID.SkeletonMerchant)
                     continue;
 
                 bb.Write(true);
@@ -499,7 +462,7 @@ namespace Prism.IO
             for (int i = 0; i < Main.npc.Length; i++)
             {
                 var n = Main.npc[i];
-                if (n == null || !n.active || !NPCID.Sets.SavesAndLoads[n.type] || (n.townNPC && n.type != NPCID.TravellingMerchant))
+                if (n == null || !n.active || !NPCID.Sets.SavesAndLoads[n.type] || (n.townNPC && n.type != NPCID.TravellingMerchant && n.type != NPCID.SkeletonMerchant))
                     continue;
 
                 bb.Write(true);
@@ -578,51 +541,39 @@ namespace Prism.IO
             if (File.Exists(path))
                 File.Copy(path, Main.worldPathName + ".bak.prism", true);
 
-            // TODO: elaborate on the subparts
-            Main.statusText = "Saving Prism data...";
-
             using (FileStream fs = File.OpenWrite(path))
-            using (BinBuffer bb = new BinBuffer(fs, dispose: false/*1 << 24*/))
             {
-                //TODO: item frame item IDs are still written as ints
-                //TODO: mannequins are probably broken
+                fs.WriteByte(WORLD_VERSION);
 
-                SavePrismData (bb);
-                Main.statusText = "Saving Prism data: global data";
-                SaveGlobalData(bb);
-                Main.statusText = "Saving Prism data: chests";
-                SaveChestItems(bb);
-                Main.statusText = "Saving Prism data: NPCs";
-                SaveNpcData   (bb);
-                Main.statusText = "Saving Prism data: walls";
-                SaveWallTypes (bb);
-                Main.statusText = "Saving Prism data: tile IDs";
-                SaveTileTypes (bb);
-                Main.statusText = "Saving Prism data: tile data";
-                SaveTileData  (bb);
+                using (GZipStream zs = new GZipStream(fs, CompressionMode.Compress, CompressionLevel.Level9, false))
+                using (BinBuffer bb = new BinBuffer(zs, dispose: false))
+                {
+                    //TODO: item frame item IDs are still written as ints
+                    //TODO: mannequins are probably broken
+
+                    SavePrismData (bb);
+                    Main.statusText = "Saving Prism data: global data";
+                    SaveGlobalData(bb);
+                    Main.statusText = "Saving Prism data: chests";
+                    SaveChestItems(bb);
+                    Main.statusText = "Saving Prism data: NPCs";
+                    SaveNpcData   (bb);
+                    Main.statusText = "Saving Prism data: walls";
+                    SaveWallTypes (bb);
+                    Main.statusText = "Saving Prism data: tile IDs";
+                    SaveTileTypes (bb);
+                    Main.statusText = "Saving Prism data: tile data";
+                    SaveTileData  (bb);
+                }
             }
         }
 
-        static int  LoadPrismData (BinBuffer bb)
-        {
-            var v = bb.ReadByte();
-
-            if (v > WORLD_VERSION)
-                throw new FileFormatException("Tried to load world file from a future version of Prism.");
-            if (v < MIN_WORLD_SUPPORT_VER)
-                throw new FileFormatException("This world is saved in a format that is too old and unsupported.");
-
-            return v;
-        }
         static void LoadGlobalData(BinBuffer bb, int v)
         {
             HookManager.GameBehaviour.Load(bb);
         }
         static void LoadTileTypes (BinBuffer bb, int v)
         {
-            if (v < 2 /* v2: added tile support */)
-                return;
-
             var map = new ModIdMap(TileID.Count, or => TileDef.Defs[or].Type, id => Handler.TileDef.DefsByType[id]);
 
             Read2DArray(bb, map, Main.maxTilesX, Main.maxTilesY, (x, y, id) => Main.tile[x, y].type = (ushort)id, (x, y, or) => Main.tile[x, y].type = (ushort)TileDef.Defs[or].Type);
@@ -638,9 +589,6 @@ namespace Prism.IO
         }
         static void LoadNpcData   (BinBuffer bb, int v)
         {
-            if (v < 1) // was borked in v0
-                return;
-
             int i = 0;
             while (bb.ReadBoolean())
             {
@@ -651,21 +599,9 @@ namespace Prism.IO
 
                 ((NpcBHandler)n.P_BHandler).Load(bb);
             }
-            //while (bb.ReadBoolean())
-            //{
-            //    NPC n = Main.npc[i++];
-
-            //    if (n.P_BHandler == null)
-            //        n.P_BHandler = new NpcBHandler();
-
-            //    ((NpcBHandler)n.P_BHandler).Load(bb);
-            //}
         }
         static void LoadWallTypes (BinBuffer bb, int v)
         {
-            if (v < 1) // custom walls introduced in v1
-                return;
-
             var map = new ModIdMap(WallID.Count, or => WallDef.Defs[or].Type, id => Handler.WallDef.DefsByType[id]);
 
             Read2DArray(bb, map, Main.maxTilesX, Main.maxTilesY,
@@ -674,9 +610,6 @@ namespace Prism.IO
         }
         static void LoadTileData  (BinBuffer bb, int v)
         {
-            if (v < 4)
-                return;
-
             TileDataEntryFlags fl;
             while ((fl = (TileDataEntryFlags)bb.ReadByte()) != TileDataEntryFlags.Finished)
             {
@@ -717,9 +650,6 @@ namespace Prism.IO
         [Obsolete]
         static void LoadBehaviours(BinBuffer bb, int v)
         {
-            if (v != 3) // TileBehaviour data introduced in v3
-                return;
-
             while (bb.ReadBoolean())
             {
                 bb.ReadInt16();
@@ -737,28 +667,36 @@ namespace Prism.IO
             Main.statusText = "Loading Prism data...";
 
             using (FileStream fs = File.OpenRead(path))
-            using (BinBuffer bb = new BinBuffer(fs, dispose: false))
             {
-                var v = LoadPrismData(bb);
+                var v = (int)fs.ReadByte();
 
-                Main.statusText = "Loading Prism data: global data";
-                LoadGlobalData(bb, v);
-                Main.statusText = "Loading Prism data: chests";
-                LoadChestItems(bb, v);
-                Main.statusText = "Loading Prism data: NPCs";
-                LoadNpcData   (bb, v);
-                Main.statusText = "Loading Prism data: walls";
-                LoadWallTypes (bb, v);
-                Main.statusText = "Loading Prism data: tile IDs";
-                LoadTileTypes (bb, v);
+                if (v > WORLD_VERSION)
+                    throw new FileFormatException("Tried to load world file from a future version of Prism.");
+                if (v < MIN_WORLD_SUPPORT_VER)
+                    throw new FileFormatException("This world is saved in a format that is too old and unsupported.");
+
+                using (GZipStream zs = new GZipStream(fs, CompressionMode.Decompress, CompressionLevel.Level9, false))
+                using (BinBuffer bb = new BinBuffer(zs, dispose: false))
+                {
+                    Main.statusText = "Loading Prism data: global data";
+                    LoadGlobalData(bb, v);
+                    Main.statusText = "Loading Prism data: chests";
+                    LoadChestItems(bb, v);
+                    Main.statusText = "Loading Prism data: NPCs";
+                    LoadNpcData   (bb, v);
+                    Main.statusText = "Loading Prism data: walls";
+                    LoadWallTypes (bb, v);
+                    Main.statusText = "Loading Prism data: tile IDs";
+                    LoadTileTypes (bb, v);
 #pragma warning disable 612
-                // TileHooks.CreateBHandlers(); // after all tiles have their correct type
+                    // TileHooks.CreateBHandlers(); // after all tiles have their correct type
 
-                Main.statusText = "Loading Prism data: tile code";
-                LoadBehaviours(bb, v); // after the bhandlers are created (i.e. can load)
+                    Main.statusText = "Loading Prism data: tile code";
+                    LoadBehaviours(bb, v); // after the bhandlers are created (i.e. can load)
 #pragma warning restore 612
-                Main.statusText = "Loading Prism data: tile data";
-                LoadTileData  (bb, v);
+                    Main.statusText = "Loading Prism data: tile data";
+                    LoadTileData  (bb, v);
+                }
             }
         }
     }

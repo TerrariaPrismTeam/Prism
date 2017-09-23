@@ -27,7 +27,7 @@ namespace Prism.API
                 var vanillaDefs = Handler.BuffDef.VanillaDefsByName.Select(kvp => new KeyValuePair<ObjectRef, BuffDef>(new ObjectRef(kvp.Key), kvp.Value));
                 var modDefs = ModData.Mods.Select(kvp => GetModDefs(kvp)).Flatten();
 
-                Defs = new DefIndexer<BuffDef>(vanillaDefs.Concat(modDefs), helper.ByObjRef, helper.ById, helper.ByIdUnsafe);
+                Defs = new DefIndexer<BuffDef>(vanillaDefs.Concat(modDefs), helper.ByObjRef, helper.ById, helper.ByIdUnsafe, helper.TryGet);
             }
 
             static IEnumerable<KeyValuePair<ObjectRef, BuffDef>> GetModDefs(KeyValuePair<ModInfo, ModDef> kvp)
@@ -48,7 +48,7 @@ namespace Prism.API
 
             static ItemDef()
             {
-                Defs = new DefIndexer<ItemDef>(helper.GetEnumerable(), helper.ByObjRef, helper.ById, helper.ByIdUnsafe);
+                Defs = new DefIndexer<ItemDef>(helper.GetEnumerable(), helper.ByObjRef, helper.ById, helper.ByIdUnsafe, helper.TryGet);
             }
         }
         public partial class MountDef
@@ -66,7 +66,7 @@ namespace Prism.API
                 var vanillaDefs = Handler.MountDef.VanillaDefsByName.Select(kvp => new KeyValuePair<ObjectRef, MountDef>(new ObjectRef(kvp.Key), kvp.Value));
                 var modDefs = ModData.Mods.Select(kvp => GetModDefs(kvp)).Flatten();
 
-                Defs = new DefIndexer<MountDef>(vanillaDefs.Concat(modDefs), helper.ByObjRef, helper.ById, helper.ByIdUnsafe);
+                Defs = new DefIndexer<MountDef>(vanillaDefs.Concat(modDefs), helper.ByObjRef, helper.ById, helper.ByIdUnsafe, helper.TryGet);
             }
 
             static IEnumerable<KeyValuePair<ObjectRef, MountDef>> GetModDefs(KeyValuePair<ModInfo, ModDef> kvp)
@@ -87,7 +87,7 @@ namespace Prism.API
 
             static NpcDef()
             {
-                Defs = new DefIndexer<NpcDef>(helper.GetEnumerable(), helper.ByObjRef, helper.ById, helper.ByIdUnsafe);
+                Defs = new DefIndexer<NpcDef>(helper.GetEnumerable(), helper.ByObjRef, helper.ById, helper.ByIdUnsafe, helper.TryGet);
             }
         }
         public partial class ProjectileDef
@@ -103,7 +103,7 @@ namespace Prism.API
 
             static ProjectileDef()
             {
-                Defs = new DefIndexer<ProjectileDef>(helper.GetEnumerable(), helper.ByObjRef, helper.ById, helper.ByIdUnsafe);
+                Defs = new DefIndexer<ProjectileDef>(helper.GetEnumerable(), helper.ByObjRef, helper.ById, helper.ByIdUnsafe, helper.TryGet);
             }
         }
         public partial class TileDef
@@ -119,7 +119,7 @@ namespace Prism.API
 
             static TileDef()
             {
-                Defs = new DefIndexer<TileDef>(helper.GetEnumerable(), helper.ByObjRef, helper.ById, helper.ByIdUnsafe);
+                Defs = new DefIndexer<TileDef>(helper.GetEnumerable(), helper.ByObjRef, helper.ById, helper.ByIdUnsafe, helper.TryGet);
             }
         }
         public partial class WallDef
@@ -137,7 +137,7 @@ namespace Prism.API
                 var vanillaDefs = Handler.WallDef.VanillaDefsByName.Select(kvp => new KeyValuePair<ObjectRef, WallDef>(new ObjectRef(kvp.Key), kvp.Value));
                 var modDefs = ModData.Mods.Select(kvp => GetModDefs(kvp)).Flatten();
 
-                Defs = new DefIndexer<WallDef>(vanillaDefs.Concat(modDefs), helper.ByObjRef, helper.ById, helper.ByIdUnsafe);
+                Defs = new DefIndexer<WallDef>(vanillaDefs.Concat(modDefs), helper.ByObjRef, helper.ById, helper.ByIdUnsafe, helper.TryGet);
             }
 
             static IEnumerable<KeyValuePair<ObjectRef, WallDef>> GetModDefs(KeyValuePair<ModInfo, ModDef> kvp)
@@ -163,7 +163,7 @@ namespace Prism.API
                 var vanillaDefs = VanillaDict.Select(kvp => new KeyValuePair<ObjectRef, BgmEntry>(new ObjectRef(kvp.Key), kvp.Value));
                 var modDefs = ModData.Mods.Select(kvp => GetModDefs(kvp)).Flatten();
 
-                Entries = new DefIndexer<BgmEntry>(vanillaDefs.Concat(modDefs), helper.ByObjRef, ById, ById);
+                Entries = new DefIndexer<BgmEntry>(vanillaDefs.Concat(modDefs), helper.ByObjRef, ById, ById, helper.TryGet);
             }
 
             static IEnumerable<KeyValuePair<ObjectRef, BgmEntry>> GetModDefs(KeyValuePair<ModInfo, ModDef> kvp)
@@ -280,7 +280,7 @@ namespace Prism.API
                 var vanillaDefs = VanillaDict.Select(kvp => new KeyValuePair<ObjectRef, SfxEntry>(new ObjectRef(kvp.Key), kvp.Value));
                 var modDefs = ModData.Mods.Select(kvp => GetModDefs(kvp)).Flatten();
 
-                Entries = new DefIndexer<SfxEntry>(vanillaDefs.Concat(modDefs), helper.ByObjRef, ById, ById);
+                Entries = new DefIndexer<SfxEntry>(vanillaDefs.Concat(modDefs), helper.ByObjRef, ById, ById, helper.TryGet);
             }
 
             static IEnumerable<KeyValuePair<ObjectRef, SfxEntry>> GetModDefs(KeyValuePair<ModInfo, ModDef> kvp)

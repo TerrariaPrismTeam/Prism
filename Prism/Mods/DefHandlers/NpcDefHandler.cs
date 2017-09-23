@@ -152,22 +152,10 @@ namespace Prism.Mods.DefHandlers
             def.IsTownCritter                       = NPCID.Sets.TownCritter           [def.Type];
         }
 
-        static int FastLog2(uint x)
-        {
-            if (x == 0) return -1;
-
-            if ((x & 0xFFFF0000) != 0) return FastLog2(x >> 0x10) | 0x10;
-            if ((x & 0x0000FF00) != 0) return FastLog2(x >> 0x08) | 0x08;
-            if ((x & 0x000000F0) != 0) return FastLog2(x >> 0x04) | 0x04;
-            if ((x & 0x0000000C) != 0) return FastLog2(x >> 0x02) | 0x02;
-            if ((x & 0x00000002) != 0) return 1;
-
-            return 0;
-        }
         protected override void CopyDefToEntity(NpcDef def, NPC npc)
         {
             Main.npcLifeBytes[npc.type] =
-                (byte)(def.IsBoss ? 4 : (Math.Max(FastLog2(unchecked((uint)def.MaxLife)), 8) >> 2));
+                (byte)(def.IsBoss ? 4 : (Math.Max(IO.BinBufferByteResource.FastLog2(def.MaxLife), 8) >> 2));
 
             npc._givenName      = def.DisplayName.ToString();
             npc.type            = def.Type;

@@ -5,19 +5,29 @@ using Prism.API;
 using Prism.Util;
 
 using ModName = System.String;
-using ModID = System.Byte;
+using ModID = System.UInt16;
 
 using ObjName = System.String;
-using ObjID = System.UInt16;
+using ObjID = System.UInt32;
 
 using PackedValue = System.UInt32;
 
 namespace Prism.IO
 {
-    // let's hope nobody will ever run >255 mods at once, or with >65 535 objects in total
+    // let's hope nobody will ever run >2047 mods at once, or with >1 048 575 objects in total
     public class ModIdMap
     {
-        const uint IsModFlag = 0x01000000;
+        const  int ObjIdShl   =  0;
+        const  int ModIdShl   = 20;
+
+        const uint ModIdMask0 = 0x7FF;
+        const uint ModIdMask  = ModIdMask0 << ModIdShl;
+                             // 0x7FF00000;
+        const uint IsModFlag  = 0x80000000;
+        const uint ObjIdMask  = 0x000FFFFF;
+
+        // vanilla gets the whole space
+        const uint VanIdMask = ModIdMask | ObjIdMask;
 
         // using typedef'ed names for clarity
         Func<ObjectRef, ObjID> GetVanillaID;
@@ -39,20 +49,20 @@ namespace Prism.IO
 
             maxVanillaId = unchecked((ObjID)maxVanilla);
 
-            GetVanillaID  = r  => unchecked((ObjID)vanillaId (r ));
-            GetVanillaRef = id =>                  vanillaRef(id) ;
+            GetVanillaID  = r  => unchecked((ObjID)vanillaId(r));
+            GetVanillaRef = id => vanillaRef(unchecked((int)id));
         }
 
         public PackedValue Register(int       vid)
         {
-            return vid == 0 ? 0 : unchecked((PackedValue)(vid & 0xFFFF));
+            return unchecked((PackedValue)vid & VanIdMask); // should work just fine
         }
         public PackedValue Register(ObjectRef obj)
         {
             if (obj.IsNull)
                 return 0;
             if (String.IsNullOrEmpty(obj.ModName) || obj.Mod == PrismApi.VanillaInfo)
-                return unchecked((PackedValue)GetVanillaID(obj)); // vanilla - no need to register
+                return GetVanillaID(obj) & VanIdMask;
 
             ModName mn = obj.ModName;
             ModID mid;
@@ -79,10 +89,12 @@ namespace Prism.IO
             }
 
 #pragma warning disable 675
-            return unchecked((PackedValue)oid | ((PackedValue)mid << 8 * sizeof(ObjID)) | IsModFlag);
+            return unchecked((PackedValue)( oid & ObjIdMask               ) |
+                            ((PackedValue)((mid & ModIdMask0) << ModIdShl)) |
+                                            IsModFlag);
 #pragma warning restore 675
         }
-        public void GetRef(PackedValue id, Action<ObjID> cVanilla, Action<ObjectRef> cMod)
+        public void GetRef(PackedValue id, Action<int> cVanilla, Action<ObjectRef> cMod)
         {
             if (id == 0)
             {
@@ -91,7 +103,12 @@ namespace Prism.IO
             }
             if ((id & IsModFlag) == 0)
             {
-                cVanilla(unchecked((ObjID)id));
+                // negative!
+                if ((id & ((PackedValue)1 << 30)) != 0)
+                    // readd the normal sign bit
+                    id |= (PackedValue)1 << 31;
+
+                cVanilla(unchecked((int)id));
                 return;
             }
 
@@ -100,8 +117,8 @@ namespace Prism.IO
 
             unchecked
             {
-                oid = (ObjID)(id & UInt16.MaxValue);
-                mid = (ModID)(id & (Byte.MaxValue << 8 * sizeof(ObjID)) >> 8 * sizeof(ObjID));
+                oid = (ObjID) (id & ObjIdMask);
+                mid = (ModID)((id & ModIdMask) >> ModIdShl);
             }
 
             var mn = mnames[mid];
@@ -114,7 +131,7 @@ namespace Prism.IO
         {
             unchecked
             {
-                bb.WriteByte((ModID)Mods.Count);
+                bb.Write((ModID)Mods.Count);
             }
 
             foreach (var kvp in Mods)
@@ -140,33 +157,30 @@ namespace Prism.IO
         }
         public void ReadDictionary (BinBuffer bb)
         {
-            int modAmt = bb.ReadByte();
+            int modAmt = bb.ReadUInt16();
 
-            mnames = new ModName[(int)ModID.MaxValue + 1];
+            mnames = new ModName[modAmt];
             for (int i = 0; i < modAmt; i++)
             {
-                byte ind;
-                string mn;
-                Mods.Add(mn = bb.ReadString(), ind = bb.ReadByte());
+                string mn  = bb.ReadString();
+                ushort ind = bb.ReadUInt16();
 
-                mnames[ind] = mn;
+                Mods.Add(mnames[ind] = mn, ind);
             }
 
             mobjs = new BiDictionary<ObjName, ObjID>[mnames.Length];
             for (int i = 0; i < modAmt; i++)
             {
-                ModID mid = bb.ReadByte();
+                ModID mid = bb.ReadUInt16();
 
                 var modObjs = new BiDictionary<ObjName, ObjID>();
 
-                short objAmt = bb.ReadInt16();
+                uint objAmt = bb.ReadUInt32();
 
                 for (int j = 0; j < objAmt; j++)
-                    modObjs.Add(bb.ReadString(), bb.ReadUInt16());
+                    modObjs.Add(bb.ReadString(), bb.ReadUInt32());
 
-                mobjs[mid] = modObjs;
-
-                ModObjects.Add(mid, modObjs);
+                ModObjects.Add(mid, mobjs[mid] = modObjs);
             }
         }
     }
