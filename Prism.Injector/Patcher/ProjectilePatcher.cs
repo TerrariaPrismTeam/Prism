@@ -17,7 +17,7 @@ namespace Prism.Injector.Patcher
         {
             typeDef_Proj.GetMethod("SetDefaults", MethodFlags.Public | MethodFlags.Instance, new[] { typeSys.Int32 }).Wrap(context);
 
-            typeDef_Proj.GetMethod("NewProjectile").Wrap(context, "Terraria.PrismInjections", "Projectile_NewProjectileDel", "P_OnNewProjectile");
+            typeDef_Proj.GetMethods("NewProjectile").First(method => method.Parameters[0].Type == typeSys.Single).Wrap(context, "Terraria.PrismInjections", "Projectile_NewProjectileDel", "P_OnNewProjectile");
 
             typeDef_Proj.GetMethod("AI"       , MethodFlags.Public | MethodFlags.Instance               ).Wrap(context);
             typeDef_Proj.GetMethod("Update"   , MethodFlags.Public | MethodFlags.Instance, new[] { typeSys.Int32 }).Wrap(context);
