@@ -189,7 +189,6 @@
     <Compile Include="Mods\DefHandlers\WallDefHandler.cs" />
     <Compile Include="Mods\Hooks\MountHooks.cs" />
     <Compile Include="IO\SaveDataHandler.cs" />
-    <Compile Include="IO\IOHelpers.cs" />
     <Compile Include="Mods\ContentLoader.cs" />
     <Compile Include="Mods\DefHandlers\BuffDefHandler.cs" />
     <Compile Include="Mods\DefHandlers\IDH_SetDefaults.cs" />

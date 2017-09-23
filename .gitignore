@@ -201,7 +201,9 @@ FakesAssemblies/
 todo.txt
 /References/dnlib - kopie.*
 /References/dnlib_debug.dll
+
 /References/ReLogic.dll
+/References/Steamworks.NET.dll
 
 /References/filter
 /References/list

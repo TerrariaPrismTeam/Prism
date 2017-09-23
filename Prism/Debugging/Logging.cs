@@ -29,9 +29,12 @@ namespace Prism.Debugging
             if (sw != null)
                 return;
 
-            var fi = new FileInfo(LogFile);
-            if (fi.Length > 0x400 * 0x400)
-                File.Delete(LogFile);
+            if (File.Exists(LogFile))
+            {
+                var fi = new FileInfo(LogFile);
+                if (fi.Length > 0x400 * 0x400)
+                    File.Delete(LogFile);
+            }
 
             sw = new StreamWriter(LogFile, true);
 

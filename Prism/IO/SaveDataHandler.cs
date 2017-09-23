@@ -20,7 +20,20 @@ using Terraria.IO;
 
 namespace Prism.IO
 {
-    // TODO: ditch the ModIdMap, and simply LZMA/DEFLATE the data
+    /*
+     * On compression:
+     * * a better compression ratio would be achieved if data was reordered
+     *   (see http://www.farbrausch.com/~fg/seminars/workcompression_download.pdf )
+     * * Write2DArray and Read2DArray require seeking: fix this first
+     *   (or write it in a way that it doesn't require copying another binbuffer
+     *    -- maybe just drop the ModIdMap altogether?)
+     * * using compression makes writing slow af (worse than bearable, not just
+     *   'slow'); are there faster alternatives to gzip?
+     *
+     * ~~A player Prism file is compressed, though. (Not that it matters much,
+     * compared to a world file.)~~ gzip is giving bad CRC errors for some
+     * unknown reason...
+     */
 
     /// <summary>
     /// Class containing the hooks used by Prism when saving and/or loading Players and Worlds.
@@ -41,7 +54,7 @@ namespace Prism.IO
         /// <remarks>
         /// VERSION 0: created
         /// VERSION 1: [breaking] small header changes
-        /// VERSION 2: [breaking] removed encryption, removed redundant data, added compression, reorder stuff so it compresses better
+        /// VERSION 2: [breaking] removed encryption, removed redundant data, ~~added compression~~
         /// </remarks>
         const byte PLAYER_VERSION = 2;
         /// <summary>
@@ -53,7 +66,7 @@ namespace Prism.IO
         /// VERSION 2: added tile type support
         /// VERSION 3: added TileBehaviour support
         /// VERSION 4: rewritten TileBehaviour support, so it's not a dirty hack anymore.
-        /// VERSION 5: [breaking] removed encryption, removed redundant data, added compression, reorder stuff so it compresses better
+        /// VERSION 5: [breaking] removed encryption, removed redundant data, ~~added compression~~
         /// </remarks>
         const byte WORLD_VERSION  = 5;
 
@@ -69,7 +82,7 @@ namespace Prism.IO
         /// <param name="slots">The amount of items in the inventory to save</param>
         static void SaveItemSlots(BinBuffer bb, Item[] inventory, int slots = 0)
         {
-            if (slots <= 0) slots = iventory.Length;
+            if (slots <= 0) slots = inventory.Length;
 
             for (int i = 0; i < slots; i++)
                 if (inventory[i].type < ItemID.Count)
@@ -87,7 +100,6 @@ namespace Prism.IO
             // this is done in a separate loop to decrease shannon entropy,
             // and thus to make the file compress better
             for (int i = 0; i < slots; i++)
-            {
                 if (inventory[i].P_BHandler != null)
                 {
                     ItemBHandler handler = (ItemBHandler)inventory[i].P_BHandler;
@@ -95,7 +107,6 @@ namespace Prism.IO
                     handler.Save(bb);
                 }
                 else bb.Write(0);
-            }
         }
         /// <summary>
         /// Load <paramref name="slots" /> items to <paramref name="inventory" /> from the <paramref name="bb" />.
@@ -103,10 +114,10 @@ namespace Prism.IO
         /// <param name="bb">The reader for loading data</param>
         /// <param name="inventory">The array of items</param>
         /// <param name="slots">The amount of items in the inventory to load</param>
-        /// <param name="stack">Whether or not the stack size should be loaded</param>
-        /// <param name="favourited">Whether or not the favourited state should be loaded</param>
-        static void LoadItemSlots(BinBuffer bb, Item[] inventory, int slots, bool stack, bool favourited)
+        static void LoadItemSlots(BinBuffer bb, Item[] inventory, int slots = 0)
         {
+            if (slots <= 0) slots = inventory.Length;
+
             for (int i = 0; i < slots; i++)
             {
                 // Load basic item data
@@ -162,8 +173,8 @@ namespace Prism.IO
             {
                 fileStream.WriteByte(PLAYER_VERSION); // write this before doing the crypto stuff, so we can change it between versions
 
-                using (GZipStream zs = new GZipStream(fileStream, CompressionMode.Compress, CompressionLevel.Level9, false))
-                using (BinBuffer bb = new BinBuffer(zs))
+                //using (GZipStream zs = new GZipStream(fileStream, CompressionMode.Compress, CompressionLevel.Level9, false))
+                using (BinBuffer bb = new BinBuffer(fileStream, dispose: false))
                 {
                     #region Player Data
                     if (player.P_BHandler != null)
@@ -232,8 +243,8 @@ namespace Prism.IO
                     if (version < MIN_PLAYER_SUPPORT_VER)
                         throw new FileFormatException("This player is saved in a format that is too old and unsupported.");
 
-                    using (GZipStream zs = new GZipStream(fileStream, CompressionMode.Decompress, CompressionLevel.Level9, false))
-                    using (BinBuffer bb = new BinBuffer(zs))
+                    //using (GZipStream zs = new GZipStream(fileStream, CompressionMode.Decompress, CompressionLevel.Level9, false))
+                    using (BinBuffer bb = new BinBuffer(fileStream))
                     {
                         #region Player Data
                         if (player.P_BHandler == null)
@@ -407,10 +418,6 @@ namespace Prism.IO
             bb.Position = endOfStream;
         }
 
-        static void SavePrismData (BinBuffer bb)
-        {
-            bb.WriteByte(WORLD_VERSION);
-        }
         static void SaveGlobalData(BinBuffer bb)
         {
             HookManager.GameBehaviour.Save(bb);
@@ -436,7 +443,7 @@ namespace Prism.IO
             bb.WriteByte(Chest.maxItems);
 
             foreach (var c in chests)
-                SaveItemSlots(bb, c.item, Chest.maxItems, true, false);
+                SaveItemSlots(bb, c.item, Chest.maxItems);
         }
         static void SaveNpcData   (BinBuffer bb)
         {
@@ -545,13 +552,12 @@ namespace Prism.IO
             {
                 fs.WriteByte(WORLD_VERSION);
 
-                using (GZipStream zs = new GZipStream(fs, CompressionMode.Compress, CompressionLevel.Level9, false))
-                using (BinBuffer bb = new BinBuffer(zs, dispose: false))
+                //using (GZipStream zs = new GZipStream(fs, CompressionMode.Compress, CompressionLevel.Level9, false))
+                using (BinBuffer bb = new BinBuffer(fs/*zs*/, dispose: false))
                 {
                     //TODO: item frame item IDs are still written as ints
                     //TODO: mannequins are probably broken
 
-                    SavePrismData (bb);
                     Main.statusText = "Saving Prism data: global data";
                     SaveGlobalData(bb);
                     Main.statusText = "Saving Prism data: chests";
@@ -585,7 +591,7 @@ namespace Prism.IO
             int items    = bb.ReadByte ();
 
             for (int i = 0; i < chestAmt; i++)
-                LoadItemSlots(bb, Main.chest[i].item, items, true, false);
+                LoadItemSlots(bb, Main.chest[i].item, items);
         }
         static void LoadNpcData   (BinBuffer bb, int v)
         {
@@ -668,15 +674,15 @@ namespace Prism.IO
 
             using (FileStream fs = File.OpenRead(path))
             {
-                var v = (int)fs.ReadByte();
+                var v = fs.ReadByte();
 
                 if (v > WORLD_VERSION)
                     throw new FileFormatException("Tried to load world file from a future version of Prism.");
                 if (v < MIN_WORLD_SUPPORT_VER)
                     throw new FileFormatException("This world is saved in a format that is too old and unsupported.");
 
-                using (GZipStream zs = new GZipStream(fs, CompressionMode.Decompress, CompressionLevel.Level9, false))
-                using (BinBuffer bb = new BinBuffer(zs, dispose: false))
+                //using (GZipStream zs = new GZipStream(fs, CompressionMode.Decompress, CompressionLevel.Level9, false))
+                using (BinBuffer bb = new BinBuffer(fs/*zs*/, dispose: false))
                 {
                     Main.statusText = "Loading Prism data: global data";
                     LoadGlobalData(bb, v);

@@ -64,7 +64,7 @@ namespace Prism.TerrariaPatcher
                 if (!MsBuild)
                 {
                     var  fs = new[] { "Newtonsoft.Json", "Steamworks.NET", "Ionic.Zip.CF" }.Select(n => Path.Combine(dir, n + ".dll"));
-                    var ufs = new[] { "WindowsBase"    , "FNA"                            }.Select(n => Path.Combine(dir, n + ".dll"));
+                    var ufs = new[] { "WindowsBase"    , "FNA"           , "ReLogic"      }.Select(n => Path.Combine(dir, n + ".dll"));
 
                     foreach (var source in fs.Concat(IsWindows ? new string[0] : ufs))
                     {
