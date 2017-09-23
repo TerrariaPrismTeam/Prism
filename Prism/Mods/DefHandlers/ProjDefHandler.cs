@@ -37,7 +37,7 @@ namespace Prism.Mods.DefHandlers
 
             ProjBHandler h = null; // will be set to <non-null> only if a behaviour handler will be attached
 
-            p.RealSetDefaults(0);
+            p.RealSetDefaults(type);
 
             ProjectileDef d;
             if (Handler.ProjDef.DefsByType.TryGetValue(type, out d))

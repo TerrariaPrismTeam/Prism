@@ -125,7 +125,7 @@ namespace Prism
             return null;
         }
 
-        static void OnUpdateKeyboard(Main _, GameTime __)
+        static void OnUpdateKeyboard(Main _)
         {
             HookManager.GameBehaviour.OnUpdateKeyboard();
         }
@@ -158,15 +158,14 @@ namespace Prism
         static void HookWrappedMethods()
         {
             P_OnUpdateAudio += Bgm.Update;
-          //P_OnUpdateKeyboard += OnUpdateKeyboard;
+            P_OnUpdateKeyboard += OnUpdateKeyboard;
 
             OnPreDraw += OnPreDrawM;
             P_OnDrawBackground += OnDrawBackground ;
             P_OnPostScrClDraw  += OnPostScreenClear;
 
-          //P_OnP_IsChatAllowed  += IsChatAllowed; //Prismception
-
-          //P_OnP_LocalChat += OnLocalChat;
+            P_OnP_IsChatAllowed  += IsChatAllowed; //Prismception
+            P_OnP_LocalChat      += OnLocalChat;
 
 #pragma warning disable 618
             P_OnPlaySound_Int32_Int32_Int32_Int32_Single_Single += (t, x, y, s, v, p) => Sfx.Play(t, x, y, s, v, p);

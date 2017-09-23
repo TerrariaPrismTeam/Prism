@@ -59,6 +59,15 @@ namespace Prism.Injector.Patcher
     {
         internal readonly static SigComparer comp = new SigComparer(SigComparerOptions.PrivateScopeIsComparable);
 
+        internal static void QuickDisasm(this CilBody b, Action<string> log)
+        {
+            foreach (var i in b.Instructions) log(i.ToString());
+        }
+        internal static void QuickDisasm(this MethodDef m, Action<string> log)
+        {
+            QuickDisasm(m.Body, log);
+        }
+
         /// <summary>
         /// Gets the ldarg instruction of the specified index using the smallest value type it can (because we're targeting the Sega Genesis and need to save memory).
         /// </summary>

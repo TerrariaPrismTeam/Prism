@@ -74,6 +74,7 @@ namespace Prism.Injector.Patcher
                 //IL_2a8a: call instance bool [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.KeyboardState::IsKeyDown(valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.Keys)
                 //IL_2a8f: brfalse IL_2b20
 
+                // NOTE: the offsets changed
                 OpCodes.Ldsfld,     //IL_2a94: ldsfld int32 Terraria.Main::netMode
                 OpCodes.Ldc_I4_1,   //IL_2a99: ldc.i4.1
                 OpCodes.Bne_Un,     //IL_2a9a: bne.un IL_2b20
@@ -81,18 +82,10 @@ namespace Prism.Injector.Patcher
                 OpCodes.Ldsflda,    //IL_2a9f: Main.ldsflda valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.KeyboardState Terraria.Main::keyState
                 OpCodes.Ldc_I4,     //IL_2aa4: ldc.i4 164
                 OpCodes.Call,       //IL_2aa9: call instance bool [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.KeyboardState::IsKeyDown(valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.Keys)
-                OpCodes.Brtrue_S,   //IL_2aae: brtrue.s IL_2b20
-
-                OpCodes.Ldsflda,    //IL_2ab0: ldsflda valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.KeyboardState Terraria.Main::keyState
-                OpCodes.Ldc_I4,     //IL_2ab5: ldc.i4 165
-                OpCodes.Call,       //IL_2aba: call instance bool [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.KeyboardState::IsKeyDown(valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.Keys)
-                OpCodes.Brtrue_S,   //IL_2abf: brtrue.s IL_2b20
-
-                OpCodes.Ldsfld,     //IL_2ac1: ldsfld bool Terraria.Main::hasFocus
-                OpCodes.Brfalse_S   //IL_2ac6: brfalse.s IL_2b20
+                OpCodes.Brtrue_S    //IL_2aae: brtrue.s IL_2b20
             };
 
-            var mainUpdate = typeDef_Main.GetMethod("Update").Body;
+            var mainUpdate = typeDef_Main.GetMethod("DoUpdate_Enter_ToggleChat").Body;
 
             //public virtual bool IsChatAllowedHook() { return Main.netMode == 1; }
 
@@ -100,174 +93,75 @@ namespace Prism.Injector.Patcher
                 MethodAttributes.Public | MethodAttributes.Static);
             chatCheckHook.Body = new CilBody();
 
-            var proc = chatCheckHook.Body.GetILProcessor();
-
-            proc.Append(Instruction.Create(OpCodes.Ldsfld, typeDef_Main.GetField("netMode")));
-            proc.Append(Instruction.Create(OpCodes.Ldc_I4_1));
-            // The bne.un goes here
-            proc.Append(Instruction.Create(OpCodes.Ldc_I4_1));
-            proc.Append(Instruction.Create(OpCodes.Ret));
-            proc.Append(Instruction.Create(OpCodes.Ldc_I4_0));
-            proc.Append(Instruction.Create(OpCodes.Ret));
-            Instruction[] chatCheckHookInstr = chatCheckHook.Body.Instructions.ToArray();
-            var nextInstrReturnFalse = chatCheckHookInstr[4]; //Offset of the ldc.i4.0
-            var instrAfterWhichToInsert = chatCheckHookInstr[1]; //dat variable name tho
-            var instrToInsert = Instruction.Create(OpCodes.Bne_Un, nextInstrReturnFalse);
-            proc.InsertAfter(instrAfterWhichToInsert, instrToInsert);
-
-            chatCheckHook.Body.SimplifyBranches();
-            chatCheckHook.Body.OptimizeBranches();
+            using (var proc = chatCheckHook.Body.GetILProcessor())
+            {
+                proc.Append(Instruction.Create(OpCodes.Ldsfld, typeDef_Main.GetField("netMode")));
+                proc.Append(Instruction.Create(OpCodes.Ldc_I4_1));
+                // The bne.un goes here
+                proc.Append(Instruction.Create(OpCodes.Ldc_I4_1));
+                proc.Append(Instruction.Create(OpCodes.Ret));
+                proc.Append(Instruction.Create(OpCodes.Ldc_I4_0));
+                proc.Append(Instruction.Create(OpCodes.Ret));
+                Instruction[] chatCheckHookInstr = chatCheckHook.Body.Instructions.ToArray();
+                var nextInstrReturnFalse = chatCheckHookInstr[4]; //Offset of the ldc.i4.0
+                var instrAfterWhichToInsert = chatCheckHookInstr[1]; //dat variable name tho
+                var instrToInsert = Instruction.Create(OpCodes.Bne_Un, nextInstrReturnFalse);
+                proc.InsertAfter(instrAfterWhichToInsert, instrToInsert);
+            }
 
             typeDef_Main.Methods.Add(chatCheckHook);
 
             // ---
 
-            proc = mainUpdate.GetILProcessor();
-            var mainInstrs = mainUpdate.FindInstrSeq(proc, searchSeq);
-
-            if (mainInstrs[0] == null)
+            using (var proc = mainUpdate.GetILProcessor())
             {
-                log("MainPatcher.AddIsChatAllowedHook() could not find opcodes for checking Main.netMode to open chat. Update the opcode search array pls thx.");
-                return;
+                var mainInstrs = mainUpdate.FindInstrSeq(proc, searchSeq);
+
+                if (mainInstrs[0] == null)
+                {
+                    log("MainPatcher.AddIsChatAllowedHook() could not find opcodes for checking Main.netMode to open chat. Update the opcode search array pls thx.");
+                    return;
+                }
+
+                var skipToOffset = ((Instruction)(mainInstrs[2]/*bne.un*/.Operand));
+
+                proc.ReplaceInstructions(mainInstrs.Take(3), new Instruction[]
+                {
+                    Instruction.Create(OpCodes.Call, chatCheckHook),
+                    Instruction.Create(OpCodes.Brfalse, skipToOffset)
+                });
             }
-
-            var skipToOffset = ((Instruction)(mainInstrs[2]/*bne.un*/.Operand));
-
-            proc.ReplaceInstructions(mainInstrs.Take(3), new Instruction[]
-            {
-                Instruction.Create(OpCodes.Call, chatCheckHook),
-                Instruction.Create(OpCodes.Brfalse, skipToOffset)
-            });
         }
         static void AddLocalChatHook(Action<string> log)
         {
             #region VERY LONG OPCODE SEARCH
             OpCode[] searchSeq =
             {
-                OpCodes.Ldsfld      ,//IL_293b: ldsfld bool Terraria.Main::chatRelease
-                OpCodes.Brfalse     ,//IL_2940: brfalse IL_2a83
+                OpCodes.Brfalse,
 
-                OpCodes.Ldsfld      ,//IL_2945: ldsfld string Terraria.Main::chatText
-                OpCodes.Ldstr       ,//IL_294a: ldstr ""
-                OpCodes.Call        ,//IL_294f: call bool [mscorlib]System.String::op_Inequality(string, string)
-                OpCodes.Brfalse_S   ,//IL_2954: brfalse.s IL_297b
+              /*IL_01B8: ldsfld    string Terraria.Main::chatText
+                IL_01BD: newobj    instance void Terraria.Chat.ChatMessage::.ctor(string)
+                IL_01C2: stloc.2
+                IL_01C3: ldsfld    class Terraria.Chat.ChatCommandProcessor Terraria.UI.Chat.ChatManager::Commands
+                IL_01C8: ldloc.2
+                IL_01C9: callvirt  instance bool Terraria.Chat.ChatCommandProcessor::ProcessOutgoingMessage(class Terraria.Chat.ChatMessage)
+                IL_01CE: pop
+                IL_01CF: ldloc.2
+                IL_01D0: call      void Terraria.NetMessage::SendChatMessageFromClient(class Terraria.Chat.ChatMessage)
+                IL_01D5: ldsfld    int32 Terraria.Main::netMode
+                IL_01DA: brtrue.s  IL_0244*/
 
-                OpCodes.Ldc_I4_S    ,//IL_2956: ldc.i4.s 25
-                OpCodes.Ldc_I4_M1   ,//IL_2958: ldc.i4.m1
-                OpCodes.Ldc_I4_M1   ,//IL_2959: ldc.i4.m1
-                OpCodes.Ldsfld      ,//IL_295a: ldsfld string Terraria.Main::chatText
-                OpCodes.Ldsfld      ,//IL_295f: ldsfld int32 Terraria.Main::myPlayer
-                OpCodes.Ldc_R4      ,//IL_2964: ldc.r4 0.0
-                OpCodes.Ldc_R4      ,//IL_2969: ldc.r4 0.0
-                OpCodes.Ldc_R4      ,//IL_296e: ldc.r4 0.0
-                OpCodes.Ldc_I4_0    ,//IL_2973: ldc.i4.0
-                OpCodes.Ldc_I4_0    ,//IL_2974: ldc.i4.0
-                OpCodes.Ldc_I4_0    ,//IL_2975: ldc.i4.0
-                OpCodes.Call        ,//IL_2976: call void Terraria.NetMessage::SendData(int32, int32, int32, string, int32, float32, float32,    float32,        int32,   int32, int32)
-
-                OpCodes.Ldsfld      ,//IL_297b: ldsfld int32 Terraria.Main::netMode
-                OpCodes.Brtrue      ,//IL_2980: brtrue IL_2a41
-
-                OpCodes.Ldsfld      ,//IL_2985: ldsfld string Terraria.Main::chatText
-                OpCodes.Ldstr       ,//IL_298a: ldstr ""
-                OpCodes.Call        ,//IL_298f: call bool [mscorlib]System.String::op_Inequality(string, string)
-                OpCodes.Brfalse     ,//IL_2994: brfalse IL_2a41
-
-                OpCodes.Call        ,//IL_2999: call valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Color [Microsoft.Xna.Framework]            OpCodes.Ldelem_R   ef,Microsoft.Xna.Framework.Color::get_White/()
-                OpCodes.Stloc_S     ,//IL_299e: stloc.s 10
-                OpCodes.Ldsfld      ,//IL_29a0: ldsfld class Terraria.Player[] Terraria.Main::player
-                OpCodes.Ldsfld      ,//IL_29a5: ldsfld int32 Terraria.Main::myPlayer
-                OpCodes.Ldelem_Ref  ,//IL_29aa: ldelem.ref
-                OpCodes.Ldfld       ,//IL_29ab: ldfld uint8 Terraria.Player::difficulty
-                OpCodes.Ldc_I4_2    ,//IL_29b0: ldc.i4.2
-                OpCodes.Bne_Un_S    ,//IL_29b1: bne.un.s IL_29bc
-
-                OpCodes.Ldsfld      ,//IL_29b3: ldsfld valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Color Terraria.Main::hcColor
-                OpCodes.Stloc_S     ,//IL_29b8: stloc.s 10
-                OpCodes.Br_S        ,//IL_29ba: br.s IL_29d6
-
-                OpCodes.Ldsfld      ,//IL_29bc: ldsfld class Terraria.Player[] Terraria.Main::player
-                OpCodes.Ldsfld      ,//IL_29c1: ldsfld int32 Terraria.Main::myPlayer
-                OpCodes.Ldelem_Ref  ,//IL_29c6: ldelem.ref
-                OpCodes.Ldfld       ,//IL_29c7: ldfld uint8 Terraria.Player::difficulty
-                OpCodes.Ldc_I4_1    ,//IL_29cc: ldc.i4.1
-                OpCodes.Bne_Un_S    ,//IL_29cd: bne.un.s IL_29d6
-
-                OpCodes.Ldsfld      ,//IL_29cf: ldsfld valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Color Terraria.Main::mcColor
-                OpCodes.Stloc_S     ,//IL_29d4: stloc.s 10
-
-                OpCodes.Ldsfld      ,//IL_29d6: ldsfld string Terraria.Main::chatText
-              //OpCodes.Stloc_S     ,//IL_29db: stloc.s 11
-                OpCodes.Pop         ,
-                OpCodes.Ldsfld      ,//IL_29dd: ldsfld class Terraria.Player[] Terraria.Main::player
-                OpCodes.Ldsfld      ,//IL_29e2: ldsfld int32 Terraria.Main::myPlayer
-                OpCodes.Ldelem_Ref  ,//IL_29e7: ldelem.ref
-                OpCodes.Ldfld       ,//IL_29e8: ldfld string Terraria.Entity::name
-                OpCodes.Call        ,//IL_29ed: call string Terraria.GameContent.UI.Chat.NameTagHandler::GenerateTag(string)
-                OpCodes.Ldstr       ,//IL_29f2: ldstr " "
-                OpCodes.Ldsfld      ,//IL_29f7: ldsfld string Terraria.Main::chatText
-                OpCodes.Call        ,//IL_29fc: call string [mscorlib]System.String::Concat(string, string, string)
-              //OpCodes.Stloc_S     ,//IL_2a01: stloc.s 11
-                OpCodes.Ldsfld      ,//IL_2a03: ldsfld class Terraria.Player[] Terraria.Main::player
-                OpCodes.Ldsfld      ,//IL_2a08: ldsfld int32 Terraria.Main::myPlayer
-                OpCodes.Ldelem_Ref  ,//IL_2a0d: ldelem.ref
-                OpCodes.Ldflda      ,//IL_2a0e: ldflda valuetype Terraria.Player/OverheadMessage Terraria.Player::chatOverhead
-                OpCodes.Ldsfld      ,//IL_2a13: ldsfld string Terraria.Main::chatText
-                OpCodes.Ldsfld      ,//IL_2a18: ldsfld int32 Terraria.Main::chatLength
-                OpCodes.Ldc_I4_2    ,//IL_2a1d: ldc.i4.2
-                OpCodes.Div         ,//IL_2a1e: div
-                OpCodes.Call        ,//IL_2a1f: call instance void Terraria.Player/OverheadMessage::NewMessage(string, int32)
-                OpCodes.Ldc_I4_0,
-                OpCodes.Ldloc_S,
+                OpCodes.Ldsfld,
+                OpCodes.Newobj,
+                OpCodes.Stloc_2,
+                OpCodes.Ldsfld,
+                OpCodes.Ldloc_2,
+                OpCodes.Callvirt,
+                OpCodes.Pop,
+                OpCodes.Ldloc_2,
                 OpCodes.Call,
-                OpCodes.Call,
-
-                /*OpCodes.Ldloc_S     ,//IL_2a24: ldloc.s 11
-                OpCodes.Ldloca_S    ,//IL_2a26: ldloca.s 10
-                OpCodes.Call        ,//IL_2a28: call instance uint8 [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Color::get_R()
-                OpCodes.Ldloca_S    ,//IL_2a2d: ldloca.s 10
-                OpCodes.Call        ,//IL_2a2f: call instance uint8 [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Color::get_G()
-                OpCodes.Ldloca_S    ,//IL_2a34: ldloca.s 10
-                OpCodes.Call        ,//IL_2a36: call instance uint8 [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Color::get_B()
-                OpCodes.Ldc_I4_0    ,//IL_2a3b: ldc.i4.0
-                OpCodes.Call        ,//IL_2a3c: call void Terraria.Main::NewText(string, uint8, uint8, uint8, bool)
-                */
-                /*
-                    if (Main.inputTextEnter && Main.chatRelease)
-                    {
-                        if (Main.chatText != String.Empty)
-                        {
-                //////////////INSTRUCTIONS BEGIN HERE//////////////////////////////////////////////////////////////////////////
-                //                                                                                                           //
-                //          NetMessage.SendData(25, -1, -1, Main.chatText, Main.myPlayer, 0f, 0f, 0f, 0, 0, 0);              //
-                //      }                                                                                                    //
-                //      if (Main.netMode == 0 && Main.chatText != String.Empty)                                              //
-                //      {                                                                                                    //
-                //          Microsoft.Xna.Framework.Color white = Microsoft.Xna.Framework.Color.White;                       //
-                //          if (Main.player[Main.myPlayer].difficulty == 2)                                                  //
-                //          {                                                                                                //
-                //              white = Main.hcColor;                                                                        //
-                //          }                                                                                                //
-                //          else if (Main.player[Main.myPlayer].difficulty == 1)                                             //
-                //          {                                                                                                //
-                //              white = Main.mcColor;                                                                        //
-                //          }                                                                                                //
-                //          string newText = Main.chatText;                                                                  //
-                //          newText = NameTagHandler.GenerateTag(Main.player[Main.myPlayer].name) + " " + Main.chatText;     //
-                //          Main.player[Main.myPlayer].chatOverhead.NewMessage(Main.chatText, Main.chatLength / 2);          //
-                //          Main.NewText(newText, white.R, white.G, white.B, false);                                         //
-                //                                                                                                           //
-                //////////////INSTRUCTIONS END HERE////////////////////////////////////////////////////////////////////////////
-                        }
-                ////////// Instructions skip over above block and go straight to here if hook returns false ///////////////////
-                        Main.chatText = String.Empty;
-                        Main.chatMode = false;
-                        Main.chatRelease = false;
-                        Main.player[Main.myPlayer].releaseHook = false;
-                        Main.player[Main.myPlayer].releaseThrow = false;
-                        Main.PlaySound(11, -1, -1, 1);
-                    }
-                */
+                OpCodes.Ldsfld,
+                OpCodes.Brtrue_S
             };
             #endregion
 
@@ -281,14 +175,11 @@ namespace Prism.Injector.Patcher
                 // Return true;
                 proc.Emit(OpCodes.Ldc_I4_1);
                 proc.Emit(OpCodes.Ret);
-
-                localChatHook.Body.SimplifyBranches();
-                localChatHook.Body.OptimizeBranches();
             }
 
             typeDef_Main.Methods.Add(localChatHook);
 
-            var mainUpdate = typeDef_Main.GetMethod("Update");
+            var mainUpdate = typeDef_Main.GetMethod("DoUpdate_HandleChat");
             using (var proc = mainUpdate.Body.GetILProcessor())
             {
                 var instrSeq = mainUpdate.Body.FindInstrSeq(proc, searchSeq);
@@ -297,15 +188,11 @@ namespace Prism.Injector.Patcher
                     log("MainPatcher.AddLocalChatHook() could not find all the local chat opcodes. The search array needs to be updated.");
                 else
                 {
-                    var newInstrBrfalse = Instruction.Create(OpCodes.Brfalse_S, (Instruction)(instrSeq[1].Operand));
-                    proc.InsertBefore(instrSeq[1], newInstrBrfalse);
-
                     var newInstrCall = Instruction.Create(OpCodes.Call, localChatHook);
                     proc.InsertBefore(instrSeq[1], newInstrCall);
+                    var newInstrBrfalse = Instruction.Create(OpCodes.Brfalse, (Instruction)(instrSeq[0].Operand));
+                    proc.InsertBefore(instrSeq[1], newInstrBrfalse);
                 }
-
-                mainUpdate.Body.SimplifyBranches();
-                mainUpdate.Body.OptimizeBranches();
             }
         }
         static void FixHookBackingFields()
@@ -374,58 +261,30 @@ namespace Prism.Injector.Patcher
         {
             OpCode[] search =
             {
-                OpCodes.Call     , //IL_27a6: call valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.KeyboardState Microsoft.Xna.Framework.Input.Keyboard::GetState()
-                OpCodes.Stsfld   , //IL_27ab: stsfld valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.KeyboardState Terraria.Main::keyState
-                OpCodes.Ldsfld   , //IL_27b0: ldsfld bool Terraria.Main::editSign
-                OpCodes.Brfalse_S, //IL_27b5: brfalse.s IL_27bd
-
-                OpCodes.Ldc_I4_0 , //IL_27b7: ldc.i4.0
-                OpCodes.Stsfld   , //IL_27b8: stsfld bool Terraria.Main::chatMode
-
-                OpCodes.Ldsfld   , //IL_27bd: ldsfld bool Terraria.Main::chatMode
-                OpCodes.Brtrue_S , //IL_27c2: brtrue.s IL_27cf
-
-                OpCodes.Ldc_I4_0 , //IL_27c4: ldc.i4.0
-                OpCodes.Stsfld   , //IL_27c5: stsfld int32 Terraria.Main::startChatLine
-                OpCodes.Br       , //IL_27ca: br IL_2a83
-
-                OpCodes.Ldsfld   , //IL_27cf: ldsfld int32 Terraria.Main::screenHeight
-                OpCodes.Ldc_I4_3 , //IL_27d4: ldc.i4.3
-                OpCodes.Div      , //IL_27d5: div
-                OpCodes.Conv_R4  , //IL_27d6: conv.r4
-                OpCodes.Ldsfld   , //IL_27d7: ldsfld class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SpriteFont Terraria.Main::fontMouseText
-                OpCodes.Ldstr    , //IL_27dc: ldstr "1"
-                OpCodes.Callvirt , //IL_27e1: callvirt instance valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Vector2 [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.SpriteFont::MeasureString(string)
-
-                OpCodes.Ldfld    , //IL_27e6: ldfld float32 [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Vector2::Y
-                OpCodes.Div      , //IL_27eb: div
-                OpCodes.Conv_I4  , //IL_27ec: conv.i4
-                OpCodes.Ldc_I4_1 , //IL_27ed: ldc.i4.1
-                OpCodes.Sub      , //IL_27ee: sub
-                OpCodes.Stsfld   , //IL_27ef: stsfld int32 Terraria.Main::showCount
-                OpCodes.Ldsflda  , //IL_27f4: ldsflda valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.KeyboardState Terraria.Main::keyState
-                OpCodes.Ldc_I4_S , //IL_27f9: ldc.i4.s 38
-                OpCodes.Call     , //IL_27fb: call instance bool [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.KeyboardState::IsKeyDown(valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Input.Keys)
-                OpCodes.Brfalse_S, //IL_2800: brfalse.s IL_2864
+                OpCodes.Call  ,
+                OpCodes.Stsfld,
+                OpCodes.Ret
             };
 
-            var mainUpdate = typeDef_Main.GetMethod("Update");
+            var mainUpdate = typeDef_Main.GetMethod("DoUpdate_HandleInput");
             var mainUpdateBody = mainUpdate.Body;
             var first = mainUpdateBody.FindInstrSeqStart(search);
-            var mainUpdateProc = mainUpdateBody.GetILProcessor();
 
-            if (!(first != null && (first = first.Next(mainUpdateProc)) != null && (first = first.Next(mainUpdateProc)) != null))
-                log("Couldn't find instructions for MainPatcher::AddOnUpdateKeyboardHook()");
+            using (var mainUpdateProc = mainUpdateBody.GetILProcessor())
+            {
+                if (first == null)
+                    log("Couldn't find instructions for MainPatcher::AddOnUpdateKeyboardHook()");
 
-            //public virtual void P_OnUpdateInputHook() { }
-            MethodDef invokeOnUpdateKeyboardHook;
-            var onUpdateKeyboardDelType = context.CreateDelegate("Terraria.PrismInjections", "Main_Update_OnUpdateKeyboardDel", typeSys.Void, out invokeOnUpdateKeyboardHook, typeDef_Main.ToTypeSig(), mainUpdate.Parameters[1].Type /* HAH I WIN, XNA */);
-            var onUpdateKeyboardDelField = new FieldDefUser("P_OnUpdateKeyboard", new FieldSig(onUpdateKeyboardDelType.ToTypeSig()), FieldAttributes.Public | FieldAttributes.Static);
-            typeDef_Main.Fields.Add(onUpdateKeyboardDelField);
+                //public virtual void P_OnUpdateInputHook() { }
+                MethodDef invokeOnUpdateKeyboardHook;
+                var onUpdateKeyboardDelType = context.CreateDelegate("Terraria.PrismInjections", "Main_Update_OnUpdateKeyboardDel", typeSys.Void, out invokeOnUpdateKeyboardHook, typeDef_Main.ToTypeSig());
+                var onUpdateKeyboardDelField = new FieldDefUser("P_OnUpdateKeyboard", new FieldSig(onUpdateKeyboardDelType.ToTypeSig()), FieldAttributes.Public | FieldAttributes.Static);
+                typeDef_Main.Fields.Add(onUpdateKeyboardDelField);
 
-            mainUpdateProc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, onUpdateKeyboardDelField));
-            mainUpdateProc.EmitWrapperCall(invokeOnUpdateKeyboardHook, first);
-            //mainUpdateProc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeOnUpdateKeyboardHook));
+                mainUpdateProc.InsertBefore(first, Instruction.Create(OpCodes.Ldsfld, onUpdateKeyboardDelField));
+                mainUpdateProc.EmitWrapperCall(invokeOnUpdateKeyboardHook, first);
+                //mainUpdateProc.InsertBefore(first, Instruction.Create(OpCodes.Call, invokeOnUpdateKeyboardHook));
+            }
         }
         static void AddPostScreenClearHook()
         {
@@ -722,15 +581,15 @@ namespace Prism.Injector.Patcher
             RemoveVanillaNpcDrawLimitation();
             FixHookBackingFields();
             RemoveArmourDrawLimitations();
-            //AddOnUpdateKeyboardHook(log); // FIXME
+            AddOnUpdateKeyboardHook(log);
             AddPostScreenClearHook();
             RemoveResolutionChangedMessage();
             DoAllAudioStuff(log);
 
-            //AddIsChatAllowedHook(log); // FIXME
-            //typeDef_Main.GetMethod("P_IsChatAllowed", MethodFlags.Public | MethodFlags.Static).Wrap(context);
-            //AddLocalChatHook(log); // FIXME
-            //typeDef_Main.GetMethod("P_LocalChat", MethodFlags.Public | MethodFlags.Static).Wrap(context);
+            AddIsChatAllowedHook(log);
+            typeDef_Main.GetMethod("P_IsChatAllowed", MethodFlags.Public | MethodFlags.Static).Wrap(context);
+            AddLocalChatHook(log);
+            typeDef_Main.GetMethod("P_LocalChat", MethodFlags.Public | MethodFlags.Static).Wrap(context);
         }
     }
 }
