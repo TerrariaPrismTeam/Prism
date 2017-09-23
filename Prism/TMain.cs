@@ -76,6 +76,8 @@ namespace Prism
 
             Configuration = new Preferences(SavePath + "/config.json", false, false);
 
+            InputProfiles = new Preferences(SavePath + "/input-profiles.json", false, false);
+
             ElapsedTime = 0;
 
             if (Environment.OSVersion.Platform == PlatformID.Win32NT && graphics.GraphicsProfile == GraphicsProfile.Reach && GraphicsAdapter.DefaultAdapter.IsProfileSupported(GraphicsProfile.HiDef))

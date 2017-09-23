@@ -25,11 +25,11 @@ namespace Prism.Mods.DefHandlers
 
         internal static void OnSetDefaults(Projectile p, int type)
         {
-            if (ModLoader.Reloading)
+            if (ModLoader.Reloading || TMain.IsInInit)
             {
                 p.RealSetDefaults(type);
 
-                if (!FillingVanilla)
+                if (!FillingVanilla && !TMain.IsInInit)
                     Logging.LogWarning("Tried to call SetDefaults on a Projectile while [re|un]?loading mods.");
 
                 return;
