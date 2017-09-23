@@ -46,8 +46,10 @@ namespace Prism.API.Defs
 
         }
 
+        [ThreadStatic]
+        static ProjectileDef pd;
         ProjectileRef(int resourceId, object ignore)
-            : base(resourceId, id => Handler.ProjDef.DefsByType.ContainsKey(id) ? Handler.ProjDef.DefsByType[id].InternalName : String.Empty)
+            : base(resourceId, id => Handler.ProjDef.DefsByType.TryGetValue(id, out pd) ? pd.InternalName : String.Empty)
         {
 
         }

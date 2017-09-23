@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Prism.API;
 using Prism.API.Behaviours;
+using Prism.API.Defs;
 using Prism.Mods.BHandlers;
 using Prism.Mods.DefHandlers;
 using Prism.Util;
@@ -18,27 +19,22 @@ namespace Prism.Mods.Hooks
 
         static TileBHandler LoadTypeSpecific(ushort t)
         {
-            if (TypeSpecificHandlers.ContainsKey(t))
-                return TypeSpecificHandlers[t];
-
             TileBHandler h = null; // will be set to <non-null> only if a behaviour handler will be attached
+            if (TypeSpecificHandlers.TryGetValue(t, out h))
+                return h;
 
-            if (Handler.TileDef.DefsByType.ContainsKey(t))
+            TileDef d;
+            if (Handler.TileDef.DefsByType.TryGetValue(t, out d) && d.CreateBehaviour != null)
             {
-                var d = Handler.TileDef.DefsByType[t];
+                var b = d.CreateBehaviour();
 
-                if (d.CreateBehaviour != null)
+                if (b != null)
                 {
-                    var b = d.CreateBehaviour();
+                    h = new TileBHandler();
 
-                    if (b != null)
-                    {
-                        h = new TileBHandler();
+                    b.Mod = d.Mod == PrismApi.VanillaInfo ? null : ModData.mods[d.Mod];
 
-                        b.Mod = d.Mod == PrismApi.VanillaInfo ? null : ModData.mods[d.Mod];
-
-                        h.behaviours.Add(b);
-                    }
+                    h.behaviours.Add(b);
                 }
             }
 
@@ -76,22 +72,18 @@ namespace Prism.Mods.Hooks
 
             var tsh = LoadTypeSpecific(t);
 
-            if (Handler.TileDef.DefsByType.ContainsKey(t))
+            TileDef d;
+            if (Handler.TileDef.DefsByType.TryGetValue(t, out d) && d.CreateInstanceBehaviour != null)
             {
-                var d = Handler.TileDef.DefsByType[t];
+                var b = d.CreateInstanceBehaviour();
 
-                if (d.CreateInstanceBehaviour != null)
+                if (b != null)
                 {
-                    var b = d.CreateInstanceBehaviour();
+                    h = new TileBHandler();
 
-                    if (b != null)
-                    {
-                        h = new TileBHandler();
+                    b.Mod = d.Mod == PrismApi.VanillaInfo ? null : ModData.mods[d.Mod];
 
-                        b.Mod = d.Mod == PrismApi.VanillaInfo ? null : ModData.mods[d.Mod];
-
-                        h.behaviours.Add(b);
-                    }
+                    h.behaviours.Add(b);
                 }
             }
 

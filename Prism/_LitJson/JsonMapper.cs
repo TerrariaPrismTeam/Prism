@@ -298,14 +298,20 @@ namespace LitJson
 
         static MethodInfo GetConvOp(Type t1, Type t2)
         {
+            IDictionary<Type, MethodInfo> t1d = null;
+
             lock (conv_ops_lock)
             {
                 if (!conv_ops.ContainsKey(t1))
-                    conv_ops.Add(t1, new Dictionary<Type, MethodInfo>());
+                    conv_ops.Add(t1, t1d = new Dictionary<Type, MethodInfo>());
             }
 
-            if (conv_ops[t1].ContainsKey(t2))
-                return conv_ops[t1][t2];
+            if (t1d == null)
+                conv_ops.TryGetValue(t1, out t1d); // should return true now
+
+            MethodInfo t2d;
+            if (t1d.TryGetValue(t2, out t2d))
+                return t2d;
 
             MethodInfo op = t1.GetMethod(
                 "op_Implicit", new Type[] { t2 });
@@ -356,26 +362,18 @@ namespace LitJson
                     return reader.Value;
 
                 // If there's a custom importer that fits, use it
-                if (custom_importers_table.ContainsKey(json_type) &&
-                    custom_importers_table[json_type].ContainsKey(
-                        inst_type))
+                IDictionary<Type, ImporterFunc> imTab;
+                ImporterFunc importer;
+                if (custom_importers_table.TryGetValue(json_type, out imTab) &&
+                    imTab.TryGetValue(inst_type, out importer))
                 {
-
-                    ImporterFunc importer =
-                        custom_importers_table[json_type][inst_type];
-
                     return importer(reader.Value);
                 }
 
                 // Maybe there's a base importer that works
-                if (base_importers_table.ContainsKey(json_type) &&
-                    base_importers_table[json_type].ContainsKey(
-                        inst_type))
+                if (base_importers_table.TryGetValue(json_type, out imTab) &&
+                    imTab.TryGetValue(inst_type, out importer))
                 {
-
-                    ImporterFunc importer =
-                        base_importers_table[json_type][inst_type];
-
                     return importer(reader.Value);
                 }
 
@@ -461,11 +459,9 @@ namespace LitJson
 
                     var property = (string)reader.Value;
 
-                    if (t_data.Properties.ContainsKey(property))
+                    PropertyMetadata prop_data;
+                    if (t_data.Properties.TryGetValue(property, out prop_data))
                     {
-                        PropertyMetadata prop_data =
-                            t_data.Properties[property];
-
                         if (prop_data.IsField)
                         {
                             ((FieldInfo)prop_data.Info).SetValue(
@@ -855,18 +851,17 @@ namespace LitJson
             Type obj_type = obj.GetType();
 
             // See if there's a custom exporter for the object
-            if (custom_exporters_table.ContainsKey(obj_type))
+            ExporterFunc exporter;
+            if (custom_exporters_table.TryGetValue(obj_type, out exporter))
             {
-                ExporterFunc exporter = custom_exporters_table[obj_type];
                 exporter(obj, writer);
 
                 return;
             }
 
             // If not, maybe there's a base exporter
-            if (base_exporters_table.ContainsKey(obj_type))
+            if (base_exporters_table.TryGetValue(obj_type, out exporter))
             {
-                ExporterFunc exporter = base_exporters_table[obj_type];
                 exporter(obj, writer);
 
                 return;

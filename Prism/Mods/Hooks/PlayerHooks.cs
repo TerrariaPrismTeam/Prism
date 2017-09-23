@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Prism.API.Defs;
 using Prism.IO;
 using Prism.Mods.BHandlers;
 using Prism.Mods.DefHandlers;
@@ -55,31 +56,27 @@ namespace Prism.Mods.Hooks
 
             BuffBHandler h = null;
 
-            if (Handler.BuffDef.DefsByType.ContainsKey(type))
+            BuffDef d;
+            if (Handler.BuffDef.DefsByType.TryGetValue(type, out d) && d.CreateBehaviour != null)
             {
-                var d = Handler.BuffDef.DefsByType[type];
+                var b = d.CreateBehaviour();
 
-                if (d.CreateBehaviour != null)
+                if (b != null)
                 {
-                    var b = d.CreateBehaviour();
+                    h = new BuffBHandler();
 
-                    if (b != null)
-                    {
-                        h = new BuffBHandler();
+                    b.Mod = d.Mod == PrismApi.VanillaInfo ? null : ModData.mods[d.Mod];
 
-                        b.Mod = d.Mod == PrismApi.VanillaInfo ? null : ModData.mods[d.Mod];
-
-                        h.behaviours.Add(b);
-                    }
+                    h.behaviours.Add(b);
                 }
             }
 
-            var bs = ModData.mods.Values.Select(d =>
+            var bs = ModData.mods.Values.Select(dd =>
             {
-                var bb = d.ContentHandler.CreateGlobalBuffBInternally();
+                var bb = dd.ContentHandler.CreateGlobalBuffBInternally();
 
                 if (bb != null)
-                    bb.Mod = d;
+                    bb.Mod = dd;
 
                 return bb;
             }).Where(bb => bb != null);

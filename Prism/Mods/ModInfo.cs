@@ -201,10 +201,11 @@ namespace Prism.Mods
         /// <returns>The mod definition of the mod. Null if the ModInfo is vanilla or not found.</returns>
         public ModDef GetDefinition()
         {
-            if (this == PrismApi.VanillaInfo || !ModData.mods.ContainsKey(this))
+            ModDef r;
+            if (this == PrismApi.VanillaInfo || !ModData.mods.TryGetValue(this, out r))
                 return null;
 
-            return ModData.Mods[this];
+            return r;
         }
     }
 }

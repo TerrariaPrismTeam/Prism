@@ -46,8 +46,10 @@ namespace Prism.API.Defs
 
         }
 
+        [ThreadStatic]
+        static BuffDef bd;
         BuffRef(int resourceId, object ignore)
-            : base(resourceId, id => Handler.BuffDef.DefsByType.ContainsKey(id) ? Handler.BuffDef.DefsByType[id].InternalName : String.Empty)
+            : base(resourceId, id => Handler.BuffDef.DefsByType.TryGetValue(id, out bd) ? bd.InternalName : String.Empty)
         {
 
         }

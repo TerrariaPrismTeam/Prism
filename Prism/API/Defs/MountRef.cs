@@ -45,8 +45,10 @@ namespace Prism.API.Defs
 
         }
 
+        [ThreadStatic]
+        static MountDef md;
         MountRef(int resourceId, object ignore)
-            : base(resourceId, id => Handler.MountDef.DefsByType.ContainsKey(id) ? Handler.MountDef.DefsByType[id].InternalName : String.Empty)
+            : base(resourceId, id => Handler.MountDef.DefsByType.TryGetValue(id, out md) ? md.InternalName : String.Empty)
         {
 
         }

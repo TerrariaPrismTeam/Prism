@@ -298,10 +298,9 @@ namespace Prism.IO
                         {
                             var mod = bb.ReadString();
 
-                            if (String.IsNullOrEmpty(mod) || !ModData.modsFromInternalName.ContainsKey(mod))
+                            ModDef md;
+                            if (String.IsNullOrEmpty(mod) || !ModData.modsFromInternalName.TryGetValue(mod, out md))
                                 continue;
-
-                            var md = ModData.modsFromInternalName[mod];
 
                             var buff = bb.ReadString();
                             var t = bb.ReadInt32();

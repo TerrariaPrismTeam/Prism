@@ -47,8 +47,10 @@ namespace Prism.API.Defs
 
         }
 
+        [ThreadStatic]
+        static ItemDef d;
         ItemRef(int resourceId, object ignore)
-            : base(resourceId, id => Handler.ItemDef.DefsByType.ContainsKey(id) ? Handler.ItemDef.DefsByType[id].InternalName : String.Empty)
+            : base(resourceId, id => Handler.ItemDef.DefsByType.TryGetValue(id, out d) ? d.InternalName : String.Empty)
         {
 
         }

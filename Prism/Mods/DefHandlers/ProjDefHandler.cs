@@ -37,12 +37,11 @@ namespace Prism.Mods.DefHandlers
 
             ProjBHandler h = null; // will be set to <non-null> only if a behaviour handler will be attached
 
-            p.RealSetDefaults(type);
+            p.RealSetDefaults(0);
 
-            if (Handler.ProjDef.DefsByType.ContainsKey(type))
+            ProjectileDef d;
+            if (Handler.ProjDef.DefsByType.TryGetValue(type, out d))
             {
-                var d = Handler.ProjDef.DefsByType[type];
-
                 p.type = type;
                 p.width = p.height = 16;
 
@@ -63,6 +62,11 @@ namespace Prism.Mods.DefHandlers
                 }
 
                 p.active = true;
+            }
+            else
+            {
+                //p.RealSetDefaults(type);
+                Logging.LogWarning("There is no ProjDef of type " + type + "!");
             }
 
             var bs = ModData.mods.Values

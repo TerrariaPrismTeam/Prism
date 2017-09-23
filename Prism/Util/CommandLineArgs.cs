@@ -69,7 +69,8 @@ namespace Prism.Util
                     var t = GetKvp(args[i]);
 
                     var fu = Char.ToUpperInvariant(t.Key[0]);
-                    var n = (t.Key.Length == 1 && shortToLong.ContainsKey(fu) ? shortToLong[fu] : t.Key).ToUpperInvariant();
+                    string lng;
+                    var n = (t.Key.Length == 1 && shortToLong.TryGetValue(fu, out lng) ? lng : t.Key).ToUpperInvariant();
 
                     ret.Add(t.Value == null ? new Argument()
                     {
@@ -103,9 +104,11 @@ namespace Prism.Util
                     var t = GetKvp(args[i]);
 
                     var fu = Char.ToUpperInvariant(t.Key[0]);
-                    if (t.Key.Length != 1 || !shortToLong.ContainsKey(fu))
+
+                    string lng;
+                    if (t.Key.Length != 1 || !shortToLong.TryGetValue(fu, out lng))
                         goto RETURN;
-                    var n = shortToLong[fu].ToUpperInvariant();
+                    var n = lng.ToUpperInvariant();
 
                     ret.Add(t.Value == null ? new Argument()
                     {

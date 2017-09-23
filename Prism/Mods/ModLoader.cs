@@ -72,9 +72,14 @@ namespace Prism.Mods
         {
             var fn = path + Path.DirectorySeparatorChar + PrismApi.JsonManifestFileName;
 
-            if (!Directory.Exists(Path.GetDirectoryName(fn)) || !File.Exists(fn))
+            if (!Directory.Exists(Path.GetDirectoryName(fn)))
             {
                 errors.Add(new LoaderError(path, "Mod directory not found"));
+                return null;
+            }
+            if (!File.Exists(fn))
+            {
+                errors.Add(new LoaderError(path, "Mod manifest.json not found"));
                 return null;
             }
 
@@ -184,8 +189,9 @@ namespace Prism.Mods
 
             var info = info_n.Value;
 
-            if (ModData.mods.ContainsKey(info)) // mod already loaded when resolving dependencies (see ~15 lines from here)
-                return ModData.mods[info];
+            ModDef md;
+            if (ModData.mods.TryGetValue(info, out md)) // mod already loaded when resolving dependencies (see ~15 lines from here)
+                return md;
 
             circRefList.Clear();
             string evilMod;

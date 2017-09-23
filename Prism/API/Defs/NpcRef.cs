@@ -46,8 +46,10 @@ namespace Prism.API.Defs
 
         }
 
+        [ThreadStatic]
+        static NpcDef nd;
         NpcRef(int resourceId, object ignore)
-            : base(resourceId, id => Handler.NpcDef.DefsByType.ContainsKey(id) ? Handler.NpcDef.DefsByType[id].InternalName : String.Empty)
+            : base(resourceId, id => Handler.NpcDef.DefsByType.TryGetValue(id, out nd) ? nd.InternalName : String.Empty)
         {
 
         }

@@ -47,8 +47,10 @@ namespace Prism.API.Defs
 
         }
 
+        [ThreadStatic]
+        static TileDef td;
         TileRef(int resourceId, object ignore)
-            : base(resourceId, id => Handler.TileDef.DefsByType.ContainsKey(id) ? Handler.TileDef.DefsByType[id].InternalName : String.Empty)
+            : base(resourceId, id => Handler.TileDef.DefsByType.TryGetValue(id, out td) ? td.InternalName : String.Empty)
         {
 
         }

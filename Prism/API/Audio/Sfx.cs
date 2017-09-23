@@ -157,6 +157,7 @@ namespace Prism.API.Audio
 
             SoundEffectInstance inst;
             var b = entry.PlayBehaviour(variant);
+            SoundEffectInstance inst_;
             switch (b)
             {
                 case SfxPlayBehaviour.MultipleInstances:
@@ -169,10 +170,8 @@ namespace Prism.API.Audio
                     break;
                 case SfxPlayBehaviour.PlayIfStopped:
                 case SfxPlayBehaviour.PlayIfStoppedUpdateParams:
-                    if (instanceMap.ContainsKey(kvp))
+                    if (instanceMap.TryGetValue(kvp, out inst_))
                     {
-                        var inst_ = instanceMap[kvp];
-
                         if (inst_.State == SoundState.Stopped)
                             inst = inst_;
                         else
@@ -194,10 +193,8 @@ namespace Prism.API.Audio
                     }
                     break;
                 case SfxPlayBehaviour.Singleton:
-                    if (instanceMap.ContainsKey(kvp))
+                    if (instanceMap.TryGetValue(kvp, out inst_))
                     {
-                        var inst_ = instanceMap[kvp];
-
                         inst_.Stop();
 
                         instanceMap.Remove(kvp);

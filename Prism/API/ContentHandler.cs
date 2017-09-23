@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Prism.API.Audio;
 using Prism.API.Behaviours;
 using Prism.API.Defs;
-using Prism.Util;
 using Prism.Mods;
-using System.IO;
 using Prism.Mods.Resources;
+using Prism.Util;
 
 namespace Prism.API
 {
@@ -51,8 +51,9 @@ namespace Prism.API
 
         T GetResourceInternal<T>(Func<Stream> getStream)
         {
-            if (ResourceLoader.ResourceReaders.ContainsKey(typeof(T)))
-                return (T)ResourceLoader.ResourceReaders[typeof(T)].ReadResource(getStream());
+            IResourceReader rr;
+            if (ResourceLoader.ResourceReaders.TryGetValue(typeof(T), out rr))
+                return (T)rr.ReadResource(getStream());
 
             throw new InvalidOperationException("No resource reader found for type " + typeof(T) + ".");
         }
@@ -67,10 +68,11 @@ namespace Prism.API
         {
             path = ResourceLoader.NormalizeResourceFilePath(path);
 
-            if (!resources.ContainsKey(path))
+            Stream s;
+            if (!resources.TryGetValue(path, out s))
                 throw new FileNotFoundException("Resource '" + path + "' not found.");
 
-            return GetResourceInternal<T>(() => resources[path]);
+            return GetResourceInternal<T>(() => s);
         }
         /// <summary>
         /// Returns the specified resource embedded in the mod's assembly.

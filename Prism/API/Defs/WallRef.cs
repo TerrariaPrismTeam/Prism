@@ -50,8 +50,10 @@ namespace Prism.API.Defs
 
         }
 
+        [ThreadStatic]
+        static WallDef wd;
         WallRef(int resourceId, object ignore)
-            : base(resourceId, id => Handler.WallDef.DefsByType.ContainsKey(id) ? Handler.WallDef.DefsByType[id].InternalName : WallDefHandler.WALL + id)
+            : base(resourceId, id => Handler.WallDef.DefsByType.TryGetValue(id, out wd) ? wd.InternalName : WallDefHandler.WALL + id)
         {
 
         }

@@ -293,7 +293,9 @@ namespace LitJson
             get
             {
                 EnsureDictionary();
-                return inst_object.ContainsKey(prop_name) ? inst_object[prop_name] : null;
+                JsonData r = null;
+                inst_object.TryGetValue(prop_name, out r);
+                return r; // null if ^ returned false
             }
 
             set
