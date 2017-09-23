@@ -40,8 +40,8 @@ static class Program
 
         foreach (var kvp in resources)
         {
-            using (var fs = File.OpenWrite(destDir + Path.DirectorySeparatorChar + kvp.Value))
-            using (var ms = a.GetManifestResourceStream("Terraria.Libraries" + kvp.Key + ".dll"))
+            using (var fs = File.OpenWrite(destDir + Path.DirectorySeparatorChar + kvp.Item2))
+            using (var ms = a.GetManifestResourceStream("Terraria.Libraries." + kvp.Item1 + ".dll"))
             {
                 ms.CopyTo(fs);
             }

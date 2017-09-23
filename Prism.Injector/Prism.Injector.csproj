@@ -107,7 +107,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup Condition="'$(OS)' == 'Unix'">
     <PostBuildEvent Condition="'$(OS)' == 'Unix'">
-      if ! [ -e "$(ProjectDir)../References/ReLogic.dll" ]; then
+      if ! [ -e "$(ProjectDir)../References/ReLogic.dll" ] || ! [ -e "$(ProjectDir)/../References/Steamworks.NET.dll" ]; then
         if ! [ -e "$(ProjectDir)../References/Terraria.exe" ]; then
           echo "Terraria.exe is missing in the References folder. Please put it there."
           exit 1
