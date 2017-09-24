@@ -637,6 +637,8 @@ namespace Prism.API.Defs
         //Also, I added the numbers cuz some of them (like the spear one) might be copies
 
         #endregion
+
+        // there seem to be 146 now...
     }
 
     //public enum ProjFlags

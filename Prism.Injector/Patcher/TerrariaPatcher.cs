@@ -192,6 +192,9 @@ namespace Prism.Injector.Patcher
             BuffPatcher      .Patch(log);
             // do other stuff here
 
+            log("Adding MSIL hacks for use by Prism...");
+            ILHacks.Patch(log);
+
             log("Optimising MSIL...");
             OptimizeAll(log);
 

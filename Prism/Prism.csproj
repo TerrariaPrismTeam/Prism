@@ -19,6 +19,7 @@
     <WarningLevel>4</WarningLevel>
     <UseMSBuildEngine Condition=" '$(OS)' == 'Unix'">False</UseMSBuildEngine>
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow> <!-- implicit unchecked everywhere -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DevBuild|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -173,6 +174,7 @@
     <Compile Include="API\ObjectName.cs" />
     <Compile Include="AssemblyResolver.cs" />
     <Compile Include="Debugging\Logging.cs" />
+    <Compile Include="Util\Wave.cs" />
     <Compile Include="IO\BinBuffer.cs" />
     <Compile Include="IO\BinBufferByteResource.cs" />
     <Compile Include="IO\BinBufferNativeResource.cs" />

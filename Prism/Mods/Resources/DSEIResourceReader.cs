@@ -3,20 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework.Audio;
+using Prism.Util;
 
 namespace Prism.Mods.Resources
 {
-    // TODO: write a proper wav reader
     // reads a wave file in chuncks and puts it in a DynamicSoundEffectInstance
     // uses less memory, because it's streamed
     class DSEIResourceReader : ResourceReader<DynamicSoundEffectInstance>
     {
-        internal readonly static string
-           InvalidRiffHeader = "Invalid RIFF header.",
-           InvalidWaveHeader = "Invalid WAVE fmt header.",
-           InvalidWaveType = "Invalid wave file type, expected PCM.",
-           InvalidDataChunck = "Invalid RIFF data chunck.";
-
         protected override bool ResetStream
         {
             get
@@ -25,72 +19,72 @@ namespace Prism.Mods.Resources
             }
         }
 
-        static void Expect<T>(T read, T expected, string message = null)
-            where T : struct, IEquatable<T>
+        protected override unsafe DynamicSoundEffectInstance ReadTypedResource(Stream resourceStream)
         {
-            if (!read.Equals(expected))
-                throw new FormatException(message ?? "Expected " + expected + ", but got " + read + ".");
-        }
-
-        protected override DynamicSoundEffectInstance ReadTypedResource(Stream resourceStream)
-        {
+            // NOT in a using!
             var r = new BinaryReader(resourceStream);
 
-            Expect(r.ReadChar(), 'R', InvalidRiffHeader);
-            Expect(r.ReadChar(), 'I', InvalidRiffHeader);
-            Expect(r.ReadChar(), 'F', InvalidRiffHeader);
-            Expect(r.ReadChar(), 'F', InvalidRiffHeader);
+            WaveHeader hdr;
 
-            int totalLen = r.ReadInt32();
-
-            Expect(r.ReadChar(), 'W', InvalidWaveHeader);
-            Expect(r.ReadChar(), 'A', InvalidWaveHeader);
-            Expect(r.ReadChar(), 'V', InvalidWaveHeader);
-            Expect(r.ReadChar(), 'E', InvalidWaveHeader);
-
-            Expect(r.ReadChar(), 'f', InvalidWaveHeader);
-            Expect(r.ReadChar(), 'm', InvalidWaveHeader);
-            Expect(r.ReadChar(), 't', InvalidWaveHeader);
-            Expect(r.ReadChar(), ' ', InvalidWaveHeader);
-
-            int bitDepth = r.ReadInt32();
-            Expect(r.ReadUInt16(), (ushort)1, InvalidWaveType);
-            int channels = r.ReadUInt16();
-            int sampleRate = r.ReadInt32();
-            int bytePerSecond = r.ReadInt32();
-            ushort bytePerSample = r.ReadUInt16();
-            Expect(r.ReadUInt16(), (ushort)bitDepth);
-
-            Expect(r.ReadChar(), 'd', InvalidDataChunck);
-            Expect(r.ReadChar(), 'a', InvalidDataChunck);
-            Expect(r.ReadChar(), 't', InvalidDataChunck);
-            Expect(r.ReadChar(), 'a', InvalidDataChunck);
-
-            int rest = r.ReadInt32();
-
-            var dsei = new DynamicSoundEffectInstance(sampleRate, (AudioChannels)channels);
-
-            Action SubmitSec = () =>
+            byte[] data = r.ReadBytes(sizeof(WaveHeader));
+            fixed (byte* pd = data)
             {
-                if (rest == 0)
+                hdr = *(WaveHeader*)pd;
+            }
+
+            if (hdr.riff.magic != WaveMagic.RIFF || hdr.wavemagic != WaveMagic.WAVE)
+                throw new FileFormatException("Bogus RIFF or WAVE magic bytes");
+
+            uint left = hdr.riff.size - (uint)sizeof(WaveHeader);
+
+            WaveFmt fmt = default(WaveFmt);
+            Riff datah = default(Riff);
+
+            for (Riff cur; ; )
+            {
+                data = r.ReadBytes(sizeof(Riff));
+                fixed (byte* pd = data)
                 {
-                    //dsei.Voice.Discontinuity();
-                    return;
+                    cur = *(Riff*)pd;
                 }
 
-                var toRead = Math.Min(sampleRate, rest);
+                if (cur.magic == WaveMagic.data)
+                {
+                    datah = cur;
+                    break;
+                }
 
-                var data = r.ReadBytes(toRead);
+                if (cur.magic == WaveMagic.fmt_)
+                {
+                    data = r.ReadBytes(sizeof(WaveMagic));
+                    fixed (byte* pd = data)
+                    {
+                        fmt = *(WaveFmt*)pd;
+                    }
+                }
+            }
 
-                rest -= toRead;
+            if (fmt.format != WaveFormat.PCM)
+                throw new NotSupportedException("Non-PCM WAV files aren't supported");
 
-                dsei.SubmitBuffer(data);
+            if (fmt.byterate == 0)
+                fmt.byterate = (ushort)(fmt.samplerate * fmt.channels * (fmt.bitdepth >> 3));
 
-                return;
+            var dsei = new DynamicSoundEffectInstance(fmt.samplerate, (AudioChannels)fmt.channels);
+
+            Action submit = () =>
+            {
+                if (datah.size == 0)
+                    return;
+
+                uint rr = Math.Min((uint)fmt.byterate, datah.size);
+                dsei.SubmitBuffer(r.ReadBytes((int)rr));
+
+                datah.size -= rr;
             };
 
-            SubmitSec();
-            dsei.BufferNeeded += (_, __) => SubmitSec();
+            submit();
+            dsei.BufferNeeded += (_, __) => submit();
 
             return dsei;
         }
