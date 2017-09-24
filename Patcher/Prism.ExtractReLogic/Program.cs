@@ -1,6 +1,4 @@
-// TODO: someone on Windows: create a csproj for this
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,8 +9,21 @@ static class Program
     readonly static Tuple<string, string>[] resources =
     {
         Tuple.Create("ReLogic.ReLogic", "ReLogic.dll"),
-        Tuple.Create("Steamworks.NET.Linux.Steamworks.NET", "Steamworks.NET.dll")
+        Tuple.Create("Steamworks.NET." + GetOSType(Environment.OSVersion.Platform) + ".Steamworks.NET", "Steamworks.NET.dll")
     };
+
+    static string GetOSType(PlatformID platform)
+    {
+        switch (platform)
+        {
+            case PlatformID.Win32NT:
+                return "Windows";
+            case PlatformID.Unix:
+                return "Linux";
+            default:
+                throw new NotImplementedException("The OS-specific DLL name of the Steamworks DLL for PlatformID " + platform + " is not currently known.");
+        }
+    }
 
     static int Main(string[] args)
     {

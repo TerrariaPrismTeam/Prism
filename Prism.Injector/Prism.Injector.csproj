@@ -113,16 +113,22 @@
           exit 1
           fi
 
-        cd "$(ProjectDir)../Patcher/ExtractReLogic"
-        ./c.sh
-        mono bin/ExtractReLogic.exe "$(ProjectDir)../References/Terraria.exe" "$(ProjectDir)../References"
+        cd "$(ProjectDir)../Patcher/Prism.ExtractReLogic/$(OutDir)"
+        mono Prism.ExtractReLogic.exe "$(ProjectDir)../References/Terraria.exe" "$(ProjectDir)../References"
       fi
     </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
     <PostBuildEvent Condition="'$(OS)' == 'Windows_NT'">
-      echo TODO: someone: write this
-      exit 1
+      if exist "$(ProjectDir)../References/ReLogic.dll" if exist "$(ProjectDir)../References/Steamworks.NET.dll" goto done
+      if not exist "$(ProjectDir)../References/Terraria.exe" (
+      	echo "Terraria.exe is missing in the References folder. Please put it there."
+      	exit 1
+      ) else (
+        cd "$(ProjectDir)../Patcher/Prism.ExtractReLogic/$(OutDir)"
+        Prism.ExtractReLogic.exe "$(ProjectDir)../References/Terraria.exe" "$(ProjectDir)../References"
+      )
+      :done
     </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
