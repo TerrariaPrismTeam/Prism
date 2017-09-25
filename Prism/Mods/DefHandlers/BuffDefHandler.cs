@@ -164,8 +164,6 @@ namespace Prism.Mods.DefHandlers
             DefsByType.Add(id, def);
             VanillaDefsByName.Add(String.Empty, def);
 
-            var byDisplayName = new Dictionary<string, BuffDef>();
-
             for (id = MinVanillaID; id < MaxVanillaID; id++)
             {
                 if (id == 0)
@@ -181,20 +179,12 @@ namespace Prism.Mods.DefHandlers
                 DefsByType.Add(id, def);
                 VanillaDefsByName.Add(IDNames[index], def);
 
-                var n = Lang.GetBuffName(id);
-                if (!byDisplayName.ContainsKey(n) && !VanillaDefsByName.ContainsKey(n))
-                    byDisplayName.Add(n, def);
-
                 def.Mod = PrismApi.VanillaInfo;
 
                 CopyEntityToDef(id, def); // TEntityDef is a class -> dictionary entries are updated, too
 
                 def.InternalName = IDNames[index];
             }
-
-            foreach (var kvp in byDisplayName)
-                if (!VanillaDefsByName.ContainsKey(kvp.Key))
-                    VanillaDefsByName.Add(kvp.Key, kvp.Value);
 
             FillingVanilla = false;
         }
@@ -206,6 +196,7 @@ namespace Prism.Mods.DefHandlers
             NextTypeIndex = MaxVanillaID;
 
             DefsByType.Clear();
+            VanillaDefsByName.Clear();
         }
 
         List<LoaderError> CheckTextures(BuffDef def)

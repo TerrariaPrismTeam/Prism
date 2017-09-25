@@ -54,5 +54,13 @@ namespace Prism.API.Audio
 
             return r;
         }
+
+        public override string ToString()
+        {
+            if (String.IsNullOrEmpty(ResourceName))
+                return "<empty>";
+
+            return "{" + Mod.InternalName + "." + ResourceName + (VariantID < 0 ? String.Empty : (":" + VariantID)) + "}";
+        }
     }
 }

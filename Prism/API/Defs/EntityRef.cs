@@ -87,7 +87,10 @@ namespace Prism.API.Defs
         }
         public override string ToString()
         {
-            return String.IsNullOrEmpty(ResourceName) ? "<empty>" : ("{" + Mod.InternalName + "." + ResourceName + "}");
+            if (String.IsNullOrEmpty(ResourceName))
+                return "<empty>";
+
+            return "{" + Mod.InternalName + "." + ResourceName + "}";
         }
 
         public static implicit operator ObjectRef(EntityRef<TDef> e)
@@ -142,6 +145,9 @@ namespace Prism.API.Defs
         }
         public override string ToString()
         {
+            if (IsVanillaRef && ResourceID.HasValue)
+                return ResourceID.Value.ToString();
+
             return (ResourceID.HasValue ? ("#" + ResourceID.Value + " ") : String.Empty) + base.ToString();
         }
     }

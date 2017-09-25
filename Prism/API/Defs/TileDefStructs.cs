@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Prism.API.Defs
 {
@@ -9,6 +10,18 @@ namespace Prism.API.Defs
         Pickaxe,
         Axe,
         Hammer
+    }
+
+    // sorry for the laziness
+    static class AutoToString
+    {
+        internal static string ToStringMe(object o)
+        {
+            var t = o.GetType();
+            var ps = t.GetProperties(BindingFlags.Public | BindingFlags.FlattenHierarchy | BindingFlags.Instance);
+
+            return "{" + String.Join(",", ps.Select(p => p.Name + "=" + p.GetValue(o, null))) + "}";
+        }
     }
 
     public class TileSubtypeData
@@ -108,6 +121,8 @@ namespace Prism.API.Defs
             get;
             set;
         }
+
+        public override string ToString() { return AutoToString.ToStringMe(this); }
     }
     public class TileAestheticData
     {
@@ -132,6 +147,8 @@ namespace Prism.API.Defs
             get;
             set;
         }
+
+        public override string ToString() { return AutoToString.ToStringMe(this); }
     }
     public struct TileMineData
     {
@@ -156,6 +173,8 @@ namespace Prism.API.Defs
             get;
             set;
         }
+
+        public override string ToString() { return AutoToString.ToStringMe(this); }
     }
     public class TileConversionData
     {
@@ -229,6 +248,8 @@ namespace Prism.API.Defs
             get;
             set;
         }
+
+        public override string ToString() { return AutoToString.ToStringMe(this); }
     }
     public struct TileLightingData
     {
@@ -267,6 +288,8 @@ namespace Prism.API.Defs
             get;
             set;
         }
+
+        public override string ToString() { return AutoToString.ToStringMe(this); }
     }
     public struct TileDamageData
     {
@@ -290,6 +313,8 @@ namespace Prism.API.Defs
             get;
             set;
         }
+
+        public override string ToString() { return AutoToString.ToStringMe(this); }
     }
     public struct TileCollisionData
     {
@@ -319,6 +344,8 @@ namespace Prism.API.Defs
             get;
             set;
         }
+
+        public override string ToString() { return AutoToString.ToStringMe(this); }
     }
     public struct TilePlacementData
     {
@@ -352,6 +379,8 @@ namespace Prism.API.Defs
             get;
             set;
         }
+
+        public override string ToString() { return AutoToString.ToStringMe(this); }
     }
     public struct TileFrameData
     {
@@ -370,6 +399,8 @@ namespace Prism.API.Defs
             get;
             set;
         }
+
+        public override string ToString() { return AutoToString.ToStringMe(this); }
     }
     public struct TileHousingData
     {
@@ -398,6 +429,8 @@ namespace Prism.API.Defs
             get;
             set;
         }
+
+        public override string ToString() { return AutoToString.ToStringMe(this); }
     }
     public struct TileNpcData
     {
@@ -411,5 +444,7 @@ namespace Prism.API.Defs
             get;
             set;
         }
+
+        public override string ToString() { return AutoToString.ToStringMe(this); }
     }
 }

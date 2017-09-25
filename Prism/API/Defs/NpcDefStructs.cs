@@ -121,6 +121,11 @@ namespace Prism.API.Defs
             SafetyRadius = -1;
             MagicAuraColour = Color.White;
         }
+
+        public override string ToString()
+        {
+            return "{AttackFrameCount=" + AttackFrameCount + ",AttackTime=" + AttackTime + ",AttackType="+AttackType + ",DangerDetectRadius="+DangerDetectRadius+",ExtraFramesCount="+ExtraFramesCount + ",AverageAttackChance="+AverageAttackChance+",SafetyRadius="+SafetyRadius+",MagicAuraColour="+MagicAuraColour + "}";
+        }
     }
 
     public enum TownNpcAttackType

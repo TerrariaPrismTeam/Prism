@@ -62,14 +62,19 @@ namespace Prism.API
         {
             get
             {
-                return (String.IsNullOrEmpty(ModName) || ModName == PrismApi.VanillaString || ModName == PrismApi.TerrariaString) && requesting == null;
+                return (String.IsNullOrEmpty(modName)
+                        || modName == PrismApi.VanillaString
+                        || modName == PrismApi.TerrariaString) && requesting == null;
             }
         }
 
         internal ObjectRef(string name, string modName, Assembly requesting)
         {
-            if (String.IsNullOrEmpty(name))
-                throw new ArgumentNullException("name");
+            if (name == null)
+                name = String.Empty;
+
+            //if (String.IsNullOrEmpty(name))
+            //    throw new ArgumentNullException("name");
 
             this.name = name;
             this.modName = modName ?? String.Empty;
@@ -108,7 +113,10 @@ namespace Prism.API
         }
         public override string ToString()
         {
-            if (String.IsNullOrEmpty(modName) || modName == PrismApi.TerrariaString || modName == PrismApi.VanillaString)
+            if (String.IsNullOrEmpty(Name))
+                return "<empty>";
+
+            if (modName == PrismApi.TerrariaString || modName == PrismApi.VanillaString)
                 return "{" + name + "}";
 
             if (ModData.ModsFromInternalName.ContainsKey(modName))

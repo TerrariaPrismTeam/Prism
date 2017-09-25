@@ -25,7 +25,7 @@ namespace Prism.API
             static BuffDef()
             {
                 var vanillaDefs = Handler.BuffDef.VanillaDefsByName.Select(kvp => new KeyValuePair<ObjectRef, BuffDef>(new ObjectRef(kvp.Key), kvp.Value));
-                var modDefs = ModData.Mods.Select(kvp => GetModDefs(kvp)).Flatten();
+                var modDefs = ModData.Mods.SelectMany(kvp => GetModDefs(kvp));
 
                 Defs = new DefIndexer<BuffDef>(vanillaDefs.Concat(modDefs), helper.ByObjRef, helper.ById, helper.ByIdUnsafe, helper.TryGet);
             }

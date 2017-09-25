@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Prism.Debugging
 {
-    static class Logging
+    public static class Logging
     {
         const char
             Info    = 'i',
@@ -98,6 +98,7 @@ namespace Prism.Debugging
             string s = sb.ToString();
             sw.WriteLine(s);
             sw.Flush();
+
 #if DEV_BUILD || DEBUG
             if (Console.OpenStandardError() != Stream.Null)
             {
@@ -107,22 +108,22 @@ namespace Prism.Debugging
 #endif
         }
 
-        internal static void LogInfo(string message)
+        public static void LogInfo(string message)
         {
             Log(Info, message);
         }
-        internal static void LogWarning(string warning)
+        public static void LogWarning(string warning)
         {
             if (Debugger.IsAttached)
                 Debug.WriteLine(Warn + warning);
 
             Log(Warning, warning);
         }
-        internal static void LogError(string error)
+        public static void LogError(string error)
         {
             Log(Error, error);
         }
-        internal static void LogError(Exception e)
+        public static void LogError(Exception e)
         {
             var readable = GetExnMessage(ref e);
             var text = e.ToString();
@@ -139,6 +140,9 @@ namespace Prism.Debugging
         internal static void LogFatal(string error)
         {
             Log(Error, Fatal + error);
+
+            if (Debugger.IsAttached)
+                Debug.Fail(error);
         }
         internal static void LogFatal(Exception e)
         {

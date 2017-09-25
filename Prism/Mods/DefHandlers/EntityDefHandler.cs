@@ -148,8 +148,6 @@ namespace Prism.Mods.DefHandlers
             DefsByType.Add(id, def);
             VanillaDefsByName.Add(String.Empty, def);
 
-            var byDisplayName = new Dictionary<string, TEntityDef>();
-
             for (id = MinVanillaID; id <= MaxVanillaID; id++)
             {
                 if (id == 0)
@@ -170,21 +168,12 @@ namespace Prism.Mods.DefHandlers
                 DefsByType.Add(id, def);
                 VanillaDefsByName.Add(iname, def);
 
-                var n = GetNameVanillaMethod(entity);
-                if (!String.IsNullOrEmpty(n) && !byDisplayName.ContainsKey(n)
-                        && !VanillaDefsByName.ContainsKey(n))
-                    byDisplayName.Add(n, def);
-
                 def.Mod = PrismApi.VanillaInfo;
 
                 CopyEntityToDef(entity, def); // TEntityDef is a class -> dictionary entries are updated, too
 
                 def.InternalName = iname;
             }
-
-            foreach (var kvp in byDisplayName)
-                if (!VanillaDefsByName.ContainsKey(kvp.Key))
-                    VanillaDefsByName.Add(kvp.Key, kvp.Value);
 
             PostFillVanilla();
 
@@ -198,6 +187,7 @@ namespace Prism.Mods.DefHandlers
             NextTypeIndex = MaxVanillaID + 1;
 
             DefsByType.Clear();
+            VanillaDefsByName.Clear();
         }
 
         internal IEnumerable<LoaderError> Load(Dictionary<string, TEntityDef> dict)

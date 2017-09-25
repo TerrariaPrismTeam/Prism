@@ -48,6 +48,14 @@ namespace Prism.API
             set;
         }
 
+        public bool IsVanilla
+        {
+            get
+            {
+                return Mod == null || Mod == PrismApi.VanillaInfo;
+            }
+        }
+
         protected ObjectDef(ObjectName displayName)
         {
             InternalName = String.Empty;

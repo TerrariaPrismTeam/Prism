@@ -312,5 +312,11 @@ namespace Prism.API.Defs
         {
             return !a.Equals(b);
         }
+
+        public override string ToString()
+        {
+            return String.Format("{{Description={0}, ShowVanity={1}, ShowExpert={2}, ShowQuestItem={3}, HideAmmoFlag={4}, HideMaterialFlag={5}}}",
+                    Description.ToTooltip()._processedText, ShowVanity, ShowExpert, ShowQuestItem, HideAmmoFlag, HideMaterialFlag);
+        }
     }
 }
