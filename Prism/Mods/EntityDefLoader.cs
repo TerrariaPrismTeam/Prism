@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Prism.API;
+using Prism.API.Defs;
 using Prism.Mods.DefHandlers;
 using Terraria;
 using Terraria.Map;
@@ -49,6 +50,8 @@ namespace Prism.Mods
             Handler.TileDef .Reset();
             Handler.WallDef .Reset();
 
+            AmmoGroup.Reset();
+
             Handler.DefaultColourLookupLength = MapHelper.colorLookup.Length;
         }
         /// <summary>
@@ -65,6 +68,8 @@ namespace Prism.Mods
             Handler.WallDef .FillVanilla();
 
             Handler.RecipeDef.FillVanilla();
+
+            AmmoGroup.FillVanilla();
 
             Handler.RecipeDef.CheckRecipes();
         }

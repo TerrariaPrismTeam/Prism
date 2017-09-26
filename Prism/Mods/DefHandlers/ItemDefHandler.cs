@@ -156,9 +156,9 @@ namespace Prism.Mods.DefHandlers
                                         item.vanity, item.expert, item.questItem, item.notAmmo, !item.material);
             def.Buff                = new AppliedBuff(new BuffRef(item.buffType), item.buffTime);
 
-            def.UsedAmmo            = item.useAmmo    ==  0 ? null : new ItemRef      (item.useAmmo   );
+            def.UsedAmmo            = item.useAmmo    ==  0 ? AmmoGroup.None : new AmmoGroup(item.useAmmo);
             def.ShootProjectile     = item.shoot      <=  0 ? null : new ProjectileRef(item.shoot     );
-            def.AmmoType            = item.ammo       ==  0 ? null : new ItemRef      (item.ammo      );
+            def.AmmoType            = item.ammo       ==  0 ? AmmoGroup.None : new AmmoGroup(item.ammo);
             def.CreateTile          = item.createTile <= -1 ? null : new TileRef      (item.createTile);
             def.CreateWall          = item.createWall <=  0 ? null : new WallRef      (item.createWall);
             def.GetTexture          = () => Main.itemTexture[item.type];
@@ -377,10 +377,10 @@ namespace Prism.Mods.DefHandlers
             item.buffTime     = def.Buff.Duration;
             item.buffType     = def.Buff.Type       == null ?  0 : def.Buff.Type      .Resolve().Type ;
             item.shoot        = def.ShootProjectile == null ?  0 : def.ShootProjectile.Resolve().Type ;
-            item.ammo         = def.AmmoType        == null ?  0 : def.AmmoType       .Resolve().NetID;
+            item.ammo         = def.AmmoType.icon   == null ?  0 : def.AmmoType.icon  .Resolve().NetID;
             item.createTile   = def.CreateTile      == null ? -1 : def.CreateTile     .Resolve().Type ;
             item.createWall   = def.CreateWall      == null ? -1 : def.CreateWall     .Resolve().Type ;
-            item.useAmmo      = def.UsedAmmo        == null ?  0 : def.UsedAmmo       .Resolve().Type ;
+            item.useAmmo      = def.UsedAmmo.icon   == null ?  0 : def.UsedAmmo.icon  .Resolve().Type ;
 
             item.P_UseSound = def.UseSound;
             item.UseSound   = def.UseSound == null ? null : new LegacySoundStyle(SoundID.Item, def.UseSound.VariantID);

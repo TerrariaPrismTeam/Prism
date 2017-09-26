@@ -418,7 +418,8 @@ namespace Prism.API.Defs
         /// <summary>
         /// Gets or sets the ammo item the item consumes when used.
         /// </summary>
-        public ItemRef UsedAmmo
+        /// <remarks>Item.useAmmo</remarks>
+        public AmmoGroup UsedAmmo
         {
             get;
             set;
@@ -436,7 +437,7 @@ namespace Prism.API.Defs
         /// Gets or sets the type of ammo this item acts as.
         /// </summary>
         /// <remarks>Item.ammo</remarks>
-        public ItemRef AmmoType
+        public AmmoGroup AmmoType
         {
             get;
             set;

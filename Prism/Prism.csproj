@@ -141,6 +141,7 @@
     <Compile Include="API\Behaviours\NpcBehaviour.cs" />
     <Compile Include="API\Behaviours\TileBehaviour.cs" />
     <Compile Include="API\ContentHandler.cs" />
+    <Compile Include="API\Defs\AmmoGroup.cs" />
     <Compile Include="API\Defs\CraftGroup.cs" />
     <Compile Include="API\Defs\MountDef.cs" />
     <Compile Include="API\Defs\MountDefStructs.cs" />
