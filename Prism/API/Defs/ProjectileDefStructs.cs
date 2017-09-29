@@ -630,15 +630,125 @@ namespace Prism.API.Defs
         LunarPortal = 123,
         /// <summary>
         /// Suspicious Looking Tentacle AI. Projectile will fly around you and (maybe?) light nearby ores and treasure.
-        /// <para/><b>Used by:</b>
+        /// <para/><b>Used by:</b>Suspicious Tentacle
         /// </summary>
-        SuspiciousTentacle = 124
+        SuspiciousTentacle = 124,
 
         //Also, I added the numbers cuz some of them (like the spear one) might be copies
+        #endregion
+        #region MageKing17's hard work
+        /// <summary>
+        /// Wire Kite AI. This is apparently the "wire preview" of the Grand Design, although only some of the behavior is linked to the AI style.
+        /// <para/><b>Used by:</b>Wire Kite
+        /// </summary>
+        WireKite = 125,
+        /// <summary>
+        /// Geyser Trap AI.
+        /// <para/><b>Used by:</b>Geyser Trap, DD2 Ogre Stomp
+        /// </summary>
+        GeyserTrap = 126,
+        /// <summary>
+        /// Sandnado AI.
+        /// <para/><b>Used by:</b>Sandnado Friendly, Sandnado Hostile
+        /// </summary>
+        Sandnado = 127,
+        /// <summary>
+        /// Sandnado Hostile Mark AI.
+        /// <para/><b>Used by:</b>Sandnado Hostile Mark
+        /// </summary>
+        SandnadoHostileMark = 128,
+        /// <summary>
+        /// Spirit Flame AI.
+        /// <para/><b>Used by:</b>Spirit Flame
+        /// </summary>
+        SpiritFlame = 129,
+        /// <summary>
+        /// FlameBurst Tower AI.
+        /// <para/><b>Used by:</b>DD2 FlameBurst Tower (T1/T2/T3)
+        /// </summary>
+        FlameBurstTower = 130,
+        /// <summary>
+        /// FlameBurst Tower Shot AI.
+        /// <para/><b>Used by:</b>DD2 FlameBurst Tower (T1/T2/T3) Shot
+        /// </summary>
+        FlameBurstTowerShot = 131,
+        /// <summary>
+        /// Elder Wins AI.
+        /// <para/><b>Used by:</b>DD2 Elder Wins
+        /// </summary>
+        ElderWins = 132,
+        /// <summary>
+        /// Dark Mage Healing AI.
+        /// <para/><b>Used by:</b>DD2 Dark Mage Raise, DD2 Dark Mage Heal
+        /// </summary>
+        DarkMageHeal = 133,
+        /// <summary>
+        /// Ballistra Tower AI.
+        /// <para/><b>Used by:</b>DD2 Ballistra Tower (T1/T2/T3)
+        /// </summary>
+        BallistraTower = 134,
+        /// <summary>
+        /// Ogre Smash AI.
+        /// <para/><b>Used by:</b>DD2 Ogre Smash
+        /// </summary>
+        OgreSmash = 135,
+        /// <summary>
+        /// Betsy Flame Breath AI.
+        /// <para/><b>Used by:</b>DD2 Betsy Flame Breath
+        /// </summary>
+        BetsyFlameBreath = 136,
+        /// <summary>
+        /// Lightning Aura AI.
+        /// <para/><b>Used by:</b>DD2 Lightning Aura (T1/T2/T3)
+        /// </summary>
+        LightningAura = 137,
+        /// <summary>
+        /// Explosive Trap AI.
+        /// <para/><b>Used by:</b>DD2 Explosive Trap (T1/T2/T3)
+        /// </summary>
+        ExplosiveTrap = 138,
+        /// <summary>
+        /// Explosive Trap Explosion AI.
+        /// <para/><b>Used by:</b>DD2 Explosive Trap (T1/T2/T3) Explosion
+        /// </summary>
+        ExplosiveTrapExplosion = 139,
+        /// <summary>
+        /// Monk Staff AI.
+        /// <para/><b>Used by:</b>DD2 Monk Staff (T1/T3)
+        /// </summary>
+        MonkStaff = 140,
+        /// <summary>
+        /// Monk Staff Explosion AI.
+        /// <para/><b>Used by:</b>DD2 Monk Staff (T1) Explosion
+        /// </summary>
+        MonkStaffExplosion = 141,
+        /// <summary>
+        /// Monk Staff 2 AI.
+        /// <para/><b>Used by:</b>DD2 Monk Staff (T2/T3-Alt)
+        /// </summary>
+        MonkStaff2 = 142,
+        /// <summary>
+        /// Monk Staff Ghast AI.
+        /// <para/><b>Used by:</b>DD2 Monk Staff (T2) Ghast
+        /// </summary>
+        MonkStaffGhast = 143,
+        /// <summary>
+        /// DD2 Pet AI.
+        /// <para/><b>Used by:</b>DD2 Pet Dragon, DD2 Pet Ghost, DD2 Pet Gato
+        /// </summary>
+        DD2Pet = 144,
+        /// <summary>
+        /// Apprentice Storm AI.
+        /// <para/><b>Used by:</b>DD2 Apprentice Storm
+        /// </summary>
+        ApprenticeStorm = 145,
+        /// <summary>
+        /// DD2 Win AI.
+        /// <para/><b>Used by:</b>DD2 Win
+        /// </summary>
+        DD2Win = 146
 
         #endregion
-
-        // there seem to be 146 now...
     }
 
     //public enum ProjFlags
