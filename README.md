@@ -23,16 +23,17 @@ Modest documentation is available [here](https://github.com/TerrariaPrismTeam/Pr
 
 ## Support
 
-~~For help specifically with getting **Prism** to work as well as using
+For help specifically with getting **Prism** to work as well as using
 it in your own mods, come chat with us on the **`#PrismAPI`** channel
 on **`irc.esper.net`** using your favorite IRC client or using
-[**this quick online one**](http://chat.mibbit.com/?server=irc.esper.net&channel=%23PrismAPI).~~
+[**this quick online one**](http://chat.mibbit.com/?server=irc.esper.net&channel=%23PrismAPI).
+The channel's as dead as Prism.
 
 To chat with a variety of mod developers and veteran mod developers
 about **general Terraria coding**, come chat on the **`#tapi`** channel
 on **`irc.esper.net`** using your favorite IRC client or using
 [**this quick online one**](http://chat.mibbit.com/?server=irc.esper.net&channel=%23tapi).
-This channel is also quite dead, as everyone moved to Discord.
+This channel is also quite dead, as everyone moved to Discord anyway.
 
 ## Building
 
