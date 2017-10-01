@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Prism.Debugging;
 
 using IOPath = System.IO.Path;
 
@@ -102,6 +103,7 @@ namespace Prism.Mods
     public struct ModReference : IReference
     {
         string name;
+        Version minv;
 
         /// <summary>
         /// The name of the mod.
@@ -124,13 +126,23 @@ namespace Prism.Mods
             }
         }
 
+        /// <summary>The minimum version of the mod</summary>
+        public Version MinimumVersion
+        {
+            get
+            {
+                return minv;
+            }
+        }
+
         /// <summary>
         /// Constructs a new Mod Reference.
         /// </summary>
         /// <param name="name">The name of the mod</param>
-        public ModReference(string name)
+        public ModReference(string name, Version minVer)
         {
-            this.name = name;
+            this.name = name  ;
+            this.minv = minVer;
         }
 
         /// <summary>
@@ -144,7 +156,28 @@ namespace Prism.Mods
             if (!ModData.mods.Keys.Any(mi => mi.InternalName == iName))
                 ModLoader.LoadMod(Path);
 
-            return ModData.Mods.First(kvp => kvp.Key.InternalName == iName).Value.Assembly;
+            var m = ModData.Mods.FirstOrDefault(kvp => kvp.Key.InternalName == iName).Value;
+
+            if (m == null)
+            {
+                Logging.LogError("Mod reference '" + m.Info.DisplayName
+                        + "'('" + iName + "') not found!");
+
+                return null;
+            }
+
+            if (m.Info.VersionAsVersion < MinimumVersion)
+            {
+                Logging.LogError("Mod reference '" + m.Info.DisplayName
+                        + "'('" + iName + "'): required version is "
+                        + MinimumVersion + ", actual version is "
+                        + m.Info.Version + ": update the mod!");
+
+                return null;
+            }
+
+            return m.Assembly;
         }
     }
 }
+

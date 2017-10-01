@@ -30,13 +30,20 @@ namespace Prism
         static bool justDrawCrashed = false;
         static Exception lastDrawExn = null;
 
-        int gid = -1;
         static bool prevGameMenu = true;
 
         /// <summary>
         /// The amount of time elapsed since the previous frame (in seconds).
         /// </summary>
         public static float ElapsedTime
+        {
+            get;
+            private set;
+        }
+        /// <summary>
+        /// The amount of time elapsed since the game was launched (in seconds).
+        /// </summary>
+        public static float TotalTime
         {
             get;
             private set;
@@ -81,7 +88,7 @@ namespace Prism
             ElapsedTime = 0;
 
             if (Environment.OSVersion.Platform == PlatformID.Win32NT && graphics.GraphicsProfile == GraphicsProfile.Reach && GraphicsAdapter.DefaultAdapter.IsProfileSupported(GraphicsProfile.HiDef))
-                graphics.GraphicsProfile = GraphicsProfile.HiDef;
+                graphics.GraphicsProfile = GraphicsProfile.HiDef; // ugly hack to get things to work
         }
 
         static SoundEffectInstance PlayUseSound(Item i, Vector2 pos)
@@ -127,19 +134,22 @@ namespace Prism
 
         static void OnUpdateKeyboard(Main _)
         {
-            HookManager.GameBehaviour.OnUpdateKeyboard();
+            if (ModLoader.Usable)
+                HookManager.GameBehaviour.OnUpdateKeyboard();
         }
         static void OnPreDrawM(GameTime _)
         {
-            HookManager.GameBehaviour.PreDraw(spriteBatch);
+            if (ModLoader.Usable)
+                HookManager.GameBehaviour.PreDraw(spriteBatch);
         }
         static void OnPostScreenClear()
         {
-            HookManager.GameBehaviour.PostScreenClear();
+            if (ModLoader.Usable)
+                HookManager.GameBehaviour.PostScreenClear();
         }
         static void OnDrawBackground(Main m)
         {
-            if (HookManager.GameBehaviour.PreDrawBackground(spriteBatch))
+            if (ModLoader.Usable && HookManager.GameBehaviour.PreDrawBackground(spriteBatch))
             {
                 m.RealDrawBackground();
 
@@ -148,11 +158,11 @@ namespace Prism
         }
         static bool IsChatAllowed()
         {
-            return HookManager.GameBehaviour.IsChatAllowed();
+            return ModLoader.Usable && HookManager.GameBehaviour.IsChatAllowed();
         }
         static bool OnLocalChat()
         {
-            return HookManager.GameBehaviour.OnLocalChat();
+            return ModLoader.Usable && HookManager.GameBehaviour.OnLocalChat();
         }
 
         static void HookWrappedMethods()
@@ -247,6 +257,13 @@ namespace Prism
             Recipe.P_OnCreate      += RecipeHooks.Create     ;
         }
 
+        static void LoadMods()
+        {
+            ModLoader.Load();
+
+            versionNumber += ", mods loaded: " + ModData.Mods.Count +
+                (ModLoader.errors.Count > 0 ? ", mods loading errors: " + ModLoader.errors.Count : String.Empty);
+        }
         protected override void Initialize()
         {
             HookWrappedMethods();
@@ -261,14 +278,20 @@ namespace Prism
                 IsInInit = false;
             }
 
-            ModLoader.Load(); // TODO: we might want to call this AFTER everything is JITed
+            if (!SkipAssemblyLoad)
+                OnEngineLoad += () =>
+                {
+                    statusText = "Loading mods..."; // TODO: elaborate
+                    LoadMods();
+                    statusText = "Mods loaded";
+                };
 
             Handler.DefaultColourLookupLength = MapHelper.colorLookup.Length;
 
-            ApplyHotfixes();
+            if (SkipAssemblyLoad)
+                LoadMods();
 
-            versionNumber += ", mods loaded: " + ModData.Mods.Count +
-                (ModLoader.errors.Count > 0 ? ", mods loading errors: " + ModLoader.errors.Count : String.Empty);
+            ApplyHotfixes();
         }
         protected override void LoadContent()
         {
@@ -325,30 +348,23 @@ namespace Prism
             try
             {
                 ElapsedTime = (float)gt.ElapsedGameTime.TotalSeconds;
+                TotalTime   = (float)gt.  TotalGameTime.TotalSeconds;
 
-                HookManager.GameBehaviour.PreUpdate();
+                if (ModLoader.Usable)
+                    HookManager.GameBehaviour.PreUpdate();
 
                 ApplyHotfixes(); //The array is initialized every time new Player() is called. Until we have like InitPlayer or something we just have to ghettohack it like this.
 
-                if (keyState.IsKeyDown(Keys.P) && !oldKeyState.IsKeyDown(Keys.P))
-                    NPC.NewNPC((int)Main.player[Main.myPlayer].position.X,
-                               (int)Main.player[Main.myPlayer].position.Y - 128,
-                               NPCID.Pinky);
-                if (keyState.IsKeyDown(Keys.O) && !oldKeyState.IsKeyDown(Keys.O))
-                {
-                    gid = NPC.NewNPC((int)Main.player[Main.myPlayer].position.X,
-                               (int)Main.player[Main.myPlayer].position.Y - 128,
-                               NPCID.Guide);
-                }
-
                 base.Update(gt);
 
-                HookManager.GameBehaviour.UpdateDebug(gt);
+                if (ModLoader.Usable)
+                    HookManager.GameBehaviour.UpdateDebug(gt);
 
                 if (!gameMenu && prevGameMenu)
                     Helpers.Main.RandColorText("Welcome to " + PrismApi.NiceVersionString + ".", true);
 
-                HookManager.GameBehaviour.PostUpdate();
+                if (ModLoader.Usable)
+                    HookManager.GameBehaviour.PostUpdate();
 
                 PrismDebug.Update();
             }
@@ -363,11 +379,13 @@ namespace Prism
         {
             try
             {
-                HookManager.GameBehaviour.PreScreenClear();
+                if (ModLoader.Usable)
+                    HookManager.GameBehaviour.PreScreenClear();
 
                 base.Draw(gt);
 
-                HookManager.GameBehaviour.PostDraw(spriteBatch);
+                if (ModLoader.Usable)
+                    HookManager.GameBehaviour.PostDraw(spriteBatch);
 
 #if TRACE
                 TraceDrawer.DrawTrace(spriteBatch, PrismDebug.lines);

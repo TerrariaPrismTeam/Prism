@@ -68,45 +68,7 @@ namespace Prism.Mods
         {
             get
             {
-                if (verAsVer != null)
-                    return verAsVer;
-
-                Version ret = null;
-
-                if (String.IsNullOrWhiteSpace(Version))
-                    ret = EmptyClass<Version>.Default;
-                else if (Version.Length > 0 && (Version[0] == 'r' || Version[0] == 'R' || Version[0] == 'v' || Version[0] == 'V'))
-                {
-                    int endIndex = 1;
-                    for (endIndex = 1; endIndex < Version.Length; endIndex++)
-                        if (!Char.IsDigit(Version[endIndex]))
-                            break;
-
-                    ret = new Version(Int32.Parse(Version.Substring(1, endIndex), CultureInfo.InvariantCulture), 0);
-                }
-                else
-                    try
-                    {
-                        var v = Version;
-                        var revAdd = 0;
-
-                        if (Char.IsLetter(Char.ToUpperInvariant(v[v.Length - 1])))
-                        {
-                            revAdd = v[v.Length - 1] - 'a' + 1; // a -> 1, instead of 0
-                            v = v.Substring(0, v.Length - 1);
-                        }
-
-                        ret = new Version(v);
-
-                        if (revAdd != 0)
-                            ret = new Version(ret.Major, ret.Minor, ret.Build, ret.Revision + revAdd);
-                    }
-                    catch
-                    {
-                        ret = EmptyClass<Version>.Default;
-                    }
-
-                return verAsVer = ret;
+                return verAsVer ?? (verAsVer = ParseVer(Version));
             }
         }
 
@@ -206,6 +168,46 @@ namespace Prism.Mods
                 return null;
 
             return r;
+        }
+
+        internal static Version ParseVer(string s)
+        {
+            Version ret = null;
+
+            if (String.IsNullOrWhiteSpace(s))
+                ret = EmptyClass<Version>.Default;
+            else if (s[0] == 'r' || s[0] == 'R' || s[0] == 'v' || s[0] == 'V')
+            {
+                int endIndex = 1;
+                for (endIndex = 1; endIndex < s.Length; endIndex++)
+                    if (!Char.IsDigit(s[endIndex]))
+                        break;
+
+                ret = new Version(Int32.Parse(s.Substring(1, endIndex), CultureInfo.InvariantCulture), 0);
+            }
+            else
+                try
+                {
+                    var v = s;
+                    var revAdd = 0;
+
+                    if (Char.IsLetter(Char.ToUpperInvariant(v[v.Length - 1])))
+                    {
+                        revAdd = v[v.Length - 1] - 'a' + 1; // a -> 1, instead of 0
+                        v = v.Substring(0, v.Length - 1);
+                    }
+
+                    ret = new Version(v);
+
+                    if (revAdd != 0)
+                        ret = new Version(ret.Major, ret.Minor, ret.Build, ret.Revision + revAdd);
+                }
+                catch
+                {
+                    ret = EmptyClass<Version>.Default;
+                }
+
+            return ret;
         }
     }
 }

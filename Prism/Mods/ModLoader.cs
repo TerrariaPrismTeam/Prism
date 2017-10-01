@@ -30,6 +30,11 @@ namespace Prism.Mods
         internal static List<LoaderError> errors = new List<LoaderError>();
         static List<string> circRefList = new List<string>();
 
+        static ModLoader()
+        {
+            Inactive = true;
+        }
+
         public static bool Loading
         {
             get;
@@ -40,11 +45,23 @@ namespace Prism.Mods
             get;
             private set;
         }
+        public static bool Inactive
+        {
+            get;
+            private set;
+        }
         public static bool Reloading
         {
             get
             {
                 return Loading || Unloading;
+            }
+        }
+        public static bool Usable
+        {
+            get
+            {
+                return !Reloading && !Inactive;
             }
         }
 
@@ -166,7 +183,12 @@ namespace Prism.Mods
             ModData.mods                .Add(mod.Info             , mod);
             ModData.modsFromInternalName.Add(mod.Info.InternalName, mod);
 
-            mod.ContentHandler = mod.CreateContentHandlerInternally();
+            if ((mod.ContentHandler = mod.CreateContentHandlerInternally()) == null)
+            {
+                errors.Add(new LoaderError(info, "CreateContentHandler returned null, this is forbidden."));
+                return null;
+            }
+
             mod.ContentHandler.Adopt(mod.Info);
 
             errors.AddRange(ResourceLoader .Load(mod));
@@ -288,6 +310,7 @@ namespace Prism.Mods
         /// <returns>Any <see cref="LoaderError"/>'s encountered while loading.</returns>
         internal static IEnumerable<LoaderError> Load()
         {
+            Inactive = false;
             Loading = true;
 
             Logging.LogInfo("Loading mods...");

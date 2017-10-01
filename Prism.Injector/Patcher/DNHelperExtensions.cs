@@ -53,6 +53,10 @@ namespace Prism.Injector.Patcher
         {
             return "{" + String.Join(";", (si.Origin ?? Empty<StackItem>.Array).Select(ii => ii.Instr.ToString() + " -> " + OriginChain(ii))) + "}";
         }
+        public static string Pretty(StackItem si)
+        {
+            return si.ToString() + " :: " + OriginChain(si);
+        }
     }
 
     public static class DNHelperExtensions
@@ -500,6 +504,9 @@ namespace Prism.Injector.Patcher
 
             int ind = body.Instructions.IndexOf(ins) - (sub1 ? 1 : 0);
             RecreateStack(md, stack, ref ind);
+
+            if (stack.Count != 1)
+                Console.Error.WriteLine("NOTE: RecreateStack: stack.Count == " + stack.Count);
 
             return stack[0]; // it should boil down to a single expr
         }

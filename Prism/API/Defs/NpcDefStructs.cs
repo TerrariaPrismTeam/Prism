@@ -207,7 +207,6 @@ namespace Prism.API.Defs
         }
     }
 
-    // TODO: complete
     /// <summary>
     /// Vanilla NPC AI Styles
     /// </summary>

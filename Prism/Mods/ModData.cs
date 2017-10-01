@@ -46,8 +46,8 @@ namespace Prism.Mods
                 foreach (object s in j["dllReferences"])
                     refs.Add(new AssemblyReference(s.ToString(), path));
             if (j.Has("modReferences"))
-                foreach (object s in j["modReferences"])
-                    refs.Add(new ModReference(s.ToString()));
+                foreach (KeyValuePair<string, JsonData> kvp in j["modReferences"])
+                    refs.Add(new ModReference(kvp.Value.ToString(), ModInfo.ParseVer(kvp.Value.ToString())));
 
             string internalName = j.GetOrExn<string>("internalName");
 
