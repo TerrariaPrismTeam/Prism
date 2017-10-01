@@ -1,0 +1,833 @@
+diff --git a/FNA.csproj b/FNA.csproj
+index 8302bea..acd9d64 100644
+--- a/FNA.csproj
++++ b/FNA.csproj
+@@ -394,6 +394,8 @@
+     <Compile Include="src\Vector4.cs" />
+     <Compile Include="lib\SDL2-CS\src\SDL2.cs" />
+     <Compile Include="lib\SDL2-CS\src\SDL2_image.cs" />
++    <Compile Include="lib\SDL2-CS\src\SDL2_mixer.cs" />
++    <Compile Include="lib\SDL2-CS\src\SDL2_ttf.cs" />
+     <Compile Include="lib\SDL2-CS\src\LPUtf8StrMarshaler.cs" />
+     <Compile Include="lib\OpenAL-CS\src\ALC10.cs" />
+     <Compile Include="lib\OpenAL-CS\src\ALC11.cs" />
+diff --git a/FNA.dll.config b/FNA.dll.config
+index 063ac18..611dd6f 100644
+--- a/FNA.dll.config
++++ b/FNA.dll.config
+@@ -8,6 +8,14 @@
+ 	<dllmap dll="SDL2_image.dll" os="osx" target="libSDL2_image-2.0.0.dylib"/>
+ 	<dllmap dll="SDL2_image.dll" os="linux" target="libSDL2_image-2.0.so.0"/>
+ 
++	<dllmap dll="SDL2_ttf.dll" os="windows" target="SDL2_ttf.dll"/>
++	<dllmap dll="SDL2_ttf.dll" os="osx" target="libSDL2_ttf-2.0.0.dylib"/>
++	<dllmap dll="SDL2_ttf.dll" os="linux" target="libSDL2_ttf-2.0.so.0"/>
++
++	<dllmap dll="SDL2_mixer.dll" os="windows" target="SDL2_mixer.dll"/>
++	<dllmap dll="SDL2_mixer.dll" os="osx" target="libSDL2_mixer-2.0.0.dylib"/>
++	<dllmap dll="SDL2_mixer.dll" os="linux" target="libSDL2_mixer-2.0.so.0"/>
++
+ 	<dllmap dll="soft_oal.dll" os="windows" target="soft_oal.dll"/>
+ 	<dllmap dll="soft_oal.dll" os="osx" target="libopenal.1.dylib"/>
+ 	<dllmap dll="soft_oal.dll" os="linux" target="libopenal.so.1"/>
+diff --git a/Makefile b/Makefile
+index 5894d14..d3800af 100644
+--- a/Makefile
++++ b/Makefile
+@@ -318,6 +318,8 @@ SRC = \
+ 	src/Vector4.cs \
+ 	lib/SDL2-CS/src/SDL2.cs \
+ 	lib/SDL2-CS/src/SDL2_image.cs \
++	lib/SDL2-CS/src/SDL2_mixer.cs \
++	lib/SDL2-CS/src/SDL2_ttf.cs \
+ 	lib/SDL2-CS/src/LPUtf8StrMarshaler.cs \
+ 	lib/OpenAL-CS/src/ALC10.cs \
+ 	lib/OpenAL-CS/src/ALC11.cs \
+diff --git a/lib/SDL2-CS b/lib/SDL2-CS
+index 0da7c81..9cdd007 160000
+--- a/lib/SDL2-CS
++++ b/lib/SDL2-CS
+@@ -1 +1 @@
+-Subproject commit 0da7c81d81f27faf1a152d754092cbbbc92be98c
++Subproject commit 9cdd0079b4e04f85b8998b5fe286767d1e261321
+diff --git a/src/Audio/DynamicSoundEffectInstance.cs b/src/Audio/DynamicSoundEffectInstance.cs
+index 1fd1881..9bc31d5 100644
+--- a/src/Audio/DynamicSoundEffectInstance.cs
++++ b/src/Audio/DynamicSoundEffectInstance.cs
+@@ -149,7 +149,7 @@ namespace Microsoft.Xna.Framework.Audio
+ 			this.SubmitBuffer(buffer, 0, buffer.Length);
+ 		}
+ 
+-		public void SubmitBuffer(byte[] buffer, int offset, int count)
++		public unsafe void SubmitBuffer(byte[] buffer, int offset, int count)
+ 		{
+ 			// Generate a buffer if we don't have any to use.
+ 			if (availableBuffers.Count == 0)
+@@ -161,14 +161,17 @@ namespace Microsoft.Xna.Framework.Audio
+ 
+ 			// Push buffer to the AL.
+ 			IALBuffer newBuf = availableBuffers.Dequeue();
+-			GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+-			AudioDevice.ALDevice.SetBufferData(
+-				newBuf,
+-				handle.AddrOfPinnedObject(),
+-				offset,
+-				count
+-			);
+-			handle.Free();
++			fixed (byte* buf = buffer)
++			{
++				//GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
++				AudioDevice.ALDevice.SetBufferData(
++					newBuf,
++					(IntPtr)buf,//handle.AddrOfPinnedObject(),
++					offset,
++					count
++				);
++			}
++			//handle.Free();
+ 
+ 			// If we're already playing, queue immediately.
+ 			if (INTERNAL_alSource != null)
+@@ -336,19 +339,22 @@ namespace Microsoft.Xna.Framework.Audio
+ 
+ 		#region Internal Sample Data Retrieval Method
+ 
+-		internal void GetSamples(float[] samples)
++		internal unsafe void GetSamples(float[] samples)
+ 		{
+ 			if (INTERNAL_alSource != null && queuedBuffers.Count > 0)
+ 			{
+-				GCHandle handle = GCHandle.Alloc(samples, GCHandleType.Pinned);
+-				AudioDevice.ALDevice.GetBufferData(
+-					INTERNAL_alSource,
+-					queuedBuffers.ToArray(), // FIXME: Blech -flibit
+-					handle.AddrOfPinnedObject(),
+-					samples.Length,
+-					channels
+-				);
+-				handle.Free();
++				//GCHandle handle = GCHandle.Alloc(samples, GCHandleType.Pinned);
++				fixed (float* buf = samples)
++				{
++					AudioDevice.ALDevice.GetBufferData(
++						INTERNAL_alSource,
++						queuedBuffers.ToArray(), // FIXME: Blech -flibit
++						(IntPtr)buf,//handle.AddrOfPinnedObject(),
++						samples.Length,
++						channels
++					);
++				}
++				//handle.Free();
+ 			}
+ 			else
+ 			{
+@@ -365,7 +371,7 @@ namespace Microsoft.Xna.Framework.Audio
+ 			SubmitFloatBufferEXT(buffer, 0, buffer.Length);
+ 		}
+ 
+-		public void SubmitFloatBufferEXT(float[] buffer, int offset, int count)
++		public unsafe void SubmitFloatBufferEXT(float[] buffer, int offset, int count)
+ 		{
+ 			/* Float samples are the typical format received from decoders.
+ 			 * We currently use this for the VideoPlayer.
+@@ -380,14 +386,17 @@ namespace Microsoft.Xna.Framework.Audio
+ 
+ 			// Push buffer to the AL.
+ 			IALBuffer newBuf = availableBuffers.Dequeue();
+-			GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+-			AudioDevice.ALDevice.SetBufferFloatData(
+-				newBuf,
+-				handle.AddrOfPinnedObject(),
+-				offset,
+-				count
+-			);
+-			handle.Free();
++			//GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
++			fixed (float* pbuf = buffer)
++			{
++				AudioDevice.ALDevice.SetBufferFloatData(
++					newBuf,
++					(IntPtr)pbuf/*handle.AddrOfPinnedObject()*/,
++					offset,
++					count
++				);
++			}
++			//handle.Free();
+ 
+ 			// If we're already playing, queue immediately.
+ 			if (INTERNAL_alSource != null)
+diff --git a/src/Audio/WaveBank.cs b/src/Audio/WaveBank.cs
+index 51a07a4..b1cdd44 100644
+--- a/src/Audio/WaveBank.cs
++++ b/src/Audio/WaveBank.cs
+@@ -276,7 +276,7 @@ namespace Microsoft.Xna.Framework.Audio
+ 
+ 		#region Internal Methods
+ 
+-		internal SoundEffect INTERNAL_getTrack(ushort track)
++		public /* :P ~pcy */ SoundEffect INTERNAL_getTrack(ushort track)
+ 		{
+ 			if (INTERNAL_soundStreamEntries != null && INTERNAL_soundStreamEntries[track].AddReference())
+ 			{
+diff --git a/src/Content/LzxDecoder.cs b/src/Content/LzxDecoder.cs
+index 4194bab..9233253 100644
+--- a/src/Content/LzxDecoder.cs
++++ b/src/Content/LzxDecoder.cs
+@@ -15,22 +15,22 @@ using System;
+ namespace Microsoft.Xna.Framework.Content
+ {
+ 	using System.IO;
+-	
++
+ 	class LzxDecoder
+ 	{
+ 		public static uint[] position_base = null;
+ 		public static byte[] extra_bits = null;
+-		
++
+ 		private LzxState m_state;
+-		
++
+ 		public LzxDecoder (int window)
+ 		{
+ 			uint wndsize = (uint)(1 << window);
+ 			int posn_slots;
+-			
++
+ 			// Setup proper exception.
+ 			if(window < 15 || window > 21) throw new UnsupportedWindowSizeRange();
+-			
++
+ 			// Let's initialize our state.
+ 			m_state = new LzxState();
+ 			m_state.actual_size = 0;
+@@ -39,7 +39,7 @@ namespace Microsoft.Xna.Framework.Content
+ 			m_state.actual_size = wndsize;
+ 			m_state.window_size = wndsize;
+ 			m_state.window_posn = 0;
+-			
++
+ 			// Initialize static tables.
+ 			if(extra_bits == null)
+ 			{
+@@ -59,12 +59,12 @@ namespace Microsoft.Xna.Framework.Content
+ 					j += 1 << extra_bits[i];
+ 				}
+ 			}
+-			
++
+ 			// Calculate required position slots.
+ 			if(window == 20) posn_slots = 42;
+ 			else if(window == 21) posn_slots = 50;
+ 			else posn_slots = window << 1;
+-			
++
+ 			m_state.R0 = m_state.R1 = m_state.R2 = 1;
+ 			m_state.main_elements = (ushort)(LzxConstants.NUM_CHARS + (posn_slots << 3));
+ 			m_state.header_read = 0;
+@@ -73,7 +73,7 @@ namespace Microsoft.Xna.Framework.Content
+ 			m_state.block_type = LzxConstants.BLOCKTYPE.INVALID;
+ 			m_state.intel_curpos = 0;
+ 			m_state.intel_started = 0;
+-			
++
+ 			m_state.PRETREE_table = new ushort[(1 << LzxConstants.PRETREE_TABLEBITS) + (LzxConstants.PRETREE_MAXSYMBOLS << 1)];
+ 			m_state.PRETREE_len = new byte[LzxConstants.PRETREE_MAXSYMBOLS + LzxConstants.LENTABLE_SAFETY];
+ 			m_state.MAINTREE_table = new ushort[(1 << LzxConstants.MAINTREE_TABLEBITS) + (LzxConstants.MAINTREE_MAXSYMBOLS << 1)];
+@@ -87,27 +87,27 @@ namespace Microsoft.Xna.Framework.Content
+ 			for(int i = 0; i < LzxConstants.MAINTREE_MAXSYMBOLS; i++) m_state.MAINTREE_len[i] = 0;
+ 			for(int i = 0; i < LzxConstants.LENGTH_MAXSYMBOLS; i++) m_state.LENGTH_len[i] = 0;
+ 		}
+-		
++
+ 		public int Decompress(Stream inData, int inLen, Stream outData, int outLen)
+ 		{
+ 			BitBuffer bitbuf = new BitBuffer(inData);
+ 			long startpos = inData.Position;
+ 			long endpos = inData.Position + inLen;
+-			
++
+ 			byte[] window = m_state.window;
+-			
++
+ 			uint window_posn = m_state.window_posn;
+ 			uint window_size = m_state.window_size;
+ 			uint R0 = m_state.R0;
+ 			uint R1 = m_state.R1;
+ 			uint R2 = m_state.R2;
+ 			uint i, j;
+-			
++
+ 			int togo = outLen, this_run, main_element, match_length, match_offset, length_footer, extra, verbatim_bits;
+ 			int rundest, runsrc, copy_length, aligned_bits;
+-			
++
+ 			bitbuf.InitBitStream();
+-			
++
+ 			// Read header if necessary.
+ 			if(m_state.header_read == 0)
+ 			{
+@@ -120,7 +120,7 @@ namespace Microsoft.Xna.Framework.Content
+ 				}
+ 				m_state.header_read = 1;
+ 			}
+-			
++
+ 			// Main decoding loop.
+ 			while(togo > 0)
+ 			{
+@@ -132,12 +132,12 @@ namespace Microsoft.Xna.Framework.Content
+ 						if((m_state.block_length & 1) == 1) inData.ReadByte(); /* realign bitstream to word */
+ 						bitbuf.InitBitStream();
+ 					}
+-					
++
+ 					m_state.block_type = (LzxConstants.BLOCKTYPE)bitbuf.ReadBits(3);;
+ 					i = bitbuf.ReadBits(16);
+ 					j = bitbuf.ReadBits(8);
+ 					m_state.block_remaining = m_state.block_length = (uint)((i << 8) | j);
+-					
++
+ 					switch(m_state.block_type)
+ 					{
+ 					case LzxConstants.BLOCKTYPE.ALIGNED:
+@@ -146,19 +146,19 @@ namespace Microsoft.Xna.Framework.Content
+ 						                m_state.ALIGNED_len, m_state.ALIGNED_table);
+ 						// Rest of aligned header is same as verbatim
+ 						goto case LzxConstants.BLOCKTYPE.VERBATIM;
+-						
++
+ 					case LzxConstants.BLOCKTYPE.VERBATIM:
+ 						ReadLengths(m_state.MAINTREE_len, 0, 256, bitbuf);
+ 						ReadLengths(m_state.MAINTREE_len, 256, m_state.main_elements, bitbuf);
+ 						MakeDecodeTable(LzxConstants.MAINTREE_MAXSYMBOLS, LzxConstants.MAINTREE_TABLEBITS,
+ 						                m_state.MAINTREE_len, m_state.MAINTREE_table);
+ 						if(m_state.MAINTREE_len[0xE8] != 0) m_state.intel_started = 1;
+-						
++
+ 						ReadLengths(m_state.LENGTH_len, 0, LzxConstants.NUM_SECONDARY_LENGTHS, bitbuf);
+ 						MakeDecodeTable(LzxConstants.LENGTH_MAXSYMBOLS, LzxConstants.LENGTH_TABLEBITS,
+ 						                m_state.LENGTH_len, m_state.LENGTH_table);
+ 						break;
+-						
++
+ 					case LzxConstants.BLOCKTYPE.UNCOMPRESSED:
+ 						m_state.intel_started = 1; // Because we can't assume otherwise.
+ 						bitbuf.EnsureBits(16); // Get up to 16 pad bits into the buffer.
+@@ -171,12 +171,12 @@ namespace Microsoft.Xna.Framework.Content
+ 						lo = (byte)inData.ReadByte(); ml = (byte)inData.ReadByte(); mh = (byte)inData.ReadByte(); hi = (byte)inData.ReadByte();
+ 						R2 = (uint)(lo | ml << 8 | mh << 16 | hi << 24);
+ 						break;
+-						
++
+ 					default:
+ 						return -1; // TODO throw proper exception
+ 					}
+ 				}
+-				
++
+ 				// Buffer exhaustion check.
+ 				if(inData.Position > (startpos + inLen))
+ 				{
+@@ -191,19 +191,19 @@ namespace Microsoft.Xna.Framework.Content
+ 
+ 					if(inData.Position > (startpos+inLen+2) || bitbuf.GetBitsLeft() < 16) return -1; //TODO throw proper exception
+ 				}
+-				
++
+ 				while((this_run = (int)m_state.block_remaining) > 0 && togo > 0)
+ 				{
+ 					if(this_run > togo) this_run = togo;
+ 					togo -= this_run;
+ 					m_state.block_remaining -= (uint)this_run;
+-					
++
+ 					// Apply 2^x-1 mask.
+ 					window_posn &= window_size - 1;
+ 					// Runs can't straddle the window wraparound.
+ 					if((window_posn + this_run) > window_size)
+ 						return -1; // TODO: throw proper exception
+-					
++
+ 					switch(m_state.block_type)
+ 					{
+ 					case LzxConstants.BLOCKTYPE.VERBATIM:
+@@ -222,7 +222,7 @@ namespace Microsoft.Xna.Framework.Content
+ 							{
+ 								// Match: NUM_CHARS + ((slot<<3) | length_header (3 bits))
+ 								main_element -= LzxConstants.NUM_CHARS;
+-								
++
+ 								match_length = main_element & LzxConstants.NUM_PRIMARY_LENGTHS;
+ 								if(match_length == LzxConstants.NUM_PRIMARY_LENGTHS)
+ 								{
+@@ -232,9 +232,9 @@ namespace Microsoft.Xna.Framework.Content
+ 									match_length += length_footer;
+ 								}
+ 								match_length += LzxConstants.MIN_MATCH;
+-								
++
+ 								match_offset = main_element >> 3;
+-								
++
+ 								if(match_offset > 2)
+ 								{
+ 									// Not repeated offset.
+@@ -248,7 +248,7 @@ namespace Microsoft.Xna.Framework.Content
+ 									{
+ 										match_offset = 1;
+ 									}
+-									
++
+ 									// Update repeated offset LRU queue.
+ 									R2 = R1; R1 = R0; R0 = (uint)match_offset;
+ 								}
+@@ -266,10 +266,10 @@ namespace Microsoft.Xna.Framework.Content
+ 									match_offset = (int)R2;
+ 									R2 = R0; R0 = (uint)match_offset;
+ 								}
+-								
++
+ 								rundest = (int)window_posn;
+ 								this_run -= match_length;
+-								
++
+ 								// Copy any wrapped around source data
+ 								if(window_posn >= match_offset)
+ 								{
+@@ -289,20 +289,20 @@ namespace Microsoft.Xna.Framework.Content
+ 									}
+ 								}
+ 								window_posn += (uint)match_length;
+-								
++
+ 								// Copy match data - no worries about destination wraps
+ 								while(match_length-- > 0) window[rundest++] = window[runsrc++];
+ 							}
+ 						}
+ 						break;
+-					
++
+ 					case LzxConstants.BLOCKTYPE.ALIGNED:
+ 						while(this_run > 0)
+ 						{
+ 							main_element = (int)ReadHuffSym(m_state.MAINTREE_table, m_state.MAINTREE_len,
+ 							                           				  LzxConstants.MAINTREE_MAXSYMBOLS, LzxConstants.MAINTREE_TABLEBITS,
+ 							                           				  bitbuf);
+-							
++
+ 							if(main_element < LzxConstants.NUM_CHARS)
+ 							{
+ 								// Literal 0 to NUM_CHARS-1
+@@ -313,7 +313,7 @@ namespace Microsoft.Xna.Framework.Content
+ 							{
+ 								// Match: NUM_CHARS + ((slot<<3) | length_header (3 bits))
+ 								main_element -= LzxConstants.NUM_CHARS;
+-								
++
+ 								match_length = main_element & LzxConstants.NUM_PRIMARY_LENGTHS;
+ 								if(match_length == LzxConstants.NUM_PRIMARY_LENGTHS)
+ 								{
+@@ -323,9 +323,9 @@ namespace Microsoft.Xna.Framework.Content
+ 									match_length += length_footer;
+ 								}
+ 								match_length += LzxConstants.MIN_MATCH;
+-								
++
+ 								match_offset = main_element >> 3;
+-								
++
+ 								if(match_offset > 2)
+ 								{
+ 									// Not repeated offset.
+@@ -361,7 +361,7 @@ namespace Microsoft.Xna.Framework.Content
+ 										// ???
+ 										match_offset = 1;
+ 									}
+-									
++
+ 									// Update repeated offset LRU queue.
+ 									R2 = R1; R1 = R0; R0 = (uint)match_offset;
+ 								}
+@@ -379,10 +379,10 @@ namespace Microsoft.Xna.Framework.Content
+ 									match_offset = (int)R2;
+ 									R2 = R0; R0 = (uint)match_offset;
+ 								}
+-								
++
+ 								rundest = (int)window_posn;
+ 								this_run -= match_length;
+-								
++
+ 								// Copy any wrapped around source data
+ 								if(window_posn >= match_offset)
+ 								{
+@@ -402,13 +402,13 @@ namespace Microsoft.Xna.Framework.Content
+ 									}
+ 								}
+ 								window_posn += (uint)match_length;
+-								
++
+ 								// Copy match data - no worries about destination wraps.
+ 								while(match_length-- > 0) window[rundest++] = window[runsrc++];
+ 							}
+ 						}
+ 						break;
+-						
++
+ 					case LzxConstants.BLOCKTYPE.UNCOMPRESSED:
+ 						if((inData.Position + this_run) > endpos) return -1; // TODO: Throw proper exception
+ 						byte[] temp_buffer = new byte[this_run];
+@@ -416,24 +416,24 @@ namespace Microsoft.Xna.Framework.Content
+ 						temp_buffer.CopyTo(window, (int)window_posn);
+ 						window_posn += (uint)this_run;
+ 						break;
+-						
++
+ 					default:
+ 						return -1; // TODO: Throw proper exception
+ 					}
+ 				}
+ 			}
+-			
++
+ 			if(togo != 0) return -1; // TODO: Throw proper exception
+ 			int start_window_pos = (int)window_posn;
+ 			if(start_window_pos == 0) start_window_pos = (int)window_size;
+ 			start_window_pos -= outLen;
+ 			outData.Write(window, start_window_pos, outLen);
+-			
++
+ 			m_state.window_posn = window_posn;
+ 			m_state.R0 = R0;
+ 			m_state.R1 = R1;
+ 			m_state.R2 = R2;
+-			
++
+ 			// TODO: Finish intel E8 decoding.
+ 			// Intel E8 decoding.
+ 			if((m_state.frames_read++ < 32768) && m_state.intel_filesize != 0)
+@@ -446,9 +446,9 @@ namespace Microsoft.Xna.Framework.Content
+ 				{
+ 					int dataend = outLen - 10;
+ 					uint curpos = (uint)m_state.intel_curpos;
+-					
++
+ 					m_state.intel_curpos = (int)curpos + outLen;
+-					
++
+ 					while(outData.Position < dataend)
+ 					{
+ 						if(outData.ReadByte() != 0xE8) { curpos++; continue; }
+@@ -458,7 +458,7 @@ namespace Microsoft.Xna.Framework.Content
+ 			}
+ 			return 0;
+ 		}
+-		
++
+ 		// TODO: Make returns throw exceptions
+ 		private int MakeDecodeTable(uint nsyms, uint nbits, byte[] length, ushort[] table)
+ 		{
+@@ -470,7 +470,7 @@ namespace Microsoft.Xna.Framework.Content
+ 			uint table_mask		= (uint)(1 << (int)nbits);
+ 			uint bit_mask		= table_mask >> 1; // Don't do 0 length codes.
+ 			uint next_symbol	= bit_mask;	// Base of allocation for long codes.
+-			
++
+ 			// Fill entries for codes short enough for a direct mapping.
+ 			while (bit_num <= nbits )
+ 			{
+@@ -479,12 +479,12 @@ namespace Microsoft.Xna.Framework.Content
+ 					if(length[sym] == bit_num)
+ 					{
+ 						leaf = pos;
+-						
++
+ 						if ((pos += bit_mask) > table_mask)
+ 						{
+ 							return 1; // Table overrun
+ 						}
+-						
++
+ 						/* Fill all possible lookups of this symbol with the
+ 						 * symbol itself.
+ 						 */
+@@ -495,18 +495,18 @@ namespace Microsoft.Xna.Framework.Content
+ 				bit_mask >>= 1;
+ 				bit_num++;
+ 			}
+-			
++
+ 			// If there are any codes longer than nbits
+ 			if(pos != table_mask)
+ 			{
+ 				// Clear the remainder of the table.
+ 				for(sym = (ushort)pos; sym < table_mask; sym++) table[sym] = 0;
+-				
++
+ 				// Give ourselves room for codes to grow by up to 16 more bits.
+ 				pos <<= 16;
+ 				table_mask <<= 16;
+ 				bit_mask = 1 << 15;
+-				
++
+ 				while(bit_num <= 16)
+ 				{
+ 					for(sym = 0; sym < nsyms; sym++)
+@@ -528,7 +528,7 @@ namespace Microsoft.Xna.Framework.Content
+ 								if(((pos >> (int)(15-fill)) & 1) == 1) leaf++;
+ 							}
+ 							table[leaf] = sym;
+-							
++
+ 							if((pos += bit_mask) > table_mask) return 1;
+ 						}
+ 					}
+@@ -536,23 +536,23 @@ namespace Microsoft.Xna.Framework.Content
+ 					bit_num++;
+ 				}
+ 			}
+-			
++
+ 			// full table?
+ 			if(pos == table_mask) return 0;
+-			
++
+ 			// Either erroneous table, or all elements are 0 - let's find out.
+ 			for(sym = 0; sym < nsyms; sym++) if(length[sym] != 0) return 1;
+ 			return 0;
+ 		}
+-		
++
+ 		// TODO:  Throw exceptions instead of returns
+ 		private void ReadLengths(byte[] lens, uint first, uint last, BitBuffer bitbuf)
+ 		{
+ 			uint x, y;
+ 			int z;
+-			
++
+ 			// hufftbl pointer here?
+-			
++
+ 			for(x = 0; x < 20; x++)
+ 			{
+ 				y = bitbuf.ReadBits(4);
+@@ -560,7 +560,7 @@ namespace Microsoft.Xna.Framework.Content
+ 			}
+ 			MakeDecodeTable(LzxConstants.PRETREE_MAXSYMBOLS, LzxConstants.PRETREE_TABLEBITS,
+ 			                m_state.PRETREE_len, m_state.PRETREE_table);
+-			
++
+ 			for(x = first; x < last;)
+ 			{
+ 				z = (int)ReadHuffSym(m_state.PRETREE_table, m_state.PRETREE_len,
+@@ -590,7 +590,7 @@ namespace Microsoft.Xna.Framework.Content
+ 				}
+ 			}
+ 		}
+-		
++
+ 		private uint ReadHuffSym(ushort[] table, byte[] lengths, uint nsyms, uint nbits, BitBuffer bitbuf)
+ 		{
+ 			uint i, j;
+@@ -606,29 +606,29 @@ namespace Microsoft.Xna.Framework.Content
+ 			}
+ 			j = lengths[i];
+ 			bitbuf.RemoveBits((byte)j);
+-			
++
+ 			return i;
+ 		}
+-		
++
+ 		#region Our BitBuffer Class
+ 		private class BitBuffer
+ 		{
+ 			uint buffer;
+ 			byte bitsleft;
+ 			Stream byteStream;
+-			
++
+ 			public BitBuffer(Stream stream)
+ 			{
+ 				byteStream = stream;
+ 				InitBitStream();
+ 			}
+-			
++
+ 			public void InitBitStream()
+ 			{
+ 				buffer = 0;
+ 				bitsleft = 0;
+ 			}
+-			
++
+ 			public void EnsureBits(byte bits)
+ 			{
+ 				while(bitsleft < bits) {
+@@ -638,44 +638,44 @@ namespace Microsoft.Xna.Framework.Content
+ 					bitsleft += 16;
+ 				}
+ 			}
+-			
++
+ 			public uint PeekBits(byte bits)
+ 			{
+ 				return (buffer >> ((sizeof(uint)*8) - bits));
+ 			}
+-			
++
+ 			public void RemoveBits(byte bits)
+ 			{
+ 				buffer <<= bits;
+ 				bitsleft -= bits;
+ 			}
+-			
++
+ 			public uint ReadBits(byte bits)
+ 			{
+ 				uint ret = 0;
+-				
++
+ 				if(bits > 0)
+ 				{
+ 					EnsureBits(bits);
+ 					ret = PeekBits(bits);
+ 					RemoveBits(bits);
+ 				}
+-				
++
+ 				return ret;
+ 			}
+-			
++
+ 			public uint GetBuffer()
+ 			{
+ 				return buffer;
+ 			}
+-			
++
+ 			public byte GetBitsLeft()
+ 			{
+ 				return bitsleft;
+ 			}
+ 		}
+ 		#endregion
+-		
++
+ 		struct LzxState {
+ 			public uint			R0, R1, R2; // For the LRU offset system
+ 			public ushort			main_elements; // Number of main tree elements
+@@ -687,7 +687,7 @@ namespace Microsoft.Xna.Framework.Content
+ 			public int			intel_filesize; // Magic header value used for transform
+ 			public int			intel_curpos; // Current offset in transform space
+ 			public int			intel_started; // Have we seen any translateable data yet?
+-			
++
+ 			public ushort[]		PRETREE_table;
+ 			public byte[]		PRETREE_len;
+ 			public ushort[]		MAINTREE_table;
+@@ -696,7 +696,7 @@ namespace Microsoft.Xna.Framework.Content
+ 			public byte[]		LENGTH_len;
+ 			public ushort[]		ALIGNED_table;
+ 			public byte[]		ALIGNED_len;
+-			
++
+ 			/* NEEDED MEMBERS
+ 			 * CAB actualsize
+ 			 * CAB window
+@@ -709,7 +709,7 @@ namespace Microsoft.Xna.Framework.Content
+ 			public uint		window_posn;
+ 		}
+ 	}
+-	
++
+ 	// CONSTANTS
+ 	struct LzxConstants {
+ 		public const ushort MIN_MATCH =				2;
+@@ -725,7 +725,7 @@ namespace Microsoft.Xna.Framework.Content
+ 		public const ushort ALIGNED_NUM_ELEMENTS =	8;
+ 		public const ushort NUM_PRIMARY_LENGTHS =	7;
+ 		public const ushort NUM_SECONDARY_LENGTHS = 249;
+-		
++
+ 		public const ushort PRETREE_MAXSYMBOLS = 	PRETREE_NUM_ELEMENTS;
+ 		public const ushort PRETREE_TABLEBITS =		6;
+ 		public const ushort MAINTREE_MAXSYMBOLS = 	NUM_CHARS + 50*8;
+@@ -734,10 +734,10 @@ namespace Microsoft.Xna.Framework.Content
+ 		public const ushort LENGTH_TABLEBITS =		12;
+ 		public const ushort ALIGNED_MAXSYMBOLS = 	ALIGNED_NUM_ELEMENTS;
+ 		public const ushort ALIGNED_TABLEBITS = 	7;
+-				
++
+ 		public const ushort LENTABLE_SAFETY =		64;
+ 	}
+-	
++
+ 	// EXCEPTIONS
+ 	class UnsupportedWindowSizeRange : Exception
+ 	{
+diff --git a/src/FNAPlatform/ModernGLDevice.cs b/src/FNAPlatform/ModernGLDevice.cs
+index cdbd070..e6d5b18 100644
+--- a/src/FNAPlatform/ModernGLDevice.cs
++++ b/src/FNAPlatform/ModernGLDevice.cs
+@@ -8,7 +8,7 @@
+ #endregion
+ 
+ #region THREADED_GL Option
+-// #define THREADED_GL
++#define THREADED_GL
+ /* Ah, so I see you've run into some issues with threaded GL...
+  *
+  * This class is designed to handle rendering coming from multiple threads, but
+@@ -24,7 +24,7 @@
+ #endregion
+ 
+ #region DISABLE_THREADING Option
+-// #define DISABLE_THREADING
++//#define DISABLE_THREADING
+ /* Perhaps you read the above option and thought to yourself:
+  * "Wow, only an idiot would need threads for their graphics code!"
+  *
+diff --git a/src/FNAPlatform/OpenGLDevice.cs b/src/FNAPlatform/OpenGLDevice.cs
+index 166010e..71e3dc7 100644
+--- a/src/FNAPlatform/OpenGLDevice.cs
++++ b/src/FNAPlatform/OpenGLDevice.cs
+@@ -8,7 +8,7 @@
+ #endregion
+ 
+ #region THREADED_GL Option
+-// #define THREADED_GL
++#define THREADED_GL
+ /* Ah, so I see you've run into some issues with threaded GL...
+  *
+  * This class is designed to handle rendering coming from multiple threads, but
+@@ -24,7 +24,7 @@
+ #endregion
+ 
+ #region DISABLE_THREADING Option
+-// #define DISABLE_THREADING
++//#define DISABLE_THREADING
+ /* Perhaps you read the above option and thought to yourself:
+  * "Wow, only an idiot would need threads for their graphics code!"
+  *
+diff --git a/src/FNAPlatform/SDL2_FNAPlatform.cs b/src/FNAPlatform/SDL2_FNAPlatform.cs
+index d50a556..441f4c5 100644
+--- a/src/FNAPlatform/SDL2_FNAPlatform.cs
++++ b/src/FNAPlatform/SDL2_FNAPlatform.cs
+@@ -843,11 +843,11 @@ namespace Microsoft.Xna.Framework
+ 				{
+ 					if (SDL.SDL_GL_SetSwapInterval(-1) != -1)
+ 					{
+-						FNALoggerEXT.LogInfo("Using EXT_swap_control_tear VSync!");
++						//FNALoggerEXT.LogInfo("Using EXT_swap_control_tear VSync!");
+ 					}
+ 					else
+ 					{
+-						FNALoggerEXT.LogInfo("EXT_swap_control_tear unsupported. Fall back to standard VSync.");
++						//FNALoggerEXT.LogInfo("EXT_swap_control_tear unsupported. Fall back to standard VSync.");
+ 						SDL.SDL_ClearError();
+ 						SDL.SDL_GL_SetSwapInterval(1);
+ 					}

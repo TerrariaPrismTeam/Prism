@@ -261,7 +261,7 @@ namespace Prism
                 IsInInit = false;
             }
 
-            ModLoader.Load();
+            ModLoader.Load(); // TODO: we might want to call this AFTER everything is JITed
 
             Handler.DefaultColourLookupLength = MapHelper.colorLookup.Length;
 

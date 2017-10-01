@@ -92,8 +92,8 @@ namespace Prism.Debugging
             var sb = new StringBuilder();
 
             var utc = DateTime.UtcNow;
-            sb.Append(String.Format("[UTC {0:D2}:{1:D2}:{2:D2}] ",
-                        utc.Hour, utc.Minute, utc.Second)).Append(text);
+            sb.Append(String.Format("[UTC {0:D2}:{1:D2}:{2:D2}][{3}] ",
+                        utc.Hour, utc.Minute, utc.Second, severity)).Append(text);
 
             string s = sb.ToString();
             sw.WriteLine(s);

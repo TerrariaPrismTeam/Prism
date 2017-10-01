@@ -1,0 +1,7 @@
+This patch is based on aea567507f24e710f3153a540966dfe823eebba3 . It:
+* Fixes some assets not loading correctly (BUG: it's creating a GLTexture on a different thread!)
+* Adds more SDL stuff, because I can
+* Speeds up some methods on DynamicSoundEffectInstance
+* Suppresses some logging information
+* Fixes some bad indentation habits >:D
+* Makes one internal method public, because it's used somewhere
