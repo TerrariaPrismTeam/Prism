@@ -309,14 +309,14 @@ namespace Prism.API
         internal GameBehaviour CreateGameBInternally()
         {
             var r = CreateGameBehaviour();
-            if (Mod.HasValue)
+            if (r != null && Mod.HasValue)
                 r.Adopt(Mod.Value);
             return r;
         }
         internal PlayerBehaviour CreatePlayerBInternally()
         {
             var r = CreatePlayerBehaviour();
-            if (Mod.HasValue)
+            if (r != null && Mod.HasValue)
                 r.Adopt(Mod.Value);
             return r;
         }
@@ -324,42 +324,42 @@ namespace Prism.API
         internal BuffBehaviour CreateGlobalBuffBInternally()
         {
             var r = CreateGlobalBuffBehaviour();
-            if (Mod.HasValue)
+            if (r != null && Mod.HasValue)
                 r.Adopt(Mod.Value);
             return r;
         }
         internal ItemBehaviour CreateGlobalItemBInternally()
         {
             var r = CreateGlobalItemBehaviour();
-            if (Mod.HasValue)
+            if (r != null && Mod.HasValue)
                 r.Adopt(Mod.Value);
             return r;
         }
         internal MountBehaviour CreateGlobalMountBInternally()
         {
             var r = CreateGlobalMountBehaviour();
-            if (Mod.HasValue)
+            if (r != null && Mod.HasValue)
                 r.Adopt(Mod.Value);
             return r;
         }
         internal NpcBehaviour CreateGlobalNpcBInternally()
         {
             var r = CreateGlobalNpcBehaviour();
-            if (Mod.HasValue)
+            if (r != null && Mod.HasValue)
                 r.Adopt(Mod.Value);
             return r;
         }
         internal ProjectileBehaviour CreateGlobalProjBInternally()
         {
             var r = CreateGlobalProjectileBehaviour();
-            if (Mod.HasValue)
+            if (r != null && Mod.HasValue)
                 r.Adopt(Mod.Value);
             return r;
         }
         internal TileBehaviour CreateGlobalTileBInternally()
         {
             var r = CreateGlobalTileBehaviour();
-            if (Mod.HasValue)
+            if (r != null && Mod.HasValue)
                 r.Adopt(Mod.Value);
             return r;
         }
