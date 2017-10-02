@@ -199,7 +199,7 @@
     <Compile Include="Mods\DefHandlers\NDH_SetDefaults.cs" />
     <Compile Include="Mods\DefHandlers\RecipeDefHandler.cs" />
     <Compile Include="Mods\DefHandlers\TileDefHandler.cs" />
-    <Compile Include="Mods\Hooks\GameHooks.cs" />
+    <Compile Include="Mods\BHandlers\GameBHandler.cs" />
     <Compile Include="Mods\Hooks\ItemHooks.cs" />
     <Compile Include="Mods\Hooks\NpcHooks.cs" />
     <Compile Include="Mods\Hooks\PlayerHooks.cs" />
@@ -230,7 +230,7 @@
     <Compile Include="Mods\Hooks\Attributes.cs" />
     <Compile Include="Mods\Hooks\HookContainer.cs" />
     <Compile Include="Mods\Hooks\HookManager.cs" />
-    <Compile Include="Mods\Hooks\ModDefHooks.cs" />
+    <Compile Include="Mods\BHandlers\ModDefHookMgr.cs" />
     <Compile Include="Mods\ModInfo.cs" />
     <Compile Include="ExceptionHandler.cs" />
     <Compile Include="Mods\LoaderError.cs" />

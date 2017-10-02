@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Prism.API;
 using Prism.API.Audio;
+using Prism.Mods.Hooks;
 using Terraria;
 
-namespace Prism.Mods.Hooks
+namespace Prism.Mods.BHandlers
 {
-    class ModDefHooks : IHookManager
+    class ModDefHookMgr : IHookManager
     {
         IEnumerable<Action>
             onAllModsLoaded,

@@ -6,6 +6,7 @@ using System.Reflection;
 using Prism.API;
 using Prism.API.Behaviours;
 using Prism.Debugging;
+using Prism.Mods.BHandlers;
 using Prism.Util;
 
 namespace Prism.Mods.Hooks
@@ -44,8 +45,8 @@ namespace Prism.Mods.Hooks
 
         internal static void Create()
         {
-            RegisterManager(typeof(ModDef       ), ModDef        = new ModDefHooks());
-            RegisterManager(typeof(GameBehaviour), GameBehaviour = new GameHooks  ());
+            RegisterManager(typeof(ModDef       ), ModDef        = new ModDefHookMgr());
+            RegisterManager(typeof(GameBehaviour), GameBehaviour = new GameBHandler ());
 
             foreach (var v in managers.Values)
                 v.Create();
@@ -154,7 +155,7 @@ namespace Prism.Mods.Hooks
             managers.Add(containerType, hookMgr);
         }
 
-        internal static ModDefHooks ModDef;
-        internal static GameHooks GameBehaviour;
+        internal static ModDefHookMgr ModDef;
+        internal static GameBHandler  GameBehaviour;
     }
 }

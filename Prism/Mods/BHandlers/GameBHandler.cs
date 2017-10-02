@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Prism.API.Audio;
 using Prism.API.Behaviours;
-using Prism.Mods.BHandlers;
+using Prism.Mods.Hooks;
 using Terraria;
-using Microsoft.Xna.Framework;
 
-namespace Prism.Mods.Hooks
+namespace Prism.Mods.BHandlers
 {
-    sealed class GameHooks : IOBHandler<GameBehaviour>
+    sealed class GameBHandler : IOBHandler<GameBehaviour>
     {
         IEnumerable<Action>
             preUpdate, postUpdate, onUpdateKeyboard,

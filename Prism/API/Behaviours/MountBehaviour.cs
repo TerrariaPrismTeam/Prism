@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Prism.Mods;
 using Prism.Mods.Hooks;
 using Terraria;
 using Terraria.DataStructures;
@@ -20,6 +21,13 @@ namespace Prism.API.Behaviours
         {
             get;
             internal set;
+        }
+
+        internal void Adopt(ModInfo inf)
+        {
+            ModDef m;
+            if (ModData.mods.TryGetValue(inf, out m))
+                Mod = m;
         }
 
         [Hook]

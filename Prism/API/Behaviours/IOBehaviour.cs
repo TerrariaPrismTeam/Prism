@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Prism.IO;
+using Prism.Mods;
 using Prism.Mods.Hooks;
 
 namespace Prism.API.Behaviours
@@ -12,6 +13,13 @@ namespace Prism.API.Behaviours
         {
             get;
             internal set;
+        }
+
+        internal void Adopt(ModInfo inf)
+        {
+            ModDef m;
+            if (ModData.mods.TryGetValue(inf, out m))
+                Mod = m;
         }
 
         [Hook]
