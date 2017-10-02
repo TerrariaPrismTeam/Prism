@@ -166,7 +166,15 @@ namespace Prism.API
         }
 
         /// <summary>Sends a message to a mod.</summary>
-        public virtual object Call(string id, params object[] args)
+        public object Call(string id, params object[] args)
+        {
+            return OnCall(ModData.ModFromAssembly(Assembly.GetCallingAssembly()), id, args);
+        }
+
+        /// <summary>
+        /// A hook called when a mod sends a message to this mod.
+        /// </summary>
+        protected virtual object OnCall(ModDef calling, string id, params object[] args)
         {
             return null;
         }
@@ -175,7 +183,7 @@ namespace Prism.API
         {
             ModDef m;
             if (ModData.modsFromInternalName.TryGetValue(toCall, out m))
-                return m.Call(id, args);
+                return m.OnCall(m, id, args);
             return null;
         }
         /// <summary>Sends a message to a mod identified by its ModInfo.</summary>
@@ -183,14 +191,14 @@ namespace Prism.API
         {
             ModDef m;
             if (ModData.mods.TryGetValue(toCall, out m))
-                return m.Call(id, args);
+                return m.OnCall(m, id, args);
             return null;
         }
         /// <summary>Sends a message to all mods, EXCEPT THE CALLING MOD.</summary>
         public static object[] CallAll(string id, params object[] args)
         {
             var self = ModData.ModFromAssembly(Assembly.GetCallingAssembly());
-            return ModData.mods.Where(kvp => kvp.Value != self).Select(kvp => kvp.Value.Call(id, args)).ToArray();
+            return ModData.mods.Where(kvp => kvp.Value != self).Select(kvp => kvp.Value.OnCall(self, id, args)).ToArray();
         }
 
         /// <summary>
