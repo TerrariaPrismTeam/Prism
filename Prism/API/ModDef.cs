@@ -165,6 +165,34 @@ namespace Prism.API
             return CreateContentHandler();
         }
 
+        /// <summary>Sends a message to a mod.</summary>
+        public virtual object Call(string id, params object[] args)
+        {
+            return null;
+        }
+        /// <summary>Sends a message to a mod identified by its internal name.</summary>
+        public static object CallMod(string toCall, string id, params object[] args)
+        {
+            ModDef m;
+            if (ModData.modsFromInternalName.TryGetValue(toCall, out m))
+                return m.Call(id, args);
+            return null;
+        }
+        /// <summary>Sends a message to a mod identified by its ModInfo.</summary>
+        public static object CallMod(ModInfo toCall, string id, params object[] args)
+        {
+            ModDef m;
+            if (ModData.mods.TryGetValue(toCall, out m))
+                return m.Call(id, args);
+            return null;
+        }
+        /// <summary>Sends a message to all mods, EXCEPT THE CALLING MOD.</summary>
+        public static object[] CallAll(string id, params object[] args)
+        {
+            var self = ModData.ModFromAssembly(Assembly.GetCallingAssembly());
+            return ModData.mods.Where(kvp => kvp.Value != self).Select(kvp => kvp.Value.Call(id, args)).ToArray();
+        }
+
         /// <summary>
         /// Disposes of resources.
         /// </summary>
