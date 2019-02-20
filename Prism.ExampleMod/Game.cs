@@ -38,7 +38,7 @@ namespace Prism.ExampleMod
             var p = Main.player[Main.myPlayer];
             Point me = p.Center.ToPoint();
 
-            #region asdfasdfasdf
+            #region Press I for test items
             if (GetKey(Keys.I, KeyState.Down))
                 foreach (var kvp in ExampleMod.Mod.TestItems)
                     Item.NewItem(me.X, me.Y, 1, 1, kvp.Key, kvp.Value, false, 0, true, false);
